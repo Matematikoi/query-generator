@@ -40,6 +40,7 @@ lint    = { features = ["lint"], solve-group = "default" }
 [tool.pixi.tasks]
 #lint = "ruff format src/"
 main = "python src/query_generator/main.py"
+commit = { cmd = "fossil commit", depends_on = ["lint", "test"]}
 
 [tool.pixi.feature.lint.tasks]
 lint = "ruff format src/"
