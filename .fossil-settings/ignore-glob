@@ -1,3 +1,5 @@
 .pixi/*
 pixi.lock
-
+.ruff_cache/
+.idea/
+.pytest_cache/
