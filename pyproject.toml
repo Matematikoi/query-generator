@@ -31,6 +31,7 @@ pytest = "*"
 
 [tool.pixi.feature.lint.dependencies]
 ruff = "*"
+mypy = "*"
 
 [tool.pixi.environments]
 default = { features = [], solve-group = "default" }
@@ -40,10 +41,13 @@ lint    = { features = ["lint"], solve-group = "default" }
 [tool.pixi.tasks]
 #lint = "ruff format src/"
 main = "python src/query_generator/main.py"
-commit = { cmd = "fossil commit", depends_on = ["lint", "test"]}
+commit = { cmd = "fossil commit", depends-on = ["lint", "test"]}
 
 [tool.pixi.feature.lint.tasks]
-lint = "ruff format src/"
+format = "ruff format src tests"
+check = "ruff check --fix src tests"
+typing = "mypy --strict src"
+lint = {depends-on = ["format","check","typing"]}
 
 [tool.pixi.feature.test.tasks]
 test = "pytest"
@@ -52,6 +56,21 @@ test = "pytest"
 # Set the maximum line length to 79.
 line-length = 79
 
-[tool.ruff.lint]
+# [tool.ruff.lint]
 # Add the `line-too-long` rule to the enforced rule set.
-extend-select = ["E501"]
+# extend-select = ["E501"]
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
