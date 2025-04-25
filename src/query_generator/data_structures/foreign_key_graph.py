@@ -1,6 +1,6 @@
 import copy
 from dataclasses import dataclass
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, List
 
 
 class ForeignKeyGraph:
@@ -45,7 +45,7 @@ class ForeignKeyGraph:
 
     self.populate_graph(copy.deepcopy(tables_schema))
 
-  def populate_graph(self, tables_schema: Dict[str, Dict[str, Any]] ) -> None:
+  def populate_graph(self, tables_schema: Dict[str, Dict[str, Any]]) -> None:
     """
     Populate the foreign key graph with edges based on the schema.
     This method iterates through each table and its foreign keys,
