@@ -1,6 +1,5 @@
 import os
 import random
-from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Dict, Iterator, List, Tuple
@@ -10,90 +9,25 @@ import pandas as pd
 from pypika import OracleQuery, Table
 from pypika import functions as fn
 
-from query_generator.data_structures.foreign_key_graph import ForeignKeyGraph
 from query_generator.database_schemas.tpcds import (
   get_tpcds_table_info,
 )
 from query_generator.database_schemas.tpch import (
   get_tpch_table_info,
 )
+
+# fmt: off
+from query_generator.join_based_query_generator.\
+  utils.subgraph_generator import (
+  SubGraphGenerator,
+)
+
+# fmt: on
+from query_generator.join_based_query_generator.utils.query_writer import (
+  QueryWriter,
+)
 from query_generator.utils.definitions import Dataset
-
-
-class GraphExploredError(Exception):
-  pass
-
-
-class SubGraphGenerator:
-  def __init__(
-    self,
-    tables_schema: Dict[str, Dict[str, Any]],
-    keep_edge_prob: float = 0.5,
-    max_hops: int = 2,
-  ) -> None:
-    self.hops = max_hops
-    self.keep_edge_prob = keep_edge_prob
-    self.graph = ForeignKeyGraph(tables_schema)
-    self.seen_subgraphs: Dict[int, bool] = {}
-
-  def get_random_subgraph(self, fact_table: str) -> List[ForeignKeyGraph.Edge]:
-    """
-    Starting from the fact table, for each edge of the current table we
-    decide based on the keep_edge_probability whether to keep the edge or not.
-
-    We repeat this process up until the maximum number of hops.
-    """
-
-    @dataclass
-    class JoinDepthNode:
-      table: str
-      depth: int
-
-    queue: deque[JoinDepthNode] = deque()
-    queue.append(JoinDepthNode(fact_table, 0))
-    edges_subgraph = []
-
-    while queue:
-      current_node = queue.popleft()
-      if current_node.depth >= self.hops:
-        continue
-
-      current_edges = self.graph.get_edges(current_node.table)
-      for current_edge in current_edges:
-        if random.random() < self.keep_edge_prob:
-          edges_subgraph.append(current_edge)
-          queue.append(
-            JoinDepthNode(
-              current_edge.reference_table.name, current_node.depth + 1
-            )
-          )
-
-    return edges_subgraph
-
-  def get_unseen_random_subgraph(
-    self, fact_table: str
-  ) -> list[ForeignKeyGraph.Edge]:
-    """
-    Generate a random subgraph starting from the fact table.
-    Args:
-        fact_table (str): Name of the fact table.
-    Returns:
-        List[ForeignKeyGraph.Edge]: List of edges in the generated subgraph.
-    """
-    cnt = 0
-    while True:
-      cnt += 1
-      if cnt > 1000:
-        raise GraphExploredError(
-          "Unable to find a new subgraph after 1000 attempts."
-        )
-      edges = self.get_random_subgraph(fact_table)
-      edges_signature = self.graph.get_subgraph_signature(edges)
-      if len(edges) == 0:
-        continue  # no edges found, retry
-      if edges_signature not in self.seen_subgraphs:
-        self.seen_subgraphs[edges_signature] = True
-        return edges
+from query_generator.utils.exceptions import GraphExploredError
 
 
 class PredicateGenerator:
@@ -248,23 +182,6 @@ class QueryBuilder:
     return queries
 
 
-class QueryWriter:
-  def __init__(self, output_dir: str) -> None:
-    self.output_dir = output_dir
-    if not os.path.exists(self.output_dir):
-      os.makedirs(self.output_dir)
-
-  def write_query(self, query: str, file_name: str) -> None:
-    """
-    Write the generated queries to a file.
-    Args:
-        queries (List[str]): List of SQL queries.
-        file_name (str): Name of the output file.
-    """
-    with open(os.path.join(self.output_dir, file_name), "w") as f:
-      f.write(query)
-
-
 def generate_and_write_queries(
   schema_function: Callable[[], Tuple[Dict[str, Dict[str, Any]], List[str]]],
   max_hops: int,
@@ -306,8 +223,8 @@ def generate_and_write_queries(
         print(
           f"{fact_table} made a a total of {query_signature_count} signatures"
         )
-
         break
+
       if query_signature_count == max_signatures_per_fact_table - 1:
         print(
           f"{fact_table} made a total of {query_signature_count} signatures"
