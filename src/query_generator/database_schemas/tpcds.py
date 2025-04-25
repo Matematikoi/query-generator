@@ -1,8 +1,8 @@
+from typing import Dict, List, Tuple, Any
 
-
-def get_tpcds_table_info() -> tuple[dict[str, dict], list[str]]:
+def get_tpcds_table_info() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
   # using all the numerical columns from the TPC-DS schema (like JOB)
-  tables: dict[str, dict] = {
+  tables: Dict[str, Dict[str, Any]] = {
     "call_center": {
       "alias": "cc",
       "columns": {
@@ -166,13 +166,13 @@ def get_tpcds_table_info() -> tuple[dict[str, dict], list[str]]:
         "cs_catalog_page_sk": {"max": 17108, "min": 1},
         "cs_coupon_amt": {"max": 28730.0, "min": 0.0},
         "cs_ext_discount_amt": {"max": 29904.0, "min": 0.0},
-        "cs_ext_list_price": {"max": 29994.0, "min": 1.0},
+        "cs_ext_List_price": {"max": 29994.0, "min": 1.0},
         "cs_ext_sales_price": {"max": 29787.0, "min": 0.0},
         "cs_ext_ship_cost": {"max": 14992.0, "min": 0.0},
         "cs_ext_tax": {"max": 2612.83, "min": 0.0},
         "cs_ext_wholesale_cost": {"max": 10000.0, "min": 1.0},
         "cs_item_sk": {"max": 204000, "min": 1},
-        "cs_list_price": {"max": 300.0, "min": 1.0},
+        "cs_List_price": {"max": 300.0, "min": 1.0},
         "cs_net_paid": {"max": 29787.0, "min": 0.0},
         "cs_net_paid_inc_ship": {"max": 43777.0, "min": 0.0},
         "cs_net_paid_inc_ship_tax": {"max": 46367.65, "min": 0.0},
@@ -528,13 +528,13 @@ def get_tpcds_table_info() -> tuple[dict[str, dict], list[str]]:
         "ss_coupon_amt": {"max": 19120.7, "min": 0.0},
         "ss_customer_sk": {"max": 2000000, "min": 1},
         "ss_ext_discount_amt": {"max": 19120.7, "min": 0.0},
-        "ss_ext_list_price": {"max": 20000.0, "min": 1.0},
+        "ss_ext_List_price": {"max": 20000.0, "min": 1.0},
         "ss_ext_sales_price": {"max": 19972.0, "min": 0.0},
         "ss_ext_tax": {"max": 1797.48, "min": 0.0},
         "ss_ext_wholesale_cost": {"max": 10000.0, "min": 1.0},
         "ss_hdemo_sk": {"max": 7200, "min": 1},
         "ss_item_sk": {"max": 204000, "min": 1},
-        "ss_list_price": {"max": 200.0, "min": 1.0},
+        "ss_List_price": {"max": 200.0, "min": 1.0},
         "ss_net_paid": {"max": 19972.0, "min": 0.0},
         "ss_net_paid_inc_tax": {"max": 21769.48, "min": 0.0},
         "ss_net_profit": {"max": 9986.0, "min": -10000.0},
@@ -746,13 +746,13 @@ def get_tpcds_table_info() -> tuple[dict[str, dict], list[str]]:
         "ws_bill_hdemo_sk": {"max": 7200, "min": 1},
         "ws_coupon_amt": {"max": 27913.05, "min": 0.0},
         "ws_ext_discount_amt": {"max": 29767.0, "min": 0.0},
-        "ws_ext_list_price": {"max": 30000.0, "min": 1.01},
+        "ws_ext_List_price": {"max": 30000.0, "min": 1.01},
         "ws_ext_sales_price": {"max": 29943.0, "min": 0.0},
         "ws_ext_ship_cost": {"max": 14915.0, "min": 0.0},
         "ws_ext_tax": {"max": 2673.27, "min": 0.0},
         "ws_ext_wholesale_cost": {"max": 10000.0, "min": 1.0},
         "ws_item_sk": {"max": 204000, "min": 1},
-        "ws_list_price": {"max": 300.0, "min": 1.0},
+        "ws_List_price": {"max": 300.0, "min": 1.0},
         "ws_net_paid": {"max": 29943.0, "min": 0.0},
         "ws_net_paid_inc_ship": {"max": 42919.59, "min": 0.0},
         "ws_net_paid_inc_ship_tax": {"max": 44853.29, "min": 0.0},

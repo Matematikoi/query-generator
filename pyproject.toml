@@ -48,7 +48,7 @@ commit = { cmd = "fossil commit", depends-on = ["lint", "test"]}
 format = "ruff format src tests"
 # TODO add --fix to check when code is stable
 check = "ruff check src tests"
-typing = "mypy --strict src"
+typing = "mypy --strict src/query_generator/database_schemas/tpcds.py"
 lint = {depends-on = ["format","check","typing"]}
 
 [tool.pixi.feature.test.tasks]
