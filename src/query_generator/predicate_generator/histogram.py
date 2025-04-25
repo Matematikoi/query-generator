@@ -1,3 +1,4 @@
+import math
 import random
 from dataclasses import dataclass
 from typing import Iterator, List, Tuple
@@ -83,11 +84,12 @@ class PredicateGenerator:
         tuple: Tuple containing min and max values.
     """
     number_array: List[int | float] = eval(bins)
-    subrange_length = max(
-      1, round(row_retention_probability / 100 * len(number_array))
-    )
+    subrange_length = math.ceil(row_retention_probability * len(number_array))
+    print(f"Subrange length: {subrange_length}")
     start_index = random.randint(0, len(number_array) - subrange_length)
 
     min_value = number_array[start_index]
-    max_value = number_array[start_index + subrange_length - 1]
+    max_value = number_array[
+      min(start_index + subrange_length, len(number_array) - 1)
+    ]
     return min_value, max_value
