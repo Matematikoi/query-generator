@@ -314,13 +314,25 @@ def generate_and_write_queries(
         )
 
 
-def main() -> None:
+def run_snowflake_generator(
+  benchmark: BenchmarkType, max_hops: int, max_queries_per_template: int
+) -> None:
   seed = 80
   np.random.seed(seed)
   random.seed(seed)
-  generate_and_write_queries(get_tpch_table_info, 4, 5, BenchmarkType.TPCH)
-  generate_and_write_queries(get_tpcds_table_info, 2, 1, BenchmarkType.TPCDS)
-
-
-if __name__ == "__main__":
-  main()
+  if benchmark == BenchmarkType.TPCH:
+    generate_and_write_queries(
+      get_tpch_table_info,
+      max_hops,
+      max_queries_per_template,
+      BenchmarkType.TPCH,
+    )
+  elif benchmark == BenchmarkType.TPCDS:
+    generate_and_write_queries(
+      get_tpcds_table_info,
+      max_hops,
+      max_queries_per_template,
+      BenchmarkType.TPCDS,
+    )
+  else:
+    raise ValueError(f"Unsupported benchmark: {benchmark}")
