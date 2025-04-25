@@ -1,11 +1,8 @@
-import os
 import random
 from collections.abc import Callable
-from dataclasses import dataclass
-from typing import Any, Dict, Iterator, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
-import pandas as pd
 from pypika import OracleQuery, Table
 from pypika import functions as fn
 
@@ -26,99 +23,9 @@ from query_generator.join_based_query_generator.\
 from query_generator.join_based_query_generator.utils.query_writer import (
   QueryWriter,
 )
+from query_generator.predicate_generator.histogram import PredicateGenerator
 from query_generator.utils.definitions import Dataset
 from query_generator.utils.exceptions import GraphExploredError
-
-
-class PredicateGenerator:
-  @dataclass
-  class Predicate:
-    table: str
-    column: str
-    min_value: float | int
-    max_value: float | int
-
-  def __init__(self, benchmark: Dataset):
-    self.histogram: pd.DataFrame = self.read_histogram(benchmark)
-
-  def read_histogram(self, benchmark: Dataset) -> pd.DataFrame:
-    """
-    Read the histogram data for the specified benchmark.
-    Args:
-        benchmark (BenchmarkType): The benchmark type (TPCH or TPCDS).
-    Returns:
-        pd.DataFrame: DataFrame containing the histogram data.
-    """
-    current_file_path = os.path.abspath(__file__)
-    parent_dir = current_file_path
-    for _ in range(4):
-      parent_dir = os.path.dirname(parent_dir)
-
-    if benchmark == Dataset.TPCH:
-      df = pd.read_csv(
-        os.path.join(parent_dir, "data/histograms/raw_tpch_hist.csv")
-      )
-    elif benchmark == Dataset.TPCDS:
-      df = pd.read_csv(
-        os.path.join(parent_dir, "data/histograms/raw_tpcds_hist.csv")
-      )
-    else:
-      raise ValueError(f"Unsupported benchmark histogram: {benchmark}")
-    # Remove rows with empty bins or that are dates
-    df = df[(df["bins"] != "[]") & (df["dtype"] != "date")]
-    return df
-
-  def get_random_predicates(
-    self,
-    tables: List[str],
-    num_predicates: int,
-    row_retention_probability: float = 0.2,
-  ) -> Iterator["PredicateGenerator.Predicate"]:
-    """
-    Generate random predicates based on the histogram data.
-    Args:
-        tables (str): List of tables to select predicates from.
-        num_predicates (int): Number of predicates to generate.
-        row_retention_probability (float): Probability of retaining rows.
-    Returns:
-        List[PredicateGenerator.Predicate]: List of generated predicates.
-    """
-    selected_tables_histogram = self.histogram[
-      self.histogram["table"].isin(tables)
-    ]
-
-    for _, row in selected_tables_histogram.sample(num_predicates).iterrows():
-      table = row["table"]
-      column = row["column"]
-      bins = row["bins"]
-      min_value, max_value = self._get_min_max_from_bins(
-        bins, row_retention_probability
-      )
-      predicate = PredicateGenerator.Predicate(
-        table=table, column=column, min_value=min_value, max_value=max_value
-      )
-      yield predicate
-
-  def _get_min_max_from_bins(
-    self, bins: str, row_retention_probability: float
-  ) -> Tuple[float | int, float | int]:
-    """
-    Convert the bins string representation to a tuple of min and max values.
-    Args:
-        bins (str): String representation of bins.
-        row_retention_probability (float): Probability of retaining rows.
-    Returns:
-        tuple: Tuple containing min and max values.
-    """
-    number_array: List[int | float] = eval(bins)
-    subrange_length = max(
-      1, round(row_retention_probability / 100 * len(number_array))
-    )
-    start_index = random.randint(0, len(number_array) - subrange_length)
-
-    min_value = number_array[start_index]
-    max_value = number_array[start_index + subrange_length - 1]
-    return min_value, max_value
 
 
 class QueryBuilder:
