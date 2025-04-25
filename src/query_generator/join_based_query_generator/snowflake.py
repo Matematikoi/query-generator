@@ -123,13 +123,13 @@ class PredicateGenerator:
     if benchmark == BenchmarkType.TPCH:
       df = pd.read_csv(
         os.path.join(
-          parent_dir, "playground/assets/data_stats/raw_tpch_hist.csv"
+          parent_dir, "data/histograms/raw_tpch_hist.csv"
         )
       )
     elif benchmark == BenchmarkType.TPCDS:
       df = pd.read_csv(
         os.path.join(
-          parent_dir, "playground/assets/data_stats/raw_tpcds_hist.csv"
+          parent_dir, "data/histograms/raw_tpcds_hist.csv"
         )
       )
     else:
@@ -292,10 +292,7 @@ def generate_and_write_queries(
   for fact_table in fact_tables:
     for query_signature_count in range(max_signatures_per_fact_table):
       query_writer = QueryWriter(
-        os.path.join(
-          os.path.dirname(os.path.abspath(__file__)),
-          f"generated_queries/{benchmark.value}/{cnt}",
-        )
+          f"data/generated_queries/snowflake/{benchmark.value}/{cnt}"
       )
       try:
         for idx, query in enumerate(

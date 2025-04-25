@@ -39,7 +39,7 @@ class ForeignKeyGraph:
         tables_schema (Dict[str, Dict[str, Any]]):
         Dictionary containing the schema of the tables.
     """
-    self.tables = List(tables_schema.keys())
+    self.tables = list(tables_schema.keys())
     self.table_to_index = {name: i for i, name in enumerate(self.tables)}
     self.graph: List[List[ForeignKeyGraph.Edge]] = [[] for _ in self.tables]
 
