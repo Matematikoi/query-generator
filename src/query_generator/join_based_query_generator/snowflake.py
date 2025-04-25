@@ -138,6 +138,8 @@ def generate_and_write_queries(
         )
 
 
+# TODO query writer should happen at this level
+# TODO query subgraph should also happen at this level
 def run_snowflake_generator(
   dataset: Dataset, max_hops: int, max_queries_per_template: int
 ) -> None:
