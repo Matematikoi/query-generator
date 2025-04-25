@@ -17,7 +17,7 @@ from query_generator.database_schemas.tpcds import (
 from query_generator.database_schemas.tpch import (
   get_tpch_table_info,
 )
-from query_generator.utils.definitions import BenchmarkType
+from query_generator.utils.definitions import Dataset
 
 
 class GraphExploredError(Exception):
@@ -104,10 +104,10 @@ class PredicateGenerator:
     min_value: float | int
     max_value: float | int
 
-  def __init__(self, benchmark: BenchmarkType):
+  def __init__(self, benchmark: Dataset):
     self.histogram: pd.DataFrame = self.read_histogram(benchmark)
 
-  def read_histogram(self, benchmark: BenchmarkType) -> pd.DataFrame:
+  def read_histogram(self, benchmark: Dataset) -> pd.DataFrame:
     """
     Read the histogram data for the specified benchmark.
     Args:
@@ -120,11 +120,11 @@ class PredicateGenerator:
     for _ in range(4):
       parent_dir = os.path.dirname(parent_dir)
 
-    if benchmark == BenchmarkType.TPCH:
+    if benchmark == Dataset.TPCH:
       df = pd.read_csv(
         os.path.join(parent_dir, "data/histograms/raw_tpch_hist.csv")
       )
-    elif benchmark == BenchmarkType.TPCDS:
+    elif benchmark == Dataset.TPCDS:
       df = pd.read_csv(
         os.path.join(parent_dir, "data/histograms/raw_tpcds_hist.csv")
       )
@@ -191,7 +191,7 @@ class QueryBuilder:
   def __init__(
     self,
     tables_schema: Dict[str, Dict[str, Any]],
-    benchmark: BenchmarkType,
+    benchmark: Dataset,
     **kwargs: Any,
   ) -> None:
     self.sub_graph_gen = SubGraphGenerator(tables_schema, **kwargs)
@@ -269,7 +269,7 @@ def generate_and_write_queries(
   schema_function: Callable[[], Tuple[Dict[str, Dict[str, Any]], List[str]]],
   max_hops: int,
   max_queries_per_signature: int,
-  benchmark: BenchmarkType = BenchmarkType.TPCDS,
+  benchmark: Dataset = Dataset.TPCDS,
 ) -> None:
   """
   Generate random SQL queries for a given schema and benchmark.
@@ -315,24 +315,24 @@ def generate_and_write_queries(
 
 
 def run_snowflake_generator(
-  benchmark: BenchmarkType, max_hops: int, max_queries_per_template: int
+  benchmark: Dataset, max_hops: int, max_queries_per_template: int
 ) -> None:
   seed = 80
   np.random.seed(seed)
   random.seed(seed)
-  if benchmark == BenchmarkType.TPCH:
+  if benchmark == Dataset.TPCH:
     generate_and_write_queries(
       get_tpch_table_info,
       max_hops,
       max_queries_per_template,
-      BenchmarkType.TPCH,
+      Dataset.TPCH,
     )
-  elif benchmark == BenchmarkType.TPCDS:
+  elif benchmark == Dataset.TPCDS:
     generate_and_write_queries(
       get_tpcds_table_info,
       max_hops,
       max_queries_per_template,
-      BenchmarkType.TPCDS,
+      Dataset.TPCDS,
     )
   else:
     raise ValueError(f"Unsupported benchmark: {benchmark}")
