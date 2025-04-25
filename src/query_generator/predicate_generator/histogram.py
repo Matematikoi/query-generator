@@ -85,7 +85,6 @@ class PredicateGenerator:
     """
     number_array: List[int | float] = eval(bins)
     subrange_length = math.ceil(row_retention_probability * len(number_array))
-    print(f"Subrange length: {subrange_length}")
     start_index = random.randint(0, len(number_array) - subrange_length)
 
     min_value = number_array[start_index]
