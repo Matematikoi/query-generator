@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class BenchmarkType(Enum):
-    TPCDS = "TPCDS"
-    TPCH = "TPCH"
+  TPCDS = "TPCDS"
+  TPCH = "TPCH"

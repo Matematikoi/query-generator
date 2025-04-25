@@ -3,21 +3,22 @@ import random
 from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Any, Dict, Iterator, List, Tuple
 
 import numpy as np
 import pandas as pd
 from pypika import OracleQuery, Table
 from pypika import functions as fn
+
+from query_generator.data_structures.foreign_key_graph import ForeignKeyGraph
 from query_generator.database_schemas.tpcds import (
   get_tpcds_table_info,
 )
 from query_generator.database_schemas.tpch import (
   get_tpch_table_info,
 )
-from query_generator.data_structures.foreign_key_graph import ForeignKeyGraph
-# from udao_trace.utils.interface import BenchmarkType
 from query_generator.utils.definitions import BenchmarkType
-from typing import Any, Dict, List, Tuple, Iterator
+
 
 class GraphExploredError(Exception):
   pass
@@ -28,12 +29,12 @@ class SubGraphGenerator:
     self,
     tables_schema: Dict[str, Dict[str, Any]],
     keep_edge_prob: float = 0.5,
-    max_hops:int=2,
+    max_hops: int = 2,
   ) -> None:
     self.hops = max_hops
     self.keep_edge_prob = keep_edge_prob
     self.graph = ForeignKeyGraph(tables_schema)
-    self.seen_subgraphs : Dict[int,bool] = {}
+    self.seen_subgraphs: Dict[int, bool] = {}
 
   def get_random_subgraph(self, fact_table: str) -> List[ForeignKeyGraph.Edge]:
     """
@@ -138,7 +139,10 @@ class PredicateGenerator:
     return df
 
   def get_random_predicates(
-    self, tables: List[str], num_predicates: int, row_retention_probability:float =0.2
+    self,
+    tables: List[str],
+    num_predicates: int,
+    row_retention_probability: float = 0.2,
   ) -> Iterator["PredicateGenerator.Predicate"]:
     """
     Generate random predicates based on the histogram data.
@@ -166,7 +170,7 @@ class PredicateGenerator:
       yield predicate
 
   def _get_min_max_from_bins(
-    self, bins: str, row_retention_probability:float
+    self, bins: str, row_retention_probability: float
   ) -> Tuple[float | int, float | int]:
     """
     Convert the bins string representation to a tuple of min and max values.
@@ -176,8 +180,10 @@ class PredicateGenerator:
     Returns:
         tuple: Tuple containing min and max values.
     """
-    number_array : List[int|float] = eval(bins)
-    subrange_length = max(1, round(row_retention_probability / 100 * len(number_array)))
+    number_array: List[int | float] = eval(bins)
+    subrange_length = max(
+      1, round(row_retention_probability / 100 * len(number_array))
+    )
     start_index = random.randint(0, len(number_array) - subrange_length)
 
     min_value = number_array[start_index]
@@ -187,8 +193,11 @@ class PredicateGenerator:
 
 class QueryBuilder:
   def __init__(
-    self, tables_schema: Dict[str, Dict[str, Any]], benchmark: BenchmarkType, **kwargs: Any
-  )-> None:
+    self,
+    tables_schema: Dict[str, Dict[str, Any]],
+    benchmark: BenchmarkType,
+    **kwargs: Any,
+  ) -> None:
     self.sub_graph_gen = SubGraphGenerator(tables_schema, **kwargs)
     self.table_to_pypika_table = {
       i: Table(i, alias=tables_schema[i]["alias"]) for i in tables_schema
@@ -244,12 +253,12 @@ class QueryBuilder:
 
 
 class QueryWriter:
-  def __init__(self, output_dir: str) ->None:
+  def __init__(self, output_dir: str) -> None:
     self.output_dir = output_dir
     if not os.path.exists(self.output_dir):
       os.makedirs(self.output_dir)
 
-  def write_query(self, query: str, file_name: str)-> None:
+  def write_query(self, query: str, file_name: str) -> None:
     """
     Write the generated queries to a file.
     Args:
