@@ -122,15 +122,11 @@ class PredicateGenerator:
 
     if benchmark == BenchmarkType.TPCH:
       df = pd.read_csv(
-        os.path.join(
-          parent_dir, "data/histograms/raw_tpch_hist.csv"
-        )
+        os.path.join(parent_dir, "data/histograms/raw_tpch_hist.csv")
       )
     elif benchmark == BenchmarkType.TPCDS:
       df = pd.read_csv(
-        os.path.join(
-          parent_dir, "data/histograms/raw_tpcds_hist.csv"
-        )
+        os.path.join(parent_dir, "data/histograms/raw_tpcds_hist.csv")
       )
     else:
       raise ValueError(f"Unsupported benchmark histogram: {benchmark}")
@@ -292,7 +288,7 @@ def generate_and_write_queries(
   for fact_table in fact_tables:
     for query_signature_count in range(max_signatures_per_fact_table):
       query_writer = QueryWriter(
-          f"data/generated_queries/snowflake/{benchmark.value}/{cnt}"
+        f"data/generated_queries/snowflake/{benchmark.value}/{cnt}"
       )
       try:
         for idx, query in enumerate(
