@@ -1,4 +1,5 @@
-from typing import Dict, List, Tuple, Any
+from typing import Any, Dict, List, Tuple
+
 
 def get_tpcds_table_info() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
   # using all the numerical columns from the TPC-DS schema (like JOB)

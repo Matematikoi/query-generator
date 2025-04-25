@@ -26,6 +26,8 @@ query_generator = { path = ".", editable = true }
 typer = ">=0.15.2,<0.16"
 rich  = ">=14.0.0,<15"
 pypika = ">=0.48.9,<0.49"
+numpy = ">=2.2.5,<3"
+pandas = ">=2.2.3,<3"
 
 [tool.pixi.feature.test.dependencies]
 pytest = "*"
@@ -48,7 +50,8 @@ commit = { cmd = "fossil commit", depends-on = ["lint", "test"]}
 format = "ruff format src tests"
 # TODO add --fix to check when code is stable
 check = "ruff check src tests"
-typing = "mypy --strict src/query_generator/database_schemas/tpcds.py"
+typing = "mypy --strict src"
+mypy = "mypy --strict"
 lint = {depends-on = ["format","check","typing"]}
 
 [tool.pixi.feature.test.tasks]
@@ -68,8 +71,6 @@ select = [
     "E",
     # Pyflakes
     "F",
-    # pyupgrade
-    "UP",
     # flake8-bugbear
     "B",
     # flake8-simplify

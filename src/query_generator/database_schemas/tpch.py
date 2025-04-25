@@ -1,8 +1,9 @@
+from typing import Any, Dict, List, Tuple
 
 
-def get_tpch_table_info() -> tuple[dict[str, dict], list[str]]:
+def get_tpch_table_info() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
   # using all the numerical columns from the TPC-DS schema (like JOB)
-  tables: dict[str, dict] = {
+  tables: Dict[str, Dict[str, Any]] = {
     "customer": {
       "alias": "c",
       "columns": {
