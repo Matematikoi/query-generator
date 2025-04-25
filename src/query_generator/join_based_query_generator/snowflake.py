@@ -32,14 +32,14 @@ class QueryBuilder:
   def __init__(
     self,
     tables_schema: Dict[str, Dict[str, Any]],
-    benchmark: Dataset,
+    dataset: Dataset,
     **kwargs: Any,
   ) -> None:
     self.sub_graph_gen = SubGraphGenerator(tables_schema, **kwargs)
     self.table_to_pypika_table = {
       i: Table(i, alias=tables_schema[i]["alias"]) for i in tables_schema
     }
-    self.predicate_gen = PredicateGenerator(benchmark)
+    self.predicate_gen = PredicateGenerator(dataset)
 
   def generate_random_sql_queries(
     self,
@@ -93,26 +93,26 @@ def generate_and_write_queries(
   schema_function: Callable[[], Tuple[Dict[str, Dict[str, Any]], List[str]]],
   max_hops: int,
   max_queries_per_signature: int,
-  benchmark: Dataset = Dataset.TPCDS,
+  dataset: Dataset = Dataset.TPCDS,
 ) -> None:
   """
-  Generate random SQL queries for a given schema and benchmark.
+  Generate random SQL queries for a given schema and dataset.
   Args:
       schema_function (Callable): Function to get the schema.
       max_hops (int): Maximum number of hops for the subgraph.
       max_queries_per_signature (int): Maximum number of queries per signature.
-      benchmark (BenchmarkType): The benchmark type (TPCH or TPCDS).
+      dataset (datasetType): The dataset type (TPCH or TPCDS).
   """
 
   max_signatures_per_fact_table = 100
   tables_schema, fact_tables = schema_function()
   kwargs = {"keep_edge_prob": 0.5, "max_hops": max_hops}
-  query_builder = QueryBuilder(tables_schema, benchmark, **kwargs)
+  query_builder = QueryBuilder(tables_schema, dataset, **kwargs)
   cnt = 0
   for fact_table in fact_tables:
     for query_signature_count in range(max_signatures_per_fact_table):
       query_writer = QueryWriter(
-        f"data/generated_queries/snowflake/{benchmark.value}/{cnt}"
+        f"data/generated_queries/snowflake/{dataset.value}/{cnt}"
       )
       try:
         for idx, query in enumerate(
@@ -139,19 +139,19 @@ def generate_and_write_queries(
 
 
 def run_snowflake_generator(
-  benchmark: Dataset, max_hops: int, max_queries_per_template: int
+  dataset: Dataset, max_hops: int, max_queries_per_template: int
 ) -> None:
   seed = 80
   np.random.seed(seed)
   random.seed(seed)
-  if benchmark == Dataset.TPCH:
+  if dataset == Dataset.TPCH:
     generate_and_write_queries(
       get_tpch_table_info,
       max_hops,
       max_queries_per_template,
       Dataset.TPCH,
     )
-  elif benchmark == Dataset.TPCDS:
+  elif dataset == Dataset.TPCDS:
     generate_and_write_queries(
       get_tpcds_table_info,
       max_hops,
@@ -159,4 +159,4 @@ def run_snowflake_generator(
       Dataset.TPCDS,
     )
   else:
-    raise ValueError(f"Unsupported benchmark: {benchmark}")
+    raise ValueError(f"Unsupported dataset: {dataset}")

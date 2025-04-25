@@ -15,24 +15,25 @@ class PredicateGenerator:
     min_value: float | int
     max_value: float | int
 
-  def __init__(self, benchmark: Dataset):
-    self.histogram: pd.DataFrame = self.read_histogram(benchmark)
+  def __init__(self, dataset: Dataset):
+    self.dataset = dataset
+    self.histogram: pd.DataFrame = self.read_histogram()
 
-  def read_histogram(self, benchmark: Dataset) -> pd.DataFrame:
+  def read_histogram(self) -> pd.DataFrame:
     """
-    Read the histogram data for the specified benchmark.
+    Read the histogram data for the specified dataset.
     Args:
-        benchmark (BenchmarkType): The benchmark type (TPCH or TPCDS).
+        dataset: The dataset type (TPCH or TPCDS).
     Returns:
         pd.DataFrame: DataFrame containing the histogram data.
     """
 
-    if benchmark == Dataset.TPCH:
+    if self.dataset == Dataset.TPCH:
       path = "data/histograms/raw_tpch_hist.csv"
-    elif benchmark == Dataset.TPCDS:
+    elif self.dataset == Dataset.TPCDS:
       path = "data/histograms/raw_tpcds_hist.csv"
     else:
-      raise ValueError(f"Unsupported benchmark histogram: {benchmark}")
+      raise ValueError(f"Unsupported dataset histogram: {self.dataset}")
     # Remove rows with empty bins or that are dates
     df = pd.read_csv(path)
 

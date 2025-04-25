@@ -12,7 +12,7 @@ app = typer.Typer(name="Query Generation")
 
 @app.command()
 def snowflake(
-  benchmark: Annotated[
+  dataset: Annotated[
     Dataset, typer.Option("--dataset", "-d", help="The dataset used")
   ],
   max_hops: Annotated[
@@ -34,7 +34,7 @@ def snowflake(
   """
   Generate queries using a random subgraph.
   """
-  run_snowflake_generator(benchmark, max_hops, max_queries_per_template)
+  run_snowflake_generator(dataset, max_hops, max_queries_per_template)
 
 
 @app.command()
