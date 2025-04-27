@@ -1,7 +1,7 @@
 import random
 from collections import deque
 from dataclasses import dataclass
-from typing import Iterator, Dict, List
+from typing import Dict, Iterator, List
 
 from query_generator.data_structures.foreign_key_graph import ForeignKeyGraph
 from query_generator.utils.exceptions import GraphExploredError
@@ -81,11 +81,12 @@ class SubGraphGenerator:
   def generate_subgraph(
     self, fact_table: str, max_signatures_per_fact_table: int
   ) -> Iterator[List[ForeignKeyGraph.Edge]]:
-    for query_signature_count in range(max_signatures_per_fact_table):
+    cnt = 0
+    for _ in range(max_signatures_per_fact_table):
+      cnt += 1
       try:
         yield self.get_unseen_random_subgraph(fact_table)
       except GraphExploredError:
         # The exception is failing to find a new subgraph after 1000 attempts
         break
-    # TODO test that this should print always
-    print(f"{fact_table} made a a total of {query_signature_count} signatures")
+    print(f"{fact_table} made a a total of {cnt} signatures")

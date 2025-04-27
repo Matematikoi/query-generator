@@ -1,11 +1,10 @@
-import random
 from collections.abc import Callable
 from typing import Any, Dict, List, Tuple
 
-import numpy as np
 from pypika import OracleQuery, Table
 from pypika import functions as fn
 
+from query_generator.data_structures.foreign_key_graph import ForeignKeyGraph
 from query_generator.database_schemas.tpcds import (
   get_tpcds_table_info,
 )
@@ -25,9 +24,7 @@ from query_generator.join_based_query_generator.utils.query_writer import (
 )
 from query_generator.predicate_generator.histogram import PredicateGenerator
 from query_generator.utils.definitions import Dataset
-from query_generator.utils.exceptions import GraphExploredError
 from query_generator.utils.utils import set_seed
-from query_generator.data_structures.foreign_key_graph import ForeignKeyGraph
 
 
 class QueryBuilder:
@@ -77,7 +74,7 @@ class QueryBuilder:
     subgraph: List[ForeignKeyGraph.Edge],
     query: OracleQuery,
     extra_predicates: int,
-    row_retention_probability,
+    row_retention_probability: float,
   ) -> OracleQuery:
     subgraph_tables = self.get_subgraph_tables(subgraph)
     for predicate in self.predicate_gen.get_random_predicates(
@@ -104,14 +101,6 @@ def generate_and_write_queries(
   extra_predicates: int,
   row_retention_probability: float,
 ) -> None:
-  """
-  Generate random SQL queries for a given schema and dataset.
-  Args:
-      schema_function (Callable): Function to get the schema.
-      max_hops (int): Maximum number of hops for the subgraph.
-      max_queries_per_signature (int): Maximum number of queries per signature.
-      dataset (datasetType): The dataset type (TPCH or TPCDS).
-  """
   set_seed()
   tables_schema, fact_tables = schema_function()
   foreign_key_graph = ForeignKeyGraph(tables_schema)
