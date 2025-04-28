@@ -45,7 +45,7 @@ class PredicateGenerator:
     self,
     tables: List[str],
     num_predicates: int,
-    row_retention_probability: float = 0.2,
+    row_retention_probability: float,
   ) -> Iterator["PredicateGenerator.Predicate"]:
     """
     Generate random predicates based on the histogram data.
