@@ -1,4 +1,5 @@
-from typing import Any, List
+from dataclasses import dataclass
+from typing import Any, Iterator, List
 
 from pypika import OracleQuery, Table
 from pypika import functions as fn
@@ -17,8 +18,19 @@ from query_generator.join_based_query_generator.utils.query_writer import (
   QueryWriter,
 )
 from query_generator.predicate_generator.histogram import PredicateGenerator
-from query_generator.utils.definitions import Dataset, QueryGenerationParameters
+from query_generator.utils.definitions import (
+  Dataset,
+  Extension,
+  QueryGenerationParameters,
+)
 from query_generator.utils.utils import set_seed
+
+
+@dataclass
+class GeneratedQueriesFeatures:
+  query: str
+  template_number: int
+  predicate_number: int
 
 
 class QueryBuilder:
@@ -84,15 +96,15 @@ class QueryBuilder:
     return query
 
 
-def generate_and_write_queries(params: QueryGenerationParameters) -> None:
+def generate_queries(
+  params: QueryGenerationParameters,
+) -> Iterator[GeneratedQueriesFeatures]:
   set_seed()
   tables_schema, fact_tables = get_schema(params.dataset)
   foreign_key_graph = ForeignKeyGraph(tables_schema)
   subgraph_generator = SubGraphGenerator(
     foreign_key_graph, params.keep_edge_prob, params.max_hops
   )
-  # TODO: This should have their own predicate generator,
-  # which should be away from query builder
   query_builder = QueryBuilder(
     subgraph_generator, tables_schema, params.dataset
   )
@@ -111,10 +123,22 @@ def generate_and_write_queries(params: QueryGenerationParameters) -> None:
           params.row_retention_probability,
         )
 
-        query_writer = QueryWriter(
-          f"data/generated_queries/snowflake/{params.dataset.value}/{cnt}"
+        yield GeneratedQueriesFeatures(
+          query=query.get_sql(), template_number=cnt, predicate_number=idx
         )
-        query_writer.write_query(
-          query.get_sql(),
-          f"{cnt}-{idx + 1}.sql",  # The script needs to start from 1
-        )
+
+
+def generate_and_write_queries(params: QueryGenerationParameters) -> None:
+  """
+  Generate and write queries to a file.
+  Args:
+      params (QueryGenerationParameters): Query generation parameters.
+  """
+  query_writer = QueryWriter(
+    params.dataset,
+    Extension.SNOWFLAKE,
+  )
+  for query in generate_queries(params):
+    query_writer.write_query(
+      query.query, query.template_number, query.template_number
+    )
