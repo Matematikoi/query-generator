@@ -3,6 +3,7 @@ pixi.lock
 .ruff_cache/
 .idea/
 .pytest_cache/
+data/duckdb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
