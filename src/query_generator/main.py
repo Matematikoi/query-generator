@@ -1,7 +1,7 @@
 import typer
-from rich import print
 from typing_extensions import Annotated
 
+from query_generator.duckdb.setup import setup_duckdb
 from query_generator.join_based_query_generator.snowflake import (
   generate_and_write_queries,
 )
@@ -9,6 +9,7 @@ from query_generator.utils.definitions import (
   Dataset,
   QueryGenerationParameters,
 )
+from query_generator.utils.show_messages import show_dev_warning
 
 app = typer.Typer(name="Query Generation")
 
@@ -89,6 +90,9 @@ def snowflake(
 
 @app.command()
 def binning(
+  dataset: Annotated[
+    Dataset, typer.Option("--dataset", "-d", help="The dataset used")
+  ],
   dev: Annotated[
     bool,
     typer.Option(
@@ -107,19 +111,9 @@ def binning(
   (upper_bound - lower_bound) / total_bins
   then it saves the query to the allocated bin.
   """
-  if dev:
-    print(
-      "Running on [red] development mode [/red]"
-      "This means that results are not valid and only for testing"
-      "purposes"
-    )
-  else:
-    print(
-      "Running on [green] production mode [/green]"
-      "This means that results are valid and for testing"
-      "purposes"
-    )
-  # setup_duckdb
+  show_dev_warning(dev)
+  scale_factor = 0.1 if dev else 100
+  setup_duckdb(scale_factor, dataset)
   # loop as fuck
 
 
