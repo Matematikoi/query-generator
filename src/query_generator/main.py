@@ -88,11 +88,39 @@ def snowflake(
 
 
 @app.command()
-def duckdb_setup() -> None:
+def binning(
+  dev: Annotated[
+    bool,
+    typer.Option(
+      "--dev",
+      help="Development testing. If true then uses scale factor 1 to check.",
+    ),
+  ] = False,
+) -> None:
   """
-  Setup DuckDB for query generation.
+  This is an extension of the Snowflake algorithm.
+
+  It makes bins from lower-bound to upper-bound and it runs
+  the query on DuckDB to check that the number of rows that
+  fulfill the query is bigger than the lower bound. Then it
+  saves the results in bins of equidepth of size
+  (upper_bound - lower_bound) / total_bins
+  then it saves the query to the allocated bin.
   """
-  print("DuckDB setup is not implemented yet.")
+  if dev:
+    print(
+      "Running on [red] development mode [/red]"
+      "This means that results are not valid and only for testing"
+      "purposes"
+    )
+  else:
+    print(
+      "Running on [green] production mode [/green]"
+      "This means that results are valid and for testing"
+      "purposes"
+    )
+  # setup_duckdb
+  # loop as fuck
 
 
 if __name__ == "__main__":
