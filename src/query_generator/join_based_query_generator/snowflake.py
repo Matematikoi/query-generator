@@ -1,16 +1,10 @@
-from collections.abc import Callable
-from typing import Any, Dict, List, Tuple
+from typing import Any, List
 
 from pypika import OracleQuery, Table
 from pypika import functions as fn
 
 from query_generator.data_structures.foreign_key_graph import ForeignKeyGraph
-from query_generator.database_schemas.tpcds import (
-  get_tpcds_table_info,
-)
-from query_generator.database_schemas.tpch import (
-  get_tpch_table_info,
-)
+from query_generator.database_schemas.schemas import get_schema
 
 # fmt: off
 from query_generator.join_based_query_generator.\
@@ -23,7 +17,7 @@ from query_generator.join_based_query_generator.utils.query_writer import (
   QueryWriter,
 )
 from query_generator.predicate_generator.histogram import PredicateGenerator
-from query_generator.utils.definitions import Dataset
+from query_generator.utils.definitions import Dataset, QueryGenerationParameters
 from query_generator.utils.utils import set_seed
 
 
@@ -90,73 +84,37 @@ class QueryBuilder:
     return query
 
 
-# TODO: This should really be a dataclass
-def generate_and_write_queries(
-  schema_function: Callable[[], Tuple[Dict[str, Dict[str, Any]], List[str]]],
-  max_hops: int,
-  max_queries_per_signature: int,
-  max_queries_per_fact_table: int,
-  keep_edge_prob: float,
-  dataset: Dataset,
-  extra_predicates: int,
-  row_retention_probability: float,
-) -> None:
+def generate_and_write_queries(params: QueryGenerationParameters) -> None:
   set_seed()
-  tables_schema, fact_tables = schema_function()
+  tables_schema, fact_tables = get_schema(params.dataset)
   foreign_key_graph = ForeignKeyGraph(tables_schema)
   subgraph_generator = SubGraphGenerator(
-    foreign_key_graph, keep_edge_prob, max_hops
+    foreign_key_graph, params.keep_edge_prob, params.max_hops
   )
   # TODO: This should have their own predicate generator,
   # which should be away from query builder
-  query_builder = QueryBuilder(subgraph_generator, tables_schema, dataset)
+  query_builder = QueryBuilder(
+    subgraph_generator, tables_schema, params.dataset
+  )
   for fact_table in fact_tables:
     for cnt, subgraph in enumerate(
       subgraph_generator.generate_subgraph(
-        fact_table, max_queries_per_fact_table
+        fact_table, params.max_queries_per_fact_table
       )
     ):
       query = query_builder.generate_query_from_subgraph(subgraph)
-      for idx in range(1, max_queries_per_signature):
+      for idx in range(1, params.max_queries_per_signature + 1):
         query = query_builder.add_predicates(
-          subgraph, query, extra_predicates, row_retention_probability
+          subgraph,
+          query,
+          params.extra_predicates,
+          params.row_retention_probability,
         )
 
         query_writer = QueryWriter(
-          f"data/generated_queries/snowflake/{dataset.value}/{cnt}"
+          f"data/generated_queries/snowflake/{params.dataset.value}/{cnt}"
         )
         query_writer.write_query(
           query.get_sql(),
           f"{cnt}-{idx + 1}.sql",  # The script needs to start from 1
         )
-
-
-# TODO query writer should happen at this level
-# TODO query subgraph should also happen at this level
-def run_snowflake_generator(
-  dataset: Dataset, max_hops: int, max_queries_per_template: int
-) -> None:
-  if dataset == Dataset.TPCH:
-    generate_and_write_queries(
-      get_tpch_table_info,
-      max_hops,
-      max_queries_per_template,
-      100,
-      0.2,
-      Dataset.TPCH,
-      3,
-      0.2,
-    )
-  elif dataset == Dataset.TPCDS:
-    generate_and_write_queries(
-      get_tpcds_table_info,
-      max_hops,
-      max_queries_per_template,
-      100,
-      0.2,
-      Dataset.TPCDS,
-      3,
-      0.2,
-    )
-  else:
-    raise ValueError(f"Unsupported dataset: {dataset}")
