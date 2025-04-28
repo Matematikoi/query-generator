@@ -100,6 +100,33 @@ def binning(
       help="Development testing. If true then uses scale factor 1 to check.",
     ),
   ] = False,
+  lower_bound: Annotated[
+    int,
+    typer.Option(
+      "--lower-bound",
+      "-l",
+      help="The lower bound of the binning process",
+      min=0,
+    ),
+  ] = 0,
+  upper_bound: Annotated[
+    int,
+    typer.Option(
+      "--upper-bound",
+      "-u",
+      help="The upper bound of the binning process",
+      min=1,
+    ),
+  ] = 1_000_000,
+  total_bins: Annotated[
+    int,
+    typer.Option(
+      "--total-bins",
+      "-b",
+      help="The number of bins to create",
+      min=10,
+    ),
+  ] = 200,
 ) -> None:
   """
   This is an extension of the Snowflake algorithm.
@@ -111,6 +138,8 @@ def binning(
   (upper_bound - lower_bound) / total_bins
   then it saves the query to the allocated bin.
   """
+  if lower_bound >= upper_bound:
+    raise ValueError("The lower bound must be smaller than the upper bound")
   show_dev_warning(dev)
   scale_factor = 0.1 if dev else 100
   setup_duckdb(scale_factor, dataset)
