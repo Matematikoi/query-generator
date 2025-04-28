@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Any, Iterator, List
 
 from pypika import OracleQuery, Table
@@ -21,16 +20,10 @@ from query_generator.predicate_generator.histogram import PredicateGenerator
 from query_generator.utils.definitions import (
   Dataset,
   Extension,
+  GeneratedQueryFeatures,
   QueryGenerationParameters,
 )
 from query_generator.utils.utils import set_seed
-
-
-@dataclass
-class GeneratedQueriesFeatures:
-  query: str
-  template_number: int
-  predicate_number: int
 
 
 class QueryBuilder:
@@ -98,7 +91,7 @@ class QueryBuilder:
 
 def generate_queries(
   params: QueryGenerationParameters,
-) -> Iterator[GeneratedQueriesFeatures]:
+) -> Iterator[GeneratedQueryFeatures]:
   set_seed()
   tables_schema, fact_tables = get_schema(params.dataset)
   foreign_key_graph = ForeignKeyGraph(tables_schema)
@@ -123,8 +116,11 @@ def generate_queries(
           params.row_retention_probability,
         )
 
-        yield GeneratedQueriesFeatures(
-          query=query.get_sql(), template_number=cnt, predicate_number=idx
+        yield GeneratedQueryFeatures(
+          query=query.get_sql(),
+          template_number=cnt,
+          predicate_number=idx,
+          fact_table=fact_table,
         )
 
 
@@ -139,6 +135,4 @@ def generate_and_write_queries(params: QueryGenerationParameters) -> None:
     Extension.SNOWFLAKE,
   )
   for query in generate_queries(params):
-    query_writer.write_query(
-      query.query, query.template_number, query.template_number
-    )
+    query_writer.write_query(query)

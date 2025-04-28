@@ -1,6 +1,10 @@
 import os
 
-from query_generator.utils.definitions import Dataset, Extension
+from query_generator.utils.definitions import (
+  Dataset,
+  Extension,
+  GeneratedQueryFeatures,
+)
 
 
 class QueryWriter:
@@ -8,19 +12,19 @@ class QueryWriter:
     self.extension = extension
     self.dataset = dataset
 
-  def write_query(
-    self, query: str, template_number: int, predicate_number: int
-  ) -> None:
+  def write_query(self, query: GeneratedQueryFeatures) -> None:
     """
     Write the generated queries to a file.
     Args:
         queries (List[str]): List of SQL queries.
         file_name (str): Name of the output file.
     """
-    folder = "data/generated_queries/"
-    f"{self.extension}/{self.dataset}/{template_number}"
+    folder = (
+      "data/generated_queries/"
+      f"{self.extension.value}/{self.dataset.value}/{query.fact_table}_{query.template_number}"
+    )
     if not os.path.exists(folder):
       os.makedirs(folder)
-    file_name = f"/{template_number}_{predicate_number}.sql"
+    file_name = f"{query.template_number}_{query.predicate_number}.sql"
     with open(os.path.join(folder, file_name), "w") as f:
-      f.write(query)
+      f.write(query.query)

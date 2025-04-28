@@ -21,3 +21,11 @@ class QueryGenerationParameters:
   dataset: Dataset
   extra_predicates: int
   row_retention_probability: float
+
+
+@dataclass
+class GeneratedQueryFeatures:
+  query: str
+  template_number: int
+  predicate_number: int
+  fact_table: str
