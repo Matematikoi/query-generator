@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 import typer
 from typing_extensions import Annotated
 
@@ -132,6 +134,34 @@ def binning(
       min=10,
     ),
   ] = 200,
+  max_hops_range: Annotated[
+    Optional[List[int]],
+    typer.Option(
+      "--max-hops-range",
+      "-h",
+      help="The range of hops to use for the query generation",
+      show_default="1, 2, 4",
+    ),
+  ] = None,
+  extra_predicates_range: Annotated[
+    Optional[List[int]],
+    typer.Option(
+      "--extra-predicates-range",
+      "-e",
+      help="The range of extra predicates to use for the query generation",
+      show_default="1, 3, 5",
+    ),
+  ] = None,
+  row_retention_probability_range: Annotated[
+    Optional[List[float]],
+    typer.Option(
+      "--row-retention-probability-range",
+      "-r",
+      help="The range of row retention probabilities to use "
+      "for the query generation",
+      show_default="0.2, 0.3, 0.4, 0.6, 0.8, 0.9",
+    ),
+  ] = None,
 ) -> None:
   """
   This is an extension of the Snowflake algorithm.
@@ -143,6 +173,12 @@ def binning(
   (upper_bound - lower_bound) / total_bins
   then it saves the query to the allocated bin.
   """
+  if max_hops_range is None:
+    max_hops_range = [1, 2, 4]
+  if extra_predicates_range is None:
+    extra_predicates_range = [1, 3, 5]
+  if row_retention_probability_range is None:
+    row_retention_probability_range = [0.2, 0.3, 0.4, 0.6, 0.8, 0.9]
   if lower_bound >= upper_bound:
     raise ValueError("The lower bound must be smaller than the upper bound")
   show_dev_warning(dev)
@@ -158,9 +194,9 @@ def binning(
       con=con,
     ),
     SearchParameters(
-      max_hops=[1],
-      extra_predicates=[1],
-      row_retention_probability=[0.2, 0.3],
+      max_hops=max_hops_range,
+      extra_predicates=extra_predicates_range,
+      row_retention_probability=row_retention_probability_range,
     ),
   )
 
