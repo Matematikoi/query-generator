@@ -1,5 +1,7 @@
 import math
 from dataclasses import dataclass
+from itertools import product
+from typing import List
 
 import duckdb
 import polars as pl
@@ -27,6 +29,13 @@ class BinningSnowflakeParameters:
   con: duckdb.DuckDBPyConnection
 
 
+@dataclass
+class SearchParameters:
+  max_hops: List[int]
+  extra_predicates: List[int]
+  row_retention_probability: List[float]
+
+
 def get_bin_from_value(
   value: int, bin_params: BinningSnowflakeParameters
 ) -> int:
@@ -51,7 +60,8 @@ def get_result_from_duckdb(
 
 
 def run_snowflake_binning(
-  params: BinningSnowflakeParameters,
+  bin_params: BinningSnowflakeParameters,
+  search_params: SearchParameters,
 ) -> None:
   """
   Run the Snowflake binning process. Binning is equiwidth binning.
@@ -60,39 +70,39 @@ def run_snowflake_binning(
     parameters (BinningSnowflakeParameters): The parameters for
     the Snowflake binning process.
   """
-  query_writer = Writer(params.dataset, Extension.BINNING_SNOWFLAKE)
-  # TODO: this should be a json file that I pass
-  # TODO: add tqdm
+  query_writer = Writer(bin_params.dataset, Extension.BINNING_SNOWFLAKE)
   rows = []
-  for max_hops in [1, 2, 4]:
-    for extra_predicates in [1, 3, 5]:
-      for row_retention_probability in [0.1, 0.2, 0.5, 0.8]:
-        for query in generate_queries(
-          QueryGenerationParameters(
-            dataset=params.dataset,
-            max_hops=max_hops,
-            max_queries_per_fact_table=10,
-            max_queries_per_signature=2,
-            keep_edge_prob=0.2,
-            extra_predicates=extra_predicates,
-            row_retention_probability=float(row_retention_probability),
-          )
-        ):
-          selected_rows = get_result_from_duckdb(query.query, params)
-          if selected_rows == -1:
-            continue  # invalid query
-          bin = get_bin_from_value(selected_rows, params)
-          query_writer.write_query_to_bin(bin, query)
-          rows.append(
-            {
-              "bin": bin,
-              "count_star": selected_rows,
-              "fact_table": query.fact_table,
-              "template_number": query.template_number,
-              "predicate_number": query.predicate_number,
-              "max_hops": max_hops,
-              "row_retention_probability": row_retention_probability,
-            }
-          )
+  for max_hops, extra_predicates, row_retention_probability in product(
+    search_params.max_hops,
+    search_params.extra_predicates,
+    search_params.row_retention_probability,
+  ):
+    for query in generate_queries(
+      QueryGenerationParameters(
+        dataset=bin_params.dataset,
+        max_hops=max_hops,
+        max_queries_per_fact_table=10,
+        max_queries_per_signature=2,
+        keep_edge_prob=0.2,
+        extra_predicates=extra_predicates,
+        row_retention_probability=float(row_retention_probability),
+      )
+    ):
+      selected_rows = get_result_from_duckdb(query.query, bin_params)
+      if selected_rows == -1:
+        continue  # invalid query
+      bin = get_bin_from_value(selected_rows, bin_params)
+      query_writer.write_query_to_bin(bin, query)
+      rows.append(
+        {
+          "bin": bin,
+          "count_star": selected_rows,
+          "fact_table": query.fact_table,
+          "template_number": query.template_number,
+          "predicate_number": query.predicate_number,
+          "max_hops": max_hops,
+          "row_retention_probability": row_retention_probability,
+        }
+      )
   df = pl.DataFrame(rows)
   query_writer.write_dataframe(df)

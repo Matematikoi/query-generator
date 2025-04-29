@@ -30,6 +30,7 @@ numpy = ">=2.2.5,<3"
 pandas = ">=2.2.3,<3"
 duckdb = ">=1.2.2,<2"
 polars = ">=1.27.1,<2"
+tqdm = "*"
 
 
 [tool.pixi.feature.test.dependencies]
@@ -56,7 +57,7 @@ clean = "find . -type d -name \"__pycache__\" -exec rm -r {} +"
 
 [tool.pixi.feature.lint.tasks]
 format = "ruff format src tests"
-check = "ruff check src tests"
+check = "ruff check --fix src tests"
 typing = "mypy --strict src"
 mypy = "mypy"
 lint = {depends-on = ["format","check","typing"]}

@@ -1,9 +1,14 @@
+from unittest import mock
+
 import pytest
 
 from query_generator.duckdb.binning import (
   BinningSnowflakeParameters,
+  SearchParameters,
   get_bin_from_value,
+  run_snowflake_binning,
 )
+from query_generator.utils.definitions import Dataset
 
 
 @pytest.mark.parametrize(
@@ -25,3 +30,31 @@ from query_generator.duckdb.binning import (
 def test_binning(value, params, expected):
   val = get_bin_from_value(value, params)
   assert val == expected, f"Expected {expected}, but got {val}"
+
+
+def test_binning_calls():
+  with mock.patch(
+    "query_generator.duckdb.binning.Writer.write_query_to_bin"
+  ) as mock_writer:
+    with mock.patch(
+      "query_generator.duckdb.binning.get_result_from_duckdb"
+    ) as mock_connect:
+      mock_connect.return_value = 0
+      run_snowflake_binning(
+        BinningSnowflakeParameters(
+          scale_factor=0,
+          dataset=Dataset.TPCDS,
+          lower_bound=0,
+          upper_bound=10000,
+          total_bins=10,
+          con=None,
+        ),
+        search_params=SearchParameters(
+          max_hops=[1],
+          extra_predicates=[1],
+          row_retention_probability=[0.2, 0.3],
+        ),
+      )
+    assert mock_writer.call_count == 268, (
+      "Expected at least one call to write_query"
+    )

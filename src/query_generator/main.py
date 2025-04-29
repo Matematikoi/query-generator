@@ -3,6 +3,7 @@ from typing_extensions import Annotated
 
 from query_generator.duckdb.binning import (
   BinningSnowflakeParameters,
+  SearchParameters,
   run_snowflake_binning,
 )
 from query_generator.duckdb.setup import setup_duckdb
@@ -155,7 +156,12 @@ def binning(
       upper_bound=upper_bound,
       total_bins=total_bins,
       con=con,
-    )
+    ),
+    SearchParameters(
+      max_hops=[1],
+      extra_predicates=[1],
+      row_retention_probability=[0.2, 0.3],
+    ),
   )
 
 
