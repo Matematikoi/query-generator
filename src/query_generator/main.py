@@ -1,6 +1,6 @@
 import typer
 from typing_extensions import Annotated
-
+import polars as pl
 from query_generator.duckdb.binning import (
   BinningSnoflakeParameters,
   run_snowflake_binning,
@@ -14,6 +14,9 @@ from query_generator.utils.definitions import (
   QueryGenerationParameters,
 )
 from query_generator.utils.show_messages import show_dev_warning
+import seaborn as sns
+import matplotlib.pyplot as plt
+import os
 
 app = typer.Typer(name="Query Generation")
 
@@ -166,6 +169,26 @@ def binning(
       prefix=prefix,
     )
   )
+
+def plot(
+  csv: Annotated[
+    Dataset, typer.Option("--csv", help="The csv used")
+  ],
+) -> None:
+  """
+  Plot the generated queries.
+  """
+  df = pl.read_csv(csv)
+
+  os.makedirs(".visualization", exist_ok=True)
+
+  plt.figure(figsize=(10, 6))
+  sns.histplot(df["count_star"], bins=30, kde=True)
+  plt.title("Histogram of count_star")
+  plt.xlabel("count_star")
+  plt.ylabel("Frequency")
+  plt.savefig(".visualization/histogram_count_star.png")
+  plt.close()
 
 
 if __name__ == "__main__":

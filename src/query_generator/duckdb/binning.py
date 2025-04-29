@@ -69,7 +69,7 @@ def run_snowflake_binning(
   rows = []
   for max_hops in range(1, 2 + 1):
     for extra_predicates in range(1, 5 + 1):
-      for row_retention_probability in np.arange(0.2, 0.9, 0.22):
+      for row_retention_probability in np.arange(0.2, 0.9, 0.1):
         for query in generate_queries(
           QueryGenerationParameters(
             dataset=params.dataset,
