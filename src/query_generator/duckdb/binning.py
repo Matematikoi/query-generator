@@ -78,7 +78,7 @@ def run_snowflake_binning(
     * len(search_params.extra_predicates)
     * len(search_params.row_retention_probability)
   )
-
+  cnt = 0
   for max_hops, extra_predicates, row_retention_probability in tqdm(
     product(
       search_params.max_hops,
@@ -99,11 +99,13 @@ def run_snowflake_binning(
         row_retention_probability=float(row_retention_probability),
       )
     ):
+      cnt += 1
       selected_rows = get_result_from_duckdb(query.query, bin_params)
       if selected_rows == -1:
         continue  # invalid query
       bin = get_bin_from_value(selected_rows, bin_params)
-      query_writer.write_query_to_bin(bin, query)
+      prefix = f"batch_{cnt}"
+      query_writer.write_query_to_bin(prefix, bin, query)
       rows.append(
         {
           "bin": bin,
