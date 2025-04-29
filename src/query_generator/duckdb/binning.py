@@ -9,7 +9,7 @@ from query_generator.join_based_query_generator.snowflake import (
   generate_queries,
 )
 from query_generator.join_based_query_generator.utils.query_writer import (
-  QueryWriter,
+  Writer,
 )
 from query_generator.utils.definitions import (
   Dataset,
@@ -61,7 +61,7 @@ def run_snowflake_binning(
     parameters (BinningSnoflakeParameters): The parameters for
     the Snowflake binning process.
   """
-  query_writer = QueryWriter(params.dataset, Extension.BINNING_SNOWFLAKE)
+  query_writer = Writer(params.dataset, Extension.BINNING_SNOWFLAKE)
   # TODO: this should be a json file that I pass
   # TODO: write a csv
   # TODO: add tqdm
@@ -97,11 +97,4 @@ def run_snowflake_binning(
             }
           )
   df = pl.DataFrame(rows)
-  # TODO: This is probably better with a writer
-  df.write_csv(
-    f"data/generated_queries/{Extension.BINNING_SNOWFLAKE.value}/"
-    f"{params.dataset.value}/"
-    f"{params.dataset.value}_binning.csv",
-    include_header=True,
-    separator=",",
-  )
+  query_writer.write_dataframe(df)
