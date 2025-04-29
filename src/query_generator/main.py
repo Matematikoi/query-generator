@@ -1,6 +1,11 @@
+import os
+
+import matplotlib.pyplot as plt
+import polars as pl
+import seaborn as sns
 import typer
 from typing_extensions import Annotated
-import polars as pl
+
 from query_generator.duckdb.binning import (
   BinningSnoflakeParameters,
   run_snowflake_binning,
@@ -14,9 +19,6 @@ from query_generator.utils.definitions import (
   QueryGenerationParameters,
 )
 from query_generator.utils.show_messages import show_dev_warning
-import seaborn as sns
-import matplotlib.pyplot as plt
-import os
 
 app = typer.Typer(name="Query Generation")
 
@@ -170,24 +172,37 @@ def binning(
     )
   )
 
+
+@app.command()
 def plot(
-  csv: Annotated[
-    Dataset, typer.Option("--csv", help="The csv used")
-  ],
+  csv: Annotated[str, typer.Option("--csv", help="The csv used")],
 ) -> None:
   """
   Plot the generated queries.
   """
   df = pl.read_csv(csv)
+  df = df.filter(df["bin"] > 20)
+  print(df.columns)
+  os.makedirs("visualization", exist_ok=True)
 
-  os.makedirs(".visualization", exist_ok=True)
+  excluded_columns = {"count_star", "bin"}
+  for column in df.columns:
+    if column not in excluded_columns:
+      plt.figure(figsize=(10, 6))
+      sns.histplot(data=df, x="count_star", bins=200, kde=True, hue=column)
+      plt.title(f"Histogram of count_star with hue={column}")
+      plt.xlabel("count_star")
+      plt.ylabel("Frequency")
+      plt.savefig(f"visualization/histogram_count_star_{column}.png")
+      plt.close()
 
+  # Add a plot without hues
   plt.figure(figsize=(10, 6))
-  sns.histplot(df["count_star"], bins=30, kde=True)
-  plt.title("Histogram of count_star")
+  sns.histplot(data=df, x="count_star", bins=200, kde=True)
+  plt.title("Histogram of count_star without hue")
   plt.xlabel("count_star")
   plt.ylabel("Frequency")
-  plt.savefig(".visualization/histogram_count_star.png")
+  plt.savefig("visualization/histogram_count_star_no_hue.png")
   plt.close()
 
 

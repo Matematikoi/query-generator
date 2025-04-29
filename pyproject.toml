@@ -30,6 +30,8 @@ numpy = ">=2.2.5,<3"
 pandas = ">=2.2.3,<3"
 duckdb = ">=1.2.2,<2"
 polars = ">=1.27.1,<2"
+seaborn = ">=0.13.2,<0.14"
+matplotlib = ">=3.10.1,<4"
 
 
 [tool.pixi.feature.test.dependencies]
