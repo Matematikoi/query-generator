@@ -2,7 +2,7 @@ import typer
 from typing_extensions import Annotated
 
 from query_generator.duckdb.binning import (
-  BinningSnoflakeParameters,
+  BinningSnowflakeParameters,
   run_snowflake_binning,
 )
 from query_generator.duckdb.setup import setup_duckdb
@@ -148,7 +148,7 @@ def binning(
   scale_factor = 0.1 if dev else 100
   con = setup_duckdb(scale_factor, dataset)
   run_snowflake_binning(
-    BinningSnoflakeParameters(
+    BinningSnowflakeParameters(
       scale_factor=scale_factor,
       dataset=dataset,
       lower_bound=lower_bound,

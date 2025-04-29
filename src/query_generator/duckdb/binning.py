@@ -19,7 +19,7 @@ from query_generator.utils.definitions import (
 
 
 @dataclass
-class BinningSnoflakeParameters:
+class BinningSnowflakeParameters:
   scale_factor: int | float
   dataset: Dataset
   lower_bound: int
@@ -30,18 +30,20 @@ class BinningSnoflakeParameters:
 
 # TODO: add testing
 def get_bin_from_value(
-  value: int, bin_params: BinningSnoflakeParameters
+  value: int, bin_params: BinningSnowflakeParameters
 ) -> int:
   normalized_max_val = bin_params.upper_bound - bin_params.lower_bound
   normalized_value = value - bin_params.lower_bound
   bin_size = float(normalized_max_val) / float(bin_params.total_bins)
-
-  return math.ceil(normalized_value / bin_size)
+  bin = math.ceil(normalized_value / bin_size)
+  if bin > bin_params.total_bins:
+    bin = bin_params.total_bins + 1
+  return bin
 
 
 # TODO add testing
 def get_result_from_duckdb(
-  query: str, params: BinningSnoflakeParameters
+  query: str, params: BinningSnowflakeParameters
 ) -> int:
   try:
     result = int(params.con.sql(query).fetchall()[0][0])
@@ -52,13 +54,13 @@ def get_result_from_duckdb(
 
 
 def run_snowflake_binning(
-  params: BinningSnoflakeParameters,
+  params: BinningSnowflakeParameters,
 ) -> None:
   """
   Run the Snowflake binning process. Binning is equiwidth binning.
 
   Args:
-    parameters (BinningSnoflakeParameters): The parameters for
+    parameters (BinningSnowflakeParameters): The parameters for
     the Snowflake binning process.
   """
   query_writer = Writer(params.dataset, Extension.BINNING_SNOWFLAKE)
