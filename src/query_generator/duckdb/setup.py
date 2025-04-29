@@ -5,7 +5,7 @@ import duckdb
 from query_generator.utils.definitions import Dataset
 
 
-def load_and_install_libraries(dataset: Dataset) -> None:
+def load_and_install_libraries() -> None:
   duckdb.install_extension("TPCDS")
   duckdb.install_extension("TPCH")
   duckdb.load_extension("TPCDS")
@@ -32,7 +32,7 @@ def setup_duckdb(
   If the scale factor required is not generated, it will generate it.
   It returns a duckdb connection to the database.
   """
-  load_and_install_libraries(dataset)
+  load_and_install_libraries()
   db_path = f"data/duckdb/{dataset.value}/{scale_factor}.db"
   if os.path.exists(db_path):
     print(f"Database {db_path} already exists")
