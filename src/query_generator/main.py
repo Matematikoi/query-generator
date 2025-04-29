@@ -131,14 +131,6 @@ def binning(
       min=10,
     ),
   ] = 200,
-  prefix: Annotated[
-    str,
-    typer.Option(
-      "--prefix",
-      "-p",
-      help="Prefix for writing queries on multiple nodes simultaneously",
-    ),
-  ] = "",
 ) -> None:
   """
   This is an extension of the Snowflake algorithm.
@@ -163,7 +155,6 @@ def binning(
       upper_bound=upper_bound,
       total_bins=total_bins,
       con=con,
-      prefix=prefix,
     )
   )
 

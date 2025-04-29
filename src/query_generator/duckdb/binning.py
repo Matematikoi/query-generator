@@ -26,7 +26,6 @@ class BinningSnoflakeParameters:
   upper_bound: int
   total_bins: int
   con: duckdb.DuckDBPyConnection
-  prefix: str  # Prefix for running on multiple nodes simultaneously
 
 
 # TODO: add testing
@@ -85,7 +84,7 @@ def run_snowflake_binning(
           if selected_rows == -1:
             continue  # invalid query
           bin = get_bin_from_value(selected_rows, params)
-          query_writer.write_query_to_bin(params.prefix, bin, query)
+          query_writer.write_query_to_bin(bin, query)
           rows.append(
             {
               "bin": bin,
@@ -102,7 +101,7 @@ def run_snowflake_binning(
   df.write_csv(
     f"data/generated_queries/{Extension.BINNING_SNOWFLAKE.value}/"
     f"{params.dataset.value}/"
-    f"{params.prefix}_{params.dataset.value}_binning.csv",
+    f"{params.dataset.value}_binning.csv",
     include_header=True,
     separator=",",
   )
