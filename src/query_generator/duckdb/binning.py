@@ -5,6 +5,7 @@ from typing import List
 
 import duckdb
 import polars as pl
+from tqdm import tqdm
 
 from query_generator.join_based_query_generator.snowflake import (
   generate_queries,
@@ -72,10 +73,20 @@ def run_snowflake_binning(
   """
   query_writer = Writer(bin_params.dataset, Extension.BINNING_SNOWFLAKE)
   rows = []
-  for max_hops, extra_predicates, row_retention_probability in product(
-    search_params.max_hops,
-    search_params.extra_predicates,
-    search_params.row_retention_probability,
+  total_iterations = (
+    len(search_params.max_hops)
+    * len(search_params.extra_predicates)
+    * len(search_params.row_retention_probability)
+  )
+
+  for max_hops, extra_predicates, row_retention_probability in tqdm(
+    product(
+      search_params.max_hops,
+      search_params.extra_predicates,
+      search_params.row_retention_probability,
+    ),
+    total=total_iterations,
+    desc="Progress",
   ):
     for query in generate_queries(
       QueryGenerationParameters(
