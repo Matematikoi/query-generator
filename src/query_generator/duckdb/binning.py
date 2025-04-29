@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 import duckdb
 import numpy as np
+import polars as pl
 
 from query_generator.join_based_query_generator.snowflake import (
   generate_queries,
@@ -65,6 +66,7 @@ def run_snowflake_binning(
   # TODO: this should be a json file that I pass
   # TODO: write a csv
   # TODO: add tqdm
+  rows = []
   for max_hops in range(1, 2 + 1):
     for extra_predicates in range(1, 5 + 1):
       for row_retention_probability in np.arange(0.2, 0.9, 0.22):
@@ -84,3 +86,23 @@ def run_snowflake_binning(
             continue  # invalid query
           bin = get_bin_from_value(selected_rows, params)
           query_writer.write_query_to_bin(params.prefix, bin, query)
+          rows.append(
+            {
+              "bin": bin,
+              "count_star": selected_rows,
+              "fact_table": query.fact_table,
+              "template_number": query.template_number,
+              "predicate_number": query.predicate_number,
+              "max_hops": max_hops,
+              "row_retention_probability": row_retention_probability,
+            }
+          )
+  df = pl.DataFrame(rows)
+  # TODO: This is probably better with a writer
+  df.write_csv(
+    f"data/generated_queries/{Extension.BINNING_SNOWFLAKE.value}/"
+    f"{params.dataset.value}/"
+    f"{params.prefix}_{params.dataset.value}_binning.csv",
+    include_header=True,
+    separator=",",
+  )
