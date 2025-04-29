@@ -46,7 +46,7 @@ def get_result_from_duckdb(
   try:
     result = int(params.con.sql(query).fetchall()[0][0])
   except duckdb.BinderException as e:
-    print(f"Invalid query, exception: {e}")
+    print(f"Invalid query, exception: {e},\n{query}")
     return -1
   return result
 
@@ -63,7 +63,6 @@ def run_snowflake_binning(
   """
   query_writer = Writer(params.dataset, Extension.BINNING_SNOWFLAKE)
   # TODO: this should be a json file that I pass
-  # TODO: write a csv
   # TODO: add tqdm
   rows = []
   for max_hops in range(1, 2 + 1):
