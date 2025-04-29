@@ -32,7 +32,14 @@ def test_binning(value, params, expected):
   assert val == expected, f"Expected {expected}, but got {val}"
 
 
-def test_binning_calls():
+@pytest.mark.parametrize(
+  "extra_predicates, expected_call_count",
+  [
+    ([1], 134),
+    ([1, 2], 134 * 2),
+  ],
+)
+def test_binning_calls(extra_predicates, expected_call_count):
   with mock.patch(
     "query_generator.duckdb.binning.Writer.write_query_to_bin"
   ) as mock_writer:
@@ -51,10 +58,11 @@ def test_binning_calls():
         ),
         search_params=SearchParameters(
           max_hops=[1],
-          extra_predicates=[1],
-          row_retention_probability=[0.2, 0.3],
+          extra_predicates=extra_predicates,
+          row_retention_probability=[0.2],
         ),
       )
-    assert mock_writer.call_count == 268, (
-      "Expected at least one call to write_query"
+    assert mock_writer.call_count == expected_call_count, (
+      f"Expected {expected_call_count} calls to write_query, "
+      f"but got {mock_writer.call_count}"
     )
