@@ -12,11 +12,13 @@ from query_generator.duckdb.setup import setup_duckdb
 from query_generator.join_based_query_generator.snowflake import (
   generate_and_write_queries,
 )
+from query_generator.tools.cherry_pick_binning import cherry_pick_binning
 from query_generator.utils.definitions import (
   Dataset,
   QueryGenerationParameters,
 )
 from query_generator.utils.show_messages import show_dev_warning
+from query_generator.utils.utils import validate_dir_path
 
 app = typer.Typer(name="Query Generation")
 
@@ -199,6 +201,41 @@ def binning(
       row_retention_probability=row_retention_probability_range,
     ),
   )
+
+
+@app.command()
+def cherry_pick(
+  dataset: Annotated[
+    Dataset, typer.Option("--dataset", "-d", help="The dataset used")
+  ],
+  folder: Annotated[
+    Optional[str],
+    typer.Option(
+      "--folder",
+      "-f",
+      help="The folder where the queries are stored",
+      show_default="data/generated_queries/BINNING_SNOWFLAKE/{dataset}",
+    ),
+  ] = None,
+  queries_per_bin: Annotated[
+    int,
+    typer.Option(
+      "--queries",
+      "-q",
+      help="The number of queries to be randomly picked per bin",
+      min=1,
+    ),
+  ] = 15,
+) -> None:
+  """
+  This function is used to cherry pick queries from the
+  binning process. It randomly picks queries from the
+  binning process and saves them in a folder.
+  """
+  if folder is None:
+    folder = f"data/generated_queries/BINNING_SNOWFLAKE/{dataset.value}"
+  validate_dir_path(folder)
+  cherry_pick_binning(dataset, folder, queries_per_bin)
 
 
 if __name__ == "__main__":
