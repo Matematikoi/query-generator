@@ -2,7 +2,6 @@ import math
 from dataclasses import dataclass
 
 import duckdb
-import numpy as np
 import polars as pl
 
 from query_generator.join_based_query_generator.snowflake import (
@@ -28,7 +27,6 @@ class BinningSnowflakeParameters:
   con: duckdb.DuckDBPyConnection
 
 
-# TODO: add testing
 def get_bin_from_value(
   value: int, bin_params: BinningSnowflakeParameters
 ) -> int:
@@ -41,7 +39,6 @@ def get_bin_from_value(
   return bin
 
 
-# TODO add testing
 def get_result_from_duckdb(
   query: str, params: BinningSnowflakeParameters
 ) -> int:
@@ -67,9 +64,9 @@ def run_snowflake_binning(
   # TODO: this should be a json file that I pass
   # TODO: add tqdm
   rows = []
-  for max_hops in range(1, 2 + 1):
-    for extra_predicates in range(1, 5 + 1):
-      for row_retention_probability in np.arange(0.2, 0.9, 0.22):
+  for max_hops in [1, 2, 4]:
+    for extra_predicates in [1, 3, 5]:
+      for row_retention_probability in [0.1, 0.2, 0.5, 0.8]:
         for query in generate_queries(
           QueryGenerationParameters(
             dataset=params.dataset,
