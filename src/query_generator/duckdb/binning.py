@@ -110,9 +110,10 @@ def run_snowflake_binning(
         {
           "bin": bin,
           "count_star": selected_rows,
-          "fact_table": query.fact_table,
+          "prefix": prefix,
           "template_number": query.template_number,
           "predicate_number": query.predicate_number,
+          "fact_table": query.fact_table,
           "max_hops": max_hops,
           "row_retention_probability": row_retention_probability,
         }
