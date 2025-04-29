@@ -81,12 +81,11 @@ class SubGraphGenerator:
   def generate_subgraph(
     self, fact_table: str, max_signatures_per_fact_table: int
   ) -> Iterator[List[ForeignKeyGraph.Edge]]:
-    cnt = 0
+    # TODO communicate with the user the total number of signatures
+    # or add a debug mode
     for _ in range(max_signatures_per_fact_table):
-      cnt += 1
       try:
         yield self.get_unseen_random_subgraph(fact_table)
       except GraphExploredError:
         # The exception is failing to find a new subgraph after 1000 attempts
         break
-    print(f"{fact_table} made a a total of {cnt} signatures")

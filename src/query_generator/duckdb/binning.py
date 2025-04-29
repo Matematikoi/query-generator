@@ -1,19 +1,58 @@
+import math
 from dataclasses import dataclass
 
-from query_generator.utils.definitions import Dataset
+import duckdb
+import numpy as np
+
+from query_generator.join_based_query_generator.snowflake import (
+  generate_queries,
+)
+from query_generator.join_based_query_generator.utils.query_writer import (
+  QueryWriter,
+)
+from query_generator.utils.definitions import (
+  Dataset,
+  Extension,
+  QueryGenerationParameters,
+)
 
 
 @dataclass
 class BinningSnoflakeParameters:
-  scale_factor: int
+  scale_factor: int | float
   dataset: Dataset
   lower_bound: int
   upper_bound: int
   total_bins: int
+  con: duckdb.DuckDBPyConnection
+  prefix: str  # Prefix for running on multiple nodes simultaneously
+
+
+# TODO: add testing
+def get_bin_from_value(
+  value: int, bin_params: BinningSnoflakeParameters
+) -> int:
+  normalized_max_val = bin_params.upper_bound - bin_params.lower_bound
+  normalized_value = value - bin_params.lower_bound
+  bin_size = float(normalized_max_val) / float(bin_params.total_bins)
+
+  return math.ceil(normalized_value / bin_size)
+
+
+# TODO add testing
+def get_result_from_duckdb(
+  query: str, params: BinningSnoflakeParameters
+) -> int:
+  try:
+    result = int(params.con.sql(query).fetchall()[0][0])
+  except duckdb.BinderException as e:
+    print(f"Invalid query, exception: {e}")
+    return -1
+  return result
 
 
 def run_snowflake_binning(
-  parameters: BinningSnoflakeParameters,
+  params: BinningSnoflakeParameters,
 ) -> None:
   """
   Run the Snowflake binning process. Binning is equiwidth binning.
@@ -22,3 +61,26 @@ def run_snowflake_binning(
     parameters (BinningSnoflakeParameters): The parameters for
     the Snowflake binning process.
   """
+  query_writer = QueryWriter(params.dataset, Extension.BINNING_SNOWFLAKE)
+  # TODO: this should be a json file that I pass
+  # TODO: write a csv
+  # TODO: add tqdm
+  for max_hops in range(1, 2 + 1):
+    for extra_predicates in range(1, 5 + 1):
+      for row_retention_probability in np.arange(0.2, 0.9, 0.22):
+        for query in generate_queries(
+          QueryGenerationParameters(
+            dataset=params.dataset,
+            max_hops=max_hops,
+            max_queries_per_fact_table=10,
+            max_queries_per_signature=2,
+            keep_edge_prob=0.2,
+            extra_predicates=extra_predicates,
+            row_retention_probability=float(row_retention_probability),
+          )
+        ):
+          selected_rows = get_result_from_duckdb(query.query, params)
+          if selected_rows == -1:
+            continue  # invalid query
+          bin = get_bin_from_value(selected_rows, params)
+          query_writer.write_query_to_bin(params.prefix, bin, query)

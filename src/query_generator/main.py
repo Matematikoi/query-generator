@@ -1,6 +1,10 @@
 import typer
 from typing_extensions import Annotated
 
+from query_generator.duckdb.binning import (
+  BinningSnoflakeParameters,
+  run_snowflake_binning,
+)
 from query_generator.duckdb.setup import setup_duckdb
 from query_generator.join_based_query_generator.snowflake import (
   generate_and_write_queries,
@@ -127,6 +131,14 @@ def binning(
       min=10,
     ),
   ] = 200,
+  prefix: Annotated[
+    str,
+    typer.Option(
+      "--prefix",
+      "-p",
+      help="Prefix for writing queries on multiple nodes simultaneously",
+    ),
+  ] = "",
 ) -> None:
   """
   This is an extension of the Snowflake algorithm.
@@ -142,8 +154,18 @@ def binning(
     raise ValueError("The lower bound must be smaller than the upper bound")
   show_dev_warning(dev)
   scale_factor = 0.1 if dev else 100
-  setup_duckdb(scale_factor, dataset)
-  # loop as fuck
+  con = setup_duckdb(scale_factor, dataset)
+  run_snowflake_binning(
+    BinningSnoflakeParameters(
+      scale_factor=scale_factor,
+      dataset=dataset,
+      lower_bound=lower_bound,
+      upper_bound=upper_bound,
+      total_bins=total_bins,
+      con=con,
+      prefix=prefix,
+    )
+  )
 
 
 if __name__ == "__main__":

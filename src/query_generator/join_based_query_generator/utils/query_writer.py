@@ -28,3 +28,16 @@ class QueryWriter:
     file_name = f"{query.template_number}_{query.predicate_number}.sql"
     with open(os.path.join(folder, file_name), "w") as f:
       f.write(query.query)
+
+  def write_query_to_bin(
+    self, prefix: str, bin: int, query: GeneratedQueryFeatures
+  ) -> None:
+    folder = (
+      "data/generated_queries/"
+      f"{self.extension.value}/{self.dataset.value}/bin_{bin}"
+    )
+    if not os.path.exists(folder):
+      os.makedirs(folder)
+    file_name = f"{prefix}_{query.template_number}_{query.predicate_number}.sql"
+    with open(os.path.join(folder, file_name), "w") as f:
+      f.write(query.query)
