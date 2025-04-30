@@ -181,25 +181,27 @@ def plot(
   Plot the generated queries.
   """
   df = pl.read_csv(csv)
-  df = df.filter(df["bin"] > 20)
+  df  = df.filter (df["bin"] <200)
+  df  = df.filter (df["bin"] > 1)
+  # df = df.filter(df["bin"]  20)
   print(df.columns)
   os.makedirs("visualization", exist_ok=True)
 
-  excluded_columns = {"count_star", "bin"}
+  excluded_columns = {"count_star", "bin", "prefix"}
   for column in df.columns:
     if column not in excluded_columns:
       plt.figure(figsize=(10, 6))
-      sns.histplot(data=df, x="count_star", bins=200, kde=True, hue=column)
+      sns.histplot(data=df, x="bin", bins=200, kde=False, hue=column, log_scale=(False, True))
       plt.title(f"Histogram of count_star with hue={column}")
-      plt.xlabel("count_star")
+      plt.xlabel("Bin (0-1M) ")
       plt.ylabel("Frequency")
       plt.savefig(f"visualization/histogram_count_star_{column}.png")
       plt.close()
 
   # Add a plot without hues
   plt.figure(figsize=(10, 6))
-  sns.histplot(data=df, x="count_star", bins=200, kde=True)
-  plt.title("Histogram of count_star without hue")
+  sns.histplot(data=df, x="bin", bins=200, kde=True)
+  plt.title("Histogram of equiwidth")
   plt.xlabel("count_star")
   plt.ylabel("Frequency")
   plt.savefig("visualization/histogram_count_star_no_hue.png")
