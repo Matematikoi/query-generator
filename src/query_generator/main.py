@@ -181,8 +181,7 @@ def plot(
   Plot the generated queries.
   """
   df = pl.read_csv(csv)
-  df  = df.filter (df["bin"] <200)
-  df  = df.filter (df["bin"] > 1)
+  df  = df.filter (df["count_star"] <1e9)
   # df = df.filter(df["bin"]  20)
   print(df.columns)
   os.makedirs("visualization", exist_ok=True)
@@ -200,10 +199,11 @@ def plot(
 
   # Add a plot without hues
   plt.figure(figsize=(10, 6))
-  sns.histplot(data=df, x="bin", bins=200, kde=True)
+  sns.histplot(data=df, x="count_star", bins=1000, kde=False)
   plt.title("Histogram of equiwidth")
   plt.xlabel("count_star")
   plt.ylabel("Frequency")
+  plt.yscale("log")
   plt.savefig("visualization/histogram_count_star_no_hue.png")
   plt.close()
 
