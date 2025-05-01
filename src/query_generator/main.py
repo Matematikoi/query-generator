@@ -151,7 +151,7 @@ def param_search(
       "--extra-predicates-range",
       "-e",
       help="The range of extra predicates to use for the query generation",
-      show_default="1, 3, 5",
+      show_default="1, 2, 3, 5",
     ),
   ] = None,
   row_retention_probability_range: Annotated[
@@ -161,7 +161,7 @@ def param_search(
       "-r",
       help="The range of row retention probabilities to use "
       "for the query generation",
-      show_default="0.2, 0.3, 0.4, 0.6, 0.8, 0.9",
+      show_default="0.2, 0.3, 0.4, 0.6, 0.8, 0.85, 0.9, 1.0",
     ),
   ] = None,
 ) -> None:
@@ -174,9 +174,9 @@ def param_search(
   if max_hops_range is None:
     max_hops_range = [1, 2, 4]
   if extra_predicates_range is None:
-    extra_predicates_range = [1, 3, 5]
+    extra_predicates_range = [1, 2, 3, 5]
   if row_retention_probability_range is None:
-    row_retention_probability_range = [0.2, 0.3, 0.4, 0.6, 0.8, 0.9]
+    row_retention_probability_range = [0.2, 0.3, 0.4, 0.6, 0.8, 0.85, 0.9, 1.0]
   if lower_bound >= upper_bound:
     raise ValueError("The lower bound must be smaller than the upper bound")
   show_dev_warning(dev)
