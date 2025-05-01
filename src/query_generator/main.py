@@ -6,7 +6,7 @@ from typing_extensions import Annotated
 from query_generator.duckdb.binning import (
   BinningSnowflakeParameters,
   SearchParameters,
-  run_snowflake_binning,
+  run_snowflake_param_seach,
 )
 from query_generator.duckdb.setup import setup_duckdb
 from query_generator.join_based_query_generator.snowflake import (
@@ -98,7 +98,7 @@ def snowflake(
 
 
 @app.command()
-def binning(
+def param_search(
   dataset: Annotated[
     Dataset, typer.Option("--dataset", "-d", help="The dataset used")
   ],
@@ -168,12 +168,8 @@ def binning(
   """
   This is an extension of the Snowflake algorithm.
 
-  It makes bins from lower-bound to upper-bound and it runs
-  the query on DuckDB to check that the number of rows that
-  fulfill the query is bigger than the lower bound. Then it
-  saves the results in bins of equidepth of size
-  (upper_bound - lower_bound) / total_bins
-  then it saves the query to the allocated bin.
+  It runs multiple batches with different configurations of the algorithm.
+  This allows us to get multiple results.
   """
   if max_hops_range is None:
     max_hops_range = [1, 2, 4]
@@ -186,7 +182,7 @@ def binning(
   show_dev_warning(dev)
   scale_factor = 0.1 if dev else 100
   con = setup_duckdb(scale_factor, dataset)
-  run_snowflake_binning(
+  run_snowflake_param_seach(
     BinningSnowflakeParameters(
       scale_factor=scale_factor,
       dataset=dataset,

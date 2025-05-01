@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import polars as pl
 
@@ -31,28 +32,32 @@ class Writer:
     with open(os.path.join(folder, file_name), "w") as f:
       f.write(query.query)
 
-  def get_binning_folder(self) -> str:
-    """
-    Get the folder path for the binning queries.
-    Returns:
-        str: The folder path for the binning queries.
-    """
-    path = f"data/generated_queries/{self.extension.value}/{self.dataset.value}"
-    if not os.path.exists(path):
-      os.makedirs(path)
+  def get_binning_folder(self) -> Path:
+    path = Path(
+      f"data/generated_queries/{self.extension.value}/{self.dataset.value}"
+    )
+    path.mkdir(parents=True, exist_ok=True)
     return path
 
-  def write_query_to_bin(
-    self, prefix: str, bin: int, query: GeneratedQueryFeatures
-  ) -> None:
-    folder = f"{self.get_binning_folder()}/bin_{bin}"
-    if not os.path.exists(folder):
-      os.makedirs(folder)
-    file_name = f"{prefix}_{query.template_number}_{query.predicate_number}.sql"
-    with open(os.path.join(folder, file_name), "w") as f:
-      f.write(query.query)
+  def write_query_to_batch(
+    self, batch: int, query: GeneratedQueryFeatures
+  ) -> str:
+    """
+    Returns relative path of the file to the final CSV
+    """
+    batch_dir = Path(self.get_binning_folder()) / f"batch_{batch}"
 
-  def write_dataframe(self, df: pl.DataFrame) -> None:
+    batch_dir.mkdir(parents=True, exist_ok=True)
+
+    file_path = (
+      batch_dir / f"{query.template_number}_{query.predicate_number}.sql"
+    )
+
+    file_path.write_text(query.query, encoding="utf-8")
+
+    return str(file_path.relative_to(self.get_binning_folder()))
+
+  def write_dataframe(self, input_dataframe: pl.DataFrame) -> None:
     folder = self.get_binning_folder()
-    path = f"{folder}/{self.dataset.value}_binning.csv"
-    df.write_csv(path)
+    path = f"{folder}/{self.dataset.value}_batches.csv"
+    input_dataframe.write_csv(path)

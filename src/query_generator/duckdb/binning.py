@@ -60,7 +60,7 @@ def get_result_from_duckdb(
   return result
 
 
-def run_snowflake_binning(
+def run_snowflake_param_seach(
   bin_params: BinningSnowflakeParameters,
   search_params: SearchParameters,
 ) -> None:
@@ -78,7 +78,7 @@ def run_snowflake_binning(
     * len(search_params.extra_predicates)
     * len(search_params.row_retention_probability)
   )
-  cnt = 0
+  batch_number = 0
   for max_hops, extra_predicates, row_retention_probability in tqdm(
     product(
       search_params.max_hops,
@@ -88,6 +88,7 @@ def run_snowflake_binning(
     total=total_iterations,
     desc="Progress",
   ):
+    batch_number += 1
     for query in generate_queries(
       QueryGenerationParameters(
         dataset=bin_params.dataset,
@@ -99,16 +100,14 @@ def run_snowflake_binning(
         row_retention_probability=float(row_retention_probability),
       )
     ):
-      cnt += 1
       selected_rows = get_result_from_duckdb(query.query, bin_params)
       if selected_rows == -1:
         continue  # invalid query
-      bin = get_bin_from_value(selected_rows, bin_params)
-      prefix = f"batch_{cnt}"
-      query_writer.write_query_to_bin(prefix, bin, query)
+      prefix = f"batch_{batch_number}"
+      relative_path = query_writer.write_query_to_batch(batch_number, query)
       rows.append(
         {
-          "bin": bin,
+          "relative_path": relative_path,
           "count_star": selected_rows,
           "prefix": prefix,
           "template_number": query.template_number,
@@ -118,5 +117,5 @@ def run_snowflake_binning(
           "row_retention_probability": row_retention_probability,
         }
       )
-  df = pl.DataFrame(rows)
-  query_writer.write_dataframe(df)
+  df_queries = pl.DataFrame(rows)
+  query_writer.write_dataframe(df_queries)

@@ -36,10 +36,12 @@ class PredicateGenerator:
     else:
       raise ValueError(f"Unsupported dataset histogram: {self.dataset}")
     # Remove rows with empty bins or that are dates
-    df = pd.read_csv(path)
+    histogram = pd.read_csv(path)
 
-    df = df[(df["bins"] != "[]") & (df["dtype"] != "date")]
-    return df
+    histogram = histogram[
+      (histogram["bins"] != "[]") & (histogram["dtype"] != "date")
+    ]
+    return histogram
 
   def get_random_predicates(
     self,

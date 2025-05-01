@@ -6,7 +6,7 @@ from query_generator.duckdb.binning import (
   BinningSnowflakeParameters,
   SearchParameters,
   get_bin_from_value,
-  run_snowflake_binning,
+  run_snowflake_param_seach,
 )
 from query_generator.utils.definitions import Dataset
 
@@ -41,13 +41,13 @@ def test_binning(value, params, expected):
 )
 def test_binning_calls(extra_predicates, expected_call_count):
   with mock.patch(
-    "query_generator.duckdb.binning.Writer.write_query_to_bin"
+    "query_generator.duckdb.binning.Writer.write_query_to_batch"
   ) as mock_writer:
     with mock.patch(
       "query_generator.duckdb.binning.get_result_from_duckdb"
     ) as mock_connect:
       mock_connect.return_value = 0
-      run_snowflake_binning(
+      run_snowflake_param_seach(
         BinningSnowflakeParameters(
           scale_factor=0,
           dataset=Dataset.TPCDS,
