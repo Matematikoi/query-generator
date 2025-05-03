@@ -1,4 +1,3 @@
-import math
 from pathlib import Path
 
 import polars as pl
@@ -6,15 +5,6 @@ import polars as pl
 from query_generator.utils.definitions import Dataset
 
 
-def get_bin_from_value(value: int, upper_bound: int, total_bins: int) -> int:
-  bin_size = float(upper_bound) / float(total_bins)
-  bin = math.ceil(value / bin_size)
-  if bin > total_bins:
-    bin = total_bins + 1
-  return bin
-
-
-# TODO: test with the function above
 def make_bins_in_csv(
   batch_df: pl.DataFrame, upper_bound: int, total_bins: int
 ) -> pl.DataFrame:

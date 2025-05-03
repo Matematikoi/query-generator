@@ -5,7 +5,6 @@ import typer
 from typing_extensions import Annotated
 
 from query_generator.duckdb.binning import (
-  BinningSnowflakeParameters,
   SearchParameters,
   run_snowflake_param_seach,
 )
@@ -182,15 +181,10 @@ def param_search(
   scale_factor = 0.1 if dev else 100
   con = setup_duckdb(scale_factor, dataset)
   run_snowflake_param_seach(
-    BinningSnowflakeParameters(
-      scale_factor=scale_factor,
-      dataset=dataset,
-      lower_bound=lower_bound,
-      upper_bound=upper_bound,
-      total_bins=total_bins,
-      con=con,
-    ),
     SearchParameters(
+      scale_factor=scale_factor,
+      con=con,
+      dataset=dataset,
       max_hops=max_hops_range,
       extra_predicates=extra_predicates_range,
       row_retention_probability=row_retention_probability_range,

@@ -4,7 +4,6 @@ import polars as pl
 import pytest
 
 from query_generator.duckdb.binning import (
-  BinningSnowflakeParameters,
   SearchParameters,
   run_snowflake_param_seach,
 )
@@ -58,18 +57,13 @@ def test_binning_calls(extra_predicates, expected_call_count):
     ) as mock_connect:
       mock_connect.return_value = 0
       run_snowflake_param_seach(
-        BinningSnowflakeParameters(
+        search_params=SearchParameters(
           scale_factor=0,
           dataset=Dataset.TPCDS,
-          lower_bound=0,
-          upper_bound=10000,
-          total_bins=10,
-          con=None,
-        ),
-        search_params=SearchParameters(
           max_hops=[1],
           extra_predicates=extra_predicates,
           row_retention_probability=[0.2],
+          con=None,
         ),
       )
     assert mock_writer.call_count == expected_call_count, (

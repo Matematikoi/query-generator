@@ -1,7 +1,6 @@
 import pytest
 
 from query_generator.duckdb.binning import (
-  BinningSnowflakeParameters,
   get_result_from_duckdb,
 )
 from query_generator.duckdb.setup import setup_duckdb
@@ -71,15 +70,5 @@ def test_duck_db_execution(query, expected_result):
   """Test the execution of queries in DuckDB."""
   # Setup DuckDB
   con = setup_duckdb(0.1, Dataset.TPCDS)
-  val = get_result_from_duckdb(
-    query,
-    BinningSnowflakeParameters(
-      scale_factor=0.1,
-      dataset=Dataset.TPCDS,
-      lower_bound=0,
-      upper_bound=10000,
-      total_bins=10,
-      con=con,
-    ),
-  )
+  val = get_result_from_duckdb(query, con)
   assert val == expected_result, f"Expected {expected_result}, but got {val}"

@@ -20,27 +20,18 @@ from query_generator.utils.definitions import (
 
 
 @dataclass
-class BinningSnowflakeParameters:
-  scale_factor: int | float
-  dataset: Dataset
-  lower_bound: int
-  upper_bound: int
-  total_bins: int
-  con: duckdb.DuckDBPyConnection
-
-
-@dataclass
 class SearchParameters:
+  dataset: Dataset
+  scale_factor: int | float
+  con: duckdb.DuckDBPyConnection
   max_hops: List[int]
   extra_predicates: List[int]
   row_retention_probability: List[float]
 
 
-def get_result_from_duckdb(
-  query: str, params: BinningSnowflakeParameters
-) -> int:
+def get_result_from_duckdb(query: str, con: duckdb.DuckDBPyConnection) -> int:
   try:
-    result = int(params.con.sql(query).fetchall()[0][0])
+    result = int(con.sql(query).fetchall()[0][0])
   except duckdb.BinderException as e:
     print(f"Invalid query, exception: {e},\n{query}")
     return -1
@@ -48,7 +39,6 @@ def get_result_from_duckdb(
 
 
 def run_snowflake_param_seach(
-  bin_params: BinningSnowflakeParameters,
   search_params: SearchParameters,
 ) -> None:
   """Run the Snowflake binning process. Binning is equiwidth binning.
@@ -58,7 +48,7 @@ def run_snowflake_param_seach(
     the Snowflake binning process.
 
   """
-  query_writer = Writer(bin_params.dataset, Extension.BINNING_SNOWFLAKE)
+  query_writer = Writer(search_params.dataset, Extension.BINNING_SNOWFLAKE)
   rows = []
   total_iterations = (
     len(search_params.max_hops)
@@ -78,7 +68,7 @@ def run_snowflake_param_seach(
     batch_number += 1
     for query in generate_queries(
       QueryGenerationParameters(
-        dataset=bin_params.dataset,
+        dataset=search_params.dataset,
         max_hops=max_hops,
         max_queries_per_fact_table=10,
         max_queries_per_signature=2,
@@ -87,7 +77,7 @@ def run_snowflake_param_seach(
         row_retention_probability=float(row_retention_probability),
       )
     ):
-      selected_rows = get_result_from_duckdb(query.query, bin_params)
+      selected_rows = get_result_from_duckdb(query.query, search_params.con)
       if selected_rows == -1:
         continue  # invalid query
       prefix = f"batch_{batch_number}"
