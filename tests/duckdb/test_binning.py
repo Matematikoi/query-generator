@@ -1,5 +1,6 @@
 from unittest import mock
 
+import polars as pl
 import pytest
 
 from query_generator.duckdb.binning import (
@@ -7,28 +8,38 @@ from query_generator.duckdb.binning import (
   SearchParameters,
   run_snowflake_param_seach,
 )
+from query_generator.tools.cherry_pick_binning import make_bins_in_csv
 from query_generator.utils.definitions import Dataset
 
-# TODO fix this test
-# @pytest.mark.parametrize(
-#   "value, params, expected",
-#   [
-#     (5, BinningSnowflakeParameters(None, None, 0, 10, 5, None), 3),
-#     (0, BinningSnowflakeParameters(None, None, 0, 10, 5, None), 0),
-#     (10, BinningSnowflakeParameters(None, None, 0, 10, 5, None), 5),
-#     (11, BinningSnowflakeParameters(None, None, 0, 10, 5, None), 6),
-#     # after the upper bound should stick to the last bin
-#     (20, BinningSnowflakeParameters(None, None, 0, 10, 5, None), 6),
-#     (5, BinningSnowflakeParameters(None, None, 0, 11, 5, None), 3),
-#     (0, BinningSnowflakeParameters(None, None, 0, 11, 5, None), 0),
-#     (10, BinningSnowflakeParameters(None, None, 0, 11, 5, None), 5),
-#     (11, BinningSnowflakeParameters(None, None, 0, 11, 5, None), 5),
-#     (20, BinningSnowflakeParameters(None, None, 0, 11, 5, None), 6),
-#   ],
-# )
-# def test_binning(value, params, expected):
-#   val = get_bin_from_value(value, params)
-#   assert val == expected, f"Expected {expected}, but got {val}"
+
+@pytest.mark.parametrize(
+  "count_star, upper_bound, total_bins, expected_bin",
+  [
+    (5, 10, 5, 3),
+    (0, 10, 5, 0),
+    (10, 10, 5, 5),
+    (11, 10, 5, 6),
+    (20, 10, 5, 6),
+    (5, 11, 5, 3),
+    (0, 11, 5, 0),
+    (10, 11, 5, 5),
+    (11, 11, 5, 5),
+    (20, 11, 5, 6),
+  ],
+)
+def test_make_bins_in_csv(count_star, upper_bound, total_bins, expected_bin):
+  # Create a DataFrame with a single value
+  test_df = pl.DataFrame({"count_star": [count_star]})
+  result_df = make_bins_in_csv(test_df, upper_bound, total_bins)
+
+  # Extract the computed bin
+  computed_bin = result_df["bin"][0]
+
+  assert computed_bin == expected_bin, (
+    f"For count_star={count_star}, upper_bound={upper_bound}, "
+    f"total_bins={total_bins}, expected bin={expected_bin}"
+    " but got {computed_bin}"
+  )
 
 
 @pytest.mark.parametrize(

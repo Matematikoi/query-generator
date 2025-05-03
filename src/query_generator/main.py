@@ -254,6 +254,7 @@ def cherry_pick(
       "--destination-folder",
       "-df",
       help="The folder to save the cherry picked queries",
+      # TODO: this should be an enum
       show_default="data/generated_queries/CHERRY_PICKED_QUERIES/{dataset}",
     ),
   ] = None,
