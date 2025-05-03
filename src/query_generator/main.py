@@ -26,12 +26,12 @@ app = typer.Typer(name="Query Generation")
 @app.command()
 def snowflake(
   dataset: Annotated[
-    Dataset, typer.Option("--dataset", "-d", help="The dataset used")
+    Dataset, typer.Option("--dataset", "-d", help="The dataset used"),
   ],
   max_hops: Annotated[
     int,
     typer.Option(
-      "--max-hops", "-h", help="The maximum number of hops", min=1, max=5
+      "--max-hops", "-h", help="The maximum number of hops", min=1, max=5,
     ),
   ] = 3,
   max_queries_per_fact_table: Annotated[
@@ -98,7 +98,7 @@ def snowflake(
 @app.command()
 def param_search(
   dataset: Annotated[
-    Dataset, typer.Option("--dataset", "-d", help="The dataset used")
+    Dataset, typer.Option("--dataset", "-d", help="The dataset used"),
   ],
   *,
   dev: Annotated[
@@ -195,7 +195,7 @@ def param_search(
 @app.command()
 def cherry_pick(
   dataset: Annotated[
-    Dataset, typer.Option("--dataset", "-d", help="The dataset used")
+    Dataset, typer.Option("--dataset", "-d", help="The dataset used"),
   ],
   csv: Annotated[
     Optional[str],
@@ -259,7 +259,7 @@ def cherry_pick(
   """
   csv_path = (
     Path(
-      f"data/generated_queries/BINNING_SNOWFLAKE/{dataset.value}/{dataset.value}_batches.csv"
+      f"data/generated_queries/BINNING_SNOWFLAKE/{dataset.value}/{dataset.value}_batches.csv",
     )
     if csv is None
     else Path(csv)

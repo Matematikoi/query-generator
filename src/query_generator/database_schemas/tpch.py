@@ -16,7 +16,7 @@ def get_tpch_table_info() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
           "column": "c_nationkey",
           "ref_table": "nation",
           "ref_column": "n_nationkey",
-        }
+        },
       ],
     },
     "lineitem": {
@@ -64,7 +64,7 @@ def get_tpch_table_info() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
           "column": "n_regionkey",
           "ref_table": "region",
           "ref_column": "r_regionkey",
-        }
+        },
       ],
     },
     "orders": {
@@ -81,7 +81,7 @@ def get_tpch_table_info() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
           "column": "o_custkey",
           "ref_table": "customer",
           "ref_column": "c_custkey",
-        }
+        },
       ],
     },
     "part": {
@@ -131,7 +131,7 @@ def get_tpch_table_info() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
           "column": "s_nationkey",
           "ref_table": "nation",
           "ref_column": "n_nationkey",
-        }
+        },
       ],
     },
   }
@@ -143,17 +143,17 @@ def get_tpch_table_info() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
       if fk["column"] not in tables[table_name]["columns"]:
         raise ValueError(
           f"Table {table_name} has foreign key column "
-          f"{fk['column']} that does not exist"
+          f"{fk['column']} that does not exist",
         )
       if ref_table not in tables:
         raise ValueError(
           f"Table {table_name} has foreign key "
-          f"to non-existing table {ref_table}"
+          f"to non-existing table {ref_table}",
         )
       if fk["ref_column"] not in tables[ref_table]["columns"]:
         raise ValueError(
           f"Table {table_name} has foreign key to column {fk['ref_column']} "
-          f"that does not exist in table {ref_table}"
+          f"that does not exist in table {ref_table}",
         )
 
   fact_tables = ["lineitem", "orders", "partsupp"]

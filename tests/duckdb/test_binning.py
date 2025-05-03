@@ -50,10 +50,10 @@ def test_make_bins_in_csv(count_star, upper_bound, total_bins, expected_bin):
 )
 def test_binning_calls(extra_predicates, expected_call_count):
   with mock.patch(
-    "query_generator.duckdb.binning.Writer.write_query_to_batch"
+    "query_generator.duckdb.binning.Writer.write_query_to_batch",
   ) as mock_writer:
     with mock.patch(
-      "query_generator.duckdb.binning.get_result_from_duckdb"
+      "query_generator.duckdb.binning.get_result_from_duckdb",
     ) as mock_connect:
       mock_connect.return_value = 0
       run_snowflake_param_seach(

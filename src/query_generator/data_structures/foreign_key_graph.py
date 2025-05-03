@@ -52,7 +52,7 @@ class ForeignKeyGraph:
     self.tables.sort()
     for table in self.tables:
       tables_schema[table]["foreign_keys"].sort(
-        key=lambda x: (x["ref_table"], x["column"], x["ref_column"])
+        key=lambda x: (x["ref_table"], x["column"], x["ref_column"]),
       )
 
     edge_id = 0
@@ -61,7 +61,7 @@ class ForeignKeyGraph:
         reference_table = fk["ref_table"]
         if reference_table not in self.tables:
           raise ValueError(
-            f"Reference table {reference_table} not found in schema."
+            f"Reference table {reference_table} not found in schema.",
           )
 
         edge = ForeignKeyGraph.Edge(

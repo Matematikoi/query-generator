@@ -35,13 +35,13 @@ class Writer:
 
   def get_binning_folder(self) -> Path:
     path = Path(
-      f"data/generated_queries/{self.extension.value}/{self.dataset.value}"
+      f"data/generated_queries/{self.extension.value}/{self.dataset.value}",
     )
     path.mkdir(parents=True, exist_ok=True)
     return path
 
   def write_query_to_batch(
-    self, batch: int, query: GeneratedQueryFeatures
+    self, batch: int, query: GeneratedQueryFeatures,
   ) -> str:
     """Returns relative path of the file to the final CSV"""
     batch_dir = Path(self.get_binning_folder()) / f"batch_{batch}"

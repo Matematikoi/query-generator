@@ -75,7 +75,7 @@ def run_snowflake_param_seach(
         keep_edge_prob=0.2,
         extra_predicates=extra_predicates,
         row_retention_probability=float(row_retention_probability),
-      )
+      ),
     ):
       selected_rows = get_result_from_duckdb(query.query, search_params.con)
       if selected_rows == -1:
@@ -92,7 +92,7 @@ def run_snowflake_param_seach(
           "fact_table": query.fact_table,
           "max_hops": max_hops,
           "row_retention_probability": row_retention_probability,
-        }
+        },
       )
   df_queries = pl.DataFrame(rows)
   query_writer.write_dataframe(df_queries)

@@ -70,15 +70,15 @@ class PredicateGenerator:
       column = row["column"]
       bins = row["bins"]
       min_value, max_value = self._get_min_max_from_bins(
-        bins, row_retention_probability
+        bins, row_retention_probability,
       )
       predicate = PredicateGenerator.Predicate(
-        table=table, column=column, min_value=min_value, max_value=max_value
+        table=table, column=column, min_value=min_value, max_value=max_value,
       )
       yield predicate
 
   def _get_min_max_from_bins(
-    self, bins: str, row_retention_probability: float
+    self, bins: str, row_retention_probability: float,
   ) -> Tuple[float | int, float | int]:
     """Convert the bins string representation to a tuple of min and max values.
 

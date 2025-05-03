@@ -9,10 +9,10 @@ def show_dev_warning(*, dev: bool) -> None:
     print(
       "Running on [red] development mode [/red]"
       "This means that results are not valid and only for testing "
-      "purposes"
+      "purposes",
     )
   else:
     print(
       "Running on [green] production mode [/green]"
-      "\nThis will run using the full dataset and the results are valid"
+      "\nThis will run using the full dataset and the results are valid",
     )

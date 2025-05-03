@@ -78,14 +78,15 @@ select = [
     "SIM",  # flake8-simplify
     "I",    # isort
     "C4",   # flake8-comprehensions
+    "Q",    # flake8-quotes
+    "NPY",  # Numpy rules
+    "PD",   # Pandas rules
+    "PERF", # Perflint
+    "FBT",  # Boolean trap
+    "COM",  # Commas rules
     # "ANN",  # flake8-annotations
     # "S",    # flake8-bandit
-    "Q",    # flake8-quotes
     # "PTH",  # use-pathlib rules
-    "NPY", # Numpy rules
-    "PD", # Pandas rules
-    "PERF", # Perflint
-    "FBT", # Boolean trap
 ]
 
 [tool.mypy]

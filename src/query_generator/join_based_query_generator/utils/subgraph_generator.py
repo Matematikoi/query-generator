@@ -46,14 +46,14 @@ class SubGraphGenerator:
           edges_subgraph.append(current_edge)
           queue.append(
             JoinDepthNode(
-              current_edge.reference_table.name, current_node.depth + 1
-            )
+              current_edge.reference_table.name, current_node.depth + 1,
+            ),
           )
 
     return edges_subgraph
 
   def get_unseen_random_subgraph(
-    self, fact_table: str
+    self, fact_table: str,
   ) -> List[ForeignKeyGraph.Edge]:
     """Generate a random subgraph starting from the fact table.
 
@@ -69,7 +69,7 @@ class SubGraphGenerator:
       cnt += 1
       if cnt > 1000:
         raise GraphExploredError(
-          "Unable to find a new subgraph after 1000 attempts."
+          "Unable to find a new subgraph after 1000 attempts.",
         )
       edges = self.get_random_subgraph(fact_table)
       edges_signature = self.graph.get_subgraph_signature(edges)
@@ -80,7 +80,7 @@ class SubGraphGenerator:
         return edges
 
   def generate_subgraph(
-    self, fact_table: str, max_signatures_per_fact_table: int
+    self, fact_table: str, max_signatures_per_fact_table: int,
   ) -> Iterator[List[ForeignKeyGraph.Edge]]:
     # TODO communicate with the user the total number of signatures
     # or add a debug mode
