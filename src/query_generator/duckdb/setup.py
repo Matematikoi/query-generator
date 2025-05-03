@@ -13,7 +13,9 @@ def load_and_install_libraries() -> None:
 
 
 def generate_data(
-  scale_factor: float | int, dataset: Dataset, con: duckdb.DuckDBPyConnection,
+  scale_factor: float | int,
+  dataset: Dataset,
+  con: duckdb.DuckDBPyConnection,
 ) -> None:
   if dataset == Dataset.TPCDS:
     con.execute(f"CALL dsdgen(sf = {scale_factor})")
@@ -24,7 +26,8 @@ def generate_data(
 
 
 def setup_duckdb(
-  scale_factor: int | float, dataset: Dataset,
+  scale_factor: int | float,
+  dataset: Dataset,
 ) -> duckdb.DuckDBPyConnection:
   """Installs TPCDS and TPCH datasets in DuckDB.
 

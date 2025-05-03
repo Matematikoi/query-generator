@@ -1,4 +1,5 @@
-from typing import Any, Iterator, List
+from collections.abc import Iterator
+from typing import Any
 
 from pypika import OracleQuery, Table
 from pypika import functions as fn
@@ -41,8 +42,9 @@ class QueryBuilder:
     self.predicate_gen = PredicateGenerator(dataset)
 
   def get_subgraph_tables(
-    self, subgraph: List[ForeignKeyGraph.Edge],
-  ) -> List[str]:
+    self,
+    subgraph: list[ForeignKeyGraph.Edge],
+  ) -> list[str]:
     return list(
       set(
         [edge.reference_table.name for edge in subgraph]
@@ -52,7 +54,7 @@ class QueryBuilder:
 
   def generate_query_from_subgraph(
     self,
-    subgraph: List[ForeignKeyGraph.Edge],
+    subgraph: list[ForeignKeyGraph.Edge],
   ) -> OracleQuery:
     subgraph_tables = self.get_subgraph_tables(subgraph)
     query = OracleQuery().select(fn.Count("*"))
@@ -70,14 +72,16 @@ class QueryBuilder:
 
   def add_predicates(
     self,
-    subgraph: List[ForeignKeyGraph.Edge],
+    subgraph: list[ForeignKeyGraph.Edge],
     query: OracleQuery,
     extra_predicates: int,
     row_retention_probability: float,
   ) -> OracleQuery:
     subgraph_tables = self.get_subgraph_tables(subgraph)
     for predicate in self.predicate_gen.get_random_predicates(
-      subgraph_tables, extra_predicates, row_retention_probability,
+      subgraph_tables,
+      extra_predicates,
+      row_retention_probability,
     ):
       query = query.where(
         self.table_to_pypika_table[predicate.table][predicate.column]
@@ -96,15 +100,20 @@ def generate_queries(
   tables_schema, fact_tables = get_schema(params.dataset)
   foreign_key_graph = ForeignKeyGraph(tables_schema)
   subgraph_generator = SubGraphGenerator(
-    foreign_key_graph, params.keep_edge_prob, params.max_hops,
+    foreign_key_graph,
+    params.keep_edge_prob,
+    params.max_hops,
   )
   query_builder = QueryBuilder(
-    subgraph_generator, tables_schema, params.dataset,
+    subgraph_generator,
+    tables_schema,
+    params.dataset,
   )
   for fact_table in fact_tables:
     for cnt, subgraph in enumerate(
       subgraph_generator.generate_subgraph(
-        fact_table, params.max_queries_per_fact_table,
+        fact_table,
+        params.max_queries_per_fact_table,
       ),
     ):
       query = query_builder.generate_query_from_subgraph(subgraph)

@@ -1,6 +1,6 @@
 import copy
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any
 
 
 class ForeignKeyGraph:
@@ -28,7 +28,7 @@ class ForeignKeyGraph:
     reference_column: str
     id: int
 
-  def __init__(self, tables_schema: Dict[str, Dict[str, Any]]) -> None:
+  def __init__(self, tables_schema: dict[str, dict[str, Any]]) -> None:
     """Initialize the foreign key graph.
 
     Args:
@@ -38,11 +38,11 @@ class ForeignKeyGraph:
     """
     self.tables = list(tables_schema.keys())
     self.table_to_index = {name: i for i, name in enumerate(self.tables)}
-    self.graph: List[List[ForeignKeyGraph.Edge]] = [[] for _ in self.tables]
+    self.graph: list[list[ForeignKeyGraph.Edge]] = [[] for _ in self.tables]
 
     self.populate_graph(copy.deepcopy(tables_schema))
 
-  def populate_graph(self, tables_schema: Dict[str, Dict[str, Any]]) -> None:
+  def populate_graph(self, tables_schema: dict[str, dict[str, Any]]) -> None:
     """Populate the foreign key graph with edges based on the schema.
     This method iterates through each table and its foreign keys,
     creating edges to the referenced tables.
@@ -87,7 +87,7 @@ class ForeignKeyGraph:
     """
     return len(self.graph[self.table_to_index[table]]) == 0
 
-  def get_edges(self, table: str) -> List["ForeignKeyGraph.Edge"]:
+  def get_edges(self, table: str) -> list["ForeignKeyGraph.Edge"]:
     """Get the edges (foreign key relationships) for a given table.
 
     Args:
@@ -108,7 +108,7 @@ class ForeignKeyGraph:
 
     return edges
 
-  def get_subgraph_signature(self, edges: List["ForeignKeyGraph.Edge"]) -> int:
+  def get_subgraph_signature(self, edges: list["ForeignKeyGraph.Edge"]) -> int:
     """Get a signature of the edges for a given table.
     The signature is defined as a bitwise OR of the edge IDs.
 

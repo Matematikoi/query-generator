@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from itertools import product
-from typing import List
 
 import duckdb
 import polars as pl
@@ -24,9 +23,9 @@ class SearchParameters:
   dataset: Dataset
   scale_factor: int | float
   con: duckdb.DuckDBPyConnection
-  max_hops: List[int]
-  extra_predicates: List[int]
-  row_retention_probability: List[float]
+  max_hops: list[int]
+  extra_predicates: list[int]
+  row_retention_probability: list[float]
 
 
 def get_result_from_duckdb(query: str, con: duckdb.DuckDBPyConnection) -> int:

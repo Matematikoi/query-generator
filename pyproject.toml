@@ -84,6 +84,7 @@ select = [
     "PERF", # Perflint
     "FBT",  # Boolean trap
     "COM",  # Commas rules
+    "UP",   # Newer python features
     # "ANN",  # flake8-annotations
     # "S",    # flake8-bandit
     # "PTH",  # use-pathlib rules

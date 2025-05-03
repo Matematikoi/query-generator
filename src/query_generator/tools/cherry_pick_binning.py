@@ -6,7 +6,9 @@ from query_generator.utils.definitions import Dataset
 
 
 def make_bins_in_csv(
-  batch_df: pl.DataFrame, upper_bound: int, total_bins: int,
+  batch_df: pl.DataFrame,
+  upper_bound: int,
+  total_bins: int,
 ) -> pl.DataFrame:
   bin_size = float(upper_bound) / float(total_bins)
   return batch_df.with_columns(

@@ -1,11 +1,11 @@
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 from query_generator.database_schemas.tpcds import get_tpcds_table_info
 from query_generator.database_schemas.tpch import get_tpch_table_info
 from query_generator.utils.definitions import Dataset
 
 
-def get_schema(dataset: Dataset) -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
+def get_schema(dataset: Dataset) -> tuple[dict[str, dict[str, Any]], list[str]]:
   """Get the schema of the database based on the dataset.
 
   Args:

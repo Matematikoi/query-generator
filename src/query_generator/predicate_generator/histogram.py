@@ -1,7 +1,7 @@
 import math
 import random
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Iterator, List, Tuple
 
 import pandas as pd
 
@@ -46,7 +46,7 @@ class PredicateGenerator:
 
   def get_random_predicates(
     self,
-    tables: List[str],
+    tables: list[str],
     num_predicates: int,
     row_retention_probability: float,
   ) -> Iterator["PredicateGenerator.Predicate"]:
@@ -70,16 +70,22 @@ class PredicateGenerator:
       column = row["column"]
       bins = row["bins"]
       min_value, max_value = self._get_min_max_from_bins(
-        bins, row_retention_probability,
+        bins,
+        row_retention_probability,
       )
       predicate = PredicateGenerator.Predicate(
-        table=table, column=column, min_value=min_value, max_value=max_value,
+        table=table,
+        column=column,
+        min_value=min_value,
+        max_value=max_value,
       )
       yield predicate
 
   def _get_min_max_from_bins(
-    self, bins: str, row_retention_probability: float,
-  ) -> Tuple[float | int, float | int]:
+    self,
+    bins: str,
+    row_retention_probability: float,
+  ) -> tuple[float | int, float | int]:
     """Convert the bins string representation to a tuple of min and max values.
 
     Args:
@@ -90,7 +96,7 @@ class PredicateGenerator:
         tuple: Tuple containing min and max values.
 
     """
-    number_array: List[int | float] = eval(bins)
+    number_array: list[int | float] = eval(bins)
     subrange_length = math.ceil(row_retention_probability * len(number_array))
     start_index = random.randint(0, len(number_array) - subrange_length)
 

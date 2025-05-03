@@ -1,8 +1,7 @@
 from pathlib import Path
-from typing import List, Optional
+from typing import Annotated
 
 import typer
-from typing_extensions import Annotated
 
 from query_generator.duckdb.binning import (
   SearchParameters,
@@ -26,12 +25,17 @@ app = typer.Typer(name="Query Generation")
 @app.command()
 def snowflake(
   dataset: Annotated[
-    Dataset, typer.Option("--dataset", "-d", help="The dataset used"),
+    Dataset,
+    typer.Option("--dataset", "-d", help="The dataset used"),
   ],
   max_hops: Annotated[
     int,
     typer.Option(
-      "--max-hops", "-h", help="The maximum number of hops", min=1, max=5,
+      "--max-hops",
+      "-h",
+      help="The maximum number of hops",
+      min=1,
+      max=5,
     ),
   ] = 3,
   max_queries_per_fact_table: Annotated[
@@ -98,7 +102,8 @@ def snowflake(
 @app.command()
 def param_search(
   dataset: Annotated[
-    Dataset, typer.Option("--dataset", "-d", help="The dataset used"),
+    Dataset,
+    typer.Option("--dataset", "-d", help="The dataset used"),
   ],
   *,
   dev: Annotated[
@@ -136,7 +141,7 @@ def param_search(
     ),
   ] = 200,
   max_hops_range: Annotated[
-    Optional[List[int]],
+    list[int] | None,
     typer.Option(
       "--max-hops-range",
       "-h",
@@ -145,7 +150,7 @@ def param_search(
     ),
   ] = None,
   extra_predicates_range: Annotated[
-    Optional[List[int]],
+    list[int] | None,
     typer.Option(
       "--extra-predicates-range",
       "-e",
@@ -154,7 +159,7 @@ def param_search(
     ),
   ] = None,
   row_retention_probability_range: Annotated[
-    Optional[List[float]],
+    list[float] | None,
     typer.Option(
       "--row-retention-probability-range",
       "-r",
@@ -195,10 +200,11 @@ def param_search(
 @app.command()
 def cherry_pick(
   dataset: Annotated[
-    Dataset, typer.Option("--dataset", "-d", help="The dataset used"),
+    Dataset,
+    typer.Option("--dataset", "-d", help="The dataset used"),
   ],
   csv: Annotated[
-    Optional[str],
+    str | None,
     typer.Option(
       "--folder",
       "-f",
@@ -243,7 +249,7 @@ def cherry_pick(
     ),
   ] = 42,
   destination_folder: Annotated[
-    Optional[str],
+    str | None,
     typer.Option(
       "--destination-folder",
       "-df",
