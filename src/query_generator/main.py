@@ -1,14 +1,24 @@
+from pathlib import Path
+from typing import List, Optional
+
 import typer
-from rich import print
 from typing_extensions import Annotated
 
+from query_generator.duckdb.binning import (
+  SearchParameters,
+  run_snowflake_param_seach,
+)
+from query_generator.duckdb.setup import setup_duckdb
 from query_generator.join_based_query_generator.snowflake import (
   generate_and_write_queries,
 )
+from query_generator.tools.cherry_pick_binning import cherry_pick_binning
 from query_generator.utils.definitions import (
   Dataset,
   QueryGenerationParameters,
 )
+from query_generator.utils.show_messages import show_dev_warning
+from query_generator.utils.utils import validate_dir_path
 
 app = typer.Typer(name="Query Generation")
 
@@ -72,9 +82,7 @@ def snowflake(
     ),
   ] = 3,
 ) -> None:
-  """
-  Generate queries using a random subgraph.
-  """
+  """Generate queries using a random subgraph."""
   params = QueryGenerationParameters(
     dataset=dataset,
     max_hops=max_hops,
@@ -88,11 +96,191 @@ def snowflake(
 
 
 @app.command()
-def duckdb_setup() -> None:
+def param_search(
+  dataset: Annotated[
+    Dataset, typer.Option("--dataset", "-d", help="The dataset used")
+  ],
+  *,
+  dev: Annotated[
+    bool,
+    typer.Option(
+      "--dev",
+      help="Development testing. If true then uses scale factor 1 to check.",
+    ),
+  ] = False,
+  lower_bound: Annotated[
+    int,
+    typer.Option(
+      "--lower-bound",
+      "-l",
+      help="The lower bound of the binning process",
+      min=0,
+    ),
+  ] = 0,
+  upper_bound: Annotated[
+    int,
+    typer.Option(
+      "--upper-bound",
+      "-u",
+      help="The upper bound of the binning process",
+      min=1,
+    ),
+  ] = 1_000_000,
+  total_bins: Annotated[
+    int,
+    typer.Option(
+      "--total-bins",
+      "-b",
+      help="The number of bins to create",
+      min=10,
+    ),
+  ] = 200,
+  max_hops_range: Annotated[
+    Optional[List[int]],
+    typer.Option(
+      "--max-hops-range",
+      "-h",
+      help="The range of hops to use for the query generation",
+      show_default="1, 2, 4",
+    ),
+  ] = None,
+  extra_predicates_range: Annotated[
+    Optional[List[int]],
+    typer.Option(
+      "--extra-predicates-range",
+      "-e",
+      help="The range of extra predicates to use for the query generation",
+      show_default="1, 2, 3, 5",
+    ),
+  ] = None,
+  row_retention_probability_range: Annotated[
+    Optional[List[float]],
+    typer.Option(
+      "--row-retention-probability-range",
+      "-r",
+      help="The range of row retention probabilities to use "
+      "for the query generation",
+      show_default="0.2, 0.3, 0.4, 0.6, 0.8, 0.85, 0.9, 1.0",
+    ),
+  ] = None,
+) -> None:
+  """This is an extension of the Snowflake algorithm.
+
+  It runs multiple batches with different configurations of the algorithm.
+  This allows us to get multiple results.
   """
-  Setup DuckDB for query generation.
+  if max_hops_range is None:
+    max_hops_range = [1, 2, 4]
+  if extra_predicates_range is None:
+    extra_predicates_range = [1, 2, 3, 5]
+  if row_retention_probability_range is None:
+    row_retention_probability_range = [0.2, 0.3, 0.4, 0.6, 0.8, 0.85, 0.9, 1.0]
+  if lower_bound >= upper_bound:
+    raise ValueError("The lower bound must be smaller than the upper bound")
+  show_dev_warning(dev=dev)
+  scale_factor = 0.1 if dev else 100
+  con = setup_duckdb(scale_factor, dataset)
+  run_snowflake_param_seach(
+    SearchParameters(
+      scale_factor=scale_factor,
+      con=con,
+      dataset=dataset,
+      max_hops=max_hops_range,
+      extra_predicates=extra_predicates_range,
+      row_retention_probability=row_retention_probability_range,
+    ),
+  )
+
+
+@app.command()
+def cherry_pick(
+  dataset: Annotated[
+    Dataset, typer.Option("--dataset", "-d", help="The dataset used")
+  ],
+  csv: Annotated[
+    Optional[str],
+    typer.Option(
+      "--folder",
+      "-f",
+      help="The path to the batches csv",
+      show_default="data/generated_queries/BINNING_SNOWFLAKE/{dataset}/{dataset}_values.csv",
+    ),
+  ] = None,
+  queries_per_bin: Annotated[
+    int,
+    typer.Option(
+      "--queries",
+      "-q",
+      help="The number of queries to be randomly picked per bin",
+      min=1,
+    ),
+  ] = 10,
+  upper_bound: Annotated[
+    int,
+    typer.Option(
+      "--upper-bound",
+      "-u",
+      help="The upper bound of the binning process",
+      min=1,
+    ),
+  ] = 1_000_000_000,
+  total_bins: Annotated[
+    int,
+    typer.Option(
+      "--total-bins",
+      "-b",
+      help="The number of bins to create",
+      min=10,
+    ),
+  ] = 1000,
+  seed: Annotated[
+    int,
+    typer.Option(
+      "--seed",
+      "-s",
+      help="The seed to use for the random queries selection",
+      min=0,
+    ),
+  ] = 42,
+  destination_folder: Annotated[
+    Optional[str],
+    typer.Option(
+      "--destination-folder",
+      "-df",
+      help="The folder to save the cherry picked queries",
+      # TODO: this should be an enum
+      show_default="data/generated_queries/CHERRY_PICKED_QUERIES/{dataset}",
+    ),
+  ] = None,
+) -> None:
+  """This function is used to cherry pick queries from the
+  binning process. It randomly picks queries from the
+  binning process and saves them in a folder.
   """
-  print("DuckDB setup is not implemented yet.")
+  csv_path = (
+    Path(
+      f"data/generated_queries/BINNING_SNOWFLAKE/{dataset.value}/{dataset.value}_batches.csv"
+    )
+    if csv is None
+    else Path(csv)
+  )
+
+  destination_folder_path = (
+    Path(f"data/generated_queries/CHERRY_PICKED_QUERIES/{dataset.value}")
+    if destination_folder is None
+    else Path(destination_folder)
+  )
+
+  validate_dir_path(csv_path)
+  cherry_pick_binning(
+    dataset,
+    csv_path,
+    queries_per_bin,
+    upper_bound,
+    total_bins,
+    seed,
+    destination_folder_path,
+  )
 
 
 if __name__ == "__main__":

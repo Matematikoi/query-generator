@@ -21,14 +21,15 @@ class PredicateGenerator:
     self.histogram: pd.DataFrame = self.read_histogram()
 
   def read_histogram(self) -> pd.DataFrame:
-    """
-    Read the histogram data for the specified dataset.
+    """Read the histogram data for the specified dataset.
+
     Args:
         dataset: The dataset type (TPCH or TPCDS).
+
     Returns:
         pd.DataFrame: DataFrame containing the histogram data.
-    """
 
+    """
     if self.dataset == Dataset.TPCH:
       path = "data/histograms/raw_tpch_hist.csv"
     elif self.dataset == Dataset.TPCDS:
@@ -36,10 +37,12 @@ class PredicateGenerator:
     else:
       raise ValueError(f"Unsupported dataset histogram: {self.dataset}")
     # Remove rows with empty bins or that are dates
-    df = pd.read_csv(path)
+    histogram = pd.read_csv(path)
 
-    df = df[(df["bins"] != "[]") & (df["dtype"] != "date")]
-    return df
+    histogram = histogram[
+      (histogram["bins"] != "[]") & (histogram["dtype"] != "date")
+    ]
+    return histogram
 
   def get_random_predicates(
     self,
@@ -47,14 +50,16 @@ class PredicateGenerator:
     num_predicates: int,
     row_retention_probability: float,
   ) -> Iterator["PredicateGenerator.Predicate"]:
-    """
-    Generate random predicates based on the histogram data.
+    """Generate random predicates based on the histogram data.
+
     Args:
         tables (str): List of tables to select predicates from.
         num_predicates (int): Number of predicates to generate.
         row_retention_probability (float): Probability of retaining rows.
+
     Returns:
         List[PredicateGenerator.Predicate]: List of generated predicates.
+
     """
     selected_tables_histogram = self.histogram[
       self.histogram["table"].isin(tables)
@@ -75,13 +80,15 @@ class PredicateGenerator:
   def _get_min_max_from_bins(
     self, bins: str, row_retention_probability: float
   ) -> Tuple[float | int, float | int]:
-    """
-    Convert the bins string representation to a tuple of min and max values.
+    """Convert the bins string representation to a tuple of min and max values.
+
     Args:
         bins (str): String representation of bins.
         row_retention_probability (float): Probability of retaining rows.
+
     Returns:
         tuple: Tuple containing min and max values.
+
     """
     number_array: List[int | float] = eval(bins)
     subrange_length = math.ceil(row_retention_probability * len(number_array))

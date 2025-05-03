@@ -4,7 +4,7 @@ from enum import Enum
 
 class Extension(Enum):
   SNOWFLAKE = "SNOWFLAKE"
-  EQUI_WIDTH_SNOWFLAKE = "EQUI_WIDTH_SNOWFLAKE"
+  BINNING_SNOWFLAKE = "BINNING_SNOWFLAKE"
 
 
 class Dataset(Enum):

@@ -14,7 +14,7 @@ from query_generator.join_based_query_generator.\
 
 # fmt: on
 from query_generator.join_based_query_generator.utils.query_writer import (
-  QueryWriter,
+  Writer,
 )
 from query_generator.predicate_generator.histogram import PredicateGenerator
 from query_generator.utils.definitions import (
@@ -125,12 +125,13 @@ def generate_queries(
 
 
 def generate_and_write_queries(params: QueryGenerationParameters) -> None:
-  """
-  Generate and write queries to a file.
+  """Generate and write queries to a file.
+
   Args:
       params (QueryGenerationParameters): Query generation parameters.
+
   """
-  query_writer = QueryWriter(
+  query_writer = Writer(
     params.dataset,
     Extension.SNOWFLAKE,
   )

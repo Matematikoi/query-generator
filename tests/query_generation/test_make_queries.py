@@ -13,7 +13,7 @@ from query_generator.utils.definitions import (
 
 def test_tpch_query_generation():
   with mock.patch(
-    "query_generator.join_based_query_generator.snowflake.QueryWriter.write_query"
+    "query_generator.join_based_query_generator.snowflake.Writer.write_query"
   ) as mock_writer:
     generate_and_write_queries(
       QueryGenerationParameters(
@@ -32,7 +32,7 @@ def test_tpch_query_generation():
 
 def test_tpcds_query_generation():
   with mock.patch(
-    "query_generator.join_based_query_generator.snowflake.QueryWriter.write_query"
+    "query_generator.join_based_query_generator.snowflake.Writer.write_query"
   ) as mock_writer:
     generate_and_write_queries(
       QueryGenerationParameters(
@@ -51,7 +51,7 @@ def test_tpcds_query_generation():
 
 def test_non_implemented_dataset():
   with mock.patch(
-    "query_generator.join_based_query_generator.snowflake.QueryWriter.write_query"
+    "query_generator.join_based_query_generator.snowflake.Writer.write_query"
   ) as mock_writer:
     with pytest.raises(ValueError):
       generate_and_write_queries(

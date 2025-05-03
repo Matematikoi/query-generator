@@ -20,8 +20,7 @@ class SubGraphGenerator:
     self.seen_subgraphs: Dict[int, bool] = {}
 
   def get_random_subgraph(self, fact_table: str) -> List[ForeignKeyGraph.Edge]:
-    """
-    Starting from the fact table, for each edge of the current table we
+    """Starting from the fact table, for each edge of the current table we
     decide based on the keep_edge_probability whether to keep the edge or not.
 
     We repeat this process up until the maximum number of hops.
@@ -56,12 +55,14 @@ class SubGraphGenerator:
   def get_unseen_random_subgraph(
     self, fact_table: str
   ) -> List[ForeignKeyGraph.Edge]:
-    """
-    Generate a random subgraph starting from the fact table.
+    """Generate a random subgraph starting from the fact table.
+
     Args:
         fact_table (str): Name of the fact table.
+
     Returns:
         List[ForeignKeyGraph.Edge]: List of edges in the generated subgraph.
+
     """
     cnt = 0
     while True:
@@ -81,12 +82,11 @@ class SubGraphGenerator:
   def generate_subgraph(
     self, fact_table: str, max_signatures_per_fact_table: int
   ) -> Iterator[List[ForeignKeyGraph.Edge]]:
-    cnt = 0
+    # TODO communicate with the user the total number of signatures
+    # or add a debug mode
     for _ in range(max_signatures_per_fact_table):
-      cnt += 1
       try:
         yield self.get_unseen_random_subgraph(fact_table)
       except GraphExploredError:
         # The exception is failing to find a new subgraph after 1000 attempts
         break
-    print(f"{fact_table} made a a total of {cnt} signatures")

@@ -1,6 +1,6 @@
 [project]
 name = "query-generator"
-version = "0.1.0"
+version = "0.2.0"
 requires-python = ">= 3.11"
 dependencies = []
 
@@ -28,6 +28,10 @@ rich  = ">=14.0.0,<15"
 pypika = ">=0.48.9,<0.49"
 numpy = ">=2.2.5,<3"
 pandas = ">=2.2.3,<3"
+duckdb = ">=1.2.2,<2"
+polars = ">=1.27.1,<2"
+tqdm = "*"
+
 
 [tool.pixi.feature.test.dependencies]
 pytest = ">=8.3.5,<9"
@@ -53,7 +57,7 @@ clean = "find . -type d -name \"__pycache__\" -exec rm -r {} +"
 
 [tool.pixi.feature.lint.tasks]
 format = "ruff format src tests"
-check = "ruff check src tests"
+check = "ruff check --fix src tests"
 typing = "mypy --strict src"
 mypy = "mypy"
 lint = {depends-on = ["format","check","typing"]}
@@ -68,16 +72,20 @@ indent-width = 2
 
 [tool.ruff.lint]
 select = [
-    # pycodestyle
-    "E",
-    # Pyflakes
-    "F",
-    # flake8-bugbear
-    "B",
-    # flake8-simplify
-    "SIM",
-    # isort
-    "I",
+    "E",    # pycodestyle errors
+    "F",    # Pyflakes
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "I",    # isort
+    "C4",   # flake8-comprehensions
+    # "ANN",  # flake8-annotations
+    # "S",    # flake8-bandit
+    "Q",    # flake8-quotes
+    # "PTH",  # use-pathlib rules
+    "NPY", # Numpy rules
+    "PD", # Pandas rules
+    "PERF", # Perflint
+    "FBT", # Boolean trap
 ]
 
 [tool.mypy]
