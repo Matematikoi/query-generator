@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List, Optional
 
 import typer
@@ -202,13 +203,13 @@ def cherry_pick(
   dataset: Annotated[
     Dataset, typer.Option("--dataset", "-d", help="The dataset used")
   ],
-  folder: Annotated[
+  csv: Annotated[
     Optional[str],
     typer.Option(
       "--folder",
       "-f",
-      help="The folder where the queries are stored",
-      show_default="data/generated_queries/BINNING_SNOWFLAKE/{dataset}",
+      help="The path to the batches csv",
+      show_default="data/generated_queries/BINNING_SNOWFLAKE/{dataset}/{dataset}_values.csv",
     ),
   ] = None,
   queries_per_bin: Annotated[
@@ -219,16 +220,72 @@ def cherry_pick(
       help="The number of queries to be randomly picked per bin",
       min=1,
     ),
-  ] = 15,
+  ] = 10,
+  upper_bound: Annotated[
+    int,
+    typer.Option(
+      "--upper-bound",
+      "-u",
+      help="The upper bound of the binning process",
+      min=1,
+    ),
+  ] = 1_000_000_000,
+  total_bins: Annotated[
+    int,
+    typer.Option(
+      "--total-bins",
+      "-b",
+      help="The number of bins to create",
+      min=10,
+    ),
+  ] = 1000,
+  seed: Annotated[
+    int,
+    typer.Option(
+      "--seed",
+      "-s",
+      help="The seed to use for the random queries selection",
+      min=0,
+    ),
+  ] = 42,
+  destination_folder: Annotated[
+    Optional[str],
+    typer.Option(
+      "--destination-folder",
+      "-df",
+      help="The folder to save the cherry picked queries",
+      show_default="data/generated_queries/CHERRY_PICKED_QUERIES/{dataset}",
+    ),
+  ] = None,
 ) -> None:
   """This function is used to cherry pick queries from the
   binning process. It randomly picks queries from the
   binning process and saves them in a folder.
   """
-  if folder is None:
-    folder = f"data/generated_queries/BINNING_SNOWFLAKE/{dataset.value}"
-  validate_dir_path(folder)
-  cherry_pick_binning(dataset, folder, queries_per_bin)
+  csv_path = (
+    Path(
+      f"data/generated_queries/BINNING_SNOWFLAKE/{dataset.value}/{dataset.value}_batches.csv"
+    )
+    if csv is None
+    else Path(csv)
+  )
+
+  destination_folder_path = (
+    Path(f"data/generated_queries/CHERRY_PICKED_QUERIES/{dataset.value}")
+    if destination_folder is None
+    else Path(destination_folder)
+  )
+
+  validate_dir_path(csv_path)
+  cherry_pick_binning(
+    dataset,
+    csv_path,
+    queries_per_bin,
+    upper_bound,
+    total_bins,
+    seed,
+    destination_folder_path,
+  )
 
 
 if __name__ == "__main__":

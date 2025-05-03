@@ -1,4 +1,3 @@
-import math
 from dataclasses import dataclass
 from itertools import product
 from typing import List
@@ -35,18 +34,6 @@ class SearchParameters:
   max_hops: List[int]
   extra_predicates: List[int]
   row_retention_probability: List[float]
-
-
-def get_bin_from_value(
-  value: int, bin_params: BinningSnowflakeParameters
-) -> int:
-  normalized_max_val = bin_params.upper_bound - bin_params.lower_bound
-  normalized_value = value - bin_params.lower_bound
-  bin_size = float(normalized_max_val) / float(bin_params.total_bins)
-  bin = math.ceil(normalized_value / bin_size)
-  if bin > bin_params.total_bins:
-    bin = bin_params.total_bins + 1
-  return bin
 
 
 def get_result_from_duckdb(
