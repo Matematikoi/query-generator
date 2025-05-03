@@ -4,15 +4,13 @@ from typing import Any, Dict, List
 
 
 class ForeignKeyGraph:
-  """
-  Class to represent a foreign key graph.
+  """Class to represent a foreign key graph.
   It is used to store the foreign key relationships between tables.
   """
 
   @dataclass
   class Node:
-    """
-    Class to represent a node in the foreign key graph.
+    """Class to represent a node in the foreign key graph.
     A node is a table in the database.
     """
 
@@ -20,8 +18,7 @@ class ForeignKeyGraph:
 
   @dataclass
   class Edge:
-    """
-    Class to represent an edge in the foreign key graph.
+    """Class to represent an edge in the foreign key graph.
     An edge is a foreign key relationship between two tables.
     """
 
@@ -32,12 +29,12 @@ class ForeignKeyGraph:
     id: int
 
   def __init__(self, tables_schema: Dict[str, Dict[str, Any]]) -> None:
-    """
-    Initialize the foreign key graph.
+    """Initialize the foreign key graph.
 
     Args:
         tables_schema (Dict[str, Dict[str, Any]]):
         Dictionary containing the schema of the tables.
+
     """
     self.tables = list(tables_schema.keys())
     self.table_to_index = {name: i for i, name in enumerate(self.tables)}
@@ -46,8 +43,7 @@ class ForeignKeyGraph:
     self.populate_graph(copy.deepcopy(tables_schema))
 
   def populate_graph(self, tables_schema: Dict[str, Dict[str, Any]]) -> None:
-    """
-    Populate the foreign key graph with edges based on the schema.
+    """Populate the foreign key graph with edges based on the schema.
     This method iterates through each table and its foreign keys,
     creating edges to the referenced tables.
     """
@@ -80,26 +76,26 @@ class ForeignKeyGraph:
         self.graph[self.table_to_index[table]].append(edge)
 
   def is_leaf(self, table: str) -> bool:
-    """
-    Check if a table is a leaf node in the graph.
+    """Check if a table is a leaf node in the graph.
 
     Args:
         table (str): Table name.
 
     Returns:
         bool: True if the table is a leaf node, False otherwise.
+
     """
     return len(self.graph[self.table_to_index[table]]) == 0
 
   def get_edges(self, table: str) -> List["ForeignKeyGraph.Edge"]:
-    """
-    Get the edges (foreign key relationships) for a given table.
+    """Get the edges (foreign key relationships) for a given table.
 
     Args:
         table (str): Table name.
 
     Returns:
         List[ForeignKeyGraph.Edge]: List of edges for the table.
+
     """
     if table not in self.tables:
       raise ValueError(f"Table {table} not found in schema.")
@@ -113,8 +109,7 @@ class ForeignKeyGraph:
     return edges
 
   def get_subgraph_signature(self, edges: List["ForeignKeyGraph.Edge"]) -> int:
-    """
-    Get a signature of the edges for a given table.
+    """Get a signature of the edges for a given table.
     The signature is defined as a bitwise OR of the edge IDs.
 
     Args:
@@ -122,6 +117,7 @@ class ForeignKeyGraph:
 
     Returns:
         int: signature of the edges. It is a bitwise OR of the edge IDs.
+
     """
     signature = 0
     for edge in edges:
@@ -129,8 +125,7 @@ class ForeignKeyGraph:
     return signature
 
   def get_edge_signature(self, edge: "ForeignKeyGraph.Edge") -> int:
-    """
-    Get a signature of the edge for a given table.
+    """Get a signature of the edge for a given table.
     The signature is defined as a bitwise OR of the edge ID.
 
     Args:
@@ -138,5 +133,6 @@ class ForeignKeyGraph:
 
     Returns:
         int: signature of the edge. It is a bitwise OR of the edge ID.
+
     """
     return 1 << edge.id

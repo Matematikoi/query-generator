@@ -26,8 +26,7 @@ def generate_data(
 def setup_duckdb(
   scale_factor: int | float, dataset: Dataset
 ) -> duckdb.DuckDBPyConnection:
-  """
-  Installs TPCDS and TPCH datasets in DuckDB.
+  """Installs TPCDS and TPCH datasets in DuckDB.
 
   If the scale factor required is not generated, it will generate it.
   It returns a duckdb connection to the database.

@@ -125,10 +125,11 @@ def generate_queries(
 
 
 def generate_and_write_queries(params: QueryGenerationParameters) -> None:
-  """
-  Generate and write queries to a file.
+  """Generate and write queries to a file.
+
   Args:
       params (QueryGenerationParameters): Query generation parameters.
+
   """
   query_writer = Writer(
     params.dataset,

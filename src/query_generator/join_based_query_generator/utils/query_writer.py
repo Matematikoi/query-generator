@@ -16,11 +16,12 @@ class Writer:
     self.dataset = dataset
 
   def write_query(self, query: GeneratedQueryFeatures) -> None:
-    """
-    Write the generated queries to a file.
+    """Write the generated queries to a file.
+
     Args:
         queries (List[str]): List of SQL queries.
         file_name (str): Name of the output file.
+
     """
     folder = (
       "data/generated_queries/"
@@ -42,9 +43,7 @@ class Writer:
   def write_query_to_batch(
     self, batch: int, query: GeneratedQueryFeatures
   ) -> str:
-    """
-    Returns relative path of the file to the final CSV
-    """
+    """Returns relative path of the file to the final CSV"""
     batch_dir = Path(self.get_binning_folder()) / f"batch_{batch}"
 
     batch_dir.mkdir(parents=True, exist_ok=True)

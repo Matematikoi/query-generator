@@ -64,12 +64,12 @@ def run_snowflake_param_seach(
   bin_params: BinningSnowflakeParameters,
   search_params: SearchParameters,
 ) -> None:
-  """
-  Run the Snowflake binning process. Binning is equiwidth binning.
+  """Run the Snowflake binning process. Binning is equiwidth binning.
 
   Args:
     parameters (BinningSnowflakeParameters): The parameters for
     the Snowflake binning process.
+
   """
   query_writer = Writer(bin_params.dataset, Extension.BINNING_SNOWFLAKE)
   rows = []

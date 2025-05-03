@@ -82,9 +82,7 @@ def snowflake(
     ),
   ] = 3,
 ) -> None:
-  """
-  Generate queries using a random subgraph.
-  """
+  """Generate queries using a random subgraph."""
   params = QueryGenerationParameters(
     dataset=dataset,
     max_hops=max_hops,
@@ -102,6 +100,7 @@ def param_search(
   dataset: Annotated[
     Dataset, typer.Option("--dataset", "-d", help="The dataset used")
   ],
+  *,
   dev: Annotated[
     bool,
     typer.Option(
@@ -165,8 +164,7 @@ def param_search(
     ),
   ] = None,
 ) -> None:
-  """
-  This is an extension of the Snowflake algorithm.
+  """This is an extension of the Snowflake algorithm.
 
   It runs multiple batches with different configurations of the algorithm.
   This allows us to get multiple results.
@@ -179,7 +177,7 @@ def param_search(
     row_retention_probability_range = [0.2, 0.3, 0.4, 0.6, 0.8, 0.85, 0.9, 1.0]
   if lower_bound >= upper_bound:
     raise ValueError("The lower bound must be smaller than the upper bound")
-  show_dev_warning(dev)
+  show_dev_warning(dev=dev)
   scale_factor = 0.1 if dev else 100
   con = setup_duckdb(scale_factor, dataset)
   run_snowflake_param_seach(
@@ -223,8 +221,7 @@ def cherry_pick(
     ),
   ] = 15,
 ) -> None:
-  """
-  This function is used to cherry pick queries from the
+  """This function is used to cherry pick queries from the
   binning process. It randomly picks queries from the
   binning process and saves them in a folder.
   """

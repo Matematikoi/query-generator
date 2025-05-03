@@ -1,9 +1,8 @@
 from rich import print
 
 
-def show_dev_warning(dev: bool) -> None:
-  """
-  Shows a warning if the dev flag is set to true.
+def show_dev_warning(*, dev: bool) -> None:
+  """Shows a warning if the dev flag is set to true.
   This is used to test the code in development mode.
   """
   if dev:

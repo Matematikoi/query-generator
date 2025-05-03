@@ -9,9 +9,7 @@ from query_generator.utils.definitions import Dataset
 
 
 def test_dev_duckdb_setup_tpch():
-  """
-  Test the setup of DuckDB.
-  """
+  """Test the setup of DuckDB."""
   # Setup DuckDB
   con = setup_duckdb(0.1, Dataset.TPCH)
   assert con is not None, "DuckDB connection should not be None"
@@ -29,9 +27,7 @@ def test_dev_duckdb_setup_tpch():
 
 
 def test_dev_duckdb_setup_tpcds():
-  """
-  Test the setup of DuckDB.
-  """
+  """Test the setup of DuckDB."""
   # Setup DuckDB
   con = setup_duckdb(0.1, Dataset.TPCDS)
   assert con is not None, "DuckDB connection should not be None"
@@ -72,9 +68,7 @@ def test_dev_duckdb_setup_tpcds():
   ],
 )
 def test_duck_db_execution(query, expected_result):
-  """
-  Test the execution of queries in DuckDB.
-  """
+  """Test the execution of queries in DuckDB."""
   # Setup DuckDB
   con = setup_duckdb(0.1, Dataset.TPCDS)
   val = get_result_from_duckdb(

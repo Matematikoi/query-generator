@@ -84,6 +84,8 @@ select = [
     # "PTH",  # use-pathlib rules
     "NPY", # Numpy rules
     "PD", # Pandas rules
+    "PERF", # Perflint
+    "FBT", # Boolean trap
 ]
 
 [tool.mypy]
