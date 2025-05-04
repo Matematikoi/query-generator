@@ -1,22 +1,26 @@
 from pathlib import Path
-from typing import List, Optional
+from typing import Annotated
 
 import typer
-from typing_extensions import Annotated
 
-from query_generator.duckdb.binning import (
+from query_generator.duckdb_connection.binning import (
   SearchParameters,
   run_snowflake_param_seach,
 )
-from query_generator.duckdb.setup import setup_duckdb
+from query_generator.duckdb_connection.setup import setup_duckdb
 from query_generator.join_based_query_generator.snowflake import (
   generate_and_write_queries,
 )
-from query_generator.tools.cherry_pick_binning import cherry_pick_binning
+from query_generator.tools.cherry_pick_binning import (
+  CherryPickParameters,
+  cherry_pick_binning,
+)
 from query_generator.utils.definitions import (
   Dataset,
+  Extension,
   QueryGenerationParameters,
 )
+from query_generator.utils.exceptions import InvalidUpperBoundError
 from query_generator.utils.show_messages import show_dev_warning
 from query_generator.utils.utils import validate_dir_path
 
@@ -26,12 +30,17 @@ app = typer.Typer(name="Query Generation")
 @app.command()
 def snowflake(
   dataset: Annotated[
-    Dataset, typer.Option("--dataset", "-d", help="The dataset used")
+    Dataset,
+    typer.Option("--dataset", "-d", help="The dataset used"),
   ],
   max_hops: Annotated[
     int,
     typer.Option(
-      "--max-hops", "-h", help="The maximum number of hops", min=1, max=5
+      "--max-hops",
+      "-h",
+      help="The maximum number of hops",
+      min=1,
+      max=5,
     ),
   ] = 3,
   max_queries_per_fact_table: Annotated[
@@ -98,7 +107,8 @@ def snowflake(
 @app.command()
 def param_search(
   dataset: Annotated[
-    Dataset, typer.Option("--dataset", "-d", help="The dataset used")
+    Dataset,
+    typer.Option("--dataset", "-d", help="The dataset used"),
   ],
   *,
   dev: Annotated[
@@ -136,7 +146,7 @@ def param_search(
     ),
   ] = 200,
   max_hops_range: Annotated[
-    Optional[List[int]],
+    list[int] | None,
     typer.Option(
       "--max-hops-range",
       "-h",
@@ -145,7 +155,7 @@ def param_search(
     ),
   ] = None,
   extra_predicates_range: Annotated[
-    Optional[List[int]],
+    list[int] | None,
     typer.Option(
       "--extra-predicates-range",
       "-e",
@@ -154,7 +164,7 @@ def param_search(
     ),
   ] = None,
   row_retention_probability_range: Annotated[
-    Optional[List[float]],
+    list[float] | None,
     typer.Option(
       "--row-retention-probability-range",
       "-r",
@@ -176,7 +186,7 @@ def param_search(
   if row_retention_probability_range is None:
     row_retention_probability_range = [0.2, 0.3, 0.4, 0.6, 0.8, 0.85, 0.9, 1.0]
   if lower_bound >= upper_bound:
-    raise ValueError("The lower bound must be smaller than the upper bound")
+    raise InvalidUpperBoundError(lower_bound, upper_bound)
   show_dev_warning(dev=dev)
   scale_factor = 0.1 if dev else 100
   con = setup_duckdb(scale_factor, dataset)
@@ -195,13 +205,14 @@ def param_search(
 @app.command()
 def cherry_pick(
   dataset: Annotated[
-    Dataset, typer.Option("--dataset", "-d", help="The dataset used")
+    Dataset,
+    typer.Option("--dataset", "-d", help="The dataset used"),
   ],
   csv: Annotated[
-    Optional[str],
+    str | None,
     typer.Option(
-      "--folder",
-      "-f",
+      "--csv",
+      "-c",
       help="The path to the batches csv",
       show_default="data/generated_queries/BINNING_SNOWFLAKE/{dataset}/{dataset}_values.csv",
     ),
@@ -243,13 +254,12 @@ def cherry_pick(
     ),
   ] = 42,
   destination_folder: Annotated[
-    Optional[str],
+    str | None,
     typer.Option(
       "--destination-folder",
       "-df",
       help="The folder to save the cherry picked queries",
-      # TODO: this should be an enum
-      show_default="data/generated_queries/CHERRY_PICKED_QUERIES/{dataset}",
+      show_default=f"data/generated_queries/{Extension.BINNING_CHERRY_PICKING.value}/{{dataset}}",
     ),
   ] = None,
 ) -> None:
@@ -259,27 +269,29 @@ def cherry_pick(
   """
   csv_path = (
     Path(
-      f"data/generated_queries/BINNING_SNOWFLAKE/{dataset.value}/{dataset.value}_batches.csv"
+      f"data/generated_queries/{Extension.SNOWFLAKE_SEARCH_PARAMS.value}/{dataset.value}/{dataset.value}_batches.csv",
     )
     if csv is None
     else Path(csv)
   )
-
   destination_folder_path = (
-    Path(f"data/generated_queries/CHERRY_PICKED_QUERIES/{dataset.value}")
+    Path(
+      f"data/generated_queries/{Extension.BINNING_CHERRY_PICKING.value}/{dataset.value}",
+    )
     if destination_folder is None
     else Path(destination_folder)
   )
 
   validate_dir_path(csv_path)
   cherry_pick_binning(
-    dataset,
-    csv_path,
-    queries_per_bin,
-    upper_bound,
-    total_bins,
-    seed,
-    destination_folder_path,
+    CherryPickParameters(
+      csv_path=csv_path,
+      queries_per_bin=queries_per_bin,
+      upper_bound=upper_bound,
+      total_bins=total_bins,
+      destination_folder=destination_folder_path,
+      seed=seed,
+    ),
   )
 
 

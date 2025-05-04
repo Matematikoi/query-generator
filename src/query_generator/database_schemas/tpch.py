@@ -1,9 +1,14 @@
-from typing import Any, Dict, List, Tuple
+from typing import Any
+
+from query_generator.utils.exceptions import (
+  InvalidForeignKeyError,
+  TableNotFoundError,
+)
 
 
-def get_tpch_table_info() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
+def get_tpch_table_info() -> tuple[dict[str, dict[str, Any]], list[str]]:
   # using all the numerical columns from the TPC-DS schema (like JOB)
-  tables: Dict[str, Dict[str, Any]] = {
+  tables: dict[str, dict[str, Any]] = {
     "customer": {
       "alias": "c",
       "columns": {
@@ -16,12 +21,13 @@ def get_tpch_table_info() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
           "column": "c_nationkey",
           "ref_table": "nation",
           "ref_column": "n_nationkey",
-        }
+        },
       ],
     },
     "lineitem": {
       "alias": "l",
       "columns": {
+        # TODO(Gabriel): http://localhost:8080/tktview/48ff2a1ba5
         # "l_commitdate": {"max": "1998-10-31", "min": "1992-01-31"},
         "l_discount": {"max": 0.1, "min": 0.0},
         "l_extendedprice": {"max": 104948.5, "min": 900.05},
@@ -40,7 +46,7 @@ def get_tpch_table_info() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
           "ref_table": "partsupp",
           "ref_column": "ps_partkey",
         },
-        # TODO: This is a composite key.
+        # TODO(Gabriel): http://localhost:8080/tktview/4971d54a3292c6a03d193ef10bc589ef7a089c0d
         # {
         #     "column": "l_suppkey",
         #     "ref_table": "partsupp",
@@ -64,7 +70,7 @@ def get_tpch_table_info() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
           "column": "n_regionkey",
           "ref_table": "region",
           "ref_column": "r_regionkey",
-        }
+        },
       ],
     },
     "orders": {
@@ -81,7 +87,7 @@ def get_tpch_table_info() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
           "column": "o_custkey",
           "ref_table": "customer",
           "ref_column": "c_custkey",
-        }
+        },
       ],
     },
     "part": {
@@ -131,7 +137,7 @@ def get_tpch_table_info() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
           "column": "s_nationkey",
           "ref_table": "nation",
           "ref_column": "n_nationkey",
-        }
+        },
       ],
     },
   }
@@ -141,19 +147,13 @@ def get_tpch_table_info() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
     for fk in table_info["foreign_keys"]:
       ref_table = fk["ref_table"]
       if fk["column"] not in tables[table_name]["columns"]:
-        raise ValueError(
-          f"Table {table_name} has foreign key column "
-          f"{fk['column']} that does not exist"
-        )
+        raise InvalidForeignKeyError(table_name, fk["column"])
       if ref_table not in tables:
-        raise ValueError(
-          f"Table {table_name} has foreign key "
-          f"to non-existing table {ref_table}"
-        )
+        raise TableNotFoundError(fk["ref_table"])
       if fk["ref_column"] not in tables[ref_table]["columns"]:
-        raise ValueError(
-          f"Table {table_name} has foreign key to column {fk['ref_column']} "
-          f"that does not exist in table {ref_table}"
+        raise InvalidForeignKeyError(
+          ref_table,
+          fk["ref_column"],
         )
 
   fact_tables = ["lineitem", "orders", "partsupp"]

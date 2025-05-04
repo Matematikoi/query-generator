@@ -4,10 +4,12 @@ from pathlib import Path
 import polars as pl
 
 from query_generator.utils.definitions import (
+  BatchGeneratedQueryFeatures,
   Dataset,
   Extension,
   GeneratedQueryFeatures,
 )
+from query_generator.utils.exceptions import OverwriteFileError
 
 
 class Writer:
@@ -35,29 +37,32 @@ class Writer:
 
   def get_binning_folder(self) -> Path:
     path = Path(
-      f"data/generated_queries/{self.extension.value}/{self.dataset.value}"
+      f"data/generated_queries/{self.extension.value}/{self.dataset.value}",
     )
     path.mkdir(parents=True, exist_ok=True)
     return path
 
-  def write_query_to_batch(
-    self, batch: int, query: GeneratedQueryFeatures, fact_table: str
-  ) -> str:
+  def write_query_to_batch(self, query: BatchGeneratedQueryFeatures) -> str:
     """Returns relative path of the file to the final CSV"""
-    batch_dir = Path(self.get_binning_folder()) / f"batch_{batch}"
+    batch_dir = Path(self.get_binning_folder()) / f"batch_{query.batch_number}"
 
     batch_dir.mkdir(parents=True, exist_ok=True)
 
     file_path = (
-      batch_dir
-      / f"{fact_table}_{query.template_number}_{query.predicate_number}.sql"
+      batch_dir / f"{query.fact_table}_{query.template_number}_"
+      f"{query.predicate_number}.sql"
     )
 
+    self._do_not_overwrite(file_path)
     file_path.write_text(query.query, encoding="utf-8")
-
     return str(file_path.relative_to(self.get_binning_folder()))
 
   def write_dataframe(self, input_dataframe: pl.DataFrame) -> None:
     folder = self.get_binning_folder()
     path = f"{folder}/{self.dataset.value}_batches.csv"
     input_dataframe.write_csv(path)
+
+  def _do_not_overwrite(self, path: Path) -> None:
+    """Check if the file already exists and do not overwrite it."""
+    if path.exists():
+      raise OverwriteFileError(path)

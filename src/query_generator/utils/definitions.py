@@ -4,7 +4,8 @@ from enum import Enum
 
 class Extension(Enum):
   SNOWFLAKE = "SNOWFLAKE"
-  BINNING_SNOWFLAKE = "BINNING_SNOWFLAKE"
+  SNOWFLAKE_SEARCH_PARAMS = "SNOWFLAKE_SEARCH_PARAMS"
+  BINNING_CHERRY_PICKING = "BINNING_CHERRY_PICKING"
 
 
 class Dataset(Enum):
@@ -29,3 +30,8 @@ class GeneratedQueryFeatures:
   template_number: int
   predicate_number: int
   fact_table: str
+
+
+@dataclass
+class BatchGeneratedQueryFeatures(GeneratedQueryFeatures):
+  batch_number: int

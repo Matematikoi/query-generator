@@ -53,11 +53,10 @@ dev    = { features = ["lint", "test", "dev"], solve-group = "default" }
 #lint = "ruff format src/"
 main = "python src/query_generator/main.py"
 commit = { cmd = "fossil commit", depends-on = ["lint", "test"]}
-clean = "find . -type d -name \"__pycache__\" -exec rm -r {} +"
 
 [tool.pixi.feature.lint.tasks]
 format = "ruff format src tests"
-check = "ruff check --fix src tests"
+check = "ruff check --fix src"
 typing = "mypy --strict src"
 mypy = "mypy"
 lint = {depends-on = ["format","check","typing"]}
@@ -78,18 +77,32 @@ select = [
     "SIM",  # flake8-simplify
     "I",    # isort
     "C4",   # flake8-comprehensions
-    # "ANN",  # flake8-annotations
-    # "S",    # flake8-bandit
     "Q",    # flake8-quotes
-    # "PTH",  # use-pathlib rules
-    "NPY", # Numpy rules
-    "PD", # Pandas rules
+    "NPY",  # Numpy rules
+    "PD",   # Pandas rules
     "PERF", # Perflint
-    "FBT", # Boolean trap
+    "FBT",  # Boolean trap
+    "COM",  # Commas rules
+    "UP",   # Newer python features
+    "INP",  # Implicit namespace package (__init__.py)
+    "TRY",  # Try and except rules
+    "EM",   # Exception messages
+    "PL",   # Pylint rules
+    "N",    # Naming conventions
+    "RET",  # Return rules
+    "TD",   # TODO rules
+    # "PTH",  # use-pathlib rules
 ]
+ignore = ["COM812"]
 
 [tool.mypy]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 pythonpath = "."
+
+
+[tool.ruff.lint.per-file-ignores]
+# Too many arguments
+"src/query_generator/main.py" = ["PLR0913"] 
+

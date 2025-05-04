@@ -1,9 +1,9 @@
 import pytest
 
-from query_generator.duckdb.binning import (
+from query_generator.duckdb_connection.binning import (
   get_result_from_duckdb,
 )
-from query_generator.duckdb.setup import setup_duckdb
+from query_generator.duckdb_connection.setup import setup_duckdb
 from query_generator.utils.definitions import Dataset
 
 

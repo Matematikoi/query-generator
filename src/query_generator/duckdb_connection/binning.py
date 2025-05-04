@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from itertools import product
-from typing import List
 
 import duckdb
 import polars as pl
@@ -13,6 +12,7 @@ from query_generator.join_based_query_generator.utils.query_writer import (
   Writer,
 )
 from query_generator.utils.definitions import (
+  BatchGeneratedQueryFeatures,
   Dataset,
   Extension,
   QueryGenerationParameters,
@@ -24,9 +24,9 @@ class SearchParameters:
   dataset: Dataset
   scale_factor: int | float
   con: duckdb.DuckDBPyConnection
-  max_hops: List[int]
-  extra_predicates: List[int]
-  row_retention_probability: List[float]
+  max_hops: list[int]
+  extra_predicates: list[int]
+  row_retention_probability: list[float]
 
 
 def get_result_from_duckdb(query: str, con: duckdb.DuckDBPyConnection) -> int:
@@ -48,7 +48,10 @@ def run_snowflake_param_seach(
     the Snowflake binning process.
 
   """
-  query_writer = Writer(search_params.dataset, Extension.BINNING_SNOWFLAKE)
+  query_writer = Writer(
+    search_params.dataset,
+    Extension.SNOWFLAKE_SEARCH_PARAMS,
+  )
   rows = []
   total_iterations = (
     len(search_params.max_hops)
@@ -75,14 +78,20 @@ def run_snowflake_param_seach(
         keep_edge_prob=0.2,
         extra_predicates=extra_predicates,
         row_retention_probability=float(row_retention_probability),
-      )
+      ),
     ):
       selected_rows = get_result_from_duckdb(query.query, search_params.con)
       if selected_rows == -1:
         continue  # invalid query
       prefix = f"batch_{batch_number}"
       relative_path = query_writer.write_query_to_batch(
-        batch_number, query, query.fact_table
+        BatchGeneratedQueryFeatures(
+          batch_number=batch_number,
+          query=query.query,
+          template_number=query.template_number,
+          predicate_number=query.predicate_number,
+          fact_table=query.fact_table,
+        )
       )
       rows.append(
         {
@@ -94,7 +103,7 @@ def run_snowflake_param_seach(
           "fact_table": query.fact_table,
           "max_hops": max_hops,
           "row_retention_probability": row_retention_probability,
-        }
+        },
       )
   df_queries = pl.DataFrame(rows)
   query_writer.write_dataframe(df_queries)
