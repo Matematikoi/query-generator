@@ -87,6 +87,8 @@ select = [
     "UP",   # Newer python features
     "INP",  # Implicit namespace package (__init__.py)
     "TRY",  # Try and except rules
+    "EM",   # Exception messages
+    "PL",   # Pylint rules
     # "D",    # Docstring rules
     # "ANN",  # flake8-annotations
     # "S",    # flake8-bandit
@@ -98,3 +100,8 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 pythonpath = "."
+
+
+[tool.ruff.lint.per-file-ignores]
+# Too many arguments
+"src/query_generator/main.py" = ["PLR0913"] 

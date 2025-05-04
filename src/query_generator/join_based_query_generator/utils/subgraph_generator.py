@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from query_generator.data_structures.foreign_key_graph import ForeignKeyGraph
 from query_generator.utils.exceptions import GraphExploredError
 
+MAX_ATTEMPTS_FOR_NEW_SUBGRAPH = 1000
+
 
 class SubGraphGenerator:
   def __init__(
@@ -69,7 +71,7 @@ class SubGraphGenerator:
     attempts = 0
     while True:
       attempts += 1
-      if attempts > 1000:
+      if attempts > MAX_ATTEMPTS_FOR_NEW_SUBGRAPH:
         raise GraphExploredError(attempts)
       edges = self.get_random_subgraph(fact_table)
       edges_signature = self.graph.get_subgraph_signature(edges)
@@ -90,5 +92,6 @@ class SubGraphGenerator:
       try:
         yield self.get_unseen_random_subgraph(fact_table)
       except GraphExploredError:
-        # The exception is failing to find a new subgraph after 1000 attempts
+        # The exception is failing to find a new subgraph
+        # after multiple attempts
         break

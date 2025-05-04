@@ -11,7 +11,10 @@ from query_generator.duckdb.setup import setup_duckdb
 from query_generator.join_based_query_generator.snowflake import (
   generate_and_write_queries,
 )
-from query_generator.tools.cherry_pick_binning import cherry_pick_binning
+from query_generator.tools.cherry_pick_binning import (
+  CherryPickParameters,
+  cherry_pick_binning,
+)
 from query_generator.utils.definitions import (
   Dataset,
   QueryGenerationParameters,
@@ -280,13 +283,14 @@ def cherry_pick(
 
   validate_dir_path(csv_path)
   cherry_pick_binning(
-    dataset,
-    csv_path,
-    queries_per_bin,
-    upper_bound,
-    total_bins,
-    seed,
-    destination_folder_path,
+    CherryPickParameters(
+      csv_path=csv_path,
+      queries_per_bin=queries_per_bin,
+      upper_bound=upper_bound,
+      total_bins=total_bins,
+      destination_folder=destination_folder_path,
+      seed=seed,
+    ),
   )
 
 
