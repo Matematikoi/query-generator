@@ -7,14 +7,11 @@
 We use [pixi](https://pixi.sh/latest/#installation) to install 
 the necessary packages to install all the necessary packages. Once 
 installed you can activate a shell with 
-```bash
-pixi shell -e dev
-```
-To activate the shell that has all the packages for python. To access
-the python binary you can run 
-```bash
-which python
-```
+`pixi shell -e dev`
+to activate the shell that has all the packages for python. 
+
+
+To access the python binary you can run `which python`
 
 With pixi you are also installing our linter, formatter and our libraries
 for testing. You can access this tasks as a pixi task. 
