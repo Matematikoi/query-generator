@@ -40,10 +40,9 @@ class PredicateGenerator:
     # Remove rows with empty bins or that are dates
     histogram = pd.read_csv(path)
 
-    histogram = histogram[
+    return histogram[
       (histogram["bins"] != "[]") & (histogram["dtype"] != "date")
     ]
-    return histogram
 
   def get_random_predicates(
     self,

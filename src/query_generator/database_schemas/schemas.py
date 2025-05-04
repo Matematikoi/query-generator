@@ -19,7 +19,6 @@ def get_schema(dataset: Dataset) -> tuple[dict[str, dict[str, Any]], list[str]]:
   """
   if dataset == Dataset.TPCDS:
     return get_tpcds_table_info()
-  elif dataset == Dataset.TPCH:
+  if dataset == Dataset.TPCH:
     return get_tpch_table_info()
-  else:
-    raise UnkwonDatasetError(dataset)
+  raise UnkwonDatasetError(dataset)
