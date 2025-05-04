@@ -2,6 +2,11 @@ import copy
 from dataclasses import dataclass
 from typing import Any
 
+from query_generator.utils.exceptions import (
+  DuplicateEdgesError,
+  TableNotFoundError,
+)
+
 
 class ForeignKeyGraph:
   """Class to represent a foreign key graph.
@@ -60,9 +65,7 @@ class ForeignKeyGraph:
       for fk in tables_schema[table]["foreign_keys"]:
         reference_table = fk["ref_table"]
         if reference_table not in self.tables:
-          raise ValueError(
-            f"Reference table {reference_table} not found in schema.",
-          )
+          raise TableNotFoundError(reference_table)
 
         edge = ForeignKeyGraph.Edge(
           table=ForeignKeyGraph.Node(name=table),
@@ -98,13 +101,13 @@ class ForeignKeyGraph:
 
     """
     if table not in self.tables:
-      raise ValueError(f"Table {table} not found in schema.")
+      raise TableNotFoundError(table)
 
     edges = self.graph[self.table_to_index[table]]
     edges_ids = [edge.id for edge in edges]
     # Check for duplicate edges
     if len(edges_ids) != len(set(edges_ids)):
-      raise ValueError(f"Duplicate edges found for table {table}.")
+      raise DuplicateEdgesError(table)
 
     return edges
 

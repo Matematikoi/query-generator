@@ -86,6 +86,7 @@ select = [
     "COM",  # Commas rules
     "UP",   # Newer python features
     "INP",  # Implicit namespace package (__init__.py)
+    "TRY",  # Try and except rules
     # "D",    # Docstring rules
     # "ANN",  # flake8-annotations
     # "S",    # flake8-bandit

@@ -1,5 +1,10 @@
 from typing import Any
 
+from query_generator.utils.exceptions import (
+  InvalidForeignKeyError,
+  TableNotFoundError,
+)
+
 
 def get_tpcds_table_info() -> tuple[dict[str, dict[str, Any]], list[str]]:
   # using all the numerical columns from the TPC-DS schema (like JOB)
@@ -886,19 +891,13 @@ def get_tpcds_table_info() -> tuple[dict[str, dict[str, Any]], list[str]]:
     for fk in table_info["foreign_keys"]:
       ref_table = fk["ref_table"]
       if fk["column"] not in tables[table_name]["columns"]:
-        raise ValueError(
-          f"Table {table_name} has foreign key column "
-          f"{fk['column']} that does not exist",
-        )
+        raise InvalidForeignKeyError(table_name, fk["column"])
       if ref_table not in tables:
-        raise ValueError(
-          f"Table {table_name} has foreign key "
-          f"to non-existing table {ref_table}",
-        )
+        raise TableNotFoundError(fk["ref_table"])
       if fk["ref_column"] not in tables[ref_table]["columns"]:
-        raise ValueError(
-          f"Table {table_name} has foreign key to column {fk['ref_column']} "
-          f"that does not exist in table {ref_table}",
+        raise InvalidForeignKeyError(
+          ref_table,
+          fk["ref_column"],
         )
 
   fact_tables = [

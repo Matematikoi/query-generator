@@ -66,13 +66,11 @@ class SubGraphGenerator:
         List[ForeignKeyGraph.Edge]: List of edges in the generated subgraph.
 
     """
-    cnt = 0
+    attempts = 0
     while True:
-      cnt += 1
-      if cnt > 1000:
-        raise GraphExploredError(
-          "Unable to find a new subgraph after 1000 attempts.",
-        )
+      attempts += 1
+      if attempts > 1000:
+        raise GraphExploredError(attempts)
       edges = self.get_random_subgraph(fact_table)
       edges_signature = self.graph.get_subgraph_signature(edges)
       if len(edges) == 0:

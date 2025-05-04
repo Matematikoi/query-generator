@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import pandas as pd
 
 from query_generator.utils.definitions import Dataset
+from query_generator.utils.exceptions import UnkwonDatasetError
 
 
 class PredicateGenerator:
@@ -35,7 +36,7 @@ class PredicateGenerator:
     elif self.dataset == Dataset.TPCDS:
       path = "data/histograms/raw_tpcds_hist.csv"
     else:
-      raise ValueError(f"Unsupported dataset histogram: {self.dataset}")
+      raise UnkwonDatasetError(self.dataset)
     # Remove rows with empty bins or that are dates
     histogram = pd.read_csv(path)
 

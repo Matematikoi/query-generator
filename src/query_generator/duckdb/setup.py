@@ -3,6 +3,7 @@ import os
 import duckdb
 
 from query_generator.utils.definitions import Dataset
+from query_generator.utils.exceptions import UnkwonDatasetError
 
 
 def load_and_install_libraries() -> None:
@@ -22,7 +23,7 @@ def generate_data(
   elif dataset == Dataset.TPCH:
     con.execute(f"CALL dbgen(sf = {scale_factor})")
   else:
-    raise ValueError(f"{dataset} is not supported")
+    raise UnkwonDatasetError(dataset)
 
 
 def setup_duckdb(

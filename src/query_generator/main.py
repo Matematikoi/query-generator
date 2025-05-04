@@ -16,6 +16,7 @@ from query_generator.utils.definitions import (
   Dataset,
   QueryGenerationParameters,
 )
+from query_generator.utils.exceptions import InvalidUpperBoundError
 from query_generator.utils.show_messages import show_dev_warning
 from query_generator.utils.utils import validate_dir_path
 
@@ -181,7 +182,7 @@ def param_search(
   if row_retention_probability_range is None:
     row_retention_probability_range = [0.2, 0.3, 0.4, 0.6, 0.8, 0.85, 0.9, 1.0]
   if lower_bound >= upper_bound:
-    raise ValueError("The lower bound must be smaller than the upper bound")
+    raise InvalidUpperBoundError(lower_bound, upper_bound)
   show_dev_warning(dev=dev)
   scale_factor = 0.1 if dev else 100
   con = setup_duckdb(scale_factor, dataset)
