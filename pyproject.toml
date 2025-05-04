@@ -53,7 +53,6 @@ dev    = { features = ["lint", "test", "dev"], solve-group = "default" }
 #lint = "ruff format src/"
 main = "python src/query_generator/main.py"
 commit = { cmd = "fossil commit", depends-on = ["lint", "test"]}
-clean = "find . -type d -name \"__pycache__\" -exec rm -r {} +"
 
 [tool.pixi.feature.lint.tasks]
 format = "ruff format src tests"
