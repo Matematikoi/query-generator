@@ -89,6 +89,7 @@ select = [
     "TRY",  # Try and except rules
     "EM",   # Exception messages
     "PL",   # Pylint rules
+    "N",    # Naming conventions
     # "D",    # Docstring rules
     # "ANN",  # flake8-annotations
     # "S",    # flake8-bandit
