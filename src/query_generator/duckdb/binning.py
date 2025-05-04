@@ -81,7 +81,9 @@ def run_snowflake_param_seach(
       if selected_rows == -1:
         continue  # invalid query
       prefix = f"batch_{batch_number}"
-      relative_path = query_writer.write_query_to_batch(batch_number, query)
+      relative_path = query_writer.write_query_to_batch(
+        batch_number, query, query.fact_table
+      )
       rows.append(
         {
           "relative_path": relative_path,

@@ -29,6 +29,7 @@ def cherry_pick_binning(
   destination_folder: Path,
 ) -> None:
   batch_df = pl.read_csv(csv)
+  dfs_sampled_array = []
   bins_df = make_bins_in_csv(batch_df, upper_bound, total_bins)
   for bin in bins_df["bin"].unique():
     bin_df = bins_df.filter(pl.col("bin") == bin)
@@ -38,6 +39,7 @@ def cherry_pick_binning(
       seed=seed,
       with_replacement=False,
     )
+    dfs_sampled_array.append(sample_df)
     for path in sample_df.select("relative_path", "prefix").iter_rows():
       new_path = (
         destination_folder
@@ -47,3 +49,7 @@ def cherry_pick_binning(
       old_path = csv.parent / path[0]
       new_path.parent.mkdir(parents=True, exist_ok=True)
       new_path.write_text(old_path.read_text())
+
+  pl.concat(dfs_sampled_array).write_csv(
+    destination_folder / f"cherry_picked_{dataset.name}.csv"
+  )

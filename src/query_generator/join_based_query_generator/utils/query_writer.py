@@ -41,7 +41,7 @@ class Writer:
     return path
 
   def write_query_to_batch(
-    self, batch: int, query: GeneratedQueryFeatures
+    self, batch: int, query: GeneratedQueryFeatures, fact_table: str
   ) -> str:
     """Returns relative path of the file to the final CSV"""
     batch_dir = Path(self.get_binning_folder()) / f"batch_{batch}"
@@ -49,7 +49,8 @@ class Writer:
     batch_dir.mkdir(parents=True, exist_ok=True)
 
     file_path = (
-      batch_dir / f"{query.template_number}_{query.predicate_number}.sql"
+      batch_dir
+      / f"{fact_table}_{query.template_number}_{query.predicate_number}.sql"
     )
 
     file_path.write_text(query.query, encoding="utf-8")
