@@ -3,6 +3,7 @@ from pathlib import Path
 
 
 def set_seed() -> None:
+  """Set the seed for random number generation."""
   seed = 80
   random.seed(seed)
 

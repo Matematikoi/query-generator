@@ -2,8 +2,10 @@ from rich import print
 
 
 def show_dev_warning(*, dev: bool) -> None:
-  """Shows a warning if the dev flag is set to true.
-  This is used to test the code in development mode.
+  """Show a warning if the dev flag is set to true.
+
+  This is used to test the code in development mode and
+  inform the user that the results are not valid.
   """
   if dev:
     print(

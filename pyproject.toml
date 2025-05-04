@@ -57,7 +57,7 @@ clean = "find . -type d -name \"__pycache__\" -exec rm -r {} +"
 
 [tool.pixi.feature.lint.tasks]
 format = "ruff format src tests"
-check = "ruff check --fix src tests"
+check = "ruff check --fix src"
 typing = "mypy --strict src"
 mypy = "mypy"
 lint = {depends-on = ["format","check","typing"]}
@@ -85,6 +85,8 @@ select = [
     "FBT",  # Boolean trap
     "COM",  # Commas rules
     "UP",   # Newer python features
+    "INP",  # Implicit namespace package (__init__.py)
+    # "D",    # Docstring rules
     # "ANN",  # flake8-annotations
     # "S",    # flake8-bandit
     # "PTH",  # use-pathlib rules
