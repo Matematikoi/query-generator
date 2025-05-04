@@ -91,11 +91,9 @@ select = [
     "N",    # Naming conventions
     "RET",  # Return rules
     "TD",   # TODO rules
-    # "D",    # Docstring rules
-    # "ANN",  # flake8-annotations
-    # "S",    # flake8-bandit
     # "PTH",  # use-pathlib rules
 ]
+ignore = ["COM812"]
 
 [tool.mypy]
 ignore_missing_imports = true
@@ -107,3 +105,4 @@ pythonpath = "."
 [tool.ruff.lint.per-file-ignores]
 # Too many arguments
 "src/query_generator/main.py" = ["PLR0913"] 
+
