@@ -47,7 +47,10 @@ def run_snowflake_param_seach(
     the Snowflake binning process.
 
   """
-  query_writer = Writer(search_params.dataset, Extension.BINNING_SNOWFLAKE)
+  query_writer = Writer(
+    search_params.dataset,
+    Extension.SNOWFLAKE_SEARCH_PARAMS,
+  )
   rows = []
   total_iterations = (
     len(search_params.max_hops)

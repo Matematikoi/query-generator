@@ -31,7 +31,7 @@ class QueryBuilder:
   def __init__(
     self,
     subgraph_generator: SubGraphGenerator,
-    # TODO: this has to go, and be replaced by [(table, alias)]
+    # TODO(Gabriel): http://localhost:8080/tktview/b9400c203a38f3aef46ec250d98563638ba7988b
     tables_schema: Any,
     dataset: Dataset,
   ) -> None:

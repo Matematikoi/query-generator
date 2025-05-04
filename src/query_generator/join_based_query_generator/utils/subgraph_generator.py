@@ -86,7 +86,9 @@ class SubGraphGenerator:
     fact_table: str,
     max_signatures_per_fact_table: int,
   ) -> Iterator[list[ForeignKeyGraph.Edge]]:
-    # TODO communicate with the user the total number of signatures
+    # TODO(GABRIEL): http://localhost:8080/tktview/5cfb15b1aa88be40c2d1ae7f5bb521c478d0dad0
+    # Add logger
+    #  communicate with the user the total number of signatures
     # or add a debug mode
     for _ in range(max_signatures_per_fact_table):
       try:

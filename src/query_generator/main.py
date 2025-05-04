@@ -17,6 +17,7 @@ from query_generator.tools.cherry_pick_binning import (
 )
 from query_generator.utils.definitions import (
   Dataset,
+  Extension,
   QueryGenerationParameters,
 )
 from query_generator.utils.exceptions import InvalidUpperBoundError
@@ -258,8 +259,7 @@ def cherry_pick(
       "--destination-folder",
       "-df",
       help="The folder to save the cherry picked queries",
-      # TODO: this should be an enum
-      show_default="data/generated_queries/CHERRY_PICKED_QUERIES/{dataset}",
+      show_default=f"data/generated_queries/{Dataset.BINNING_CHERRY_PICKING}/{{dataset}}",
     ),
   ] = None,
 ) -> None:
@@ -269,14 +269,15 @@ def cherry_pick(
   """
   csv_path = (
     Path(
-      f"data/generated_queries/BINNING_SNOWFLAKE/{dataset.value}/{dataset.value}_batches.csv",
+      f"data/generated_queries/{Extension.SNOWFLAKE_SEARCH_PARAMS}/{dataset.value}/{dataset.value}_batches.csv",
     )
     if csv is None
     else Path(csv)
   )
-
   destination_folder_path = (
-    Path(f"data/generated_queries/CHERRY_PICKED_QUERIES/{dataset.value}")
+    Path(
+      f"data/generated_queries/{Extension.BINNING_CHERRY_PICKING}/{dataset.value}",
+    )
     if destination_folder is None
     else Path(destination_folder)
   )
