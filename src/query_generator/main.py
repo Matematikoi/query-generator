@@ -186,11 +186,11 @@ def plot(
   print(df.columns)
   os.makedirs("visualization", exist_ok=True)
 
-  excluded_columns = {"count_star", "bin", "prefix"}
+  excluded_columns = {"count_star", "bin", "prefix", "relative_path"}
   for column in df.columns:
     if column not in excluded_columns:
       plt.figure(figsize=(10, 6))
-      sns.histplot(data=df, x="bin", bins=200, kde=False, hue=column, log_scale=(False, True))
+      sns.histplot(data=df, x="count_star", bins=200, kde=False, hue=column, log_scale=(False, True))
       plt.title(f"Histogram of count_star with hue={column}")
       plt.xlabel("Bin (0-1M) ")
       plt.ylabel("Frequency")
@@ -199,11 +199,12 @@ def plot(
 
   # Add a plot without hues
   plt.figure(figsize=(10, 6))
-  sns.histplot(data=df, x="count_star", bins=1000, kde=False)
+  sns.histplot(data=df, x="count_star", bins=100, kde=False)
   plt.title("Histogram of equiwidth")
   plt.xlabel("count_star")
   plt.ylabel("Frequency")
   plt.yscale("log")
+  plt.xscale("log")
   plt.savefig("visualization/histogram_count_star_no_hue.png")
   plt.close()
 
