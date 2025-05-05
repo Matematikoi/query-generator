@@ -1,11 +1,14 @@
-from query_generator.duckdb.setup import setup_duckdb
+import pytest
+
+from query_generator.duckdb_connection.binning import (
+  get_result_from_duckdb,
+)
+from query_generator.duckdb_connection.setup import setup_duckdb
 from query_generator.utils.definitions import Dataset
 
 
 def test_dev_duckdb_setup_tpch():
-  """
-  Test the setup of DuckDB.
-  """
+  """Test the setup of DuckDB."""
   # Setup DuckDB
   con = setup_duckdb(0.1, Dataset.TPCH)
   assert con is not None, "DuckDB connection should not be None"
@@ -23,9 +26,7 @@ def test_dev_duckdb_setup_tpch():
 
 
 def test_dev_duckdb_setup_tpcds():
-  """
-  Test the setup of DuckDB.
-  """
+  """Test the setup of DuckDB."""
   # Setup DuckDB
   con = setup_duckdb(0.1, Dataset.TPCDS)
   assert con is not None, "DuckDB connection should not be None"
@@ -56,3 +57,18 @@ def test_dev_duckdb_setup_tpcds():
     ("web_sales",),
     ("web_site",),
   ], "DuckDB should have the TPCDS tables"
+
+
+@pytest.mark.parametrize(
+  "query, expected_result",
+  [
+    ("SELECT COUNT(*) FROM customer", 10000),
+    ("SELECT 1", 1),
+  ],
+)
+def test_duck_db_execution(query, expected_result):
+  """Test the execution of queries in DuckDB."""
+  # Setup DuckDB
+  con = setup_duckdb(0.1, Dataset.TPCDS)
+  val = get_result_from_duckdb(query, con)
+  assert val == expected_result, f"Expected {expected_result}, but got {val}"

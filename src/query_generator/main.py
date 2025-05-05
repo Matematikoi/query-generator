@@ -1,24 +1,32 @@
 import os
+from pathlib import Path
+from typing import Annotated
 
 import matplotlib.pyplot as plt
 import polars as pl
 import seaborn as sns
 import typer
-from typing_extensions import Annotated
 
-from query_generator.duckdb.binning import (
-  BinningSnoflakeParameters,
-  run_snowflake_binning,
+from query_generator.duckdb_connection.binning import (
+  SearchParameters,
+  run_snowflake_param_seach,
 )
-from query_generator.duckdb.setup import setup_duckdb
+from query_generator.duckdb_connection.setup import setup_duckdb
 from query_generator.join_based_query_generator.snowflake import (
   generate_and_write_queries,
 )
+from query_generator.tools.cherry_pick_binning import (
+  CherryPickParameters,
+  cherry_pick_binning,
+)
 from query_generator.utils.definitions import (
   Dataset,
+  Extension,
   QueryGenerationParameters,
 )
+from query_generator.utils.exceptions import InvalidUpperBoundError
 from query_generator.utils.show_messages import show_dev_warning
+from query_generator.utils.utils import validate_dir_path
 
 app = typer.Typer(name="Query Generation")
 
@@ -26,12 +34,17 @@ app = typer.Typer(name="Query Generation")
 @app.command()
 def snowflake(
   dataset: Annotated[
-    Dataset, typer.Option("--dataset", "-d", help="The dataset used")
+    Dataset,
+    typer.Option("--dataset", "-d", help="The dataset used"),
   ],
   max_hops: Annotated[
     int,
     typer.Option(
-      "--max-hops", "-h", help="The maximum number of hops", min=1, max=5
+      "--max-hops",
+      "-h",
+      help="The maximum number of hops",
+      min=1,
+      max=5,
     ),
   ] = 3,
   max_queries_per_fact_table: Annotated[
@@ -82,9 +95,7 @@ def snowflake(
     ),
   ] = 3,
 ) -> None:
-  """
-  Generate queries using a random subgraph.
-  """
+  """Generate queries using a random subgraph."""
   params = QueryGenerationParameters(
     dataset=dataset,
     max_hops=max_hops,
@@ -98,10 +109,12 @@ def snowflake(
 
 
 @app.command()
-def binning(
+def param_search(
   dataset: Annotated[
-    Dataset, typer.Option("--dataset", "-d", help="The dataset used")
+    Dataset,
+    typer.Option("--dataset", "-d", help="The dataset used"),
   ],
+  *,
   dev: Annotated[
     bool,
     typer.Option(
@@ -136,40 +149,153 @@ def binning(
       min=10,
     ),
   ] = 200,
-  prefix: Annotated[
-    str,
+  max_hops_range: Annotated[
+    list[int] | None,
     typer.Option(
-      "--prefix",
-      "-p",
-      help="Prefix for writing queries on multiple nodes simultaneously",
+      "--max-hops-range",
+      "-h",
+      help="The range of hops to use for the query generation",
+      show_default="1, 2, 4",
     ),
-  ] = "",
+  ] = None,
+  extra_predicates_range: Annotated[
+    list[int] | None,
+    typer.Option(
+      "--extra-predicates-range",
+      "-e",
+      help="The range of extra predicates to use for the query generation",
+      show_default="1, 2, 3, 5",
+    ),
+  ] = None,
+  row_retention_probability_range: Annotated[
+    list[float] | None,
+    typer.Option(
+      "--row-retention-probability-range",
+      "-r",
+      help="The range of row retention probabilities to use "
+      "for the query generation",
+      show_default="0.2, 0.3, 0.4, 0.6, 0.8, 0.85, 0.9, 1.0",
+    ),
+  ] = None,
 ) -> None:
-  """
-  This is an extension of the Snowflake algorithm.
+  """This is an extension of the Snowflake algorithm.
 
-  It makes bins from lower-bound to upper-bound and it runs
-  the query on DuckDB to check that the number of rows that
-  fulfill the query is bigger than the lower bound. Then it
-  saves the results in bins of equidepth of size
-  (upper_bound - lower_bound) / total_bins
-  then it saves the query to the allocated bin.
+  It runs multiple batches with different configurations of the algorithm.
+  This allows us to get multiple results.
   """
+  if max_hops_range is None:
+    max_hops_range = [1, 2, 4]
+  if extra_predicates_range is None:
+    extra_predicates_range = [1, 2, 3, 5]
+  if row_retention_probability_range is None:
+    row_retention_probability_range = [0.2, 0.3, 0.4, 0.6, 0.8, 0.85, 0.9, 1.0]
   if lower_bound >= upper_bound:
-    raise ValueError("The lower bound must be smaller than the upper bound")
-  show_dev_warning(dev)
+    raise InvalidUpperBoundError(lower_bound, upper_bound)
+  show_dev_warning(dev=dev)
   scale_factor = 0.1 if dev else 100
   con = setup_duckdb(scale_factor, dataset)
-  run_snowflake_binning(
-    BinningSnoflakeParameters(
+  run_snowflake_param_seach(
+    SearchParameters(
       scale_factor=scale_factor,
+      con=con,
       dataset=dataset,
-      lower_bound=lower_bound,
+      max_hops=max_hops_range,
+      extra_predicates=extra_predicates_range,
+      row_retention_probability=row_retention_probability_range,
+    ),
+  )
+
+
+@app.command()
+def cherry_pick(
+  dataset: Annotated[
+    Dataset,
+    typer.Option("--dataset", "-d", help="The dataset used"),
+  ],
+  csv: Annotated[
+    str | None,
+    typer.Option(
+      "--csv",
+      "-c",
+      help="The path to the batches csv",
+      show_default="data/generated_queries/BINNING_SNOWFLAKE/{dataset}/{dataset}_values.csv",
+    ),
+  ] = None,
+  queries_per_bin: Annotated[
+    int,
+    typer.Option(
+      "--queries",
+      "-q",
+      help="The number of queries to be randomly picked per bin",
+      min=1,
+    ),
+  ] = 10,
+  upper_bound: Annotated[
+    int,
+    typer.Option(
+      "--upper-bound",
+      "-u",
+      help="The upper bound of the binning process",
+      min=1,
+    ),
+  ] = 1_000_000_000,
+  total_bins: Annotated[
+    int,
+    typer.Option(
+      "--total-bins",
+      "-b",
+      help="The number of bins to create",
+      min=10,
+    ),
+  ] = 1000,
+  seed: Annotated[
+    int,
+    typer.Option(
+      "--seed",
+      "-s",
+      help="The seed to use for the random queries selection",
+      min=0,
+    ),
+  ] = 42,
+  destination_folder: Annotated[
+    str | None,
+    typer.Option(
+      "--destination-folder",
+      "-df",
+      help="The folder to save the cherry picked queries",
+      show_default=f"data/generated_queries/{Extension.BINNING_CHERRY_PICKING.value}/{{dataset}}",
+    ),
+  ] = None,
+) -> None:
+  """This function is used to cherry pick queries from the
+  binning process. It randomly picks queries from the
+  binning process and saves them in a folder.
+  """
+  csv_path = (
+    Path(
+      f"data/generated_queries/{Extension.SNOWFLAKE_SEARCH_PARAMS.value}/{dataset.value}/{dataset.value}_batches.csv",
+    )
+    if csv is None
+    else Path(csv)
+  )
+  destination_folder_path = (
+    Path(
+      f"data/generated_queries/{Extension.BINNING_CHERRY_PICKING.value}/{dataset.value}",
+    )
+    if destination_folder is None
+    else Path(destination_folder)
+  )
+
+  validate_dir_path(csv_path)
+  cherry_pick_binning(
+    CherryPickParameters(
+      csv_path=csv_path,
+      queries_per_bin=queries_per_bin,
       upper_bound=upper_bound,
       total_bins=total_bins,
-      con=con,
-      prefix=prefix,
-    )
+      destination_folder=destination_folder_path,
+      seed=seed,
+    ),
   )
 
 
@@ -180,17 +306,27 @@ def plot(
   """
   Plot the generated queries.
   """
-  df = pl.read_csv(csv)
-  df  = df.filter (df["count_star"] <1e9)
+  query_data_frame = pl.read_csv(csv)
+  upper_limit = 1e9
+  query_data_frame = query_data_frame.filter(
+    query_data_frame["count_star"] < upper_limit
+  )
   # df = df.filter(df["bin"]  20)
-  print(df.columns)
+  print(query_data_frame.columns)
   os.makedirs("visualization", exist_ok=True)
 
   excluded_columns = {"count_star", "bin", "prefix", "relative_path"}
-  for column in df.columns:
+  for column in query_data_frame.columns:
     if column not in excluded_columns:
       plt.figure(figsize=(10, 6))
-      sns.histplot(data=df, x="count_star", bins=200, kde=False, hue=column, log_scale=(False, True))
+      sns.histplot(
+        data=query_data_frame,
+        x="count_star",
+        bins=200,
+        kde=False,
+        hue=column,
+        log_scale=(False, True),
+      )
       plt.title(f"Histogram of count_star with hue={column}")
       plt.xlabel("Bin (0-1M) ")
       plt.ylabel("Frequency")
@@ -199,7 +335,7 @@ def plot(
 
   # Add a plot without hues
   plt.figure(figsize=(10, 6))
-  sns.histplot(data=df, x="count_star", bins=100, kde=False)
+  sns.histplot(data=query_data_frame, x="count_star", bins=100, kde=False)
   plt.title("Histogram of equiwidth")
   plt.xlabel("count_star")
   plt.ylabel("Frequency")

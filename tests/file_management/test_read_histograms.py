@@ -45,7 +45,12 @@ def test_read_histograms(dataset):
   ],
 )
 def test_get_min_max_from_bins(
-  mock_rand, bins_array, bins, row_retention_probability, min_index, max_index
+  mock_rand,
+  bins_array,
+  bins,
+  row_retention_probability,
+  min_index,
+  max_index,
 ):
   with mock.patch(
     "query_generator.predicate_generator.histogram.random.randint",
@@ -53,7 +58,8 @@ def test_get_min_max_from_bins(
   ):
     predicate_generator = PredicateGenerator(Dataset.TPCH)
     min_value, max_value = predicate_generator._get_min_max_from_bins(
-      bins, row_retention_probability
+      bins,
+      row_retention_probability,
     )
   assert min_value == bins_array[min_index]
   assert max_value == bins_array[max_index]

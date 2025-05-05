@@ -30,6 +30,7 @@ numpy = ">=2.2.5,<3"
 pandas = ">=2.2.3,<3"
 duckdb = ">=1.2.2,<2"
 polars = ">=1.27.1,<2"
+tqdm = "*"
 seaborn = ">=0.13.2,<0.14"
 matplotlib = ">=3.10.1,<4"
 
@@ -54,11 +55,10 @@ dev    = { features = ["lint", "test", "dev"], solve-group = "default" }
 #lint = "ruff format src/"
 main = "python src/query_generator/main.py"
 commit = { cmd = "fossil commit", depends-on = ["lint", "test"]}
-clean = "find . -type d -name \"__pycache__\" -exec rm -r {} +"
 
 [tool.pixi.feature.lint.tasks]
 format = "ruff format src tests"
-check = "ruff check src tests"
+check = "ruff check --fix src"
 typing = "mypy --strict src"
 mypy = "mypy"
 lint = {depends-on = ["format","check","typing"]}
@@ -73,20 +73,38 @@ indent-width = 2
 
 [tool.ruff.lint]
 select = [
-    # pycodestyle
-    "E",
-    # Pyflakes
-    "F",
-    # flake8-bugbear
-    "B",
-    # flake8-simplify
-    "SIM",
-    # isort
-    "I",
+    "E",    # pycodestyle errors
+    "F",    # Pyflakes
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "I",    # isort
+    "C4",   # flake8-comprehensions
+    "Q",    # flake8-quotes
+    "NPY",  # Numpy rules
+    "PD",   # Pandas rules
+    "PERF", # Perflint
+    "FBT",  # Boolean trap
+    "COM",  # Commas rules
+    "UP",   # Newer python features
+    "INP",  # Implicit namespace package (__init__.py)
+    "TRY",  # Try and except rules
+    "EM",   # Exception messages
+    "PL",   # Pylint rules
+    "N",    # Naming conventions
+    "RET",  # Return rules
+    "TD",   # TODO rules
+    # "PTH",  # use-pathlib rules
 ]
+ignore = ["COM812"]
 
 [tool.mypy]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 pythonpath = "."
+
+
+[tool.ruff.lint.per-file-ignores]
+# Too many arguments
+"src/query_generator/main.py" = ["PLR0913"] 
+
