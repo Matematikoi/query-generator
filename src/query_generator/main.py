@@ -15,12 +15,17 @@ from query_generator.tools.cherry_pick_binning import (
   CherryPickParameters,
   cherry_pick_binning,
 )
+from query_generator.tools.format_queries_file_structure import (
+  format_queries_file_structure,
+)
 from query_generator.utils.definitions import (
   Dataset,
   Extension,
   QueryGenerationParameters,
 )
-from query_generator.utils.exceptions import InvalidUpperBoundError
+from query_generator.utils.exceptions import (
+  InvalidUpperBoundError,
+)
 from query_generator.utils.show_messages import show_dev_warning
 from query_generator.utils.utils import validate_dir_path
 
@@ -292,6 +297,58 @@ def cherry_pick(
       destination_folder=destination_folder_path,
       seed=seed,
     ),
+  )
+
+
+@app.command()
+def format_queries(
+  folder_src: Annotated[
+    str,
+    typer.Option(
+      "--src",
+      "-s",
+      help="The folder to format the queries",
+    ),
+  ],
+  folder_dst: Annotated[
+    str,
+    typer.Option(
+      "--dst",
+      "-d",
+      help="The folder to save the formatted queries",
+    ),
+  ] = "data/generated_queries/FORMATTED_QUERIES",
+) -> None:
+  """Formats queries names for submission to spark
+
+  The input folder must have the following structure:\n
+  folder_src/ \n
+    ├── some_name_1 \n
+    │   ├── query_1.sql \n
+    │   ├── query_2.sql \n
+    │   └── ... \n
+    ├── some_name_2 \n
+    │   ├── query_1.sql \n
+    │   ├── query_2.sql \n
+    │   └── ... \n
+    └── ... \n
+  The output folder will have the following structure:\n
+  folder_dst/ \n
+    ├── some_name_1 \n
+    │   ├── some_name_1_1.sql \n
+    │   ├── some_name_1_2.sql \n
+    │   └── ... \n
+    ├── some_name_2 \n
+    │   ├── some_name_2_1.sql \n
+    │   ├── some_name_2_2.sql \n
+    │   └── ... \n
+    └── ... \n
+  """
+  src_folder_path = Path(folder_src)
+  dst_folder_path = Path(folder_dst)
+  format_queries_file_structure(
+    src_folder_path=src_folder_path,
+    dst_folder_path=dst_folder_path,
   )
 
 
