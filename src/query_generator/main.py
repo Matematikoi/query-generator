@@ -315,11 +315,11 @@ def format_queries(
       "-d",
       help="The folder to save the formatted queries",
     ),
-  ],
+  ] = "data/generated_queries/FORMATTED_QUERIES",
 ) -> None:
   """Formats queries names for submission to spark
 
-  The input folder must have the following structure:
+  The input folder must have the following structure:\n
   folder_src/ \n
     ├── some_name_1 \n
     │   ├── query_1.sql \n
@@ -330,7 +330,7 @@ def format_queries(
     │   ├── query_2.sql \n
     │   └── ... \n
     └── ... \n
-  The output folder will have the following structure:
+  The output folder will have the following structure:\n
   folder_dst/ \n
     ├── some_name_1 \n
     │   ├── some_name_1_1.sql \n
@@ -354,6 +354,7 @@ def format_queries(
     )
     for idx, file in enumerate(files_in_alphabetical_order):
       query = file.read_text()
+      # the code works with 1 indexing because reasons (?)
       new_path = (
         dst_folder_path / subfolder.name / f"{subfolder.name}_{idx + 1}.sql"
       )
