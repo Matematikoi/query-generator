@@ -44,8 +44,10 @@ def test_make_bins_in_csv(count_star, upper_bound, total_bins, expected_bin):
 @pytest.mark.parametrize(
   "extra_predicates, expected_call_count",
   [
-    ([1], 134),
-    ([1, 2], 134 * 2),
+    ([1], 120 * 1 + 14),
+    # Inventory is small and prooduces 14 queries total
+    ([1, 2], 120 * 2 + 14),
+    ([1, 2, 3], 120 * 3 + 14),
   ],
 )
 def test_binning_calls(extra_predicates, expected_call_count):

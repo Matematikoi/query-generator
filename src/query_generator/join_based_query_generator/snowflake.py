@@ -93,44 +93,47 @@ class QueryBuilder:
     return query
 
 
-def generate_queries(
-  params: QueryGenerationParameters,
-) -> Iterator[GeneratedQueryFeatures]:
-  set_seed()
-  tables_schema, fact_tables = get_schema(params.dataset)
-  foreign_key_graph = ForeignKeyGraph(tables_schema)
-  subgraph_generator = SubGraphGenerator(
-    foreign_key_graph,
-    params.keep_edge_prob,
-    params.max_hops,
-  )
-  query_builder = QueryBuilder(
-    subgraph_generator,
-    tables_schema,
-    params.dataset,
-  )
-  for fact_table in fact_tables:
-    for cnt, subgraph in enumerate(
-      subgraph_generator.generate_subgraph(
-        fact_table,
-        params.max_queries_per_fact_table,
-      ),
-    ):
-      query = query_builder.generate_query_from_subgraph(subgraph)
-      for idx in range(1, params.max_queries_per_signature + 1):
-        query = query_builder.add_predicates(
-          subgraph,
-          query,
-          params.extra_predicates,
-          params.row_retention_probability,
-        )
+class QueryGenerator:
+  def __init__(self, params: QueryGenerationParameters) -> None:
+    set_seed()
+    self.params = params
+    self.tables_schema, self.fact_tables = get_schema(params.dataset)
+    self.foreign_key_graph = ForeignKeyGraph(self.tables_schema)
+    self.subgraph_generator = SubGraphGenerator(
+      self.foreign_key_graph,
+      params.keep_edge_prob,
+      params.max_hops,
+      params.seen_subgraphs,
+    )
+    self.query_builder = QueryBuilder(
+      self.subgraph_generator,
+      self.tables_schema,
+      params.dataset,
+    )
 
-        yield GeneratedQueryFeatures(
-          query=query.get_sql(),
-          template_number=cnt,
-          predicate_number=idx,
-          fact_table=fact_table,
-        )
+  def generate_queries(self) -> Iterator[GeneratedQueryFeatures]:
+    for fact_table in self.fact_tables:
+      for cnt, subgraph in enumerate(
+        self.subgraph_generator.generate_subgraph(
+          fact_table,
+          self.params.max_queries_per_fact_table,
+        ),
+      ):
+        query = self.query_builder.generate_query_from_subgraph(subgraph)
+        for idx in range(1, self.params.max_queries_per_signature + 1):
+          query = self.query_builder.add_predicates(
+            subgraph,
+            query,
+            self.params.extra_predicates,
+            self.params.row_retention_probability,
+          )
+
+          yield GeneratedQueryFeatures(
+            query=query.get_sql(),
+            template_number=cnt,
+            predicate_number=idx,
+            fact_table=fact_table,
+          )
 
 
 def generate_and_write_queries(params: QueryGenerationParameters) -> None:
@@ -144,5 +147,6 @@ def generate_and_write_queries(params: QueryGenerationParameters) -> None:
     params.dataset,
     Extension.SNOWFLAKE,
   )
-  for query in generate_queries(params):
+  query_generator = QueryGenerator(params)
+  for query in query_generator.generate_queries():
     query_writer.write_query(query)

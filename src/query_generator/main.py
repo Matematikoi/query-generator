@@ -105,6 +105,7 @@ def snowflake(
     keep_edge_prob=keep_edge_prob,
     extra_predicates=extra_predicates,
     row_retention_probability=row_retention_probability,
+    seen_subgraphs={},
   )
   generate_and_write_queries(params)
 

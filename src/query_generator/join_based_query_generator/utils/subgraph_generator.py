@@ -13,13 +13,14 @@ class SubGraphGenerator:
   def __init__(
     self,
     graph: ForeignKeyGraph,
-    keep_edge_prob: float = 0.5,
-    max_hops: int = 2,
+    keep_edge_prob: float,
+    max_hops: int,
+    seen_subgraphs: dict[int, bool],
   ) -> None:
     self.hops = max_hops
     self.keep_edge_prob = keep_edge_prob
     self.graph = graph
-    self.seen_subgraphs: dict[int, bool] = {}
+    self.seen_subgraphs: dict[int, bool] = seen_subgraphs
 
   def get_random_subgraph(self, fact_table: str) -> list[ForeignKeyGraph.Edge]:
     """Starting from the fact table, for each edge of the current table we

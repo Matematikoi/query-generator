@@ -22,6 +22,7 @@ class QueryGenerationParameters:
   dataset: Dataset
   extra_predicates: int
   row_retention_probability: float
+  seen_subgraphs: dict[int, bool]
 
 
 @dataclass
@@ -35,3 +36,4 @@ class GeneratedQueryFeatures:
 @dataclass
 class BatchGeneratedQueryFeatures(GeneratedQueryFeatures):
   batch_number: int
+  prefix: str

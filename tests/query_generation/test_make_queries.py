@@ -25,6 +25,7 @@ def test_tpch_query_generation():
         keep_edge_prob=0.2,
         row_retention_probability=0.2,
         extra_predicates=1,
+        seen_subgraphs={},
       ),
     )
 
@@ -44,6 +45,7 @@ def test_tpcds_query_generation():
         keep_edge_prob=0.2,
         row_retention_probability=0.2,
         extra_predicates=1,
+        seen_subgraphs={},
       ),
     )
 
@@ -64,6 +66,7 @@ def test_non_implemented_dataset():
           keep_edge_prob=0.2,
           row_retention_probability=0.2,
           extra_predicates=1,
+          seen_subgraphs={},
         ),
       )
     assert mock_writer.call_count == 0
