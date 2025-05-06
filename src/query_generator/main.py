@@ -365,14 +365,19 @@ def format_queries(
       if new_path.exists():
         raise OverwriteFileError(new_path)
       new_path.write_text(query)
-      src_relative_paths.append(file.relative_to(src_folder_path))
-      dst_relative_paths.append(new_path.relative_to(dst_folder_path))
+      src_relative_paths.append(str(file.relative_to(src_folder_path)))
+      dst_relative_paths.append(str(new_path.relative_to(dst_folder_path)))
   pl.DataFrame(
     {
       "original_name": src_relative_paths,
       "new_name": dst_relative_paths,
     }
-  ).write_csv(dst_folder_path / "mapping.csv")
+  ).with_columns(
+    [
+      pl.col("original_name").cast(pl.Utf8),
+      pl.col("new_name").cast(pl.Utf8),
+    ]
+  ).write_csv(str(dst_folder_path / "mapping.csv"))
 
 
 if __name__ == "__main__":
