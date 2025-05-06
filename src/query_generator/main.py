@@ -20,7 +20,10 @@ from query_generator.utils.definitions import (
   Extension,
   QueryGenerationParameters,
 )
-from query_generator.utils.exceptions import InvalidUpperBoundError
+from query_generator.utils.exceptions import (
+  InvalidUpperBoundError,
+  OverwriteFileError,
+)
 from query_generator.utils.show_messages import show_dev_warning
 from query_generator.utils.utils import validate_dir_path
 
@@ -293,6 +296,71 @@ def cherry_pick(
       seed=seed,
     ),
   )
+
+
+@app.command()
+def format_queries(
+  folder_src: Annotated[
+    str,
+    typer.Option(
+      "--src",
+      "-s",
+      help="The folder to format the queries",
+    ),
+  ],
+  folder_dst: Annotated[
+    str,
+    typer.Option(
+      "--dst",
+      "-d",
+      help="The folder to save the formatted queries",
+    ),
+  ],
+) -> None:
+  """Formats queries names for submission to spark
+
+  The input folder must have the following structure:
+  folder_src/ \n
+    ├── some_name_1 \n
+    │   ├── query_1.sql \n
+    │   ├── query_2.sql \n
+    │   └── ... \n
+    ├── some_name_2 \n
+    │   ├── query_1.sql \n
+    │   ├── query_2.sql \n
+    │   └── ... \n
+    └── ... \n
+  The output folder will have the following structure:
+  folder_dst/ \n
+    ├── some_name_1 \n
+    │   ├── some_name_1_1.sql \n
+    │   ├── some_name_1_2.sql \n
+    │   └── ... \n
+    ├── some_name_2 \n
+    │   ├── some_name_2_1.sql \n
+    │   ├── some_name_2_2.sql \n
+    │   └── ... \n
+    └── ... \n
+  """
+  src_folder_path = Path(folder_src)
+  dst_folder_path = Path(folder_dst)
+  for subfolder in src_folder_path.iterdir():
+    if not subfolder.is_dir():
+      continue
+    # Iterate in alphabetical order
+    # to ensure the same order of queries
+    files_in_alphabetical_order = sorted(
+      subfolder.iterdir(), key=lambda f: f.name
+    )
+    for idx, file in enumerate(files_in_alphabetical_order):
+      query = file.read_text()
+      new_path = (
+        dst_folder_path / subfolder.name / f"{subfolder.name}_{idx + 1}.sql"
+      )
+      new_path.parent.mkdir(parents=True, exist_ok=True)
+      if new_path.exists():
+        raise OverwriteFileError(new_path)
+      new_path.write_text(query)
 
 
 if __name__ == "__main__":
