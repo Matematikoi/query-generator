@@ -20,7 +20,7 @@ class SubGraphGenerator:
     self.hops = max_hops
     self.keep_edge_prob = keep_edge_prob
     self.graph = graph
-    self.seen_subgraphs: dict[int, bool] = seen_subgraphs
+    self.seen_subgraphs: dict[int, bool] = seen_subgraphs.copy()
 
   def get_random_subgraph(self, fact_table: str) -> list[ForeignKeyGraph.Edge]:
     """Starting from the fact table, for each edge of the current table we

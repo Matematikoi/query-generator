@@ -42,15 +42,16 @@ def test_make_bins_in_csv(count_star, upper_bound, total_bins, expected_bin):
 
 
 @pytest.mark.parametrize(
-  "extra_predicates, expected_call_count",
+  "extra_predicates, expected_call_count, unique_joins",
   [
-    ([1], 120 * 1 + 14),
+    ([1], 120 * 1 + 14, False),
+    ([1], 120 * 1 + 14, True),
     # Inventory is small and prooduces 14 queries total
-    ([1, 2], 120 * 2 + 14),
-    ([1, 2, 3], 120 * 3 + 14),
+    ([1, 2], 120 * 2 + 14, True),
+    ([1, 2], 120 * 2 + 14 * 2, False),
   ],
 )
-def test_binning_calls(extra_predicates, expected_call_count):
+def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
   with mock.patch(
     "query_generator.duckdb_connection.binning.Writer.write_query_to_batch",
   ) as mock_writer:
@@ -66,6 +67,7 @@ def test_binning_calls(extra_predicates, expected_call_count):
           extra_predicates=extra_predicates,
           row_retention_probability=[0.2],
           con=None,
+          unique_joins=unique_joins,
         ),
       )
     assert mock_writer.call_count == expected_call_count, (

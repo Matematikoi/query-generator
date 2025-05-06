@@ -27,6 +27,7 @@ class SearchParameters:
   max_hops: list[int]
   extra_predicates: list[int]
   row_retention_probability: list[float]
+  unique_joins: bool
 
 
 def get_result_from_duckdb(query: str, con: duckdb.DuckDBPyConnection) -> int:
@@ -127,6 +128,7 @@ def run_snowflake_param_seach(
         },
       )
     # Update the seen subgraphs with the new ones
-    seen_subgraphs = query_generator.subgraph_generator.seen_subgraphs
+    if search_params.unique_joins:
+      seen_subgraphs = query_generator.subgraph_generator.seen_subgraphs
   df_queries = pl.DataFrame(rows)
   query_writer.write_dataframe(df_queries)
