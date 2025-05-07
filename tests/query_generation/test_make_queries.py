@@ -1,15 +1,24 @@
 from unittest import mock
 
 import pytest
+from pypika import functions as fn
 
+
+from query_generator.database_schemas.schemas import get_schema
 from query_generator.join_based_query_generator.snowflake import (
+  QueryBuilder,
   generate_and_write_queries,
+)
+from query_generator.predicate_generator.histogram import (
+  HistogramDataType,
+  PredicateGenerator,
 )
 from query_generator.utils.definitions import (
   Dataset,
   QueryGenerationParameters,
 )
 from query_generator.utils.exceptions import UnkwonDatasetError
+from pypika import OracleQuery
 
 
 def test_tpch_query_generation():
@@ -70,3 +79,21 @@ def test_non_implemented_dataset():
         ),
       )
     assert mock_writer.call_count == 0
+
+
+def test_add_rage_supports_all_histogram_types():
+  tables_schema, _ = get_schema(Dataset.TPCH)
+  query_builder = QueryBuilder(None, tables_schema, Dataset.TPCH)
+  for dtype in HistogramDataType:
+    query_builder._add_range(
+      OracleQuery()
+      .from_(query_builder.table_to_pypika_table["lineitem"])
+      .select(fn.Count("*")),
+      PredicateGenerator.Predicate(
+        table="lineitem",
+        column="foo",
+        min_value=2020,
+        max_value=2020,
+        dtype=dtype,
+      ),
+    )

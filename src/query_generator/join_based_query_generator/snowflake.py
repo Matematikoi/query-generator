@@ -87,15 +87,17 @@ class QueryBuilder:
       extra_predicates,
       row_retention_probability,
     ):
-      if predicate.dtype in [HistogramDataType.INT, HistogramDataType.FLOAT]:
-        query = self._add_range_number(query, predicate)
-        continue
-      if predicate.dtype in [HistogramDataType.DATE]:
-        query = self._add_range_date(query, predicate)
-        continue
-      raise InvalidHistogramTypeError(str(predicate.dtype))
-
+      query = self._add_range(query, predicate)
     return query
+
+  def _add_range(
+    self, query: OracleQuery, predicate: PredicateGenerator.Predicate
+  ) -> OracleQuery:
+    if predicate.dtype in [HistogramDataType.INT, HistogramDataType.FLOAT]:
+      return self._add_range_number(query, predicate)
+    if predicate.dtype in [HistogramDataType.DATE]:
+      return self._add_range_date(query, predicate)
+    raise InvalidHistogramTypeError(str(predicate.dtype))
 
   def _add_range_number(
     self, query: OracleQuery, predicate: PredicateGenerator.Predicate
