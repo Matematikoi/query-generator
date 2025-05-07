@@ -35,7 +35,6 @@ class PredicateGenerator:
     self.dataset = dataset
     self.histogram: pl.DataFrame = self.read_histogram()
 
-  # TODO: Test this function
   def _parse_bin(
     self, bin_str: str, dtype: HistogramDataType
   ) -> SuportedHistogramArrayType:
