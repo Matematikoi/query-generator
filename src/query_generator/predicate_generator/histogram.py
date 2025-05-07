@@ -2,11 +2,24 @@ import math
 import random
 from collections.abc import Iterator
 from dataclasses import dataclass
+from enum import Enum
 
-import pandas as pd
+import polars as pl
 
 from query_generator.utils.definitions import Dataset
-from query_generator.utils.exceptions import UnkwonDatasetError
+from query_generator.utils.exceptions import (
+  UnkwonDatasetError,
+  UnsupportedTypeError,
+)
+
+SupportedHistogramType = float | int | str
+SuportedHistogramArrayType = list[float] | list[int] | list[str]
+
+
+class HistogramDataType(Enum):
+  INT = "int"
+  FLOAT = "float"
+  DATE = "date"
 
 
 class PredicateGenerator:
@@ -14,14 +27,41 @@ class PredicateGenerator:
   class Predicate:
     table: str
     column: str
-    min_value: float | int
-    max_value: float | int
+    min_value: SupportedHistogramType
+    max_value: SupportedHistogramType
+    dtype: HistogramDataType
 
   def __init__(self, dataset: Dataset):
     self.dataset = dataset
-    self.histogram: pd.DataFrame = self.read_histogram()
+    self.histogram: pl.DataFrame = self.read_histogram()
 
-  def read_histogram(self) -> pd.DataFrame:
+  # TODO: Test this function
+  def _parse_bin(
+    self, bin_str: str, dtype: HistogramDataType
+  ) -> SuportedHistogramArrayType:
+    """Parse the bin string representation to a list of values.
+
+    Args:
+        bin_str (str): String representation of bins.
+        dtype (str): Data type of the values.
+
+    Returns:
+        list: List of parsed values.
+
+    """
+    if bin_str == "[]":
+      return []
+    inner = bin_str[1:-1]
+    hist_array = inner.split(", ")
+    if dtype == HistogramDataType.INT:
+      return [int(float(x)) for x in hist_array]
+    if dtype == HistogramDataType.FLOAT:
+      return [float(x) for x in hist_array]
+    if dtype == HistogramDataType.DATE:
+      return hist_array
+    raise UnsupportedTypeError(dtype)
+
+  def read_histogram(self) -> pl.DataFrame:
     """Read the histogram data for the specified dataset.
 
     Args:
@@ -37,12 +77,16 @@ class PredicateGenerator:
       path = "data/histograms/raw_tpcds_hist.csv"
     else:
       raise UnkwonDatasetError(self.dataset)
-    # Remove rows with empty bins or that are dates
-    histogram = pd.read_csv(path)
+    return pl.read_csv(path).filter(pl.col("dtype") != "string")
 
-    return histogram[
-      (histogram["bins"] != "[]") & (histogram["dtype"] != "date")
-    ]
+  def _get_histogram_type(self, dtype: str) -> HistogramDataType:
+    if dtype in ["int", "bigint"]:
+      return HistogramDataType.INT
+    if dtype.startswith("decimal"):
+      return HistogramDataType.FLOAT
+    if dtype == "date":
+      return HistogramDataType.DATE
+    raise UnsupportedTypeError(dtype)
 
   def get_random_predicates(
     self,
@@ -61,31 +105,32 @@ class PredicateGenerator:
         List[PredicateGenerator.Predicate]: List of generated predicates.
 
     """
-    selected_tables_histogram = self.histogram[
-      self.histogram["table"].isin(tables)
-    ]
+    selected_tables_histogram = self.histogram.filter(
+      pl.col("table").is_in(tables)
+    )
 
-    for _, row in selected_tables_histogram.sample(num_predicates).iterrows():
+    for row in selected_tables_histogram.sample(n=num_predicates).iter_rows(
+      named=True
+    ):
       table = row["table"]
       column = row["column"]
       bins = row["bins"]
+      dtype = self._get_histogram_type(row["dtype"])
       min_value, max_value = self._get_min_max_from_bins(
-        bins,
-        row_retention_probability,
+        bins, row_retention_probability, dtype
       )
       predicate = PredicateGenerator.Predicate(
         table=table,
         column=column,
         min_value=min_value,
         max_value=max_value,
+        dtype=dtype,
       )
       yield predicate
 
   def _get_min_max_from_bins(
-    self,
-    bins: str,
-    row_retention_probability: float,
-  ) -> tuple[float | int, float | int]:
+    self, bins: str, row_retention_probability: float, dtype: HistogramDataType
+  ) -> tuple[SupportedHistogramType, SupportedHistogramType]:
     """Convert the bins string representation to a tuple of min and max values.
 
     Args:
@@ -96,12 +141,14 @@ class PredicateGenerator:
         tuple: Tuple containing min and max values.
 
     """
-    number_array: list[int | float] = eval(bins)
-    subrange_length = math.ceil(row_retention_probability * len(number_array))
-    start_index = random.randint(0, len(number_array) - subrange_length)
+    histogram_array: SuportedHistogramArrayType = self._parse_bin(bins, dtype)
+    subrange_length = math.ceil(
+      row_retention_probability * len(histogram_array)
+    )
+    start_index = random.randint(0, len(histogram_array) - subrange_length)
 
-    min_value = number_array[start_index]
-    max_value = number_array[
-      min(start_index + subrange_length, len(number_array) - 1)
+    min_value = histogram_array[start_index]
+    max_value = histogram_array[
+      min(start_index + subrange_length, len(histogram_array) - 1)
     ]
     return min_value, max_value

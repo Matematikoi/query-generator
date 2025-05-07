@@ -27,16 +27,15 @@ def get_tpch_table_info() -> tuple[dict[str, dict[str, Any]], list[str]]:
     "lineitem": {
       "alias": "l",
       "columns": {
-        # TODO(Gabriel): http://localhost:8080/tktview/48ff2a1ba5
-        # "l_commitdate": {"max": "1998-10-31", "min": "1992-01-31"},
+        "l_commitdate": {"max": "1998-10-31", "min": "1992-01-31"},
         "l_discount": {"max": 0.1, "min": 0.0},
         "l_extendedprice": {"max": 104948.5, "min": 900.05},
         "l_linenumber": {"max": 7, "min": 1},
         "l_orderkey": {"max": 600000000, "min": 1},
         "l_partkey": {"max": 20000000, "min": 1},
         "l_quantity": {"max": 50.0, "min": 1.0},
-        # "l_receiptdate": {"max": "1998-12-31", "min": "1992-01-03"},
-        # "l_shipdate": {"max": "1998-12-01", "min": "1992-01-02"},
+        "l_receiptdate": {"max": "1998-12-31", "min": "1992-01-03"},
+        "l_shipdate": {"max": "1998-12-01", "min": "1992-01-02"},
         "l_suppkey": {"max": 1000000, "min": 1},
         "l_tax": {"max": 0.08, "min": 0.0},
       },
@@ -47,11 +46,11 @@ def get_tpch_table_info() -> tuple[dict[str, dict[str, Any]], list[str]]:
           "ref_column": "ps_partkey",
         },
         # TODO(Gabriel): http://localhost:8080/tktview/4971d54a3292c6a03d193ef10bc589ef7a089c0d
-        # {
-        #     "column": "l_suppkey",
-        #     "ref_table": "partsupp",
-        #     "ref_column": "ps_suppkey",
-        # },
+        {
+          "column": "l_suppkey",
+          "ref_table": "partsupp",
+          "ref_column": "ps_suppkey",
+        },
         {
           "column": "l_orderkey",
           "ref_table": "orders",
@@ -77,7 +76,7 @@ def get_tpch_table_info() -> tuple[dict[str, dict[str, Any]], list[str]]:
       "alias": "o",
       "columns": {
         "o_custkey": {"max": 14999999, "min": 1},
-        # "o_orderdate": {"max": "1998-08-02", "min": "1992-01-01"},
+        "o_orderdate": {"max": "1998-08-02", "min": "1992-01-01"},
         "o_orderkey": {"max": 600000000, "min": 1},
         "o_shippriority": {"max": 0, "min": 0},
         "o_totalprice": {"max": 591036.15, "min": 811.73},
