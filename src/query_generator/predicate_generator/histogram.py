@@ -8,8 +8,8 @@ import polars as pl
 
 from query_generator.utils.definitions import Dataset
 from query_generator.utils.exceptions import (
+  InvalidHistogramTypeError,
   UnkwonDatasetError,
-  UnsupportedTypeError,
 )
 
 SupportedHistogramType = float | int | str
@@ -58,7 +58,7 @@ class PredicateGenerator:
       return [float(x) for x in hist_array]
     if dtype == HistogramDataType.DATE:
       return hist_array
-    raise UnsupportedTypeError(dtype)
+    raise InvalidHistogramTypeError(dtype)
 
   def read_histogram(self) -> pl.DataFrame:
     """Read the histogram data for the specified dataset.
@@ -87,7 +87,7 @@ class PredicateGenerator:
       return HistogramDataType.FLOAT
     if dtype == "date":
       return HistogramDataType.DATE
-    raise UnsupportedTypeError(dtype)
+    raise InvalidHistogramTypeError(dtype)
 
   def get_random_predicates(
     self,

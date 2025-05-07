@@ -8,7 +8,7 @@ from query_generator.predicate_generator.histogram import (
   PredicateGenerator,
 )
 from query_generator.utils.definitions import Dataset
-from query_generator.utils.exceptions import UnsupportedTypeError
+from query_generator.utils.exceptions import InvalidHistogramTypeError
 
 
 @pytest.mark.parametrize("dataset", [Dataset.TPCH, Dataset.TPCDS])
@@ -80,18 +80,22 @@ def test_get_min_max_from_bins(
   assert min_value == bins_array[min_index]
   assert max_value == bins_array[max_index]
 
+
 def test_get_invalid_histogram_type():
   predicate_generator = PredicateGenerator(Dataset.TPCH)
-  with pytest.raises(UnsupportedTypeError):
+  with pytest.raises(InvalidHistogramTypeError):
     predicate_generator._get_histogram_type("not_supported_type")
 
 
-def test_get_valid_histogram_type():
+@pytest.mark.parametrize(
+  "input_type, expected_type",
+  [
+    ("int", HistogramDataType.INT),
+    ("bigint", HistogramDataType.INT),
+    ("decimal(10,2)", HistogramDataType.FLOAT),
+    ("date", HistogramDataType.DATE),
+  ],
+)
+def test_get_valid_histogram_type(input_type, expected_type):
   predicate_generator = PredicateGenerator(Dataset.TPCH)
-  assert predicate_generator._get_histogram_type("int") == HistogramDataType.INT
-  assert predicate_generator._get_histogram_type("bigint") == HistogramDataType.INT
-  assert (
-    predicate_generator._get_histogram_type("decimal(10,2)")
-    == HistogramDataType.FLOAT
-  )
-  assert predicate_generator._get_histogram_type("date") == HistogramDataType.DATE
+  assert predicate_generator._get_histogram_type(input_type) == expected_type

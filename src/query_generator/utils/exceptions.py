@@ -41,7 +41,7 @@ class OverwriteFileError(Exception):
     super().__init__(f"File {str(file_path)} already exists.")
 
 
-class UnsupportedTypeError(Exception):
+class InvalidHistogramTypeError(Exception):
   def __init__(self, type: str) -> None:
     super().__init__(
       f"Unsupported type {type} for histogram parsing. "

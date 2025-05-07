@@ -27,6 +27,7 @@ from query_generator.utils.definitions import (
   GeneratedQueryFeatures,
   QueryGenerationParameters,
 )
+from query_generator.utils.exceptions import InvalidHistogramTypeError
 from query_generator.utils.utils import set_seed
 
 
@@ -73,7 +74,6 @@ class QueryBuilder:
       )
     return query
 
-  # TODO This should have a test so that all types are supported
   def add_predicates(
     self,
     subgraph: list[ForeignKeyGraph.Edge],
@@ -88,9 +88,12 @@ class QueryBuilder:
       row_retention_probability,
     ):
       if predicate.dtype in [HistogramDataType.INT, HistogramDataType.FLOAT]:
-        return self._add_range_number(query, predicate)
+        query = self._add_range_number(query, predicate)
+        continue
       if predicate.dtype in [HistogramDataType.DATE]:
-        return self._add_range_date(query, predicate)
+        query = self._add_range_date(query, predicate)
+        continue
+      raise InvalidHistogramTypeError(str(predicate.dtype))
 
     return query
 
