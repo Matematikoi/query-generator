@@ -39,3 +39,11 @@ class InvalidUpperBoundError(Exception):
 class OverwriteFileError(Exception):
   def __init__(self, file_path: Path) -> None:
     super().__init__(f"File {str(file_path)} already exists.")
+
+
+class InvalidHistogramTypeError(Exception):
+  def __init__(self, type: str) -> None:
+    super().__init__(
+      f"Unsupported type {type} for histogram parsing. "
+      "Please check the histogram data."
+    )

@@ -17,13 +17,17 @@ from query_generator.join_based_query_generator.\
 from query_generator.join_based_query_generator.utils.query_writer import (
   Writer,
 )
-from query_generator.predicate_generator.histogram import PredicateGenerator
+from query_generator.predicate_generator.histogram import (
+  HistogramDataType,
+  PredicateGenerator,
+)
 from query_generator.utils.definitions import (
   Dataset,
   Extension,
   GeneratedQueryFeatures,
   QueryGenerationParameters,
 )
+from query_generator.utils.exceptions import InvalidHistogramTypeError
 from query_generator.utils.utils import set_seed
 
 
@@ -83,14 +87,39 @@ class QueryBuilder:
       extra_predicates,
       row_retention_probability,
     ):
-      query = query.where(
-        self.table_to_pypika_table[predicate.table][predicate.column]
-        >= predicate.min_value,
-      ).where(
-        self.table_to_pypika_table[predicate.table][predicate.column]
-        <= predicate.max_value,
-      )
+      query = self._add_range(query, predicate)
     return query
+
+  def _add_range(
+    self, query: OracleQuery, predicate: PredicateGenerator.Predicate
+  ) -> OracleQuery:
+    if predicate.dtype in [HistogramDataType.INT, HistogramDataType.FLOAT]:
+      return self._add_range_number(query, predicate)
+    if predicate.dtype in [HistogramDataType.DATE]:
+      return self._add_range_date(query, predicate)
+    raise InvalidHistogramTypeError(str(predicate.dtype))
+
+  def _add_range_number(
+    self, query: OracleQuery, predicate: PredicateGenerator.Predicate
+  ) -> OracleQuery:
+    return query.where(
+      self.table_to_pypika_table[predicate.table][predicate.column]
+      >= predicate.min_value,
+    ).where(
+      self.table_to_pypika_table[predicate.table][predicate.column]
+      <= predicate.max_value,
+    )
+
+  def _add_range_date(
+    self, query: OracleQuery, predicate: PredicateGenerator.Predicate
+  ) -> OracleQuery:
+    return query.where(
+      self.table_to_pypika_table[predicate.table][predicate.column]
+      >= fn.Cast(predicate.min_value, "date"),
+    ).where(
+      self.table_to_pypika_table[predicate.table][predicate.column]
+      <= fn.Cast(predicate.max_value, "date"),
+    )
 
 
 class QueryGenerator:
