@@ -77,7 +77,9 @@ class PredicateGenerator:
       path = "data/histograms/raw_tpcds_hist.csv"
     else:
       raise UnkwonDatasetError(self.dataset)
-    return pl.read_csv(path).filter(pl.col("dtype") != "string")
+    return pl.read_csv(path).filter(
+      (pl.col("dtype") != "string") & (pl.col("bins") != "[]")
+    )
 
   def _get_histogram_type(self, dtype: str) -> HistogramDataType:
     if dtype in ["int", "bigint"]:
