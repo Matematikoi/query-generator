@@ -8,6 +8,10 @@ class Extension(Enum):
   BINNING_CHERRY_PICKING = "BINNING_CHERRY_PICKING"
 
 
+class Utility(Enum):
+  HISTOGRAM = "HISTOGRAM"
+
+
 class Dataset(Enum):
   TPCDS = "TPCDS"
   TPCH = "TPCH"

@@ -1,0 +1,71 @@
+from dataclasses import dataclass
+
+import duckdb
+
+
+@dataclass
+class DuckDBTableDescription:
+  """Class to describe a table in DuckDB.
+
+  Represents the schema of a table as returned by the `DESCRIBE`
+  command in DuckDB.
+  Each instance corresponds to a single column in the table.
+
+  Attributes:
+      column_name (str): The name of the column.
+      column_type (str): The data type of the column
+      (e.g., INTEGER, VARCHAR, DATE).
+      null (str): Indicates whether the column allows NULL values
+      ("YES" or "NO").
+      key (str): Specifies if the column is part of a key
+      (e.g., "PRIMARY KEY", "NULL").
+      default (str): The default value for the column, if any.
+      extra (str): Additional information about the column,
+      such as constraints.
+  """
+
+  column_name: str
+  column_type: str
+  null: str
+  key: str
+  default: str
+  extra: str
+
+
+def get_tables(con: duckdb.DuckDBPyConnection) -> list[str]:
+  """Retrieve the list of tables in the database.
+
+  Args:
+      con (duckdb.DuckDBPyConnection): The connection to the database.
+
+  Returns:
+      list[str]: A list of table names in the database.
+  """
+  tables = con.execute("show tables;").fetchall()
+  return [table[0] for table in tables]
+
+
+def get_columns(
+  con: duckdb.DuckDBPyConnection, table: str
+) -> list[DuckDBTableDescription]:
+  """Retrieve the list of columns for a specific table.
+
+  Args:
+      con (duckdb.DuckDBPyConnection): The connection to the database.
+      table (str): The name of the table.
+
+  Returns:
+      list[str]: A list of column names in the specified table.
+  """
+  columns = con.execute(f"DESCRIBE {table};").fetchall()
+  return [
+    DuckDBTableDescription(
+      column_name=column[0],
+      column_type=column[1],
+      null=column[2],
+      key=column[3],
+      default=column[4],
+      extra=column[5],
+    )
+    for column in columns
+  ]

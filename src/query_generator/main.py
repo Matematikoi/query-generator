@@ -18,13 +18,15 @@ from query_generator.tools.cherry_pick_binning import (
 from query_generator.tools.format_queries_file_structure import (
   format_queries_file_structure,
 )
+from query_generator.tools.histograms import query_histograms
 from query_generator.utils.definitions import (
   Dataset,
   Extension,
   QueryGenerationParameters,
+  Utility,
 )
 from query_generator.utils.show_messages import show_dev_warning
-from query_generator.utils.utils import validate_dir_path
+from query_generator.utils.utils import validate_file_path
 
 app = typer.Typer(name="Query Generation")
 
@@ -118,7 +120,7 @@ def param_search(
     bool,
     typer.Option(
       "--dev",
-      help="Development testing. If true then uses scale factor 1 to check.",
+      help="Development testing. If true then uses scale factor 0.1 to check.",
     ),
   ] = False,
   unique_joins: Annotated[
@@ -265,7 +267,7 @@ def cherry_pick(
     if destination_folder is None
     else Path(destination_folder)
   )
-  validate_dir_path(csv_path)
+  validate_file_path(csv_path)
   cherry_pick_binning(
     CherryPickParameters(
       csv_path=csv_path,
@@ -328,6 +330,48 @@ def format_queries(
     src_folder_path=src_folder_path,
     dst_folder_path=dst_folder_path,
   )
+
+
+@app.command()
+def make_histograms(
+  dataset: Annotated[
+    Dataset,
+    typer.Option("--dataset", "-d", help="The dataset used"),
+  ],
+  destination_folder: Annotated[
+    str | None,
+    typer.Option(
+      "--destination-folder",
+      "-df",
+      help="The folder to save the histograms",
+      show_default=f"data/generated_queries/{Utility.HISTOGRAM.value}/{{dataset}}",
+    ),
+  ] = None,
+  *,
+  dev: Annotated[
+    bool,
+    typer.Option(
+      "--dev",
+      help="Development testing. If true then uses scale factor 0.1 to check.",
+    ),
+  ] = False,
+) -> None:
+  """This function is used to create histograms from the queries."""
+  destination_folder_path = (
+    Path(
+      f"data/generated_queries/{Utility.HISTOGRAM.value}/{dataset.value}",
+    )
+    if destination_folder is None
+    else Path(destination_folder)
+  )
+  scale_factor = 0.1 if dev else 100
+  con = setup_duckdb(scale_factor, dataset)
+  query_histograms(
+    dataset=dataset,
+    scale_factor=scale_factor,
+    con=con,
+  )
+  print(destination_folder_path)
 
 
 if __name__ == "__main__":
