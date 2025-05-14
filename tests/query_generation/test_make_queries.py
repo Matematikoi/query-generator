@@ -9,7 +9,7 @@ from query_generator.join_based_query_generator.snowflake import (
   QueryBuilder,
   generate_and_write_queries,
 )
-from query_generator.predicate_generator.histogram import (
+from query_generator.predicate_generator.predicate_generator import (
   HistogramDataType,
   PredicateGenerator,
 )
