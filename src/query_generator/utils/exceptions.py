@@ -31,11 +31,13 @@ class UnkwonDatasetError(Exception):
   def __init__(self, dataset: str) -> None:
     super().__init__(f"Unknown dataset: {dataset}")
 
+
 class MissingScaleFactorError(Exception):
   def __init__(self, dataset: str) -> None:
     super().__init__(
       f"Scale factor is required for dataset {dataset} but not provided."
     )
+
 
 class InvalidForeignKeyError(Exception):
   def __init__(self, table: str, column: str) -> None:
@@ -51,11 +53,11 @@ class InvalidUpperBoundError(Exception):
       f"is greater than the upper bound {upper_bound}",
     )
 
-class DataGenerationNotSupportedError(Exception):
+
+class PartiallySupportedDatasetError(Exception):
   def __init__(self, dataset: str) -> None:
-    super().__init__(
-      f"Data generation is not supported for dataset {dataset}."
-    )
+    super().__init__(f"This dataset is only partially supported: {dataset}.")
+
 
 class OverwriteFileError(Exception):
   def __init__(self, file_path: Path) -> None:

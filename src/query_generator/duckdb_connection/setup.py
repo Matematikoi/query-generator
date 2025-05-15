@@ -3,7 +3,11 @@ import os
 import duckdb
 
 from query_generator.utils.definitions import Dataset
-from query_generator.utils.exceptions import DataGenerationNotSupportedError, MissingScaleFactorError, UnkwonDatasetError
+from query_generator.utils.exceptions import (
+  MissingScaleFactorError,
+  PartiallySupportedDatasetError,
+  UnkwonDatasetError,
+)
 
 
 def load_and_install_libraries() -> None:
@@ -23,24 +27,25 @@ def generate_data(
   elif dataset == Dataset.TPCH:
     con.execute(f"CALL dbgen(sf = {scale_factor})")
   elif dataset == Dataset.JOB:
-    raise DataGenerationNotSupportedError(dataset.value)
+    raise PartiallySupportedDatasetError(dataset.value)
   else:
     raise UnkwonDatasetError(dataset)
 
+
 def get_path(
   dataset: Dataset,
-  scale_factor: float | int| None,
+  scale_factor: float | int | None,
 ) -> str:
   if dataset in [Dataset.TPCDS, Dataset.TPCH]:
     return f"data/duckdb/{dataset.value}/{scale_factor}.db"
-  elif dataset == Dataset.JOB:
+  if dataset == Dataset.JOB:
     return f"data/duckdb/{dataset.value}/job.db"
-  else:
-    raise UnkwonDatasetError(dataset.value)
+  raise UnkwonDatasetError(dataset.value)
+
 
 def setup_duckdb(
   dataset: Dataset,
-  scale_factor: int | float| None = None,
+  scale_factor: int | float | None = None,
 ) -> duckdb.DuckDBPyConnection:
   """Installs TPCDS and TPCH datasets in DuckDB.
 
@@ -49,7 +54,7 @@ def setup_duckdb(
   """
   if scale_factor is None and dataset != Dataset.JOB:
     raise MissingScaleFactorError(dataset.value)
-  
+
   load_and_install_libraries()
   db_path = get_path(dataset, scale_factor)
   if os.path.exists(db_path):
