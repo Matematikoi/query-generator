@@ -15,6 +15,7 @@ class Utility(Enum):
 class Dataset(Enum):
   TPCDS = "TPCDS"
   TPCH = "TPCH"
+  JOB = "JOB"
 
 
 @dataclass

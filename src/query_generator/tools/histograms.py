@@ -79,7 +79,7 @@ def query_histograms(
       )
 
   path = Path(
-    f"data/generated_queries/histograms/{dataset.value}/histograms.parquet"
+    f"data/generated_histograms/{dataset.value}/histograms.parquet"
   )
   path.parent.mkdir(parents=True, exist_ok=True)
   pl.DataFrame(rows).write_parquet(path)

@@ -174,7 +174,7 @@ def param_search(
     row_retention_probability_range = [0.2, 0.3, 0.4, 0.6, 0.8, 0.85, 0.9, 1.0]
   show_dev_warning(dev=dev)
   scale_factor = 0.1 if dev else 100
-  con = setup_duckdb(scale_factor, dataset)
+  con = setup_duckdb(dataset, scale_factor )
   run_snowflake_param_seach(
     SearchParameters(
       scale_factor=scale_factor,
@@ -374,7 +374,7 @@ def make_histograms(
     else Path(destination_folder)
   )
   scale_factor = 0.1 if dev else 100
-  con = setup_duckdb(scale_factor, dataset)
+  con = setup_duckdb(dataset,scale_factor, )
   query_histograms(
     dataset=dataset,
     histogram_size=histogram_size,
