@@ -1,5 +1,16 @@
 from pathlib import Path
 
+MINIMUM_SIZE_OF_HISTOGRAMS = 2
+
+
+class InvalidHistogramError(Exception):
+  def __init__(self, size: int) -> None:
+    super().__init__(
+      f"Histogram has size {size} < "
+      f"{MINIMUM_SIZE_OF_HISTOGRAMS} that is the"
+      "minimum size of a valid histogram"
+    )
+
 
 class GraphExploredError(Exception):
   def __init__(self, attempts: int) -> None:

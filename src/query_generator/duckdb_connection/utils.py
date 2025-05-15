@@ -4,7 +4,7 @@ import duckdb
 
 
 @dataclass
-class DuckDBTableDescription:
+class RawDuckDBTableDescription:
   """Class to describe a table in DuckDB.
 
   Represents the schema of a table as returned by the `DESCRIBE`
@@ -32,6 +32,12 @@ class DuckDBTableDescription:
   extra: str
 
 
+@dataclass
+class RawDuckDBHistograms:
+  bin: str
+  count: int
+
+
 def get_tables(con: duckdb.DuckDBPyConnection) -> list[str]:
   """Retrieve the list of tables in the database.
 
@@ -47,7 +53,7 @@ def get_tables(con: duckdb.DuckDBPyConnection) -> list[str]:
 
 def get_columns(
   con: duckdb.DuckDBPyConnection, table: str
-) -> list[DuckDBTableDescription]:
+) -> list[RawDuckDBTableDescription]:
   """Retrieve the list of columns for a specific table.
 
   Args:
@@ -59,7 +65,7 @@ def get_columns(
   """
   columns = con.execute(f"DESCRIBE {table};").fetchall()
   return [
-    DuckDBTableDescription(
+    RawDuckDBTableDescription(
       column_name=column[0],
       column_type=column[1],
       null=column[2],
@@ -69,3 +75,28 @@ def get_columns(
     )
     for column in columns
   ]
+
+
+def get_equi_height_histogram(
+  con: duckdb.DuckDBPyConnection, table: str, column: str, bin_count: int
+) -> list[RawDuckDBHistograms]:
+  query = f"""
+    SELECT bin, count
+    FROM histogram(
+    {table},
+    {column},
+    bin_count := {bin_count},
+    technique := 'equi-height'
+  );
+  """
+  data = con.execute(query).fetchall()
+  return [RawDuckDBHistograms(bin=d[0], count=d[1]) for d in data]
+
+
+def get_distinct_count(
+  con: duckdb.DuckDBPyConnection, table: str, column: str
+) -> int:
+  data: int = con.execute(f"""
+    SELECT COUNT(DISTINCT {column}) FROM {table};
+  """).fetchall()[0][0]
+  return data

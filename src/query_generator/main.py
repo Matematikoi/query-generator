@@ -347,6 +347,15 @@ def make_histograms(
       show_default=f"data/generated_queries/{Utility.HISTOGRAM.value}/{{dataset}}",
     ),
   ] = None,
+  histogram_size: Annotated[
+    int,
+    typer.Option(
+      "--histogram-size",
+      "-hs",
+      help="The size of the histogram",
+      min=1,
+    ),
+  ] = 50,
   *,
   dev: Annotated[
     bool,
@@ -368,7 +377,7 @@ def make_histograms(
   con = setup_duckdb(scale_factor, dataset)
   query_histograms(
     dataset=dataset,
-    scale_factor=scale_factor,
+    histogram_size=histogram_size,
     con=con,
   )
   print(destination_folder_path)
