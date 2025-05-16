@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import duckdb
 import polars as pl
@@ -8,6 +9,7 @@ from query_generator.duckdb_connection.utils import (
   get_columns,
   get_distinct_count,
   get_equi_height_histogram,
+  get_frequent_non_null_values,
   get_tables,
 )
 from query_generator.utils.definitions import Dataset
@@ -46,7 +48,10 @@ class DuckDBHistogramParser:
 
 
 def query_histograms(
-  dataset: Dataset, histogram_size: int, con: duckdb.DuckDBPyConnection
+  dataset: Dataset,
+  histogram_size: int,
+  common_values_size: int,
+  con: duckdb.DuckDBPyConnection,
 ) -> None:
   """Creates histograms for the given dataset.
   Args:
@@ -54,7 +59,8 @@ def query_histograms(
       scale_factor (int): The scale factor for the histograms.
       con (duckdb.DuckDBPyConnection): The connection to the database.
   """
-  rows: list[dict[str, str | int | list[str]]] = []
+  # TODO type hint
+  rows: list[dict[str, Any]] = []
   tables = get_tables(con)
   for table in tables:
     columns = get_columns(con, table)
@@ -70,6 +76,11 @@ def query_histograms(
 
       # Get distinct count
       distinct_count = get_distinct_count(con, table, column.column_name)
+
+      # Get most common values
+      most_common_values = get_frequent_non_null_values(
+        con, table, column.column_name, common_values_size
+      )
       rows.append(
         {
           "table": table,
@@ -77,6 +88,10 @@ def query_histograms(
           "histogram": histogram_array,
           "distinct_count": distinct_count,
           "dtype": column.column_type,
+          "most_common_values": [
+            {"value": value.value, "count": value.count}
+            for value in most_common_values
+          ],
         }
       )
 

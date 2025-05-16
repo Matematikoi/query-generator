@@ -338,6 +338,24 @@ def make_histograms(
     Dataset,
     typer.Option("--dataset", "-d", help="The dataset used"),
   ],
+  histogram_size: Annotated[
+    int,
+    typer.Option(
+      "--histogram-size",
+      "-h",
+      help="The size of the histogram",
+      min=1,
+    ),
+  ] = 50,
+  common_values_size: Annotated[
+    int,
+    typer.Option(
+      "--common-values-size",
+      "-c",
+      help="The size of the common values",
+      min=1,
+    ),
+  ] = 10,
   destination_folder: Annotated[
     str | None,
     typer.Option(
@@ -347,15 +365,6 @@ def make_histograms(
       show_default=f"data/generated_queries/{Utility.HISTOGRAM.value}/{{dataset}}",
     ),
   ] = None,
-  histogram_size: Annotated[
-    int,
-    typer.Option(
-      "--histogram-size",
-      "-hs",
-      help="The size of the histogram",
-      min=1,
-    ),
-  ] = 50,
   *,
   dev: Annotated[
     bool,
@@ -381,6 +390,7 @@ def make_histograms(
   query_histograms(
     dataset=dataset,
     histogram_size=histogram_size,
+    common_values_size=common_values_size,
     con=con,
   )
   print(destination_folder_path)
