@@ -57,7 +57,6 @@ def setup_duckdb(
       scale_factor (int | float | None): The scale factor for the dataset.
           It is only none for JOB dataset.
   """
-
   load_and_install_libraries()
   db_path = get_path(dataset, scale_factor)
   if os.path.exists(db_path):
@@ -66,6 +65,7 @@ def setup_duckdb(
 
   if scale_factor is None:
     # scale factor can only be ommited for JOB dataset
+    # and currently we can't generate it
     raise MissingScaleFactorError(dataset.value)
 
   os.makedirs(os.path.dirname(db_path), exist_ok=True)

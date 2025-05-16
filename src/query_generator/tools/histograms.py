@@ -13,7 +13,7 @@ from query_generator.duckdb_connection.utils import (
 from query_generator.utils.definitions import Dataset
 
 
-class DuckDBHistogram:
+class DuckDBHistogramParser:
   """Class to represent a histogram in DuckDB."""
 
   def __init__(
@@ -63,7 +63,9 @@ def query_histograms(
       histogram_raw = get_equi_height_histogram(
         con, table, column.column_name, histogram_size
       )
-      histogram_parser = DuckDBHistogram(histogram_raw, column.column_type)
+      histogram_parser = DuckDBHistogramParser(
+        histogram_raw, column.column_type
+      )
       histogram_array = histogram_parser.get_equiwidth_histogram_array()
 
       # Get distinct count

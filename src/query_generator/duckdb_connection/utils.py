@@ -100,3 +100,16 @@ def get_distinct_count(
     SELECT COUNT(DISTINCT {column}) FROM {table};
   """).fetchall()[0][0]
   return data
+
+
+def get_most_common_values(
+  con: duckdb.DuckDBPyConnection, table: str, column: str, limit: int
+) -> list[tuple[str, int]]:
+  data = con.execute(f"""
+    SELECT {column}, COUNT(*) as count
+    FROM {table}
+    GROUP BY {column}
+    ORDER BY count DESC
+    LIMIT {limit};
+  """).fetchall()
+  return [(d[0], d[1]) for d in data]

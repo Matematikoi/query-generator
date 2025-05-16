@@ -3,7 +3,9 @@ from query_generator.duckdb_connection.utils import (
   get_distinct_count,
   get_equi_height_histogram,
 )
+from query_generator.tools.histograms import DuckDBHistogramParser
 from query_generator.utils.definitions import Dataset
+from tests.utils import is_float
 
 
 def test_distinct_values():
@@ -15,5 +17,15 @@ def test_distinct_values():
 
 def test_histogram():
   con = setup_duckdb(Dataset.TPCDS, 0.1)
-  histogram = get_equi_height_histogram(con, "item", "i_item_id", 5)
+  histogram = get_equi_height_histogram(con, "item", "i_current_price", 5)
+  histogram_parser = DuckDBHistogramParser(histogram, "float")
   assert len(histogram) == 5
+  assert len(histogram_parser.bins) == 5
+  assert len(histogram_parser.counts) == 5
+  assert len(histogram_parser.lower_bounds) == 5
+  assert len(histogram_parser.upper_bounds) == 5
+  assert histogram_parser.lower_bounds[0] is None
+  assert is_float(histogram_parser.upper_bounds[0])
+  for h in range(1, 5):
+    assert is_float(histogram_parser.lower_bounds[h])
+    assert is_float(histogram_parser.upper_bounds[h])
