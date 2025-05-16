@@ -12,6 +12,11 @@ from query_generator.utils.definitions import (
 from query_generator.utils.exceptions import OverwriteFileError
 
 
+def write_parquet(df_to_write: pl.DataFrame, path: Path) -> None:
+  path.parent.mkdir(parents=True, exist_ok=True)
+  df_to_write.write_parquet(path)
+
+
 class Writer:
   def __init__(self, dataset: Dataset, extension: Extension) -> None:
     self.extension = extension

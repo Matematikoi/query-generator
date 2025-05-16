@@ -34,7 +34,7 @@ def cherry_pick_binning(
   params: CherryPickParameters,
 ) -> None:
   batch_df = pl.read_csv(params.csv_path)
-  dfs_sampled_array = []
+  dfs_sampled_array: list[pl.DataFrame] = []
   bins_df = make_bins_in_csv(batch_df, params.upper_bound, params.total_bins)
   for bin in bins_df["bin"].unique():
     bin_df = bins_df.filter(pl.col("bin") == bin)

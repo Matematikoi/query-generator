@@ -71,7 +71,7 @@ def run_snowflake_param_seach(
     search_params.dataset,
     Extension.SNOWFLAKE_SEARCH_PARAMS,
   )
-  rows = []
+  rows: list[dict[str, str | int | float]] = []
   total_iterations = get_total_iterations(search_params)
   batch_number = 0
   seen_subgraphs: dict[int, bool] = {}

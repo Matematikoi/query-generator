@@ -8,8 +8,8 @@ def set_seed() -> None:
   random.seed(seed)
 
 
-def validate_dir_path(path: Path) -> None:
-  """Validate if the given path is a valid directory."""
+def validate_file_path(path: Path) -> None:
+  """Validate if the given path is a valid file."""
   if not path.is_file():
     raise FileNotFoundError(path)
   if not path.exists():

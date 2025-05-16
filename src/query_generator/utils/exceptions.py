@@ -1,5 +1,16 @@
 from pathlib import Path
 
+MINIMUM_SIZE_OF_HISTOGRAMS = 2
+
+
+class InvalidHistogramError(Exception):
+  def __init__(self, size: int) -> None:
+    super().__init__(
+      f"Histogram has size {size} < "
+      f"{MINIMUM_SIZE_OF_HISTOGRAMS} that is the"
+      "minimum size of a valid histogram"
+    )
+
 
 class GraphExploredError(Exception):
   def __init__(self, attempts: int) -> None:
@@ -21,6 +32,13 @@ class UnkwonDatasetError(Exception):
     super().__init__(f"Unknown dataset: {dataset}")
 
 
+class MissingScaleFactorError(Exception):
+  def __init__(self, dataset: str) -> None:
+    super().__init__(
+      f"Scale factor is required for dataset {dataset} but not provided."
+    )
+
+
 class InvalidForeignKeyError(Exception):
   def __init__(self, table: str, column: str) -> None:
     super().__init__(
@@ -34,6 +52,11 @@ class InvalidUpperBoundError(Exception):
       f"The lower bound {lower_bound} "
       f"is greater than the upper bound {upper_bound}",
     )
+
+
+class PartiallySupportedDatasetError(Exception):
+  def __init__(self, dataset: str) -> None:
+    super().__init__(f"This dataset is only partially supported: {dataset}.")
 
 
 class OverwriteFileError(Exception):

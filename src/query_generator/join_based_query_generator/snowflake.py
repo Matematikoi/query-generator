@@ -17,7 +17,7 @@ from query_generator.join_based_query_generator.\
 from query_generator.join_based_query_generator.utils.query_writer import (
   Writer,
 )
-from query_generator.predicate_generator.histogram import (
+from query_generator.predicate_generator.predicate_generator import (
   HistogramDataType,
   PredicateGenerator,
 )
