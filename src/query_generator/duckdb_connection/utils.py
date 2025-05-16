@@ -136,3 +136,37 @@ def get_frequent_non_null_values(
     LIMIT {limit};
   """).fetchall()
   return [RawDuckDBMostCommonValues(value=d[0], count=d[1]) for d in data]
+
+
+def get_histogram_excluding_common_values(
+  con: duckdb.DuckDBPyConnection,
+  table: str,
+  column: str,
+  bin_count: int,
+  common_values_size: int,
+) -> list[RawDuckDBHistograms]:
+  query = f"""
+    WITH common_values AS (
+      SELECT {column}, COUNT(*) as count
+      FROM {table}
+      WHERE {column} IS NOT NULL
+      GROUP BY {column}
+      ORDER BY count DESC
+      LIMIT {common_values_size}
+    ),
+    exclude_values AS (
+      SELECT {column}
+      FROM {table}
+      WHERE {column} NOT IN (SELECT {column} FROM common_values)
+      AND {column} IS NOT NULL
+    )
+    SELECT bin, count
+    FROM histogram(
+      exclude_values,
+      {column},
+      bin_count := {bin_count},
+      technique := 'equi-height'
+    );
+  """
+  data = con.execute(query).fetchall()
+  return [RawDuckDBHistograms(bin=d[0], count=d[1]) for d in data]
