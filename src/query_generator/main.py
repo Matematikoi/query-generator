@@ -11,6 +11,9 @@ from query_generator.duckdb_connection.setup import setup_duckdb
 from query_generator.join_based_query_generator.snowflake import (
   generate_and_write_queries,
 )
+from query_generator.join_based_query_generator.utils.query_writer import (
+  write_parquet,
+)
 from query_generator.tools.cherry_pick_binning import (
   CherryPickParameters,
   cherry_pick_binning,
@@ -23,7 +26,6 @@ from query_generator.utils.definitions import (
   Dataset,
   Extension,
   QueryGenerationParameters,
-  Utility,
 )
 from query_generator.utils.show_messages import show_dev_warning
 from query_generator.utils.utils import validate_file_path
@@ -356,13 +358,13 @@ def make_histograms(
       min=1,
     ),
   ] = 10,
-  destination_folder: Annotated[
+  destination_str: Annotated[
     str | None,
     typer.Option(
-      "--destination-folder",
-      "-df",
+      "--path",
+      "-p",
       help="The folder to save the histograms",
-      show_default=f"data/generated_queries/{Utility.HISTOGRAM.value}/{{dataset}}",
+      show_default="data/generated_histograms/{dataset}/histogram.parquet",
     ),
   ] = None,
   *,
@@ -383,26 +385,27 @@ def make_histograms(
   ] = False,
 ) -> None:
   """This function is used to create histograms from the queries."""
-  destination_folder_path = (
+  destination_path = (
     Path(
-      f"data/generated_queries/{Utility.HISTOGRAM.value}/{dataset.value}",
+      f"data/generated_histograms/{dataset.value}/histogram.parquet",
     )
-    if destination_folder is None
-    else Path(destination_folder)
+    if destination_str is None
+    else Path(destination_str)
   )
   scale_factor = 0.1 if dev else 100
+
   con = setup_duckdb(
     dataset,
     scale_factor,
   )
-  query_histograms(
+  histograms_df = query_histograms(
     dataset=dataset,
     histogram_size=histogram_size,
     common_values_size=common_values_size,
     con=con,
     include_mvc=include_mvc,
   )
-  print(destination_folder_path)
+  write_parquet(histograms_df, destination_path)
 
 
 if __name__ == "__main__":

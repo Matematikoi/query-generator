@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 import duckdb
@@ -119,7 +118,7 @@ def query_histograms(
   con: duckdb.DuckDBPyConnection,
   *,
   include_mvc: bool,
-) -> None:
+) -> pl.DataFrame:
   """Creates histograms for the given dataset.
   Args:
       dataset (Dataset): The dataset to create histograms for.
@@ -175,7 +174,4 @@ def query_histograms(
           "histogram-mcv": histogram_array_excluding_common_values,
         }
       rows.append(row_dict)
-
-  path = Path(f"data/generated_histograms/{dataset.value}/histograms.parquet")
-  path.parent.mkdir(parents=True, exist_ok=True)
-  pl.DataFrame(rows).write_parquet(path)
+  return pl.DataFrame(rows)
