@@ -6,6 +6,8 @@ import polars as pl
 
 from query_generator.duckdb_connection.utils import (
   RawDuckDBHistograms,
+  RawDuckDBMostCommonValues,
+  RawDuckDBTableDescription,
   get_columns,
   get_distinct_count,
   get_equi_height_histogram,
@@ -13,6 +15,8 @@ from query_generator.duckdb_connection.utils import (
   get_tables,
 )
 from query_generator.utils.definitions import Dataset
+
+LIMIT_FOR_DISTINCT_VALUES = 1000
 
 
 class DuckDBHistogramParser:
@@ -47,6 +51,32 @@ class DuckDBHistogramParser:
     return self.upper_bounds
 
 
+def get_most_common_values(
+  con: duckdb.DuckDBPyConnection,
+  table: str,
+  column: str,
+  common_value_size: int,
+  distinct_count: int,
+) -> list[RawDuckDBMostCommonValues]:
+  result: list[RawDuckDBMostCommonValues] = []
+  if distinct_count < LIMIT_FOR_DISTINCT_VALUES:
+    result = get_frequent_non_null_values(con, table, column, common_value_size)
+  return result
+
+
+def get_histogram_array(
+  con: duckdb.DuckDBPyConnection,
+  table: str,
+  column: RawDuckDBTableDescription,
+  histogram_size: int,
+) -> list[str]:
+  histogram_raw = get_equi_height_histogram(
+    con, table, column.column_name, histogram_size
+  )
+  histogram_parser = DuckDBHistogramParser(histogram_raw, column.column_type)
+  return histogram_parser.get_equiwidth_histogram_array()
+
+
 def query_histograms(
   dataset: Dataset,
   histogram_size: int,
@@ -59,28 +89,31 @@ def query_histograms(
       scale_factor (int): The scale factor for the histograms.
       con (duckdb.DuckDBPyConnection): The connection to the database.
   """
-  # TODO type hint
   rows: list[dict[str, Any]] = []
   tables = get_tables(con)
   for table in tables:
     columns = get_columns(con, table)
     for column in columns:
       # Get Histogram array
-      histogram_raw = get_equi_height_histogram(
-        con, table, column.column_name, histogram_size
+      histogram_array = get_histogram_array(
+        con,
+        table,
+        column,
+        histogram_size,
       )
-      histogram_parser = DuckDBHistogramParser(
-        histogram_raw, column.column_type
-      )
-      histogram_array = histogram_parser.get_equiwidth_histogram_array()
 
       # Get distinct count
       distinct_count = get_distinct_count(con, table, column.column_name)
 
       # Get most common values
-      most_common_values = get_frequent_non_null_values(
-        con, table, column.column_name, common_values_size
+      most_common_values = get_most_common_values(
+        con,
+        table,
+        column.column_name,
+        common_values_size,
+        distinct_count,
       )
+
       rows.append(
         {
           "table": table,
