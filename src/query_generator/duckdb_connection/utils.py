@@ -84,7 +84,7 @@ def get_equi_height_histogram(
     SELECT bin, count
     FROM histogram(
     '{table}',
-    '{column}',
+    {column},
     bin_count := {bin_count},
     technique := 'equi-height'
   );

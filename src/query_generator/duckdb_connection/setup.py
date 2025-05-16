@@ -51,15 +51,22 @@ def setup_duckdb(
 
   If the scale factor required is not generated, it will generate it.
   It returns a duckdb connection to the database.
+
+  Args:
+      dataset (Dataset): The dataset to set up (TPCDS, TPCH, JOB).
+      scale_factor (int | float | None): The scale factor for the dataset.
+          It is only none for JOB dataset.
   """
-  if scale_factor is None and dataset != Dataset.JOB:
-    raise MissingScaleFactorError(dataset.value)
 
   load_and_install_libraries()
   db_path = get_path(dataset, scale_factor)
   if os.path.exists(db_path):
     print(f"Database {db_path} already exists")
     return duckdb.connect(db_path)
+
+  if scale_factor is None:
+    # scale factor can only be ommited for JOB dataset
+    raise MissingScaleFactorError(dataset.value)
 
   os.makedirs(os.path.dirname(db_path), exist_ok=True)
   con = duckdb.connect(db_path)

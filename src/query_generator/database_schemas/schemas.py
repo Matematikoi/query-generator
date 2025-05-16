@@ -25,5 +25,5 @@ def get_schema(dataset: Dataset) -> tuple[dict[str, dict[str, Any]], list[str]]:
   if dataset == Dataset.TPCH:
     return get_tpch_table_info()
   if dataset == Dataset.JOB:
-    raise PartiallySupportedDatasetError(dataset)
+    raise PartiallySupportedDatasetError(dataset.value)
   raise UnkwonDatasetError(dataset)

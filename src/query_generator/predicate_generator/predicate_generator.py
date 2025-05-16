@@ -75,7 +75,7 @@ class PredicateGenerator:
     elif self.dataset == Dataset.TPCDS:
       path = "data/histograms/raw_tpcds_hist.csv"
     else:
-      raise UnkwonDatasetError(self.dataset)
+      raise UnkwonDatasetError(self.dataset.value)
     return pl.read_csv(path).filter(
       (pl.col("dtype") != "string") & (pl.col("bins") != "[]")
     )
