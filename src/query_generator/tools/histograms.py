@@ -4,6 +4,7 @@ from typing import Any
 
 import duckdb
 import polars as pl
+from tqdm import tqdm
 
 from query_generator.duckdb_connection.utils import (
   RawDuckDBHistograms,
@@ -116,6 +117,8 @@ def query_histograms(
   histogram_size: int,
   common_values_size: int,
   con: duckdb.DuckDBPyConnection,
+  *,
+  include_mvc: bool,
 ) -> None:
   """Creates histograms for the given dataset.
   Args:
@@ -125,9 +128,13 @@ def query_histograms(
   """
   rows: list[dict[str, Any]] = []
   tables = get_tables(con)
-  for table in tables:
+  for table in tqdm(tables, position=0):
     columns = get_columns(con, table)
-    for column in columns:
+    pbar = tqdm(columns, desc="Starting…", position=1, leave=False)
+    for column in pbar:
+      pbar.set_description(
+        f"Processing table {table} column {column.column_name}"
+      )
       histogram_params = HistogramParams(con, table, column, histogram_size)
       # Get Histogram array
       histogram_array = get_histogram_array(histogram_params)
@@ -135,38 +142,39 @@ def query_histograms(
       # Get distinct count
       distinct_count = get_distinct_count(con, table, column.column_name)
 
-      # Get most common values
-      most_common_values = get_most_common_values(
-        con,
-        table,
-        column.column_name,
-        common_values_size,
-        distinct_count,
-      )
-
-      # Get histogram array excluding common values
-      histogram_array_excluding_common_values = (
-        get_histogram_array_excluding_common_values(
-          histogram_params,
+      row_dict: dict[str, Any] = {
+        "table": table,
+        "column": column.column_name,
+        "histogram": histogram_array,
+        "distinct_count": distinct_count,
+        "dtype": column.column_type,
+      }
+      if include_mvc:
+        # Get most common values
+        most_common_values = get_most_common_values(
+          con,
+          table,
+          column.column_name,
           common_values_size,
           distinct_count,
         )
-      )
 
-      rows.append(
-        {
-          "table": table,
-          "column": column.column_name,
-          "histogram": histogram_array,
-          "distinct_count": distinct_count,
-          "dtype": column.column_type,
+        # Get histogram array excluding common values
+        histogram_array_excluding_common_values = (
+          get_histogram_array_excluding_common_values(
+            histogram_params,
+            common_values_size,
+            distinct_count,
+          )
+        )
+        row_dict |= {
           "most_common_values": [
             {"value": value.value, "count": value.count}
             for value in most_common_values
           ],
           "histogram-mcv": histogram_array_excluding_common_values,
         }
-      )
+      rows.append(row_dict)
 
   path = Path(f"data/generated_histograms/{dataset.value}/histograms.parquet")
   path.parent.mkdir(parents=True, exist_ok=True)

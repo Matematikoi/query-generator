@@ -373,6 +373,14 @@ def make_histograms(
       help="Development testing. If true then uses scale factor 0.1 to check.",
     ),
   ] = False,
+  include_mvc: Annotated[
+    bool,
+    typer.Option(
+      "--exclude-mvc",
+      "-e",
+      help="If true then we generate most common values",
+    ),
+  ] = False,
 ) -> None:
   """This function is used to create histograms from the queries."""
   destination_folder_path = (
@@ -392,6 +400,7 @@ def make_histograms(
     histogram_size=histogram_size,
     common_values_size=common_values_size,
     con=con,
+    include_mvc=include_mvc,
   )
   print(destination_folder_path)
 
