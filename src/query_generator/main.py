@@ -384,7 +384,7 @@ def make_histograms(
     ),
   ] = False,
 ) -> None:
-  """This function is used to create histograms from the queries."""
+  """This function is used to create histograms in parquet format."""
   destination_path = (
     Path(
       f"data/generated_histograms/{dataset.value}/histogram.parquet",
