@@ -36,6 +36,28 @@ class RawDuckDBTableDescription:
 class RawDuckDBHistograms:
   bin: str
   count: int
+  """Class to represent a histogram bin in DuckDB.
+  Attributes:
+      bin (str): The bin value, which is a string representation
+      of the range of values in the bin. The format is 
+      "x <= value" for the first bin and "lower_bound < x <= upper_bound"
+      for subsequent bins.
+      count (int): The count of occurrences in the bin.
+  """
+
+
+@dataclass
+class RawDuckDBMostCommonValues:
+  value: str
+  count: int
+  """Class to represent the most common values in a column.
+  Attributes:
+      value (str): The most common value in the column.
+      although it can be of any type, it is represented as a string.
+      This is because DuckDB returns all values as strings.
+      The value can be a number, date, or string.
+      count (int): The count of occurrences of the value.
+  """
 
 
 def get_tables(con: duckdb.DuckDBPyConnection) -> list[str]:
@@ -102,14 +124,15 @@ def get_distinct_count(
   return data
 
 
-def get_most_common_values(
+def get_frequent_non_null_values(
   con: duckdb.DuckDBPyConnection, table: str, column: str, limit: int
-) -> list[tuple[str, int]]:
+) -> list[RawDuckDBMostCommonValues]:
   data = con.execute(f"""
     SELECT {column}, COUNT(*) as count
     FROM {table}
+    WHERE {column} IS NOT NULL
     GROUP BY {column}
     ORDER BY count DESC
     LIMIT {limit};
   """).fetchall()
-  return [(d[0], d[1]) for d in data]
+  return [RawDuckDBMostCommonValues(value=d[0], count=d[1]) for d in data]
