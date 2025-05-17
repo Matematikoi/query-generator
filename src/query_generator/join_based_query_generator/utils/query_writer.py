@@ -17,6 +17,21 @@ def write_parquet(df_to_write: pl.DataFrame, path: Path) -> None:
   df_to_write.write_parquet(path)
 
 
+# TODO(Gabriel):  http://localhost:8080/tktview/46fca17ee0
+#  Delete this code and everything that
+#  touches it [46fca17ee0ab9e46]
+def write_redundant_histogram_csv(
+  redundant_histogram: pl.DataFrame, path: Path
+) -> None:
+  def join_redundant_array(array: list[str]) -> str:
+    return f"[{', '.join(array)}]"
+
+  redundant_histogram.with_columns(
+    pl.col("bins").map_elements(join_redundant_array, return_dtype=pl.Utf8).alias("bins"),
+    pl.col("hists").map_elements(join_redundant_array, return_dtype=pl.Utf8).alias("hists"),
+  ).write_csv(path)
+
+
 class Writer:
   def __init__(self, dataset: Dataset, extension: Extension) -> None:
     self.extension = extension

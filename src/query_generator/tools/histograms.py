@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
 from typing import Any
 
 import duckdb
@@ -17,8 +19,21 @@ from query_generator.duckdb_connection.utils import (
   get_tables,
 )
 from query_generator.utils.definitions import Dataset
+from query_generator.utils.exceptions import InvalidHistogramTypeError
 
 LIMIT_FOR_DISTINCT_VALUES = 1000
+
+
+class RedundantHistogramsDataType(Enum):
+  """
+  This class was made for compatibility with old code that
+  generated this histogram:
+  https://github.com/udao-moo/udao-spark-optimizer-dev/blob/main
+  /playground/assets/data_stats/regrouped_job_hist.csv
+  """
+
+  INTEGER = "int"
+  STRING = "string"
 
 
 @dataclass
@@ -175,3 +190,75 @@ def query_histograms(
         }
       rows.append(row_dict)
   return pl.DataFrame(rows)
+
+
+def get_basic_element_of_redundant_histogram(
+  dtype: str,
+) -> str:
+  if dtype == RedundantHistogramsDataType.INTEGER.value:
+    return "0"
+  if dtype == RedundantHistogramsDataType.STRING.value:
+    return "A"
+  raise InvalidHistogramTypeError(dtype)
+
+
+def force_histogram_to_lenght(
+  original_histogram: list[str],
+  desired_length: int,
+  dtype: RedundantHistogramsDataType,
+) -> list[str]:
+  if len(original_histogram) == desired_length:
+    return original_histogram
+  if len(original_histogram) == 0:
+    return [get_basic_element_of_redundant_histogram(dtype)] * desired_length
+
+  base, extra = divmod(desired_length, len(original_histogram))
+  result: list[str] = []
+  for i, item in enumerate(original_histogram):
+    result.extend([item] * (base + (1 if i < extra else 0)))
+  return result
+
+
+def get_redundant_bins(
+  histogram_df: pl.DataFrame, desired_length: int
+) -> pl.DataFrame:
+  return histogram_df.with_columns(
+    pl.struct(["histogram", "dtype"])
+    .map_elements(
+      lambda row: force_histogram_to_lenght(
+        row["histogram"], desired_length, row["dtype"]
+      )
+      , return_dtype=pl.List(pl.Utf8))
+    .alias("redundant_histogram")
+  )
+
+
+def get_redundant_histogram_type(histogram_df: pl.DataFrame) -> pl.DataFrame:
+  return histogram_df.with_columns(
+    pl.when(pl.col("dtype") == "VARCHAR")
+    .then(pl.lit(RedundantHistogramsDataType.STRING.value))
+    .when(pl.col("dtype") == "INTEGER")
+    .then(pl.lit(RedundantHistogramsDataType.INTEGER.value))
+    .otherwise(pl.col("dtype"))
+    .alias("dtype")
+  )
+
+
+def get_redundant_histograms_name_convention(
+  histogram_df: pl.DataFrame,
+) -> pl.DataFrame:
+  """
+  We only want to comply with old code. This is bad naming convention
+  """
+  return histogram_df.rename(
+    {"histogram": "bins", "redundant_histogram": "hists"}
+  )
+
+
+def make_redundant_histograms(
+  histogram_path: Path, desired_length: int
+) -> pl.DataFrame:
+  histogram_df = pl.read_parquet(histogram_path)
+  modified_dtype_df = get_redundant_histogram_type(histogram_df)
+  redundant_histogram = get_redundant_bins(modified_dtype_df, desired_length)
+  return get_redundant_histograms_name_convention(redundant_histogram)

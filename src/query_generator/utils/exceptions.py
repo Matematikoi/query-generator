@@ -67,6 +67,5 @@ class OverwriteFileError(Exception):
 class InvalidHistogramTypeError(Exception):
   def __init__(self, type: str) -> None:
     super().__init__(
-      f"Unsupported type {type} for histogram parsing. "
-      "Please check the histogram data."
+      f"Unsupported type {type} for histogram. Please check the histogram data."
     )

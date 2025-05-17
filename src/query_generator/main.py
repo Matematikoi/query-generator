@@ -13,6 +13,7 @@ from query_generator.join_based_query_generator.snowflake import (
 )
 from query_generator.join_based_query_generator.utils.query_writer import (
   write_parquet,
+  write_redundant_histogram_csv,
 )
 from query_generator.tools.cherry_pick_binning import (
   CherryPickParameters,
@@ -21,7 +22,10 @@ from query_generator.tools.cherry_pick_binning import (
 from query_generator.tools.format_queries_file_structure import (
   format_queries_file_structure,
 )
-from query_generator.tools.histograms import query_histograms
+from query_generator.tools.histograms import (
+  make_redundant_histograms,
+  query_histograms,
+)
 from query_generator.utils.definitions import (
   Dataset,
   Extension,
@@ -406,6 +410,19 @@ def make_histograms(
     include_mvc=include_mvc,
   )
   write_parquet(histograms_df, destination_path)
+  # TODO(Gabriel):  http://localhost:8080/tktview/46fca17ee0
+  #  Delete this code and everything that
+  #  touches it [46fca17ee0ab9e46]
+  redundant_histogram_df = make_redundant_histograms(
+    destination_path, histogram_size
+  )
+  write_parquet(
+    redundant_histogram_df,
+    destination_path.parent / "redundant_histogram.parquet",
+  )
+  write_redundant_histogram_csv(
+    redundant_histogram_df, destination_path.parent / "redundant_histogram.csv"
+  )
 
 
 if __name__ == "__main__":
