@@ -24,7 +24,7 @@ def write_redundant_histogram_csv(
   redundant_histogram: pl.DataFrame, path: Path
 ) -> None:
   def join_redundant_array(array: list[str]) -> str:
-    return f"[{', '.join(array)}]"
+    return f"[{', '.join([f"'{i}'" for i in array])}]"
 
   redundant_histogram.with_columns(
     pl.col("bins").map_elements(join_redundant_array, return_dtype=pl.Utf8).alias("bins"),

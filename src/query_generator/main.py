@@ -352,7 +352,7 @@ def make_histograms(
       help="The size of the histogram",
       min=1,
     ),
-  ] = 50,
+  ] = 51,
   common_values_size: Annotated[
     int,
     typer.Option(
@@ -418,10 +418,10 @@ def make_histograms(
   )
   write_parquet(
     redundant_histogram_df,
-    destination_path.parent / "redundant_histogram.parquet",
+    destination_path.parent / "regrouped_job_hist.parquet",
   )
   write_redundant_histogram_csv(
-    redundant_histogram_df, destination_path.parent / "redundant_histogram.csv"
+    redundant_histogram_df, destination_path.parent / "regrouped_job_hist.csv"
   )
 
 
