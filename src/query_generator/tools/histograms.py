@@ -205,7 +205,7 @@ def get_basic_element_of_redundant_histogram(
 def force_histogram_to_lenght(
   original_histogram: list[str],
   desired_length: int,
-  dtype: RedundantHistogramsDataType,
+  dtype: str,
 ) -> list[str]:
   if len(original_histogram) == desired_length:
     return original_histogram
@@ -227,8 +227,9 @@ def get_redundant_bins(
     .map_elements(
       lambda row: force_histogram_to_lenght(
         row["histogram"], desired_length, row["dtype"]
-      )
-      , return_dtype=pl.List(pl.Utf8))
+      ),
+      return_dtype=pl.List(pl.Utf8),
+    )
     .alias("redundant_histogram")
   )
 

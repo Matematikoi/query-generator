@@ -27,8 +27,12 @@ def write_redundant_histogram_csv(
     return f"[{', '.join([f"'{i}'" for i in array])}]"
 
   redundant_histogram.with_columns(
-    pl.col("bins").map_elements(join_redundant_array, return_dtype=pl.Utf8).alias("bins"),
-    pl.col("hists").map_elements(join_redundant_array, return_dtype=pl.Utf8).alias("hists"),
+    pl.col("bins")
+    .map_elements(join_redundant_array, return_dtype=pl.Utf8)
+    .alias("bins"),
+    pl.col("hists")
+    .map_elements(join_redundant_array, return_dtype=pl.Utf8)
+    .alias("hists"),
   ).write_csv(path)
 
 
