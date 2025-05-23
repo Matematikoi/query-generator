@@ -6,6 +6,7 @@ from enum import Enum
 
 import polars as pl
 
+from query_generator.tools.histograms import HistogramColumns
 from query_generator.utils.definitions import Dataset
 from query_generator.utils.exceptions import (
   InvalidHistogramTypeError,
@@ -108,16 +109,16 @@ class PredicateGenerator:
 
     """
     selected_tables_histogram = self.histogram.filter(
-      pl.col("table").is_in(tables)
+      pl.col(HistogramColumns.TABLE.value).is_in(tables)
     )
 
     for row in selected_tables_histogram.sample(n=num_predicates).iter_rows(
       named=True
     ):
-      table = row["table"]
-      column = row["column"]
-      bins = row["histogram"]
-      dtype = self._get_histogram_type(row["dtype"])
+      table = row[HistogramColumns.TABLE.value]
+      column = row[HistogramColumns.COLUMN.value]
+      bins = row[HistogramColumns.HISTOGRAM.value]
+      dtype = self._get_histogram_type(row[HistogramColumns.DTYPE.value])
       min_value, max_value = self._get_min_max_from_bins(
         bins, row_retention_probability, dtype
       )
