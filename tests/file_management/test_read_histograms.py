@@ -7,21 +7,22 @@ from query_generator.predicate_generator.predicate_generator import (
   HistogramDataType,
   PredicateGenerator,
 )
+from query_generator.tools.histograms import HistogramColumns
 from query_generator.utils.definitions import Dataset
 from query_generator.utils.exceptions import InvalidHistogramTypeError
 
 
-@pytest.mark.parametrize("dataset", [Dataset.TPCH, Dataset.TPCDS])
-def test_read_histograms(dataset):
-  predicate_generator = PredicateGenerator(dataset)
-  histogram = predicate_generator.read_histogram()
-  assert not histogram.is_empty()
+def test_read_histograms():
+  for dataset in Dataset:
+    predicate_generator = PredicateGenerator(dataset)
+    histogram = predicate_generator.read_histogram()
+    assert not histogram.is_empty()
 
-  assert histogram["table"].dtype == pl.Utf8
-  assert histogram["column"].dtype == pl.Utf8
-  assert histogram["dtype"].dtype == pl.Utf8
-  assert histogram["bins"].dtype == pl.Utf8
-  assert histogram["distinct_count"].dtype == pl.Int64
+    assert histogram[HistogramColumns.DTYPE.value].dtype == pl.Utf8
+    assert histogram[HistogramColumns.COLUMN.value].dtype == pl.Utf8
+    assert histogram[HistogramColumns.DTYPE.value].dtype == pl.Utf8
+    assert histogram[HistogramColumns.HISTOGRAM.value].dtype == pl.List(pl.Utf8)
+    assert histogram[HistogramColumns.DISTINCT_COUNT.value].dtype == pl.Int64
 
 
 @pytest.mark.parametrize(
