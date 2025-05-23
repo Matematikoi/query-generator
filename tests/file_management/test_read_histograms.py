@@ -26,16 +26,15 @@ def test_read_histograms():
 
 
 @pytest.mark.parametrize(
-  "mock_rand,bins_array, bins, row_retention_probability, min_index, max_index,dtype",
+  "mock_rand,bins_array, row_retention_probability, min_index, max_index,dtype",
   [
-    (0, [1, 2, 3, 4, 5], "[1, 2, 3, 4, 5]", 0.2, 0, 1, HistogramDataType.INT),
-    (3, [1, 2, 3, 4, 5], "[1, 2, 3, 4, 5]", 0.2, 3, 4, HistogramDataType.INT),
-    (0, [10, 20, 30, 40], "[10, 20, 30, 40]", 0.2, 0, 1, HistogramDataType.INT),
-    (2, [10, 20, 30, 40], "[10, 20, 30, 40]", 0.2, 2, 3, HistogramDataType.INT),
+    (0, [1, 2, 3, 4, 5], 0.2, 0, 1, HistogramDataType.INT),
+    (3, [1, 2, 3, 4, 5], 0.2, 3, 4, HistogramDataType.INT),
+    (0, [10, 20, 30, 40], 0.2, 0, 1, HistogramDataType.INT),
+    (2, [10, 20, 30, 40], 0.2, 2, 3, HistogramDataType.INT),
     (
       0,
       [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
-      "[0.1, 0.2, 0.3, 0.4, 0.5, 0.6]",
       0.2,
       0,
       2,
@@ -44,7 +43,6 @@ def test_read_histograms():
     (
       3,
       [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
-      "[0.1, 0.2, 0.3, 0.4, 0.5, 0.6]",
       0.2,
       3,
       5,
@@ -53,18 +51,24 @@ def test_read_histograms():
     (
       0,
       ["1976-05-16", "1976-05-17", "1976-05-18", "1976-05-19", "1976-05-20"],
-      "[1976-05-16, 1976-05-17, 1976-05-18, 1976-05-19, 1976-05-20]",
       0.2,
       0,
       1,
       HistogramDataType.DATE,
+    ),
+    (
+      0,
+      ["a", "b", "c", "d", "e"],
+      0.2,
+      0,
+      1,
+      HistogramDataType.STRING,
     ),
   ],
 )
 def test_get_min_max_from_bins(
   mock_rand,
   bins_array,
-  bins,
   row_retention_probability,
   min_index,
   max_index,
@@ -76,7 +80,7 @@ def test_get_min_max_from_bins(
   ):
     predicate_generator = PredicateGenerator(Dataset.TPCH)
     min_value, max_value = predicate_generator._get_min_max_from_bins(
-      bins, row_retention_probability, dtype
+      bins_array, row_retention_probability, dtype
     )
   assert min_value == bins_array[min_index]
   assert max_value == bins_array[max_index]
@@ -91,10 +95,12 @@ def test_get_invalid_histogram_type():
 @pytest.mark.parametrize(
   "input_type, expected_type",
   [
-    ("int", HistogramDataType.INT),
-    ("bigint", HistogramDataType.INT),
-    ("decimal(10,2)", HistogramDataType.FLOAT),
-    ("date", HistogramDataType.DATE),
+    ("INTEGER", HistogramDataType.INT),
+    ("BIGINT", HistogramDataType.INT),
+    ("DECIMAL(10,2)", HistogramDataType.FLOAT),
+    ("DECIMAL(7,4)", HistogramDataType.FLOAT),
+    ("DATE", HistogramDataType.DATE),
+    ("VARCHAR", HistogramDataType.STRING),
   ],
 )
 def test_get_valid_histogram_type(input_type, expected_type):
