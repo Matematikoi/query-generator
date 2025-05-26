@@ -1,8 +1,8 @@
 from unittest import mock
 
+import polars as pl
 import pytest
 
-import polars as pl
 from query_generator.predicate_generator.predicate_generator import (
   HistogramDataType,
   PredicateGenerator,

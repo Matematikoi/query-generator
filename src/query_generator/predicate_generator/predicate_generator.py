@@ -1,5 +1,6 @@
 import math
 import random
+from abc import ABC
 from collections.abc import Iterator
 from dataclasses import dataclass
 from enum import Enum
@@ -23,19 +24,28 @@ class HistogramDataType(Enum):
   DATE = "date"
   STRING = "string"
 
-class PredicateType(Enum):
-  RANGE = "range"
-  EQUALITY = "equality"
-  IN = "in"
 
 @dataclass
-class Predicate:
+class Predicate(ABC):
   table: str
   column: str
+  dtype: HistogramDataType
+
+
+@dataclass
+class PredicateRange(Predicate):
   min_value: SupportedHistogramType
   max_value: SupportedHistogramType
-  dtype: HistogramDataType
-  predicate_type: PredicateType
+
+
+@dataclass
+class PredicateEquality(Predicate):
+  equality_value: SupportedHistogramType
+
+
+@dataclass
+class PredicateIn(Predicate):
+  in_values: list[SupportedHistogramType]
 
 
 class PredicateGenerator:
@@ -128,13 +138,12 @@ class PredicateGenerator:
       min_value, max_value = self._get_min_max_from_bins(
         bins, row_retention_probability, dtype
       )
-      predicate = Predicate(
+      predicate = PredicateRange(
         table=table,
         column=column,
         min_value=min_value,
         max_value=max_value,
         dtype=dtype,
-        predicate_type=PredicateType.RANGE,
       )
       yield predicate
 

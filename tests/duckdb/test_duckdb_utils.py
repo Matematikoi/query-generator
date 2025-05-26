@@ -1,3 +1,5 @@
+import datetime
+
 from query_generator.duckdb_connection.setup import setup_duckdb
 from query_generator.duckdb_connection.utils import (
   get_distinct_count,
@@ -6,8 +8,7 @@ from query_generator.duckdb_connection.utils import (
 )
 from query_generator.tools.histograms import DuckDBHistogramParser
 from query_generator.utils.definitions import Dataset
-from tests.utils import is_date, is_float
-import datetime
+from tests.utils import is_float
 
 
 def test_distinct_values():

@@ -1,8 +1,8 @@
 from unittest import mock
 
 import pytest
+from pypika import OracleQuery
 from pypika import functions as fn
-
 
 from query_generator.database_schemas.schemas import get_schema
 from query_generator.join_based_query_generator.snowflake import (
@@ -11,16 +11,13 @@ from query_generator.join_based_query_generator.snowflake import (
 )
 from query_generator.predicate_generator.predicate_generator import (
   HistogramDataType,
-  Predicate,
-  PredicateGenerator,
-  PredicateType,
+  PredicateRange,
 )
 from query_generator.utils.definitions import (
   Dataset,
   QueryGenerationParameters,
 )
 from query_generator.utils.exceptions import UnkwonDatasetError
-from pypika import OracleQuery
 
 
 def test_tpch_query_generation():
@@ -91,12 +88,11 @@ def test_add_rage_supports_all_histogram_types():
       OracleQuery()
       .from_(query_builder.table_to_pypika_table["lineitem"])
       .select(fn.Count("*")),
-      Predicate(
+      PredicateRange(
         table="lineitem",
         column="foo",
         min_value=2020,
         max_value=2020,
         dtype=dtype,
-        predicate_type=PredicateType.RANGE
       ),
     )
