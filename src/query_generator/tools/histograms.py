@@ -18,7 +18,6 @@ from query_generator.duckdb_connection.utils import (
   get_histogram_excluding_common_values,
   get_tables,
 )
-from query_generator.utils.definitions import Dataset
 from query_generator.utils.exceptions import InvalidHistogramTypeError
 
 LIMIT_FOR_DISTINCT_VALUES = 1000
@@ -34,6 +33,16 @@ class RedundantHistogramsDataType(Enum):
 
   INTEGER = "int"
   STRING = "string"
+
+
+class HistogramColumns(Enum):
+  TABLE = "table"
+  COLUMN = "column"
+  HISTOGRAM = "histogram"
+  DISTINCT_COUNT = "distinct_count"
+  DTYPE = "dtype"
+  MOST_COMMON_VALUES = "most_common_values"
+  HISTOGRAM_MCV = "histogram-mcv"  # histogram excluding most common values
 
 
 @dataclass
@@ -127,7 +136,6 @@ def get_histogram_array_excluding_common_values(
 
 
 def query_histograms(
-  dataset: Dataset,
   histogram_size: int,
   common_values_size: int,
   con: duckdb.DuckDBPyConnection,
@@ -136,9 +144,10 @@ def query_histograms(
 ) -> pl.DataFrame:
   """Creates histograms for the given dataset.
   Args:
-      dataset (Dataset): The dataset to create histograms for.
-      scale_factor (int): The scale factor for the histograms.
-      con (duckdb.DuckDBPyConnection): The connection to the database.
+    histogram_size (int): Size of the histogram.
+    common_values_size (int): Size of the most common values.
+    con (duckdb.DuckDBPyConnection): DuckDB connection object.
+    include_mvc (bool): Whether to include most common values in the histogram
   """
   rows: list[dict[str, Any]] = []
   tables = get_tables(con)
@@ -157,11 +166,11 @@ def query_histograms(
       distinct_count = get_distinct_count(con, table, column.column_name)
 
       row_dict: dict[str, Any] = {
-        "table": table,
-        "column": column.column_name,
-        "histogram": histogram_array,
-        "distinct_count": distinct_count,
-        "dtype": column.column_type,
+        HistogramColumns.TABLE.value: table,
+        HistogramColumns.COLUMN.value: column.column_name,
+        HistogramColumns.HISTOGRAM.value: histogram_array,
+        HistogramColumns.DISTINCT_COUNT.value: distinct_count,
+        HistogramColumns.DTYPE.value: column.column_type,
       }
       if include_mvc:
         # Get most common values
@@ -174,7 +183,7 @@ def query_histograms(
         )
 
         # Get histogram array excluding common values
-        histogram_array_excluding_common_values = (
+        histogram_array_excluding_mcv = (
           get_histogram_array_excluding_common_values(
             histogram_params,
             common_values_size,
@@ -182,11 +191,11 @@ def query_histograms(
           )
         )
         row_dict |= {
-          "most_common_values": [
+          HistogramColumns.MOST_COMMON_VALUES.value: [
             {"value": value.value, "count": value.count}
             for value in most_common_values
           ],
-          "histogram-mcv": histogram_array_excluding_common_values,
+          HistogramColumns.HISTOGRAM_MCV.value: histogram_array_excluding_mcv,
         }
       rows.append(row_dict)
   return pl.DataFrame(rows)
@@ -223,10 +232,12 @@ def get_redundant_bins(
   histogram_df: pl.DataFrame, desired_length: int
 ) -> pl.DataFrame:
   return histogram_df.with_columns(
-    pl.struct(["histogram", "dtype"])
+    pl.struct([HistogramColumns.HISTOGRAM.value, HistogramColumns.DTYPE.value])
     .map_elements(
       lambda row: force_histogram_to_lenght(
-        row["histogram"], desired_length, row["dtype"]
+        row[HistogramColumns.HISTOGRAM.value],
+        desired_length,
+        row[HistogramColumns.DTYPE.value],
       ),
       return_dtype=pl.List(pl.Utf8),
     )
@@ -236,12 +247,12 @@ def get_redundant_bins(
 
 def get_redundant_histogram_type(histogram_df: pl.DataFrame) -> pl.DataFrame:
   return histogram_df.with_columns(
-    pl.when(pl.col("dtype") == "VARCHAR")
+    pl.when(pl.col(HistogramColumns.DTYPE.value) == "VARCHAR")
     .then(pl.lit(RedundantHistogramsDataType.STRING.value))
-    .when(pl.col("dtype") == "INTEGER")
+    .when(pl.col(HistogramColumns.DTYPE.value) == "INTEGER")
     .then(pl.lit(RedundantHistogramsDataType.INTEGER.value))
-    .otherwise(pl.col("dtype"))
-    .alias("dtype")
+    .otherwise(pl.col(HistogramColumns.DTYPE.value))
+    .alias(HistogramColumns.DTYPE.value)
   )
 
 

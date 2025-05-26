@@ -6,6 +6,7 @@ from enum import Enum
 
 import polars as pl
 
+from query_generator.tools.histograms import HistogramColumns
 from query_generator.utils.definitions import Dataset
 from query_generator.utils.exceptions import (
   InvalidHistogramTypeError,
@@ -20,6 +21,7 @@ class HistogramDataType(Enum):
   INT = "int"
   FLOAT = "float"
   DATE = "date"
+  STRING = "string"
 
 
 class PredicateGenerator:
@@ -36,7 +38,7 @@ class PredicateGenerator:
     self.histogram: pl.DataFrame = self.read_histogram()
 
   def _parse_bin(
-    self, bin_str: str, dtype: HistogramDataType
+    self, hist_array: list[str], dtype: HistogramDataType
   ) -> SuportedHistogramArrayType:
     """Parse the bin string representation to a list of values.
 
@@ -48,15 +50,13 @@ class PredicateGenerator:
         list: List of parsed values.
 
     """
-    if bin_str == "[]":
-      return []
-    inner = bin_str[1:-1]
-    hist_array = inner.split(", ")
     if dtype == HistogramDataType.INT:
       return [int(float(x)) for x in hist_array]
     if dtype == HistogramDataType.FLOAT:
       return [float(x) for x in hist_array]
     if dtype == HistogramDataType.DATE:
+      return hist_array
+    if dtype == HistogramDataType.STRING:
       return hist_array
     raise InvalidHistogramTypeError(dtype)
 
@@ -71,22 +71,24 @@ class PredicateGenerator:
 
     """
     if self.dataset == Dataset.TPCH:
-      path = "data/histograms/raw_tpch_hist.csv"
+      path = "data/histograms/histogram_tpch.parquet"
     elif self.dataset == Dataset.TPCDS:
-      path = "data/histograms/raw_tpcds_hist.csv"
+      path = "data/histograms/histogram_tpcds.parquet"
+    elif self.dataset == Dataset.JOB:
+      path = "data/histograms/histogram_job.parquet"
     else:
       raise UnkwonDatasetError(self.dataset.value)
-    return pl.read_csv(path).filter(
-      (pl.col("dtype") != "string") & (pl.col("bins") != "[]")
-    )
+    return pl.read_parquet(path).filter(pl.col("histogram") != [])
 
   def _get_histogram_type(self, dtype: str) -> HistogramDataType:
-    if dtype in ["int", "bigint"]:
+    if dtype in ["INTEGER", "BIGINT"]:
       return HistogramDataType.INT
-    if dtype.startswith("decimal"):
+    if dtype.startswith("DECIMAL"):
       return HistogramDataType.FLOAT
-    if dtype == "date":
+    if dtype == "DATE":
       return HistogramDataType.DATE
+    if dtype == "VARCHAR":
+      return HistogramDataType.STRING
     raise InvalidHistogramTypeError(dtype)
 
   def get_random_predicates(
@@ -107,16 +109,16 @@ class PredicateGenerator:
 
     """
     selected_tables_histogram = self.histogram.filter(
-      pl.col("table").is_in(tables)
+      pl.col(HistogramColumns.TABLE.value).is_in(tables)
     )
 
     for row in selected_tables_histogram.sample(n=num_predicates).iter_rows(
       named=True
     ):
-      table = row["table"]
-      column = row["column"]
-      bins = row["bins"]
-      dtype = self._get_histogram_type(row["dtype"])
+      table = row[HistogramColumns.TABLE.value]
+      column = row[HistogramColumns.COLUMN.value]
+      bins = row[HistogramColumns.HISTOGRAM.value]
+      dtype = self._get_histogram_type(row[HistogramColumns.DTYPE.value])
       min_value, max_value = self._get_min_max_from_bins(
         bins, row_retention_probability, dtype
       )
@@ -130,7 +132,10 @@ class PredicateGenerator:
       yield predicate
 
   def _get_min_max_from_bins(
-    self, bins: str, row_retention_probability: float, dtype: HistogramDataType
+    self,
+    bins: list[str],
+    row_retention_probability: float,
+    dtype: HistogramDataType,
   ) -> tuple[SupportedHistogramType, SupportedHistogramType]:
     """Convert the bins string representation to a tuple of min and max values.
 

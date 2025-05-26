@@ -403,7 +403,6 @@ def make_histograms(
     scale_factor,
   )
   histograms_df = query_histograms(
-    dataset=dataset,
     histogram_size=histogram_size,
     common_values_size=common_values_size,
     con=con,
