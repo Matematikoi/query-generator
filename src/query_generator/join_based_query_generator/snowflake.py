@@ -1,3 +1,4 @@
+import random
 from collections.abc import Iterator
 from typing import Any
 
@@ -44,6 +45,7 @@ class QueryBuilder:
       i: Table(i, alias=tables_schema[i]["alias"]) for i in tables_schema
     }
     self.predicate_gen = PredicateGenerator(dataset)
+    self.tables_schema = tables_schema
 
   def get_subgraph_tables(
     self,
@@ -64,6 +66,12 @@ class QueryBuilder:
     query = OracleQuery().select(fn.Count("*"))
     for table in subgraph_tables:
       query = query.from_(self.table_to_pypika_table[table])
+      random_column = random.choice(
+        list(self.tables_schema[table]["columns"].keys())
+      )
+      query = query.select(
+        fn.Count(self.table_to_pypika_table[table][random_column])
+      )
 
     for edge in subgraph:
       query = query.where(
