@@ -43,6 +43,7 @@ class HistogramColumns(Enum):
   DTYPE = "dtype"
   MOST_COMMON_VALUES = "most_common_values"
   HISTOGRAM_MCV = "histogram-mcv"  # histogram excluding most common values
+  TABLE_SIZE = "table_size"
 
 
 @dataclass
@@ -154,6 +155,9 @@ def query_histograms(
   for table in tqdm(tables, position=0):
     columns = get_columns(con, table)
     pbar = tqdm(columns, desc="Starting…", position=1, leave=False)
+
+    # Get table size
+    table_size = get_size_of_table(con, table)
     for column in pbar:
       pbar.set_description(
         f"Processing table {table} column {column.column_name}"
@@ -171,6 +175,7 @@ def query_histograms(
         HistogramColumns.HISTOGRAM.value: histogram_array,
         HistogramColumns.DISTINCT_COUNT.value: distinct_count,
         HistogramColumns.DTYPE.value: column.column_type,
+        HistogramColumns.TABLE_SIZE.value: table_size,
       }
       if include_mvc:
         # Get most common values
@@ -190,6 +195,7 @@ def query_histograms(
             distinct_count,
           )
         )
+
         row_dict |= {
           HistogramColumns.MOST_COMMON_VALUES.value: [
             {"value": value.value, "count": value.count}
@@ -197,8 +203,17 @@ def query_histograms(
           ],
           HistogramColumns.HISTOGRAM_MCV.value: histogram_array_excluding_mcv,
         }
+
       rows.append(row_dict)
   return pl.DataFrame(rows)
+
+
+def get_size_of_table(
+  con: duckdb.DuckDBPyConnection,
+  table: str,
+) -> int:
+  result = con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()
+  return result[0] if result else 0
 
 
 def get_basic_element_of_redundant_histogram(
