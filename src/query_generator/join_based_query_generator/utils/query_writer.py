@@ -33,6 +33,15 @@ def write_redundant_histogram_csv(
     pl.col("hists")
     .map_elements(join_redundant_array, return_dtype=pl.Utf8)
     .alias("hists"),
+  ).select(
+    [
+      pl.col("table"),
+      pl.col("column"),
+      pl.col("dtype"),
+      pl.col("distinct_count"),
+      pl.col("bins"),
+      pl.col("hists"),
+    ]
   ).write_csv(path)
 
 
