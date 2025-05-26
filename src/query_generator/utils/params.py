@@ -19,7 +19,7 @@ class SearchParametersEndpoint:
 
 
 @dataclass
-class QueryGenerationParameters:
+class QueryGenerationEndpoint:
   max_hops: int
   max_queries_per_signature: int
   max_queries_per_fact_table: int
@@ -27,12 +27,9 @@ class QueryGenerationParameters:
   dataset: Dataset
   extra_predicates: int
   row_retention_probability: float
-  # seen_subgraphs: dict[int, bool]
 
 
-T = TypeVar(
-  "T"
-)  # define a generic type variable :contentReference[oaicite:0]{index=0}
+T = TypeVar("T")
 
 
 def read_and_parse_toml(path: Path, cls: type[T]) -> T:

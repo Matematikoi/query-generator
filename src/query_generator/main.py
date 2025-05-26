@@ -32,6 +32,7 @@ from query_generator.utils.definitions import (
   QueryGenerationParameters,
 )
 from query_generator.utils.params import (
+  QueryGenerationEndpoint,
   SearchParametersEndpoint,
   read_and_parse_toml,
 )
@@ -43,78 +44,28 @@ app = typer.Typer(name="Query Generation")
 
 @app.command()
 def snowflake(
-  dataset: Annotated[
-    Dataset,
-    typer.Option("--dataset", "-d", help="The dataset used"),
+  config_path: Annotated[
+    str,
+    typer.Option(
+      "-c",
+      "--config",
+      help="The path to the configuration file"
+      "They can be found in the params_config/query_generation/ folder",
+    ),
   ],
-  max_hops: Annotated[
-    int,
-    typer.Option(
-      "--max-hops",
-      "-h",
-      help="The maximum number of hops",
-      min=1,
-      max=5,
-    ),
-  ] = 3,
-  max_queries_per_fact_table: Annotated[
-    int,
-    typer.Option(
-      "--fact",
-      "-f",
-      help="The maximum number of queries per fact table",
-      min=1,
-    ),
-  ] = 100,
-  max_queries_per_signature: Annotated[
-    int,
-    typer.Option(
-      "--signature",
-      "-s",
-      help="The maximum number of queries per signature/template",
-      min=1,
-    ),
-  ] = 1,
-  keep_edge_prob: Annotated[
-    float,
-    typer.Option(
-      "--edge-prob",
-      "-p",
-      help="The probability of keeping an edge in the subgraph",
-      min=0.0,
-      max=1.0,
-    ),
-  ] = 0.2,
-  row_retention_probability: Annotated[
-    float,
-    typer.Option(
-      "--row-retention",
-      "-r",
-      help="The probability of keeping a row in each predicate"
-      "but only for histograms",
-      min=0.0,
-      max=1.0,
-    ),
-  ] = 0.2,
-  extra_predicates: Annotated[
-    int,
-    typer.Option(
-      "--extra-predicates",
-      "-e",
-      help="The number of extra predicates to add to the query",
-      min=0,
-    ),
-  ] = 3,
 ) -> None:
   """Generate queries using a random subgraph."""
+  params_endpoint = read_and_parse_toml(
+    Path(config_path), QueryGenerationEndpoint
+  )
   params = QueryGenerationParameters(
-    dataset=dataset,
-    max_hops=max_hops,
-    max_queries_per_fact_table=max_queries_per_fact_table,
-    max_queries_per_signature=max_queries_per_signature,
-    keep_edge_prob=keep_edge_prob,
-    extra_predicates=extra_predicates,
-    row_retention_probability=row_retention_probability,
+    dataset=params_endpoint.dataset,
+    max_hops=params_endpoint.max_hops,
+    max_queries_per_fact_table=params_endpoint.max_queries_per_fact_table,
+    max_queries_per_signature=params_endpoint.max_queries_per_signature,
+    keep_edge_prob=params_endpoint.keep_edge_prob,
+    extra_predicates=params_endpoint.extra_predicates,
+    row_retention_probability=params_endpoint.row_retention_probability,
     seen_subgraphs={},
   )
   generate_and_write_queries(params)
@@ -127,9 +78,10 @@ def param_search(
     typer.Option(
       "-c",
       "--config",
-      help="The path to the configuration file",
+      help="The path to the configuration file"
+      "They can be found in the params_config/search_params/ folder",
     ),
-  ] = "params_config/search_params/tpcds.toml",
+  ],
 ) -> None:
   """This is an extension of the Snowflake algorithm.
 
