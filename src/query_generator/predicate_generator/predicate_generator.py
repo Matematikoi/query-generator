@@ -24,15 +24,16 @@ class HistogramDataType(Enum):
   STRING = "string"
 
 
-class PredicateGenerator:
-  @dataclass
-  class Predicate:
-    table: str
-    column: str
-    min_value: SupportedHistogramType
-    max_value: SupportedHistogramType
-    dtype: HistogramDataType
+@dataclass
+class Predicate:
+  table: str
+  column: str
+  min_value: SupportedHistogramType
+  max_value: SupportedHistogramType
+  dtype: HistogramDataType
 
+
+class PredicateGenerator:
   def __init__(self, dataset: Dataset):
     self.dataset = dataset
     self.histogram: pl.DataFrame = self.read_histogram()
@@ -96,7 +97,7 @@ class PredicateGenerator:
     tables: list[str],
     num_predicates: int,
     row_retention_probability: float,
-  ) -> Iterator["PredicateGenerator.Predicate"]:
+  ) -> Iterator[Predicate]:
     """Generate random predicates based on the histogram data.
 
     Args:
@@ -105,7 +106,7 @@ class PredicateGenerator:
         row_retention_probability (float): Probability of retaining rows.
 
     Returns:
-        List[PredicateGenerator.Predicate]: List of generated predicates.
+        List[Predicate]: List of generated predicates.
 
     """
     selected_tables_histogram = self.histogram.filter(
@@ -122,7 +123,7 @@ class PredicateGenerator:
       min_value, max_value = self._get_min_max_from_bins(
         bins, row_retention_probability, dtype
       )
-      predicate = PredicateGenerator.Predicate(
+      predicate = Predicate(
         table=table,
         column=column,
         min_value=min_value,

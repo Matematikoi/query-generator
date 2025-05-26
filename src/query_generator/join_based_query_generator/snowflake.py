@@ -20,6 +20,7 @@ from query_generator.join_based_query_generator.utils.query_writer import (
 )
 from query_generator.predicate_generator.predicate_generator import (
   HistogramDataType,
+  Predicate,
   PredicateGenerator,
 )
 from query_generator.utils.definitions import (
@@ -98,9 +99,7 @@ class QueryBuilder:
       query = self._add_range(query, predicate)
     return query
 
-  def _add_range(
-    self, query: OracleQuery, predicate: PredicateGenerator.Predicate
-  ) -> OracleQuery:
+  def _add_range(self, query: OracleQuery, predicate: Predicate) -> OracleQuery:
     if predicate.dtype in [HistogramDataType.INT, HistogramDataType.FLOAT]:
       return self._add_range_number(query, predicate)
     if predicate.dtype in [HistogramDataType.DATE]:
@@ -110,7 +109,7 @@ class QueryBuilder:
     raise InvalidHistogramTypeError(str(predicate.dtype))
 
   def _add_range_number(
-    self, query: OracleQuery, predicate: PredicateGenerator.Predicate
+    self, query: OracleQuery, predicate: Predicate
   ) -> OracleQuery:
     return query.where(
       self.table_to_pypika_table[predicate.table][predicate.column]
@@ -121,7 +120,7 @@ class QueryBuilder:
     )
 
   def _add_range_date(
-    self, query: OracleQuery, predicate: PredicateGenerator.Predicate
+    self, query: OracleQuery, predicate: Predicate
   ) -> OracleQuery:
     return query.where(
       self.table_to_pypika_table[predicate.table][predicate.column]
@@ -132,7 +131,7 @@ class QueryBuilder:
     )
 
   def _add_range_string(
-    self, query: OracleQuery, predicate: PredicateGenerator.Predicate
+    self, query: OracleQuery, predicate: Predicate
   ) -> OracleQuery:
     return query.where(
       self.table_to_pypika_table[predicate.table][predicate.column]

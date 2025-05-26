@@ -11,6 +11,7 @@ from query_generator.join_based_query_generator.snowflake import (
 )
 from query_generator.predicate_generator.predicate_generator import (
   HistogramDataType,
+  Predicate,
   PredicateGenerator,
 )
 from query_generator.utils.definitions import (
@@ -89,7 +90,7 @@ def test_add_rage_supports_all_histogram_types():
       OracleQuery()
       .from_(query_builder.table_to_pypika_table["lineitem"])
       .select(fn.Count("*")),
-      PredicateGenerator.Predicate(
+      Predicate(
         table="lineitem",
         column="foo",
         min_value=2020,
