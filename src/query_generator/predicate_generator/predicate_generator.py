@@ -23,6 +23,10 @@ class HistogramDataType(Enum):
   DATE = "date"
   STRING = "string"
 
+class PredicateType(Enum):
+  RANGE = "range"
+  EQUALITY = "equality"
+  IN = "in"
 
 @dataclass
 class Predicate:
@@ -31,6 +35,7 @@ class Predicate:
   min_value: SupportedHistogramType
   max_value: SupportedHistogramType
   dtype: HistogramDataType
+  predicate_type: PredicateType
 
 
 class PredicateGenerator:
@@ -129,6 +134,7 @@ class PredicateGenerator:
         min_value=min_value,
         max_value=max_value,
         dtype=dtype,
+        predicate_type=PredicateType.RANGE,
       )
       yield predicate
 

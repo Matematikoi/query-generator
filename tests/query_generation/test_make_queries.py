@@ -13,6 +13,7 @@ from query_generator.predicate_generator.predicate_generator import (
   HistogramDataType,
   Predicate,
   PredicateGenerator,
+  PredicateType,
 )
 from query_generator.utils.definitions import (
   Dataset,
@@ -96,5 +97,6 @@ def test_add_rage_supports_all_histogram_types():
         min_value=2020,
         max_value=2020,
         dtype=dtype,
+        predicate_type=PredicateType.RANGE
       ),
     )
