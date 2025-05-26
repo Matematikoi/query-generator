@@ -30,6 +30,7 @@ numpy = ">=2.2.5,<3"
 duckdb = ">=1.2.2,<2"
 polars = ">=1.27.1,<2"
 tqdm = "*"
+cattrs = ">=24.1.2,<25"
 
 
 [tool.pixi.feature.test.dependencies]

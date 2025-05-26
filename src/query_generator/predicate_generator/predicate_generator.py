@@ -18,6 +18,17 @@ SupportedHistogramType = float | int | str
 SuportedHistogramArrayType = list[float] | list[int] | list[str]
 
 
+MAX_DISTINCT_COUNT_FOR_RANGE = 500
+PROBABILITY_TO_CHOOSE_EQUALITY = 0.8
+PREDICATE_IN_SIZE = 5
+
+
+class PredicateTypes(Enum):
+  IN = "in"
+  RANGE = "range"
+  EQUALITY = "equality"
+
+
 class HistogramDataType(Enum):
   INT = "int"
   FLOAT = "float"
@@ -107,6 +118,15 @@ class PredicateGenerator:
       return HistogramDataType.STRING
     raise InvalidHistogramTypeError(dtype)
 
+  def _get_predicate_type(self) -> PredicateTypes:
+    # distinct_count: int) -> PredicateTypes:
+    # if distinct_count > MAX_DISTINCT_COUNT_FOR_RANGE:
+    #   return PredicateTypes.RANGE
+    # if random.random() < PROBABILITY_TO_CHOOSE_EQUALITY:
+    #   return PredicateTypes.EQUALITY
+    # return PredicateTypes.IN
+    return PredicateTypes.RANGE
+
   def get_random_predicates(
     self,
     tables: list[str],
@@ -133,19 +153,40 @@ class PredicateGenerator:
     ):
       table = row[HistogramColumns.TABLE.value]
       column = row[HistogramColumns.COLUMN.value]
-      bins = row[HistogramColumns.HISTOGRAM.value]
       dtype = self._get_histogram_type(row[HistogramColumns.DTYPE.value])
-      min_value, max_value = self._get_min_max_from_bins(
-        bins, row_retention_probability, dtype
-      )
-      predicate = PredicateRange(
-        table=table,
-        column=column,
-        min_value=min_value,
-        max_value=max_value,
-        dtype=dtype,
-      )
-      yield predicate
+      predicate_type = self._get_predicate_type()
+
+      if predicate_type == PredicateTypes.RANGE:
+        bins = row[HistogramColumns.HISTOGRAM.value]
+        yield self._get_range_predicate(
+          table, column, bins, row_retention_probability, dtype
+        )
+      # elif predicate_type == PredicateTypes.IN:
+      #   common_values = row[HistogramColumns.MOST_COMMON_VALUES]
+      #   yield self._get_in_predicate(table, column, common_values, dtype)
+      # elif predicate_type == PredicateTypes.EQUALITY:
+      #   common_values = row[HistogramColumns.MOST_COMMON_VALUES.value]
+      #   yield self._get_equality_predicate(table,
+      # column, common_values, dtype)
+
+  def _get_range_predicate(
+    self,
+    table: str,
+    column: str,
+    bins: list[str],
+    row_retention_probability: float,
+    dtype: HistogramDataType,
+  ) -> PredicateRange:
+    min_value, max_value = self._get_min_max_from_bins(
+      bins, row_retention_probability, dtype
+    )
+    return PredicateRange(
+      table=table,
+      column=column,
+      min_value=min_value,
+      max_value=max_value,
+      dtype=dtype,
+    )
 
   def _get_min_max_from_bins(
     self,
