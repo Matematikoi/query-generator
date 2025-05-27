@@ -23,6 +23,11 @@ from query_generator.utils.exceptions import InvalidHistogramTypeError
 LIMIT_FOR_DISTINCT_VALUES = 1000
 
 
+class MostCommonValuesColumns(Enum):
+  VALUE = "value"
+  COUNT = "count"
+
+
 class RedundantHistogramsDataType(Enum):
   """
   This class was made for compatibility with old code that
@@ -198,7 +203,10 @@ def query_histograms(
 
         row_dict |= {
           HistogramColumns.MOST_COMMON_VALUES.value: [
-            {"value": value.value, "count": value.count}
+            {
+              MostCommonValuesColumns.VALUE.value: value.value,
+              MostCommonValuesColumns.COUNT.value: value.count,
+            }
             for value in most_common_values
           ],
           HistogramColumns.HISTOGRAM_MCV.value: histogram_array_excluding_mcv,

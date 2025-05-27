@@ -23,8 +23,6 @@ class PredicateOperatorProbability:
   """Probability of using a specific predicate operator.
 
   They are based on choice with weights for each operator.
-
-  The weights will be normalized to sum to 1.
   """
 
   operator_in: float
@@ -33,16 +31,24 @@ class PredicateOperatorProbability:
 
 
 @dataclass
+class PredicateParameters:
+  extra_predicates: int
+  row_retention_probability: float
+  operator_weights: PredicateOperatorProbability
+  equality_lower_bound_probability: float
+  extra_values_for_in: int
+
+
+# TODO(Gabriel): http://localhost:8080/tktview/205e90a1fa
+@dataclass
 class QueryGenerationParameters:
+  dataset: Dataset
   max_hops: int
   max_queries_per_signature: int
   max_queries_per_fact_table: int
-  keep_edge_prob: float
-  dataset: Dataset
-  extra_predicates: int
-  row_retention_probability: float
+  keep_edge_probability: float
   seen_subgraphs: dict[int, bool]
-  operator_probabilities: PredicateOperatorProbability
+  predicate_parameters: PredicateParameters
 
 
 @dataclass

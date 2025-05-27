@@ -32,8 +32,8 @@ from query_generator.utils.definitions import (
   QueryGenerationParameters,
 )
 from query_generator.utils.params import (
-  QueryGenerationEndpoint,
   SearchParametersEndpoint,
+  SnowflakeEndpoint,
   read_and_parse_toml,
 )
 from query_generator.utils.show_messages import show_dev_warning
@@ -55,19 +55,15 @@ def snowflake(
   ],
 ) -> None:
   """Generate queries using a random subgraph."""
-  params_endpoint = read_and_parse_toml(
-    Path(config_path), QueryGenerationEndpoint
-  )
+  params_endpoint = read_and_parse_toml(Path(config_path), SnowflakeEndpoint)
   params = QueryGenerationParameters(
     dataset=params_endpoint.dataset,
     max_hops=params_endpoint.max_hops,
     max_queries_per_fact_table=params_endpoint.max_queries_per_fact_table,
     max_queries_per_signature=params_endpoint.max_queries_per_signature,
-    keep_edge_prob=params_endpoint.keep_edge_prob,
-    extra_predicates=params_endpoint.extra_predicates,
-    row_retention_probability=params_endpoint.row_retention_probability,
+    keep_edge_probability=params_endpoint.keep_edge_probability,
     seen_subgraphs={},
-    operator_probabilities=params_endpoint.operator_probabilities,
+    predicate_parameters=params_endpoint.predicate_parameters,
   )
   generate_and_write_queries(params)
 

@@ -28,6 +28,7 @@ from query_generator.utils.definitions import (
   Dataset,
   Extension,
   GeneratedQueryFeatures,
+  PredicateParameters,
   QueryGenerationParameters,
 )
 from query_generator.utils.exceptions import InvalidHistogramTypeError
@@ -41,12 +42,13 @@ class QueryBuilder:
     # TODO(Gabriel): http://localhost:8080/tktview/b9400c203a38f3aef46ec250d98563638ba7988b
     tables_schema: Any,
     dataset: Dataset,
+    predicate_params: PredicateParameters,
   ) -> None:
     self.sub_graph_gen = subgraph_generator
     self.table_to_pypika_table = {
       i: Table(i, alias=tables_schema[i]["alias"]) for i in tables_schema
     }
-    self.predicate_gen = PredicateGenerator(dataset)
+    self.predicate_gen = PredicateGenerator(dataset, predicate_params)
     self.tables_schema = tables_schema
 
   def get_subgraph_tables(
@@ -88,14 +90,10 @@ class QueryBuilder:
     self,
     subgraph: list[ForeignKeyGraph.Edge],
     query: OracleQuery,
-    extra_predicates: int,
-    row_retention_probability: float,
   ) -> OracleQuery:
     subgraph_tables = self.get_subgraph_tables(subgraph)
     for predicate in self.predicate_gen.get_random_predicates(
       subgraph_tables,
-      extra_predicates,
-      row_retention_probability,
     ):
       query = self._add_range(query, predicate)
     return query
@@ -152,7 +150,7 @@ class QueryGenerator:
     self.foreign_key_graph = ForeignKeyGraph(self.tables_schema)
     self.subgraph_generator = SubGraphGenerator(
       self.foreign_key_graph,
-      params.keep_edge_prob,
+      params.keep_edge_probability,
       params.max_hops,
       params.seen_subgraphs,
     )
@@ -160,6 +158,7 @@ class QueryGenerator:
       self.subgraph_generator,
       self.tables_schema,
       params.dataset,
+      params.predicate_parameters,
     )
 
   def generate_queries(self) -> Iterator[GeneratedQueryFeatures]:
@@ -175,8 +174,6 @@ class QueryGenerator:
           query = self.query_builder.add_predicates(
             subgraph,
             query,
-            self.params.extra_predicates,
-            self.params.row_retention_probability,
           )
 
           yield GeneratedQueryFeatures(

@@ -70,9 +70,9 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
         unique_joins = {unique_joins}
         max_queries_per_fact_table = 10
         max_queries_per_signature = 2
-        keep_edge_prob = 0.2
+        keep_edge_probability = 0.2
 
-        [operator_probabilities]
+        [operator_weights]
         operator_in = 1
         operator_range = 3
         operator_equal = 3

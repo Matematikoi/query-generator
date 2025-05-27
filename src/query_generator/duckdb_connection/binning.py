@@ -14,6 +14,7 @@ from query_generator.join_based_query_generator.utils.query_writer import (
 from query_generator.utils.definitions import (
   BatchGeneratedQueryFeatures,
   Extension,
+  PredicateParameters,
   QueryGenerationParameters,
 )
 from query_generator.utils.params import SearchParametersEndpoint
@@ -87,11 +88,15 @@ def run_snowflake_param_seach(
         max_hops=max_hops,
         max_queries_per_fact_table=search_params.user_input.max_queries_per_fact_table,
         max_queries_per_signature=search_params.user_input.max_queries_per_signature,
-        keep_edge_prob=search_params.user_input.keep_edge_prob,
-        extra_predicates=extra_predicates,
-        row_retention_probability=float(row_retention_probability),
+        keep_edge_probability=search_params.user_input.keep_edge_probability,
         seen_subgraphs=seen_subgraphs,
-        operator_probabilities=search_params.user_input.operator_probabilities,
+        predicate_parameters=PredicateParameters(
+          extra_predicates=extra_predicates,
+          row_retention_probability=row_retention_probability,
+          operator_weights=search_params.user_input.operator_weights,
+          equality_lower_bound_probability=search_params.user_input.equality_lower_bound_probability,
+          extra_values_for_in=search_params.user_input.extra_values_for_in,
+        ),
       )
     )
     for query in query_generator.generate_queries():
