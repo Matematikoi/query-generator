@@ -20,9 +20,11 @@ from query_generator.join_based_query_generator.utils.query_writer import (
 )
 from query_generator.predicate_generator.predicate_generator import (
   HistogramDataType,
-  Predicate,
+  PredicateEquality,
   PredicateGenerator,
+  PredicateIn,
   PredicateRange,
+  SupportedHistogramType,
 )
 from query_generator.utils.definitions import (
   Dataset,
@@ -95,50 +97,47 @@ class QueryBuilder:
     for predicate in self.predicate_gen.get_random_predicates(
       subgraph_tables,
     ):
-      query = self._add_range(query, predicate)
+      if isinstance(predicate, PredicateRange):
+        return self._add_range(query, predicate)
+      if isinstance(predicate, PredicateEquality):
+        return self._add_equality(query, predicate)
+      if isinstance(predicate, PredicateIn):
+        return self._add_in(query, predicate)
+      raise InvalidHistogramTypeError(str(predicate.dtype))
     return query
 
-  def _add_range(self, query: OracleQuery, predicate: Predicate) -> OracleQuery:
-    if isinstance(predicate, PredicateRange):
-      if predicate.dtype in [HistogramDataType.INT, HistogramDataType.FLOAT]:
-        return self._add_range_number(query, predicate)
-      if predicate.dtype in [HistogramDataType.DATE]:
-        return self._add_range_date(query, predicate)
-      if predicate.dtype in [HistogramDataType.STRING]:
-        return self._add_range_string(query, predicate)
-    raise InvalidHistogramTypeError(str(predicate.dtype))
+  def _cast_if_needed(
+    self, value: SupportedHistogramType, dtype: HistogramDataType
+  ) -> Any:
+    """Cast the value to the appropriate type if needed."""
+    if dtype == HistogramDataType.DATE:
+      return fn.Cast(value, "date")
+    return value
 
-  def _add_range_number(
+  def _add_range(
     self, query: OracleQuery, predicate: PredicateRange
   ) -> OracleQuery:
     return query.where(
       self.table_to_pypika_table[predicate.table][predicate.column]
-      >= predicate.min_value,
+      >= self._cast_if_needed(predicate.min_value, predicate.dtype),
     ).where(
       self.table_to_pypika_table[predicate.table][predicate.column]
-      <= predicate.max_value,
+      <= self._cast_if_needed(predicate.max_value, predicate.dtype)
     )
 
-  def _add_range_date(
-    self, query: OracleQuery, predicate: PredicateRange
+  def _add_equality(
+    self, query: OracleQuery, predicate: PredicateEquality
   ) -> OracleQuery:
     return query.where(
       self.table_to_pypika_table[predicate.table][predicate.column]
-      >= fn.Cast(predicate.min_value, "date"),
-    ).where(
-      self.table_to_pypika_table[predicate.table][predicate.column]
-      <= fn.Cast(predicate.max_value, "date"),
+      == predicate.equality_value
     )
 
-  def _add_range_string(
-    self, query: OracleQuery, predicate: PredicateRange
-  ) -> OracleQuery:
+  def _add_in(self, query: OracleQuery, predicate: PredicateIn) -> OracleQuery:
     return query.where(
-      self.table_to_pypika_table[predicate.table][predicate.column]
-      >= predicate.min_value,
-    ).where(
-      self.table_to_pypika_table[predicate.table][predicate.column]
-      <= predicate.max_value
+      self.table_to_pypika_table[predicate.table][predicate.column].isin(
+        [self._cast_if_needed(i, predicate.dtype) for i in predicate.in_values]
+      )
     )
 
 

@@ -20,7 +20,6 @@ from query_generator.duckdb_connection.utils import (
 )
 from query_generator.utils.exceptions import InvalidHistogramTypeError
 
-LIMIT_FOR_DISTINCT_VALUES = 1000
 
 
 class MostCommonValuesColumns(Enum):
@@ -99,8 +98,7 @@ def get_most_common_values(
   distinct_count: int,
 ) -> list[RawDuckDBMostCommonValues]:
   result: list[RawDuckDBMostCommonValues] = []
-  if distinct_count < LIMIT_FOR_DISTINCT_VALUES:
-    result = get_frequent_non_null_values(con, table, column, common_value_size)
+  result = get_frequent_non_null_values(con, table, column, common_value_size)
   return result
 
 
@@ -123,10 +121,7 @@ def get_histogram_array_excluding_common_values(
   distinct_count: int,
 ) -> list[str]:
   histogram_array: list[RawDuckDBHistograms] = []
-  if (
-    distinct_count < LIMIT_FOR_DISTINCT_VALUES
-    and distinct_count > common_values_size
-  ):
+  if distinct_count > common_values_size:
     histogram_array = get_histogram_excluding_common_values(
       histogram_params.con,
       histogram_params.table,
