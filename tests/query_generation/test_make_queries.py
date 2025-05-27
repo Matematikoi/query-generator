@@ -1,8 +1,7 @@
 from unittest import mock
 
 import pytest
-from pypika import OracleQuery
-from pypika import functions as fn
+
 
 from query_generator.database_schemas.schemas import get_schema
 from query_generator.join_based_query_generator.snowflake import (
@@ -15,9 +14,12 @@ from query_generator.predicate_generator.predicate_generator import (
 )
 from query_generator.utils.definitions import (
   Dataset,
+  PredicateOperatorProbability,
   QueryGenerationParameters,
 )
-from query_generator.utils.exceptions import UnkwonDatasetError
+from query_generator.utils.exceptions import UnkownDatasetError
+from pypika import OracleQuery
+from pypika import functions as fn
 
 
 def test_tpch_query_generation():
@@ -34,7 +36,12 @@ def test_tpch_query_generation():
         row_retention_probability=0.2,
         extra_predicates=1,
         seen_subgraphs={},
-      ),
+        operator_probabilities=PredicateOperatorProbability(
+          operator_in=0.4,
+          operator_equal=0.4,
+          operator_range=0.2,
+        ),
+      )
     )
 
     assert mock_writer.call_count > 5
@@ -54,6 +61,11 @@ def test_tpcds_query_generation():
         row_retention_probability=0.2,
         extra_predicates=1,
         seen_subgraphs={},
+        operator_probabilities=PredicateOperatorProbability(
+          operator_in=0.4,
+          operator_equal=0.4,
+          operator_range=0.2,
+        ),
       ),
     )
 
@@ -64,7 +76,7 @@ def test_non_implemented_dataset():
   with mock.patch(
     "query_generator.join_based_query_generator.snowflake.Writer.write_query",
   ) as mock_writer:
-    with pytest.raises(UnkwonDatasetError):
+    with pytest.raises(UnkownDatasetError):
       generate_and_write_queries(
         QueryGenerationParameters(
           dataset="non_implemented_dataset",
@@ -75,6 +87,11 @@ def test_non_implemented_dataset():
           row_retention_probability=0.2,
           extra_predicates=1,
           seen_subgraphs={},
+          operator_probabilities=PredicateOperatorProbability(
+            operator_in=0.4,
+            operator_equal=0.4,
+            operator_range=0.2,
+          ),
         ),
       )
     assert mock_writer.call_count == 0

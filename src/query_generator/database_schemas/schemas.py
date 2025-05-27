@@ -5,7 +5,7 @@ from query_generator.database_schemas.tpch import get_tpch_table_info
 from query_generator.utils.definitions import Dataset
 from query_generator.utils.exceptions import (
   PartiallySupportedDatasetError,
-  UnkwonDatasetError,
+  UnkownDatasetError,
 )
 
 
@@ -26,4 +26,4 @@ def get_schema(dataset: Dataset) -> tuple[dict[str, dict[str, Any]], list[str]]:
     return get_tpch_table_info()
   if dataset == Dataset.JOB:
     raise PartiallySupportedDatasetError(dataset.value)
-  raise UnkwonDatasetError(dataset)
+  raise UnkownDatasetError(dataset)

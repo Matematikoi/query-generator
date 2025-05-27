@@ -5,21 +5,10 @@ from typing import TypeVar
 
 from cattrs import structure
 
-from query_generator.utils.definitions import Dataset
-
-
-@dataclass
-class PredicateOperatorProbability:
-  """Probability of using a specific predicate operator.
-
-  They are based on choice with weights for each operator.
-
-  The weights will be normalized to sum to 1.
-  """
-
-  operator_in: float
-  operator_equal: float
-  operator_range: float
+from query_generator.utils.definitions import (
+  Dataset,
+  PredicateOperatorProbability,
+)
 
 
 @dataclass
@@ -45,6 +34,7 @@ class QueryGenerationEndpoint:
   dataset: Dataset
   extra_predicates: int
   row_retention_probability: float
+  operator_probabilities: PredicateOperatorProbability
 
 
 T = TypeVar("T")

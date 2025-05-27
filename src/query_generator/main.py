@@ -67,6 +67,7 @@ def snowflake(
     extra_predicates=params_endpoint.extra_predicates,
     row_retention_probability=params_endpoint.row_retention_probability,
     seen_subgraphs={},
+    operator_probabilities=params_endpoint.operator_probabilities,
   )
   generate_and_write_queries(params)
 

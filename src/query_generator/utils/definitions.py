@@ -19,6 +19,20 @@ class Dataset(Enum):
 
 
 @dataclass
+class PredicateOperatorProbability:
+  """Probability of using a specific predicate operator.
+
+  They are based on choice with weights for each operator.
+
+  The weights will be normalized to sum to 1.
+  """
+
+  operator_in: float
+  operator_equal: float
+  operator_range: float
+
+
+@dataclass
 class QueryGenerationParameters:
   max_hops: int
   max_queries_per_signature: int
@@ -28,6 +42,7 @@ class QueryGenerationParameters:
   extra_predicates: int
   row_retention_probability: float
   seen_subgraphs: dict[int, bool]
+  operator_probabilities: PredicateOperatorProbability
 
 
 @dataclass

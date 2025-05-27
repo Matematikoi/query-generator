@@ -91,6 +91,7 @@ def run_snowflake_param_seach(
         extra_predicates=extra_predicates,
         row_retention_probability=float(row_retention_probability),
         seen_subgraphs=seen_subgraphs,
+        operator_probabilities=search_params.user_input.operator_probabilities,
       )
     )
     for query in query_generator.generate_queries():

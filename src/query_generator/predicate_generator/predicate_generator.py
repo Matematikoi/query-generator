@@ -11,7 +11,7 @@ from query_generator.tools.histograms import HistogramColumns
 from query_generator.utils.definitions import Dataset
 from query_generator.utils.exceptions import (
   InvalidHistogramTypeError,
-  UnkwonDatasetError,
+  UnkownDatasetError,
 )
 
 SupportedHistogramType = float | int | str
@@ -104,7 +104,7 @@ class PredicateGenerator:
     elif self.dataset == Dataset.JOB:
       path = "data/histograms/histogram_job.parquet"
     else:
-      raise UnkwonDatasetError(self.dataset.value)
+      raise UnkownDatasetError(self.dataset.value)
     return pl.read_parquet(path).filter(pl.col("histogram") != [])
 
   def _get_histogram_type(self, dtype: str) -> HistogramDataType:

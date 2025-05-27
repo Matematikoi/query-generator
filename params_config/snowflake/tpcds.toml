@@ -5,3 +5,9 @@ max_queries_per_signature = 1
 keep_edge_prob = 0.2
 row_retention_probability = 0.2
 extra_predicates = 3
+
+
+[operator_probabilities]
+operator_in = 1
+operator_range = 3
+operator_equal = 3
