@@ -1,5 +1,7 @@
+import tomllib
 from unittest import mock
 
+from cattrs import structure
 import polars as pl
 import pytest
 
@@ -8,7 +10,7 @@ from query_generator.duckdb_connection.binning import (
   run_snowflake_param_seach,
 )
 from query_generator.tools.cherry_pick_binning import make_bins_in_csv
-from query_generator.utils.definitions import Dataset
+from query_generator.utils.params import SearchParametersEndpoint
 
 
 @pytest.mark.parametrize(
@@ -44,11 +46,11 @@ def test_make_bins_in_csv(count_star, upper_bound, total_bins, expected_bin):
 @pytest.mark.parametrize(
   "extra_predicates, expected_call_count, unique_joins",
   [
-    ([1], 120 * 1 + 14, False),
-    ([1], 120 * 1 + 14, True),
+    ("[1]", 120 * 1 + 14, "false"),
+    ("[1]", 120 * 1 + 14, "true"),
     # Inventory is small and prooduces 14 queries total
-    ([1, 2], 120 * 2 + 14, True),
-    ([1, 2], 120 * 2 + 14 * 2, False),
+    ("[1, 2]", 120 * 2 + 14, "true"),
+    ("[1, 2]", 120 * 2 + 14 * 2, "false"),
   ],
 )
 def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
@@ -59,15 +61,28 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       "query_generator.duckdb_connection.binning.get_result_from_duckdb",
     ) as mock_connect:
       mock_connect.return_value = 0
+      data_toml = f"""
+        dataset = "TPCDS"
+        dev = true
+        max_hops = [1]
+        extra_predicates = {extra_predicates}
+        row_retention_probability = [0.2]
+        unique_joins = {unique_joins}
+        max_queries_per_fact_table = 10
+        max_queries_per_signature = 2
+        keep_edge_prob = 0.2
+
+        [operator_probabilities]
+        operator_in = 1
+        operator_range = 3
+        operator_equal = 3
+        """
+      user_input = structure(tomllib.loads(data_toml), SearchParametersEndpoint)
       run_snowflake_param_seach(
         search_params=SearchParameters(
           scale_factor=0,
-          dataset=Dataset.TPCDS,
-          max_hops=[1],
-          extra_predicates=extra_predicates,
-          row_retention_probability=[0.2],
           con=None,
-          unique_joins=unique_joins,
+          user_input=user_input,
         ),
       )
     assert mock_writer.call_count == expected_call_count, (

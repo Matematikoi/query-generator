@@ -13,21 +13,17 @@ from query_generator.join_based_query_generator.utils.query_writer import (
 )
 from query_generator.utils.definitions import (
   BatchGeneratedQueryFeatures,
-  Dataset,
   Extension,
   QueryGenerationParameters,
 )
+from query_generator.utils.params import SearchParametersEndpoint
 
 
 @dataclass
 class SearchParameters:
-  dataset: Dataset
+  user_input: SearchParametersEndpoint
   scale_factor: int | float
   con: duckdb.DuckDBPyConnection
-  max_hops: list[int]
-  extra_predicates: list[int]
-  row_retention_probability: list[float]
-  unique_joins: bool
 
 
 def get_result_from_duckdb(query: str, con: duckdb.DuckDBPyConnection) -> int:
@@ -39,7 +35,7 @@ def get_result_from_duckdb(query: str, con: duckdb.DuckDBPyConnection) -> int:
   return result
 
 
-def get_total_iterations(search_params: SearchParameters) -> int:
+def get_total_iterations(search_params: SearchParametersEndpoint) -> int:
   """Get the total number of iterations for the Snowflake binning process.
 
   Args:
@@ -68,18 +64,18 @@ def run_snowflake_param_seach(
 
   """
   query_writer = Writer(
-    search_params.dataset,
+    search_params.user_input.dataset,
     Extension.SNOWFLAKE_SEARCH_PARAMS,
   )
   rows: list[dict[str, str | int | float]] = []
-  total_iterations = get_total_iterations(search_params)
+  total_iterations = get_total_iterations(search_params.user_input)
   batch_number = 0
   seen_subgraphs: dict[int, bool] = {}
   for max_hops, extra_predicates, row_retention_probability in tqdm(
     product(
-      search_params.max_hops,
-      search_params.extra_predicates,
-      search_params.row_retention_probability,
+      search_params.user_input.max_hops,
+      search_params.user_input.extra_predicates,
+      search_params.user_input.row_retention_probability,
     ),
     total=total_iterations,
     desc="Progress",
@@ -87,11 +83,11 @@ def run_snowflake_param_seach(
     batch_number += 1
     query_generator = QueryGenerator(
       QueryGenerationParameters(
-        dataset=search_params.dataset,
+        dataset=search_params.user_input.dataset,
         max_hops=max_hops,
-        max_queries_per_fact_table=10,
-        max_queries_per_signature=2,
-        keep_edge_prob=0.2,
+        max_queries_per_fact_table=search_params.user_input.max_queries_per_fact_table,
+        max_queries_per_signature=search_params.user_input.max_queries_per_signature,
+        keep_edge_prob=search_params.user_input.keep_edge_prob,
         extra_predicates=extra_predicates,
         row_retention_probability=float(row_retention_probability),
         seen_subgraphs=seen_subgraphs,
@@ -128,7 +124,7 @@ def run_snowflake_param_seach(
         },
       )
     # Update the seen subgraphs with the new ones
-    if search_params.unique_joins:
+    if search_params.user_input.unique_joins:
       seen_subgraphs = query_generator.subgraph_generator.seen_subgraphs
   df_queries = pl.DataFrame(rows)
   query_writer.write_dataframe(df_queries)

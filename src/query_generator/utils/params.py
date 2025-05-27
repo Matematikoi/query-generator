@@ -9,6 +9,20 @@ from query_generator.utils.definitions import Dataset
 
 
 @dataclass
+class PredicateOperatorProbability:
+  """Probability of using a specific predicate operator.
+
+  They are based on choice with weights for each operator.
+
+  The weights will be normalized to sum to 1.
+  """
+
+  operator_in: float
+  operator_equal: float
+  operator_range: float
+
+
+@dataclass
 class SearchParametersEndpoint:
   dataset: Dataset
   dev: bool
@@ -16,6 +30,10 @@ class SearchParametersEndpoint:
   extra_predicates: list[int]
   row_retention_probability: list[float]
   unique_joins: bool
+  operator_probabilities: PredicateOperatorProbability
+  max_queries_per_fact_table: int
+  max_queries_per_signature: int
+  keep_edge_prob: float
 
 
 @dataclass

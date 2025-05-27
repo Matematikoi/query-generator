@@ -99,11 +99,7 @@ def param_search(
     SearchParameters(
       scale_factor=scale_factor,
       con=con,
-      dataset=params.dataset,
-      max_hops=params.max_hops,
-      extra_predicates=params.extra_predicates,
-      row_retention_probability=params.row_retention_probability,
-      unique_joins=params.unique_joins,
+      user_input=params,
     ),
   )
 
