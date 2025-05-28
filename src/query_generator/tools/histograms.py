@@ -21,7 +21,6 @@ from query_generator.duckdb_connection.utils import (
 from query_generator.utils.exceptions import InvalidHistogramTypeError
 
 
-
 class MostCommonValuesColumns(Enum):
   VALUE = "value"
   COUNT = "count"
@@ -95,11 +94,8 @@ def get_most_common_values(
   table: str,
   column: str,
   common_value_size: int,
-  distinct_count: int,
 ) -> list[RawDuckDBMostCommonValues]:
-  result: list[RawDuckDBMostCommonValues] = []
-  result = get_frequent_non_null_values(con, table, column, common_value_size)
-  return result
+  return get_frequent_non_null_values(con, table, column, common_value_size)
 
 
 def get_histogram_array(histogram_params: HistogramParams) -> list[str]:
@@ -184,7 +180,6 @@ def query_histograms(
           table,
           column.column_name,
           common_values_size,
-          distinct_count,
         )
 
         # Get histogram array excluding common values

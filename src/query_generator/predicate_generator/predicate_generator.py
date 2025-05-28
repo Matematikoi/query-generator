@@ -229,7 +229,8 @@ class PredicateGenerator:
     if value is None:
       return None
     noise_values = random.sample(
-      histogram, k=min(self.predicate_params.extra_values_for_in, len(histogram))
+      histogram,
+      k=min(self.predicate_params.extra_values_for_in, len(histogram)),
     )
     return [value] + noise_values
 

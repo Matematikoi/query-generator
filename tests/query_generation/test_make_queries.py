@@ -15,6 +15,7 @@ from query_generator.predicate_generator.predicate_generator import (
 from query_generator.utils.definitions import (
   Dataset,
   PredicateOperatorProbability,
+  PredicateParameters,
   QueryGenerationParameters,
 )
 from query_generator.utils.exceptions import UnkownDatasetError
@@ -33,13 +34,17 @@ def test_tpch_query_generation():
         max_queries_per_fact_table=1,
         max_queries_per_signature=1,
         keep_edge_probability=0.2,
-        row_retention_probability=0.2,
-        extra_predicates=1,
         seen_subgraphs={},
-        operator_weights=PredicateOperatorProbability(
-          operator_in=0.4,
-          operator_equal=0.4,
-          operator_range=0.2,
+        predicate_parameters=PredicateParameters(
+          operator_weights=PredicateOperatorProbability(
+            operator_in=0.4,
+            operator_equal=0.4,
+            operator_range=0.2,
+          ),
+          extra_predicates=1,
+          row_retention_probability=0.2,
+          equality_lower_bound_probability=0,
+          extra_values_for_in=3,
         ),
       )
     )
@@ -58,13 +63,17 @@ def test_tpcds_query_generation():
         max_queries_per_fact_table=1,
         max_queries_per_signature=1,
         keep_edge_probability=0.2,
-        row_retention_probability=0.2,
-        extra_predicates=1,
         seen_subgraphs={},
-        operator_weights=PredicateOperatorProbability(
-          operator_in=0.4,
-          operator_equal=0.4,
-          operator_range=0.2,
+        predicate_parameters=PredicateParameters(
+          operator_weights=PredicateOperatorProbability(
+            operator_in=0.4,
+            operator_equal=0.4,
+            operator_range=0.2,
+          ),
+          extra_predicates=1,
+          row_retention_probability=0.2,
+          equality_lower_bound_probability=0,
+          extra_values_for_in=3,
         ),
       ),
     )
@@ -84,13 +93,17 @@ def test_non_implemented_dataset():
           max_queries_per_fact_table=1,
           max_queries_per_signature=1,
           keep_edge_probability=0.2,
-          row_retention_probability=0.2,
-          extra_predicates=1,
           seen_subgraphs={},
-          operator_weights=PredicateOperatorProbability(
-            operator_in=0.4,
-            operator_equal=0.4,
-            operator_range=0.2,
+          predicate_parameters=PredicateParameters(
+            operator_weights=PredicateOperatorProbability(
+              operator_in=0.4,
+              operator_equal=0.4,
+              operator_range=0.2,
+            ),
+            extra_predicates=1,
+            row_retention_probability=0.2,
+            equality_lower_bound_probability=0,
+            extra_values_for_in=3,
           ),
         ),
       )
@@ -99,7 +112,18 @@ def test_non_implemented_dataset():
 
 def test_add_rage_supports_all_histogram_types():
   tables_schema, _ = get_schema(Dataset.TPCH)
-  query_builder = QueryBuilder(None, tables_schema, Dataset.TPCH)
+  query_builder = QueryBuilder(
+    None,
+    tables_schema,
+    Dataset.TPCH,
+    PredicateParameters(
+      extra_predicates=None,
+      row_retention_probability=0.2,
+      operator_weights=None,
+      equality_lower_bound_probability=None,
+      extra_values_for_in=None,
+    ),
+  )
   for dtype in HistogramDataType:
     query_builder._add_range(
       OracleQuery()
