@@ -166,8 +166,8 @@ class QueryGenerator:
           self.params.max_queries_per_fact_table,
         ),
       ):
-        query = self.query_builder.generate_query_from_subgraph(subgraph)
         for idx in range(1, self.params.max_queries_per_signature + 1):
+          query = self.query_builder.generate_query_from_subgraph(subgraph)
           query = self.query_builder.add_predicates(
             subgraph,
             query,
