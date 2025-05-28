@@ -51,6 +51,7 @@ def get_total_iterations(search_params: SearchParametersEndpoint) -> int:
     len(search_params.max_hops)
     * len(search_params.extra_predicates)
     * len(search_params.row_retention_probability)
+    * len(search_params.equality_lower_bound_probability)
   )
 
 
@@ -72,11 +73,17 @@ def run_snowflake_param_seach(
   total_iterations = get_total_iterations(search_params.user_input)
   batch_number = 0
   seen_subgraphs: dict[int, bool] = {}
-  for max_hops, extra_predicates, row_retention_probability in tqdm(
+  for (
+    max_hops,
+    extra_predicates,
+    row_retention_probability,
+    equality_lower_bound_probability,
+  ) in tqdm(
     product(
       search_params.user_input.max_hops,
       search_params.user_input.extra_predicates,
       search_params.user_input.row_retention_probability,
+      search_params.user_input.equality_lower_bound_probability,
     ),
     total=total_iterations,
     desc="Progress",
@@ -94,7 +101,7 @@ def run_snowflake_param_seach(
           extra_predicates=extra_predicates,
           row_retention_probability=row_retention_probability,
           operator_weights=search_params.user_input.operator_weights,
-          equality_lower_bound_probability=search_params.user_input.equality_lower_bound_probability,
+          equality_lower_bound_probability=equality_lower_bound_probability,
           extra_values_for_in=search_params.user_input.extra_values_for_in,
         ),
       )

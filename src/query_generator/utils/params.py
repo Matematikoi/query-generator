@@ -55,7 +55,7 @@ class SearchParametersEndpoint:
   extra_predicates: list[int]
   row_retention_probability: list[float]
   operator_weights: PredicateOperatorProbability
-  equality_lower_bound_probability: float
+  equality_lower_bound_probability: list[float]
   extra_values_for_in: int
 
 
