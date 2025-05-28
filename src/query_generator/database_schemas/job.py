@@ -7,7 +7,7 @@ from query_generator.utils.exceptions import (
 
 
 def get_job_table_info() -> tuple[dict[str, dict[str, Any]], list[str]]:
-  tables = {
+  tables: dict[str, dict[str, Any]] = {
     "aka_name": {
       "alias": "an",
       "columns": {

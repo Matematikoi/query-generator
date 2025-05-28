@@ -1,5 +1,7 @@
+import threading
 from dataclasses import dataclass
 from itertools import product
+from typing import Any
 
 import duckdb
 import polars as pl
@@ -27,13 +29,27 @@ class SearchParameters:
   con: duckdb.DuckDBPyConnection
 
 
-def get_result_from_duckdb(query: str, con: duckdb.DuckDBPyConnection) -> int:
+def get_result_from_duckdb(
+  query: str, con: duckdb.DuckDBPyConnection, timeout: float = 5.0
+) -> int:
+  did_timeout = False
+
+  def _interrupt() -> None:
+    nonlocal did_timeout
+    did_timeout = True
+    con.interrupt()
+
+  timer = threading.Timer(timeout, _interrupt)
+  timer.start()
   try:
-    result = int(con.sql(query).fetchall()[0][0])
-  except duckdb.BinderException as e:
-    print(f"Invalid query, exception: {e},\n{query}")
+    result = con.sql(query).fetchall()[0][0]
+    return int(result)
+  except duckdb.BinderException:
     return -1
-  return result
+  except duckdb.Error:
+    return -1
+  finally:
+    timer.cancel()
 
 
 def get_total_iterations(search_params: SearchParametersEndpoint) -> int:
@@ -131,13 +147,20 @@ def run_snowflake_param_seach(
           "prefix": prefix,
           "template_number": query.template_number,
           "predicate_number": query.predicate_number,
+          "extra_predicates": extra_predicates,
           "fact_table": query.fact_table,
           "max_hops": max_hops,
           "row_retention_probability": row_retention_probability,
+          "equality_lower_bound_probability": equality_lower_bound_probability,
         },
       )
     # Update the seen subgraphs with the new ones
     if search_params.user_input.unique_joins:
       seen_subgraphs = query_generator.subgraph_generator.seen_subgraphs
+    checkpoint_queries_csv(rows, query_writer)
+  checkpoint_queries_csv(rows, query_writer)
+
+
+def checkpoint_queries_csv(rows: list[Any], query_writer: Writer) -> None:
   df_queries = pl.DataFrame(rows)
   query_writer.write_dataframe(df_queries)

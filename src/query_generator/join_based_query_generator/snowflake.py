@@ -33,7 +33,6 @@ from query_generator.utils.definitions import (
   PredicateParameters,
   QueryGenerationParameters,
 )
-from query_generator.utils.exceptions import InvalidHistogramTypeError
 from query_generator.utils.utils import set_seed
 
 
@@ -98,12 +97,11 @@ class QueryBuilder:
       subgraph_tables,
     ):
       if isinstance(predicate, PredicateRange):
-        return self._add_range(query, predicate)
+        query = self._add_range(query, predicate)
       if isinstance(predicate, PredicateEquality):
-        return self._add_equality(query, predicate)
+        query = self._add_equality(query, predicate)
       if isinstance(predicate, PredicateIn):
-        return self._add_in(query, predicate)
-      raise InvalidHistogramTypeError(str(predicate.dtype))
+        query = self._add_in(query, predicate)
     return query
 
   def _cast_if_needed(
