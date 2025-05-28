@@ -440,7 +440,6 @@ def get_tpcds_table_info() -> tuple[dict[str, dict[str, Any]], list[str]]:
         "s_rec_end_date": {"max": "2001-03-12", "min": "1999-03-13"},
         "s_rec_start_date": {"max": "2001-03-13", "min": "1997-03-13"},
         "s_store_sk": {"max": 402, "min": 1},
-        "s_tax_precentage": {"max": 0.11, "min": 0.0},
       },
       "foreign_keys": [],
     },

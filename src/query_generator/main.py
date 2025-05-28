@@ -31,6 +31,11 @@ from query_generator.utils.definitions import (
   Extension,
   QueryGenerationParameters,
 )
+from query_generator.utils.params import (
+  SearchParametersEndpoint,
+  SnowflakeEndpoint,
+  read_and_parse_toml,
+)
 from query_generator.utils.show_messages import show_dev_warning
 from query_generator.utils.utils import validate_file_path
 
@@ -39,157 +44,59 @@ app = typer.Typer(name="Query Generation")
 
 @app.command()
 def snowflake(
-  dataset: Annotated[
-    Dataset,
-    typer.Option("--dataset", "-d", help="The dataset used"),
+  config_path: Annotated[
+    str,
+    typer.Option(
+      "-c",
+      "--config",
+      help="The path to the configuration file"
+      "They can be found in the params_config/query_generation/ folder",
+    ),
   ],
-  max_hops: Annotated[
-    int,
-    typer.Option(
-      "--max-hops",
-      "-h",
-      help="The maximum number of hops",
-      min=1,
-      max=5,
-    ),
-  ] = 3,
-  max_queries_per_fact_table: Annotated[
-    int,
-    typer.Option(
-      "--fact",
-      "-f",
-      help="The maximum number of queries per fact table",
-      min=1,
-    ),
-  ] = 100,
-  max_queries_per_signature: Annotated[
-    int,
-    typer.Option(
-      "--signature",
-      "-s",
-      help="The maximum number of queries per signature/template",
-      min=1,
-    ),
-  ] = 1,
-  keep_edge_prob: Annotated[
-    float,
-    typer.Option(
-      "--edge-prob",
-      "-p",
-      help="The probability of keeping an edge in the subgraph",
-      min=0.0,
-      max=1.0,
-    ),
-  ] = 0.2,
-  row_retention_probability: Annotated[
-    float,
-    typer.Option(
-      "--row-retention",
-      "-r",
-      help="The probability of keeping a row in each predicate",
-      min=0.0,
-      max=1.0,
-    ),
-  ] = 0.2,
-  extra_predicates: Annotated[
-    int,
-    typer.Option(
-      "--extra-predicates",
-      "-e",
-      help="The number of extra predicates to add to the query",
-      min=0,
-    ),
-  ] = 3,
 ) -> None:
   """Generate queries using a random subgraph."""
+  params_endpoint = read_and_parse_toml(Path(config_path), SnowflakeEndpoint)
   params = QueryGenerationParameters(
-    dataset=dataset,
-    max_hops=max_hops,
-    max_queries_per_fact_table=max_queries_per_fact_table,
-    max_queries_per_signature=max_queries_per_signature,
-    keep_edge_prob=keep_edge_prob,
-    extra_predicates=extra_predicates,
-    row_retention_probability=row_retention_probability,
+    dataset=params_endpoint.dataset,
+    max_hops=params_endpoint.max_hops,
+    max_queries_per_fact_table=params_endpoint.max_queries_per_fact_table,
+    max_queries_per_signature=params_endpoint.max_queries_per_signature,
+    keep_edge_probability=params_endpoint.keep_edge_probability,
     seen_subgraphs={},
+    predicate_parameters=params_endpoint.predicate_parameters,
   )
   generate_and_write_queries(params)
 
 
 @app.command()
 def param_search(
-  dataset: Annotated[
-    Dataset,
-    typer.Option("--dataset", "-d", help="The dataset used"),
+  config_path: Annotated[
+    str,
+    typer.Option(
+      "-c",
+      "--config",
+      help="The path to the configuration file"
+      "They can be found in the params_config/search_params/ folder",
+    ),
   ],
-  *,
-  dev: Annotated[
-    bool,
-    typer.Option(
-      "--dev",
-      help="Development testing. If true then uses scale factor 0.1 to check.",
-    ),
-  ] = False,
-  unique_joins: Annotated[
-    bool,
-    typer.Option(
-      "--unique-joins",
-      "-u",
-      help="If true all queries will have a unique join structure "
-      "(not recommended for TPC-H)",
-    ),
-  ] = False,
-  max_hops_range: Annotated[
-    list[int] | None,
-    typer.Option(
-      "--max-hops-range",
-      "-h",
-      help="The range of hops to use for the query generation",
-      show_default="1, 2, 4",
-    ),
-  ] = None,
-  extra_predicates_range: Annotated[
-    list[int] | None,
-    typer.Option(
-      "--extra-predicates-range",
-      "-e",
-      help="The range of extra predicates to use for the query generation",
-      show_default="1, 2, 3, 5",
-    ),
-  ] = None,
-  row_retention_probability_range: Annotated[
-    list[float] | None,
-    typer.Option(
-      "--row-retention-probability-range",
-      "-r",
-      help="The range of row retention probabilities to use "
-      "for the query generation",
-      show_default="0.2, 0.3, 0.4, 0.6, 0.8, 0.85, 0.9, 1.0",
-    ),
-  ] = None,
 ) -> None:
   """This is an extension of the Snowflake algorithm.
 
   It runs multiple batches with different configurations of the algorithm.
   This allows us to get multiple results.
   """
-  if max_hops_range is None:
-    max_hops_range = [1, 2, 4]
-  if extra_predicates_range is None:
-    extra_predicates_range = [1, 2, 3, 5]
-  if row_retention_probability_range is None:
-    row_retention_probability_range = [0.2, 0.3, 0.4, 0.6, 0.8, 0.85, 0.9, 1.0]
-  show_dev_warning(dev=dev)
-  scale_factor = 0.1 if dev else 100
-  con = setup_duckdb(dataset, scale_factor)
+  params = read_and_parse_toml(
+    Path(config_path),
+    SearchParametersEndpoint,
+  )
+  show_dev_warning(dev=params.dev)
+  scale_factor = 0.1 if params.dev else 100
+  con = setup_duckdb(params.dataset, scale_factor)
   run_snowflake_param_seach(
     SearchParameters(
       scale_factor=scale_factor,
       con=con,
-      dataset=dataset,
-      max_hops=max_hops_range,
-      extra_predicates=extra_predicates_range,
-      row_retention_probability=row_retention_probability_range,
-      unique_joins=unique_joins,
+      user_input=params,
     ),
   )
 

@@ -20,12 +20,17 @@ from query_generator.join_based_query_generator.utils.query_writer import (
 )
 from query_generator.predicate_generator.predicate_generator import (
   HistogramDataType,
+  PredicateEquality,
   PredicateGenerator,
+  PredicateIn,
+  PredicateRange,
+  SupportedHistogramType,
 )
 from query_generator.utils.definitions import (
   Dataset,
   Extension,
   GeneratedQueryFeatures,
+  PredicateParameters,
   QueryGenerationParameters,
 )
 from query_generator.utils.exceptions import InvalidHistogramTypeError
@@ -39,12 +44,13 @@ class QueryBuilder:
     # TODO(Gabriel): http://localhost:8080/tktview/b9400c203a38f3aef46ec250d98563638ba7988b
     tables_schema: Any,
     dataset: Dataset,
+    predicate_params: PredicateParameters,
   ) -> None:
     self.sub_graph_gen = subgraph_generator
     self.table_to_pypika_table = {
       i: Table(i, alias=tables_schema[i]["alias"]) for i in tables_schema
     }
-    self.predicate_gen = PredicateGenerator(dataset)
+    self.predicate_gen = PredicateGenerator(dataset, predicate_params)
     self.tables_schema = tables_schema
 
   def get_subgraph_tables(
@@ -86,60 +92,52 @@ class QueryBuilder:
     self,
     subgraph: list[ForeignKeyGraph.Edge],
     query: OracleQuery,
-    extra_predicates: int,
-    row_retention_probability: float,
   ) -> OracleQuery:
     subgraph_tables = self.get_subgraph_tables(subgraph)
     for predicate in self.predicate_gen.get_random_predicates(
       subgraph_tables,
-      extra_predicates,
-      row_retention_probability,
     ):
-      query = self._add_range(query, predicate)
+      if isinstance(predicate, PredicateRange):
+        return self._add_range(query, predicate)
+      if isinstance(predicate, PredicateEquality):
+        return self._add_equality(query, predicate)
+      if isinstance(predicate, PredicateIn):
+        return self._add_in(query, predicate)
+      raise InvalidHistogramTypeError(str(predicate.dtype))
     return query
 
+  def _cast_if_needed(
+    self, value: SupportedHistogramType, dtype: HistogramDataType
+  ) -> Any:
+    """Cast the value to the appropriate type if needed."""
+    if dtype == HistogramDataType.DATE:
+      return fn.Cast(value, "date")
+    return value
+
   def _add_range(
-    self, query: OracleQuery, predicate: PredicateGenerator.Predicate
-  ) -> OracleQuery:
-    if predicate.dtype in [HistogramDataType.INT, HistogramDataType.FLOAT]:
-      return self._add_range_number(query, predicate)
-    if predicate.dtype in [HistogramDataType.DATE]:
-      return self._add_range_date(query, predicate)
-    if predicate.dtype in [HistogramDataType.STRING]:
-      return self._add_range_string(query, predicate)
-    raise InvalidHistogramTypeError(str(predicate.dtype))
-
-  def _add_range_number(
-    self, query: OracleQuery, predicate: PredicateGenerator.Predicate
+    self, query: OracleQuery, predicate: PredicateRange
   ) -> OracleQuery:
     return query.where(
       self.table_to_pypika_table[predicate.table][predicate.column]
-      >= predicate.min_value,
+      >= self._cast_if_needed(predicate.min_value, predicate.dtype),
     ).where(
       self.table_to_pypika_table[predicate.table][predicate.column]
-      <= predicate.max_value,
+      <= self._cast_if_needed(predicate.max_value, predicate.dtype)
     )
 
-  def _add_range_date(
-    self, query: OracleQuery, predicate: PredicateGenerator.Predicate
+  def _add_equality(
+    self, query: OracleQuery, predicate: PredicateEquality
   ) -> OracleQuery:
     return query.where(
       self.table_to_pypika_table[predicate.table][predicate.column]
-      >= fn.Cast(predicate.min_value, "date"),
-    ).where(
-      self.table_to_pypika_table[predicate.table][predicate.column]
-      <= fn.Cast(predicate.max_value, "date"),
+      == predicate.equality_value
     )
 
-  def _add_range_string(
-    self, query: OracleQuery, predicate: PredicateGenerator.Predicate
-  ) -> OracleQuery:
+  def _add_in(self, query: OracleQuery, predicate: PredicateIn) -> OracleQuery:
     return query.where(
-      self.table_to_pypika_table[predicate.table][predicate.column]
-      >= predicate.min_value,
-    ).where(
-      self.table_to_pypika_table[predicate.table][predicate.column]
-      <= predicate.max_value
+      self.table_to_pypika_table[predicate.table][predicate.column].isin(
+        [self._cast_if_needed(i, predicate.dtype) for i in predicate.in_values]
+      )
     )
 
 
@@ -151,7 +149,7 @@ class QueryGenerator:
     self.foreign_key_graph = ForeignKeyGraph(self.tables_schema)
     self.subgraph_generator = SubGraphGenerator(
       self.foreign_key_graph,
-      params.keep_edge_prob,
+      params.keep_edge_probability,
       params.max_hops,
       params.seen_subgraphs,
     )
@@ -159,6 +157,7 @@ class QueryGenerator:
       self.subgraph_generator,
       self.tables_schema,
       params.dataset,
+      params.predicate_parameters,
     )
 
   def generate_queries(self) -> Iterator[GeneratedQueryFeatures]:
@@ -174,8 +173,6 @@ class QueryGenerator:
           query = self.query_builder.add_predicates(
             subgraph,
             query,
-            self.params.extra_predicates,
-            self.params.row_retention_probability,
           )
 
           yield GeneratedQueryFeatures(

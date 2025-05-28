@@ -27,7 +27,7 @@ class DuplicateEdgesError(Exception):
     super().__init__(f"Duplicate edges found for table {table}.")
 
 
-class UnkwonDatasetError(Exception):
+class UnkownDatasetError(Exception):
   def __init__(self, dataset: str) -> None:
     super().__init__(f"Unknown dataset: {dataset}")
 

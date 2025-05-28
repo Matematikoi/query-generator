@@ -6,7 +6,7 @@ from query_generator.utils.definitions import Dataset
 from query_generator.utils.exceptions import (
   MissingScaleFactorError,
   PartiallySupportedDatasetError,
-  UnkwonDatasetError,
+  UnkownDatasetError,
 )
 
 
@@ -29,7 +29,7 @@ def generate_data(
   elif dataset == Dataset.JOB:
     raise PartiallySupportedDatasetError(dataset.value)
   else:
-    raise UnkwonDatasetError(dataset)
+    raise UnkownDatasetError(dataset)
 
 
 def get_path(
@@ -40,7 +40,7 @@ def get_path(
     return f"data/duckdb/{dataset.value}/{scale_factor}.db"
   if dataset == Dataset.JOB:
     return f"data/duckdb/{dataset.value}/job.db"
-  raise UnkwonDatasetError(dataset.value)
+  raise UnkownDatasetError(dataset.value)
 
 
 def setup_duckdb(

@@ -13,18 +13,19 @@ class SubGraphGenerator:
   def __init__(
     self,
     graph: ForeignKeyGraph,
-    keep_edge_prob: float,
+    keep_edge_probability: float,
     max_hops: int,
     seen_subgraphs: dict[int, bool],
   ) -> None:
     self.hops = max_hops
-    self.keep_edge_prob = keep_edge_prob
+    self.keep_edge_probability = keep_edge_probability
     self.graph = graph
     self.seen_subgraphs: dict[int, bool] = seen_subgraphs.copy()
 
   def get_random_subgraph(self, fact_table: str) -> list[ForeignKeyGraph.Edge]:
     """Starting from the fact table, for each edge of the current table we
-    decide based on the keep_edge_probability whether to keep the edge or not.
+    decide based on the keep_edge_probabilityability whether to keep the
+    edge or not.
 
     We repeat this process up until the maximum number of hops.
     """
@@ -45,7 +46,7 @@ class SubGraphGenerator:
 
       current_edges = self.graph.get_edges(current_node.table)
       for current_edge in current_edges:
-        if random.random() < self.keep_edge_prob:
+        if random.random() < self.keep_edge_probability:
           edges_subgraph.append(current_edge)
           queue.append(
             JoinDepthNode(

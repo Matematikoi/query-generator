@@ -1,20 +1,20 @@
 from unittest import mock
 
+import polars as pl
 import pytest
 
-import polars as pl
 from query_generator.predicate_generator.predicate_generator import (
   HistogramDataType,
   PredicateGenerator,
 )
 from query_generator.tools.histograms import HistogramColumns
-from query_generator.utils.definitions import Dataset
+from query_generator.utils.definitions import Dataset, PredicateParameters
 from query_generator.utils.exceptions import InvalidHistogramTypeError
 
 
 def test_read_histograms():
   for dataset in Dataset:
-    predicate_generator = PredicateGenerator(dataset)
+    predicate_generator = PredicateGenerator(dataset, None)
     histogram = predicate_generator.read_histogram()
     assert not histogram.is_empty()
 
@@ -78,16 +78,25 @@ def test_get_min_max_from_bins(
     "query_generator.predicate_generator.predicate_generator.random.randint",
     return_value=mock_rand,
   ):
-    predicate_generator = PredicateGenerator(Dataset.TPCH)
+    predicate_generator = PredicateGenerator(
+      Dataset.TPCH,
+      PredicateParameters(
+        extra_predicates=None,
+        row_retention_probability=row_retention_probability,
+        operator_weights=None,
+        equality_lower_bound_probability=None,
+        extra_values_for_in=None,
+      ),
+    )
     min_value, max_value = predicate_generator._get_min_max_from_bins(
-      bins_array, row_retention_probability, dtype
+      bins_array, dtype
     )
   assert min_value == bins_array[min_index]
   assert max_value == bins_array[max_index]
 
 
 def test_get_invalid_histogram_type():
-  predicate_generator = PredicateGenerator(Dataset.TPCH)
+  predicate_generator = PredicateGenerator(Dataset.TPCH, None)
   with pytest.raises(InvalidHistogramTypeError):
     predicate_generator._get_histogram_type("not_supported_type")
 
@@ -104,5 +113,5 @@ def test_get_invalid_histogram_type():
   ],
 )
 def test_get_valid_histogram_type(input_type, expected_type):
-  predicate_generator = PredicateGenerator(Dataset.TPCH)
+  predicate_generator = PredicateGenerator(Dataset.TPCH, None)
   assert predicate_generator._get_histogram_type(input_type) == expected_type

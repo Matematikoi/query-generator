@@ -20,7 +20,10 @@ from query_generator.duckdb_connection.utils import (
 )
 from query_generator.utils.exceptions import InvalidHistogramTypeError
 
-LIMIT_FOR_DISTINCT_VALUES = 1000
+
+class MostCommonValuesColumns(Enum):
+  VALUE = "value"
+  COUNT = "count"
 
 
 class RedundantHistogramsDataType(Enum):
@@ -91,12 +94,8 @@ def get_most_common_values(
   table: str,
   column: str,
   common_value_size: int,
-  distinct_count: int,
 ) -> list[RawDuckDBMostCommonValues]:
-  result: list[RawDuckDBMostCommonValues] = []
-  if distinct_count < LIMIT_FOR_DISTINCT_VALUES:
-    result = get_frequent_non_null_values(con, table, column, common_value_size)
-  return result
+  return get_frequent_non_null_values(con, table, column, common_value_size)
 
 
 def get_histogram_array(histogram_params: HistogramParams) -> list[str]:
@@ -118,10 +117,7 @@ def get_histogram_array_excluding_common_values(
   distinct_count: int,
 ) -> list[str]:
   histogram_array: list[RawDuckDBHistograms] = []
-  if (
-    distinct_count < LIMIT_FOR_DISTINCT_VALUES
-    and distinct_count > common_values_size
-  ):
+  if distinct_count > common_values_size:
     histogram_array = get_histogram_excluding_common_values(
       histogram_params.con,
       histogram_params.table,
@@ -184,7 +180,6 @@ def query_histograms(
           table,
           column.column_name,
           common_values_size,
-          distinct_count,
         )
 
         # Get histogram array excluding common values
@@ -198,7 +193,10 @@ def query_histograms(
 
         row_dict |= {
           HistogramColumns.MOST_COMMON_VALUES.value: [
-            {"value": value.value, "count": value.count}
+            {
+              MostCommonValuesColumns.VALUE.value: value.value,
+              MostCommonValuesColumns.COUNT.value: value.count,
+            }
             for value in most_common_values
           ],
           HistogramColumns.HISTOGRAM_MCV.value: histogram_array_excluding_mcv,

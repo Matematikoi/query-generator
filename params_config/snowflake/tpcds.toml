@@ -1,0 +1,18 @@
+dataset = "TPCDS"
+max_hops = 3
+max_queries_per_fact_table = 100
+max_queries_per_signature = 1
+keep_edge_probability = 0.2
+
+
+
+[predicate_parameters]
+row_retention_probability = 0.2
+extra_predicates = 3
+equality_lower_bound_probability = 0.00
+extra_values_for_in = 3
+
+[predicate_parameters.operator_weights]
+operator_in = 1
+operator_range = 3
+operator_equal = 3
