@@ -71,7 +71,7 @@ def get_total_iterations(search_params: SearchParametersEndpoint) -> int:
   )
 
 
-def run_snowflake_param_seach(
+def run_snowflake_param_search(
   search_params: SearchParameters,
 ) -> None:
   """Run the Snowflake binning process. Binning is equiwidth binning.

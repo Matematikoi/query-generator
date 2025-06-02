@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -58,3 +59,30 @@ def cherry_pick_binning(
   pl.concat(dfs_sampled_array).write_csv(
     params.destination_folder / "cherry_picked.csv"
   )
+
+
+def filter_null_and_format(
+  csv_path: Path,
+  destination_path: Path,
+) -> None:
+  count_star_df = pl.read_csv(csv_path).filter(pl.col("count_star") > 0)
+  unique_joins_df = count_star_df.unique(
+    subset=(["prefix", "template_number", "fact_table"])
+  )
+  query_dict: dict[int, str] = {}
+  cnt = 0
+  for row in unique_joins_df.iter_rows(named=True):
+    unique_join_df = count_star_df.filter(
+      (pl.col("prefix") == row["prefix"])
+      & (pl.col("template_number") == row["template_number"])
+      & (pl.col("fact_table") == row["fact_table"]),
+    )
+    for query_row in unique_join_df.iter_rows(named=True):
+      cnt += 1
+      new_path = destination_path / f"snowflake_{cnt}.sql"
+      old_path = csv_path.parent / query_row["relative_path"]
+      query_dict[cnt] = old_path.read_text()
+      new_path.parent.mkdir(parents=True, exist_ok=True)
+      new_path.write_text(old_path.read_text())
+  query_dict_path = destination_path / "queries.json"
+  query_dict_path.write_text(json.dumps(query_dict, indent=2))

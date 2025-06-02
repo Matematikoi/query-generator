@@ -1,7 +1,7 @@
 dataset = "JOB"
 dev = true
 max_hops = [2,3]
-extra_predicates = [1,2,3]
+extra_predicates = [2,3,4]
 row_retention_probability = [0.2,0.3,0.5,0.8]
 unique_joins = true
 max_queries_per_fact_table = 30
@@ -11,6 +11,6 @@ equality_lower_bound_probability = [0.5,0.1,0.01,0]
 extra_values_for_in = 4
 
 [operator_weights]
-operator_in = 3
-operator_range = 2
+operator_in = 2
+operator_range = 4
 operator_equal = 5

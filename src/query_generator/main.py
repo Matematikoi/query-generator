@@ -5,7 +5,7 @@ import typer
 
 from query_generator.duckdb_connection.binning import (
   SearchParameters,
-  run_snowflake_param_seach,
+  run_snowflake_param_search,
 )
 from query_generator.duckdb_connection.setup import setup_duckdb
 from query_generator.join_based_query_generator.snowflake import (
@@ -18,6 +18,7 @@ from query_generator.join_based_query_generator.utils.query_writer import (
 from query_generator.tools.cherry_pick_binning import (
   CherryPickParameters,
   cherry_pick_binning,
+  filter_null_and_format,
 )
 from query_generator.tools.format_queries_file_structure import (
   format_queries_file_structure,
@@ -92,7 +93,7 @@ def param_search(
   show_dev_warning(dev=params.dev)
   scale_factor = 0.1 if params.dev else 100
   con = setup_duckdb(params.dataset, scale_factor)
-  run_snowflake_param_seach(
+  run_snowflake_param_search(
     SearchParameters(
       scale_factor=scale_factor,
       con=con,
@@ -190,6 +191,34 @@ def cherry_pick(
       destination_folder=destination_folder_path,
       seed=seed,
     ),
+  )
+
+
+@app.command()
+def filter_null(
+  csv: Annotated[
+    str,
+    typer.Option(
+      "--csv",
+      "-c",
+      help="The path to the csv file with queries",
+    ),
+  ],
+  destination: Annotated[
+    str,
+    typer.Option(
+      "--destination",
+      "-d",
+      help="The path to the destination folder",
+    ),
+  ],
+) -> None:
+  csv_path = Path(csv)
+  destination_path = Path(destination)
+  validate_file_path(csv_path)
+  filter_null_and_format(
+    csv_path=csv_path,
+    destination_path=destination_path,
   )
 
 
