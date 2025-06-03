@@ -29,6 +29,7 @@ from query_generator.predicate_generator.predicate_generator import (
 from query_generator.utils.definitions import (
   Dataset,
   Extension,
+  GeneratedPredicateTypes,
   GeneratedQueryFeatures,
   PredicateParameters,
   QueryGenerationParameters,
@@ -91,18 +92,22 @@ class QueryBuilder:
     self,
     subgraph: list[ForeignKeyGraph.Edge],
     query: OracleQuery,
-  ) -> OracleQuery:
+  ) -> tuple[OracleQuery, GeneratedPredicateTypes]:
     subgraph_tables = self.get_subgraph_tables(subgraph)
+    predicate_types = GeneratedPredicateTypes()
     for predicate in self.predicate_gen.get_random_predicates(
       subgraph_tables,
     ):
       if isinstance(predicate, PredicateRange):
         query = self._add_range(query, predicate)
+        predicate_types.range += 1
       if isinstance(predicate, PredicateEquality):
         query = self._add_equality(query, predicate)
+        predicate_types.equality += 1
       if isinstance(predicate, PredicateIn):
         query = self._add_in(query, predicate)
-    return query
+        predicate_types.in_values += 1
+    return query, predicate_types
 
   def _cast_if_needed(
     self, value: SupportedHistogramType, dtype: HistogramDataType
@@ -168,7 +173,7 @@ class QueryGenerator:
       ):
         for idx in range(1, self.params.max_queries_per_signature + 1):
           query = self.query_builder.generate_query_from_subgraph(subgraph)
-          query = self.query_builder.add_predicates(
+          query, predicate_types = self.query_builder.add_predicates(
             subgraph,
             query,
           )
@@ -178,6 +183,8 @@ class QueryGenerator:
             template_number=cnt,
             predicate_number=idx,
             fact_table=fact_table,
+            total_subgraph_edges=len(subgraph),
+            generated_predicate_types=predicate_types,
           )
 
 

@@ -137,6 +137,8 @@ def run_snowflake_param_search(
           predicate_number=query.predicate_number,
           fact_table=query.fact_table,
           prefix=prefix,
+          total_subgraph_edges=query.total_subgraph_edges,
+          generated_predicate_types=query.generated_predicate_types,
         )
       )
       # Adds query to the DataFrame
@@ -152,6 +154,10 @@ def run_snowflake_param_search(
           "max_hops": max_hops,
           "row_retention_probability": row_retention_probability,
           "equality_lower_bound_probability": equality_lower_bound_probability,
+          "total_subgraph_edges": query.total_subgraph_edges,
+          "predicates_range": query.generated_predicate_types.range,
+          "predicates_in_values": query.generated_predicate_types.in_values,
+          "predicates_equality": query.generated_predicate_types.equality,
         },
       )
     # Update the seen subgraphs with the new ones

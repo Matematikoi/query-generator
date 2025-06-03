@@ -52,11 +52,22 @@ class QueryGenerationParameters:
 
 
 @dataclass
+class GeneratedPredicateTypes:
+  """Class to hold the types of predicates generated for a query."""
+
+  equality: int = 0
+  range: int = 0
+  in_values: int = 0
+
+
+@dataclass
 class GeneratedQueryFeatures:
   query: str
   template_number: int
   predicate_number: int
   fact_table: str
+  total_subgraph_edges: int
+  generated_predicate_types: GeneratedPredicateTypes
 
 
 @dataclass
