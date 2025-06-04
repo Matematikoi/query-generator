@@ -3,8 +3,10 @@ from dataclasses import dataclass
 from itertools import product
 from typing import Any
 
+import cattrs
 import duckdb
 import polars as pl
+import toml
 from tqdm import tqdm
 
 from query_generator.join_based_query_generator.snowflake import (
@@ -82,7 +84,7 @@ def run_snowflake_param_search(
     the Snowflake binning process.
 
   """
-  query_writer = Writer(
+  writer = Writer(
     search_params.user_input.dataset,
     Extension.SNOWFLAKE_SEARCH_PARAMS,
   )
@@ -132,7 +134,7 @@ def run_snowflake_param_search(
 
       prefix = f"batch_{batch_number}"
 
-      relative_path = query_writer.write_query_to_batch(
+      relative_path = writer.write_query_to_batch(
         BatchGeneratedQueryFeatures(
           batch_number=batch_number,
           query=query.query,
@@ -167,8 +169,20 @@ def run_snowflake_param_search(
     # Update the seen subgraphs with the new ones
     if search_params.user_input.unique_joins:
       seen_subgraphs = query_generator.subgraph_generator.seen_subgraphs
-    checkpoint_queries_csv(rows, query_writer)
-  checkpoint_queries_csv(rows, query_writer)
+    checkpoint_queries_csv(rows, writer)
+  checkpoint_queries_csv(rows, writer)
+  save_params(search_params, writer)
+
+
+def save_params(
+  search_params: SearchParameters,
+  writer: Writer,
+) -> None:
+  converter = cattrs.Converter()
+  params_dict = converter.unstructure(search_params.user_input)
+  params_toml = toml.dumps(params_dict)
+
+  writer.write_toml(params_toml)
 
 
 def checkpoint_queries_csv(rows: list[Any], query_writer: Writer) -> None:

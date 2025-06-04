@@ -95,6 +95,11 @@ class Writer:
     path = f"{folder}/{self.dataset.value}_batches.csv"
     input_dataframe.write_csv(path)
 
+  def write_toml(self, input_toml: str) -> None:
+    folder = self.get_binning_folder()
+    path = folder / "parameters.toml"
+    path.write_text(input_toml, encoding="utf-8")
+
   def _do_not_overwrite(self, path: Path) -> None:
     """Check if the file already exists and do not overwrite it."""
     if path.exists():
