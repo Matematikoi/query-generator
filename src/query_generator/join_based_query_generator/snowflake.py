@@ -185,6 +185,9 @@ class QueryGenerator:
             fact_table=fact_table,
             total_subgraph_edges=len(subgraph),
             generated_predicate_types=predicate_types,
+            subgraph_signature=self.foreign_key_graph.get_subgraph_signature(
+              subgraph
+            ),
           )
 
 

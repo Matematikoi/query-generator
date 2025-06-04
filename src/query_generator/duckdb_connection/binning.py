@@ -16,7 +16,7 @@ from query_generator.join_based_query_generator.utils.query_writer import (
   Writer,
 )
 from query_generator.utils.definitions import (
-  BatchGeneratedQueryFeatures,
+  BatchGeneratedQueryToWrite,
   Extension,
   PredicateParameters,
   QueryGenerationParameters,
@@ -132,18 +132,13 @@ def run_snowflake_param_search(
       if selected_rows == -1:
         continue  # invalid query
 
-      prefix = f"batch_{batch_number}"
-
       relative_path = writer.write_query_to_batch(
-        BatchGeneratedQueryFeatures(
+        BatchGeneratedQueryToWrite(
           batch_number=batch_number,
-          query=query.query,
+          fact_table=query.fact_table,
           template_number=query.template_number,
           predicate_number=query.predicate_number,
-          fact_table=query.fact_table,
-          prefix=prefix,
-          total_subgraph_edges=query.total_subgraph_edges,
-          generated_predicate_types=query.generated_predicate_types,
+          query=query.query,
         )
       )
       # Adds query to the DataFrame
@@ -151,7 +146,7 @@ def run_snowflake_param_search(
         {
           "relative_path": relative_path,
           "count_star": selected_rows,
-          "prefix": prefix,
+          "batch_number": batch_number,
           "template_number": query.template_number,
           "predicate_number": query.predicate_number,
           "extra_predicates": extra_predicates,
@@ -164,6 +159,8 @@ def run_snowflake_param_search(
           "predicates_in_values": query.generated_predicate_types.in_values,
           "predicates_equality": query.generated_predicate_types.equality,
           "keep_edge_probability": keep_edge_probability,
+          # instead of bigint, lets do str
+          "subgraph_signature": str(query.subgraph_signature),
         },
       )
     # Update the seen subgraphs with the new ones

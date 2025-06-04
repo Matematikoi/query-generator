@@ -68,9 +68,13 @@ class GeneratedQueryFeatures:
   fact_table: str
   total_subgraph_edges: int
   generated_predicate_types: GeneratedPredicateTypes
+  subgraph_signature: int
 
 
 @dataclass
-class BatchGeneratedQueryFeatures(GeneratedQueryFeatures):
+class BatchGeneratedQueryToWrite:
   batch_number: int
-  prefix: str
+  fact_table: str
+  template_number: int
+  predicate_number: int
+  query: str
