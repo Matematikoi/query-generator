@@ -68,6 +68,7 @@ def get_total_iterations(search_params: SearchParametersEndpoint) -> int:
     * len(search_params.extra_predicates)
     * len(search_params.row_retention_probability)
     * len(search_params.equality_lower_bound_probability)
+    * len(search_params.keep_edge_probability)
   )
 
 
@@ -94,12 +95,14 @@ def run_snowflake_param_search(
     extra_predicates,
     row_retention_probability,
     equality_lower_bound_probability,
+    keep_edge_probability,
   ) in tqdm(
     product(
       search_params.user_input.max_hops,
       search_params.user_input.extra_predicates,
       search_params.user_input.row_retention_probability,
       search_params.user_input.equality_lower_bound_probability,
+      search_params.user_input.keep_edge_probability,
     ),
     total=total_iterations,
     desc="Progress",
@@ -111,7 +114,7 @@ def run_snowflake_param_search(
         max_hops=max_hops,
         max_queries_per_fact_table=search_params.user_input.max_queries_per_fact_table,
         max_queries_per_signature=search_params.user_input.max_queries_per_signature,
-        keep_edge_probability=search_params.user_input.keep_edge_probability,
+        keep_edge_probability=keep_edge_probability,
         seen_subgraphs=seen_subgraphs,
         predicate_parameters=PredicateParameters(
           extra_predicates=extra_predicates,
@@ -158,6 +161,7 @@ def run_snowflake_param_search(
           "predicates_range": query.generated_predicate_types.range,
           "predicates_in_values": query.generated_predicate_types.in_values,
           "predicates_equality": query.generated_predicate_types.equality,
+          "keep_edge_probability": keep_edge_probability,
         },
       )
     # Update the seen subgraphs with the new ones
