@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -61,7 +62,7 @@ def cherry_pick_binning(
   )
 
 
-def filter_null_and_format(
+def filter_null_and_format_job(
   csv_path: Path,
   destination_path: Path,
 ) -> None:
@@ -82,6 +83,38 @@ def filter_null_and_format(
       new_path = destination_path / f"snowflake_{cnt}.sql"
       old_path = csv_path.parent / query_row["relative_path"]
       query_dict[cnt] = old_path.read_text()
+      new_path.parent.mkdir(parents=True, exist_ok=True)
+      new_path.write_text(old_path.read_text())
+  query_dict_path = destination_path / "queries.json"
+  query_dict_path.write_text(json.dumps(query_dict, indent=2))
+
+
+def filter_null_and_format_tpcds(
+  csv_path: Path,
+  destination_path: Path,
+) -> None:
+  count_star_df = pl.read_csv(
+    csv_path,
+    schema_overrides={"subgraph_signature": pl.Utf8},
+  ).filter(
+    (pl.col("count_star") > 0)
+    & (
+      pl.col("predicates_range")
+      + pl.col("predicates_in_values")
+      + pl.col("predicates_equality")
+      > 1
+    )
+  )
+  unique_joins_df = count_star_df.unique("subgraph_signature")
+  query_dict: dict[str, dict[str, str]] = defaultdict(dict)
+  for cnt, row in enumerate(unique_joins_df.iter_rows(named=True)):
+    unique_join_df = count_star_df.filter(
+      pl.col("subgraph_signature") == row["subgraph_signature"]
+    )
+    for idx, query_row in enumerate(unique_join_df.iter_rows(named=True)):
+      new_path = destination_path / f"signature{cnt}/{cnt}-{idx}.sql"
+      old_path = csv_path.parent / query_row["relative_path"]
+      query_dict[f"signature{cnt}"][str(idx)] = old_path.read_text()
       new_path.parent.mkdir(parents=True, exist_ok=True)
       new_path.write_text(old_path.read_text())
   query_dict_path = destination_path / "queries.json"

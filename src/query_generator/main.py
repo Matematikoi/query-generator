@@ -18,7 +18,8 @@ from query_generator.join_based_query_generator.utils.query_writer import (
 from query_generator.tools.cherry_pick_binning import (
   CherryPickParameters,
   cherry_pick_binning,
-  filter_null_and_format,
+  filter_null_and_format_job,
+  filter_null_and_format_tpcds,
 )
 from query_generator.tools.format_queries_file_structure import (
   format_queries_file_structure,
@@ -204,11 +205,19 @@ def filter_null(
       help="The path to the csv file with queries",
     ),
   ],
+  dataset: Annotated[
+    Dataset,
+    typer.Option(
+      "--dataset",
+      "-d",
+      help="The dataset used",
+    ),
+  ],
   destination: Annotated[
     str,
     typer.Option(
       "--destination",
-      "-d",
+      "-e",
       help="The path to the destination folder",
     ),
   ],
@@ -216,10 +225,16 @@ def filter_null(
   csv_path = Path(csv)
   destination_path = Path(destination)
   validate_file_path(csv_path)
-  filter_null_and_format(
-    csv_path=csv_path,
-    destination_path=destination_path,
-  )
+  if dataset == Dataset.JOB:
+    filter_null_and_format_job(
+      csv_path=csv_path,
+      destination_path=destination_path,
+    )
+  else:
+    filter_null_and_format_tpcds(
+      csv_path=csv_path,
+      destination_path=destination_path,
+    )
 
 
 @app.command()
