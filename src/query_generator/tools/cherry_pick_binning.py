@@ -112,9 +112,9 @@ def filter_null_and_format_tpcds(
       pl.col("subgraph_signature") == row["subgraph_signature"]
     )
     for idx, query_row in enumerate(unique_join_df.iter_rows(named=True)):
-      new_path = destination_path / f"signature{cnt}/{cnt}-{idx}.sql"
+      new_path = destination_path / f"{cnt}/{cnt}-{idx}.sql"
       old_path = csv_path.parent / query_row["relative_path"]
-      query_dict[f"signature{cnt}"][str(idx)] = old_path.read_text()
+      query_dict[f"{cnt}"][str(idx)] = old_path.read_text()
       new_path.parent.mkdir(parents=True, exist_ok=True)
       new_path.write_text(old_path.read_text())
   query_dict_path = destination_path / "queries.json"
