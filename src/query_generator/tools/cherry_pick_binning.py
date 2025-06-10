@@ -67,18 +67,14 @@ def filter_null_and_format_job(
   destination_path: Path,
 ) -> None:
   count_star_df = pl.read_csv(csv_path).filter(pl.col("count_star") > 0)
-  unique_joins_df = count_star_df.unique(
-    subset=(["prefix", "template_number", "fact_table"])
-  )
+  unique_joins_df = count_star_df.unique("subgraph_signature")
   query_dict: dict[int, str] = {}
   cnt = 0
-  for row in unique_joins_df.iter_rows(named=True):
+  for row in unique_joins_df.sort("subgraph_signature").iter_rows(named=True):
     unique_join_df = count_star_df.filter(
-      (pl.col("prefix") == row["prefix"])
-      & (pl.col("template_number") == row["template_number"])
-      & (pl.col("fact_table") == row["fact_table"]),
+      pl.col("subgraph_signature") == row["subgraph_signature"]
     )
-    for query_row in unique_join_df.iter_rows(named=True):
+    for query_row in unique_join_df.sort("relative_path").iter_rows(named=True):
       cnt += 1
       new_path = destination_path / f"snowflake_{cnt}.sql"
       old_path = csv_path.parent / query_row["relative_path"]
