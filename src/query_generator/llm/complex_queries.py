@@ -80,8 +80,8 @@ def create_complex_queries(
     valid_query = validate_query_duckdb(con, llm_extracted_query)
 
     if valid_query:
-      query_counter[extension_type] += 1
-      new_path = destination_path/ extension_type/ f"{query_counter[extension_type]}"
+      query_counter[extension_type] = 1 + query_counter[extension_type]
+      new_path = destination_path/ extension_type/ f"{query_counter[extension_type]}.sql"
       new_path.parent.mkdir(parents=True, exist_ok=True)
       new_path.write_text(llm_extracted_query)
     
