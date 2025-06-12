@@ -15,7 +15,9 @@ from query_generator.join_based_query_generator.utils.query_writer import (
   write_parquet,
   write_redundant_histogram_csv,
 )
-from query_generator.llm.complex_queries import create_complex_queries
+from query_generator.llm.complex_queries import (
+  run_create_complex_queries,
+)
 from query_generator.tools.cherry_pick_binning import (
   CherryPickParameters,
   cherry_pick_binning,
@@ -394,7 +396,7 @@ def add_complex_queries(
   params = read_and_parse_toml(
     Path(config_file), ComplexQueryGenerationParametersEndpoint
   )
-  create_complex_queries(params)
+  run_create_complex_queries(params)
 
 
 if __name__ == "__main__":
