@@ -10,6 +10,8 @@ from query_generator.duckdb_connection.setup import setup_duckdb
 from query_generator.utils.params import (
   ComplexQueryGenerationParametersEndpoint,
 )
+from collections import defaultdict
+
 
 
 def query_llm(client: Client, prompt: str, model: str) -> str:
@@ -69,14 +71,17 @@ def create_complex_queries(
   llm_client = Client()
   random.seed(params.seed)
   con = setup_duckdb(params.dataset, 0)
-
+  destination_path = Path(params.destination_folder)
+  query_counter: dict[str,int] = defaultdict(int)
   for query in tqdm(get_random_queries(params)):
     extension_type, prompt = get_random_prompt(params, query)
     llm_response = query_llm(llm_client, prompt, params.llm_model)
     llm_extracted_query = extract_sql(llm_response)
     valid_query = validate_query_duckdb(con, llm_extracted_query)
-    print("===============")
-    print(f"valid query?: {valid_query}")
-    print(f"Query type:{extension_type} \n {llm_extracted_query}")
-    print(f"original text:{llm_response}")
-    print("===============")
+
+    if valid_query:
+      query_counter[extension_type] += 1
+      new_path = destination_path/ extension_type/ f"{query_counter[extension_type]}"
+      new_path.parent.mkdir(parents=True, exist_ok=True)
+      new_path.write_text(llm_extracted_query)
+    

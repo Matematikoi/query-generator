@@ -22,6 +22,7 @@ class ComplexQueryGenerationParametersEndpoint:
   total_queries: int
   seed: int
   dataset: Dataset
+  destination_folder: str
 
 
 @dataclass

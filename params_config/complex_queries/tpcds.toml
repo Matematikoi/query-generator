@@ -11,6 +11,7 @@ queries_path = "./data/generated_queries/TPCDS_FORMATTED_QUERIES"
 total_queries = 5
 seed = 42
 dataset = "TPCDS"
+destination_folder = "./data/generated_queries/TPCDS_LLM"
 
 [llm_prompts.self_join]
 prompt = "Modify this query to add a self-join while keeping the predicates"
