@@ -1,6 +1,12 @@
+import random
+import re
+from pathlib import Path
+
+from duckdb import DuckDBPyConnection
 from ollama import Client
 from tqdm import tqdm
 
+from query_generator.duckdb_connection.setup import setup_duckdb
 from query_generator.utils.params import (
   ComplexQueryGenerationParametersEndpoint,
 )
@@ -17,83 +23,60 @@ def query_llm(client: Client, prompt: str, model: str) -> str:
   return response_str
 
 
+def get_random_queries(
+  params: ComplexQueryGenerationParametersEndpoint,
+) -> list[str]:
+  sql_files = list(Path(params.queries_path).rglob("*.sql"))
+  random_query_paths = random.sample(sql_files, params.total_queries)
+  return [p.read_text() for p in random_query_paths]
+
+
+def get_random_prompt(
+  params: ComplexQueryGenerationParametersEndpoint, query: str
+) -> tuple[str, str]:
+  extension_types = list(params.llm_prompts.keys())
+  weights = [params.llm_prompts[e].weight for e in extension_types]
+  extension_type = random.choices(extension_types, weights=weights)[0]
+
+  return (
+    extension_type,
+    f"""
+  {params.llm_base_prompt}
+  {params.llm_prompts[extension_type].prompt}
+  {query}
+  """,
+  )
+
+
+def extract_sql(llm_text: str) -> str:
+  _, _, tail = llm_text.partition("</think>")
+  m = re.search(r"```sql\s*(.*?)\s*```", tail, re.DOTALL | re.IGNORECASE)
+  return m.group(1).strip() if m else ""
+
+
+def validate_query_duckdb(con: DuckDBPyConnection, query: str) -> bool:
+  try:
+    con.sql(query).fetchone()
+  except Exception:
+    return False
+  else:
+    return True
+
+
 def create_complex_queries(
   params: ComplexQueryGenerationParametersEndpoint,
 ) -> None:
-  client = Client()
+  llm_client = Client()
+  random.seed(params.seed)
+  con = setup_duckdb(params.dataset, 0)
 
-  countries = [
-    "Brazil",
-    "Colombia",
-    "Peru",
-    "Argentina",
-    "chile",
-    "Belgium",
-    "france",
-    "USA",
-    "Canda",
-    "Mexico",
-    "Denmark",
-    "Germany",
-    "Italy",
-    "Iceland",
-    # **Added 40 more countries:**
-    "Afghanistan",
-    "Albania",
-    "Algeria",
-    "Andorra",
-    "Angola",
-    "Antigua and Barbuda",
-    "Armenia",
-    "Australia",
-    "Austria",
-    "Azerbaijan",
-    "Bahamas",
-    "Bahrain",
-    "Bangladesh",
-    "Barbados",
-    "Belarus",
-    "Bhutan",
-    "Bolivia",
-    "Bosnia and Herzegovina",
-    "Botswana",
-    "Brunei",
-    "Bulgaria",
-    "Burkina Faso",
-    "Burundi",
-    "Cambodia",
-    "Cameroon",
-    "Canada",
-    "Cape Verde",
-    "Central African Republic",
-    "Chad",
-    "China",
-    "Costa Rica",
-    "Croatia",
-    "Cuba",
-    "Cyprus",
-    "Czech Republic",
-    "Dominica",
-    "Dominican Republic",
-    "Ecuador",
-    "Egypt",
-    "El Salvador",
-    "Estonia",
-    "Ethiopia",
-    "Fiji",
-    "Finland",
-    "Gabon",
-    "Gambia",
-    "Georgia",
-    "Ghana",
-    "Greece",
-    "Guatemala",
-    "Guyana",
-    "Haiti",
-  ]
-  prompts = [f"What is the capital city of {country}?" for country in countries]
-
-  print(params)
-  for prompt in tqdm(prompts):
-    response = query_llm(client, prompt, params.llm_model)
-    print(f"Prompt: {prompt}\nResponse: {response}\n")
+  for query in tqdm(get_random_queries(params)):
+    extension_type, prompt = get_random_prompt(params, query)
+    llm_response = query_llm(llm_client, prompt, params.llm_model)
+    llm_extracted_query = extract_sql(llm_response)
+    valid_query = validate_query_duckdb(con, llm_extracted_query)
+    print("===============")
+    print(f"valid query?: {valid_query}")
+    print(f"Query type:{extension_type} \n {query}")
+    print(f"original text:{llm_response}")
+    print("===============")

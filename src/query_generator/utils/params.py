@@ -15,11 +15,13 @@ from query_generator.utils.definitions import (
 
 @dataclass
 class ComplexQueryGenerationParametersEndpoint:
-  union: bool
-  llm: bool
   llm_base_prompt: str
   llm_prompts: dict[str, ComplexQueryLLMPrompt]
   llm_model: str
+  queries_path: str
+  total_queries: int
+  seed: int
+  dataset: Dataset
 
 
 @dataclass
