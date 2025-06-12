@@ -50,7 +50,7 @@ class SearchParametersEndpoint:
   # Subgraph
   unique_joins: bool
   max_hops: list[int]
-  keep_edge_probability: float
+  keep_edge_probability: list[float]
   # Predicates
   extra_predicates: list[int]
   row_retention_probability: list[float]

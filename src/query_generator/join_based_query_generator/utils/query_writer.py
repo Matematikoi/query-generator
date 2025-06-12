@@ -4,7 +4,7 @@ from pathlib import Path
 import polars as pl
 
 from query_generator.utils.definitions import (
-  BatchGeneratedQueryFeatures,
+  BatchGeneratedQueryToWrite,
   Dataset,
   Extension,
   GeneratedQueryFeatures,
@@ -75,9 +75,10 @@ class Writer:
     path.mkdir(parents=True, exist_ok=True)
     return path
 
-  def write_query_to_batch(self, query: BatchGeneratedQueryFeatures) -> str:
+  def write_query_to_batch(self, query: BatchGeneratedQueryToWrite) -> str:
     """Returns relative path of the file to the final CSV"""
-    batch_dir = Path(self.get_binning_folder()) / query.prefix
+    prefix = f"batch_{query.batch_number}"
+    batch_dir = Path(self.get_binning_folder()) / prefix
 
     batch_dir.mkdir(parents=True, exist_ok=True)
 
@@ -94,6 +95,11 @@ class Writer:
     folder = self.get_binning_folder()
     path = f"{folder}/{self.dataset.value}_batches.csv"
     input_dataframe.write_csv(path)
+
+  def write_toml(self, input_toml: str) -> None:
+    folder = self.get_binning_folder()
+    path = folder / "parameters.toml"
+    path.write_text(input_toml, encoding="utf-8")
 
   def _do_not_overwrite(self, path: Path) -> None:
     """Check if the file already exists and do not overwrite it."""

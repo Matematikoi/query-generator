@@ -81,9 +81,10 @@ class DuckDBHistogramParser:
     # "12 < x <= 18"
     # "2000-01-02 < x <= 2001-01-01"
     for bin in self.bins[1:]:
-      lower_bound, upper_bound = bin.split(" < x <= ")
-      self.lower_bounds.append(lower_bound)
-      self.upper_bounds.append(upper_bound)
+      if " < x <= " in bin:
+        lower_bound, upper_bound = bin.split(" < x <= ")
+        self.lower_bounds.append(lower_bound)
+        self.upper_bounds.append(upper_bound)
 
   def get_equiwidth_histogram_array(self) -> list[str]:
     return self.upper_bounds

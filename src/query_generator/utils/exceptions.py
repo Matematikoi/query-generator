@@ -42,7 +42,7 @@ class MissingScaleFactorError(Exception):
 class InvalidForeignKeyError(Exception):
   def __init__(self, table: str, column: str) -> None:
     super().__init__(
-      "Invalid foreign key reference in table {table} for column {column}",
+      f"Invalid foreign key reference in table {table} for column {column}",
     )
 
 

@@ -7,7 +7,7 @@ import pytest
 
 from query_generator.duckdb_connection.binning import (
   SearchParameters,
-  run_snowflake_param_seach,
+  run_snowflake_param_search,
 )
 from query_generator.tools.cherry_pick_binning import make_bins_in_csv
 from query_generator.utils.params import SearchParametersEndpoint
@@ -70,7 +70,7 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
         unique_joins = {unique_joins}
         max_queries_per_fact_table = 10
         max_queries_per_signature = 2
-        keep_edge_probability = 0.2
+        keep_edge_probability = [0.2]
         equality_lower_bound_probability = [0]
         extra_values_for_in = 3
 
@@ -80,7 +80,7 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
         operator_equal = 3
         """
       user_input = structure(tomllib.loads(data_toml), SearchParametersEndpoint)
-      run_snowflake_param_seach(
+      run_snowflake_param_search(
         search_params=SearchParameters(
           scale_factor=0,
           con=None,

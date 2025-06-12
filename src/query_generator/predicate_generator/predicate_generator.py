@@ -198,8 +198,6 @@ class PredicateGenerator:
         )
         if array is not None:
           yield self._get_in_predicate(array, table, column, dtype)
-        else:
-          continue
       elif predicate_type == PredicateTypes.EQUALITY:
         value = self._get_equality_value(
           row[HistogramColumns.MOST_COMMON_VALUES.value],
@@ -207,8 +205,6 @@ class PredicateGenerator:
         )
         if value is not None:
           yield self._get_equality_predicate(value, table, column, dtype)
-        else:
-          continue
 
   def _get_in_predicate(
     self, array: list[str], table: str, column: str, dtype: HistogramDataType
