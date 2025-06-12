@@ -77,6 +77,6 @@ def create_complex_queries(
     valid_query = validate_query_duckdb(con, llm_extracted_query)
     print("===============")
     print(f"valid query?: {valid_query}")
-    print(f"Query type:{extension_type} \n {query}")
+    print(f"Query type:{extension_type} \n {llm_extracted_query}")
     print(f"original text:{llm_response}")
     print("===============")
