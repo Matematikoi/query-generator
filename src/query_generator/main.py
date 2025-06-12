@@ -15,6 +15,7 @@ from query_generator.join_based_query_generator.utils.query_writer import (
   write_parquet,
   write_redundant_histogram_csv,
 )
+from query_generator.llm.complex_queries import create_complex_queries
 from query_generator.tools.cherry_pick_binning import (
   CherryPickParameters,
   cherry_pick_binning,
@@ -34,6 +35,7 @@ from query_generator.utils.definitions import (
   QueryGenerationParameters,
 )
 from query_generator.utils.params import (
+  ComplexQueryGenerationParametersEndpoint,
   SearchParametersEndpoint,
   SnowflakeEndpoint,
   read_and_parse_toml,
@@ -373,6 +375,26 @@ def make_histograms(
   write_redundant_histogram_csv(
     redundant_histogram_df, destination_path.parent / "regrouped_job_hist.csv"
   )
+
+
+@app.command()
+def add_complex_queries(
+  config_file: Annotated[
+    str,
+    typer.Option(
+      "--config",
+      "-c",
+      help="The path to the configuration file with complex queries",
+    ),
+  ],
+) -> None:
+  """Add complex queries using LLM prompts.
+  The configuration file should be a TOML file with the
+  ComplexQueryGenerationParametersEndpoint structure."""
+  params = read_and_parse_toml(
+    Path(config_file), ComplexQueryGenerationParametersEndpoint
+  )
+  create_complex_queries(params)
 
 
 if __name__ == "__main__":

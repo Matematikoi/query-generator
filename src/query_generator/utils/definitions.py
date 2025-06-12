@@ -78,3 +78,16 @@ class BatchGeneratedQueryToWrite:
   template_number: int
   predicate_number: int
   query: str
+
+
+@dataclass
+class ComplexQueryLLMPrompt:
+  """Class to hold the prompt for complex query generation.
+  Attributes:
+    prompt (str): The prompt text to be used for LLM query generation.
+    weight (float): The weight of the prompt, It defines the probability
+    of using this prompt in the query generation process.
+  """
+
+  prompt: str
+  weight: float

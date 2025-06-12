@@ -1,0 +1,16 @@
+union = false
+llm = false
+llm_model = "deepseek-r1:1.5b"
+llm_base_prompt = """
+    You are a database expert. And you are writing \
+    queries to test your current database with the TPCDS \
+    dataset with challenging and diverse queries. You are \
+    currently re-writing new queries that should not be \
+    trivial or equivalent to the input query.
+    """
+
+
+
+[llm_prompts.self_join]
+prompt = "Modify this query to add a self-join while keeping the predicates"
+weight = 30

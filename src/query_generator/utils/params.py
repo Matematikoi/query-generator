@@ -6,10 +6,20 @@ from typing import TypeVar
 from cattrs import structure
 
 from query_generator.utils.definitions import (
+  ComplexQueryLLMPrompt,
   Dataset,
   PredicateOperatorProbability,
   PredicateParameters,
 )
+
+
+@dataclass
+class ComplexQueryGenerationParametersEndpoint:
+  union: bool
+  llm: bool
+  llm_base_prompt: str
+  llm_prompts: dict[str, ComplexQueryLLMPrompt]
+  llm_model: str
 
 
 @dataclass
