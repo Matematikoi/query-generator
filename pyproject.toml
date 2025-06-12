@@ -2,7 +2,7 @@
 name = "query-generator"
 version = "0.2.0"
 requires-python = ">= 3.11"
-dependencies = []
+dependencies = ["ollama>=0.5.1,<0.6"]
 
 [project.optional-dependencies]
 test = ["pytest"]
@@ -33,7 +33,6 @@ tqdm = "*"
 cattrs = ">=24.1.2,<25"
 toml = ">=0.10.2,<0.11"
 types-toml = ">=0.10.8.20240310,<0.11"
-ollama = ">=0.9.0,<0.10"
 
 
 [tool.pixi.feature.test.dependencies]
