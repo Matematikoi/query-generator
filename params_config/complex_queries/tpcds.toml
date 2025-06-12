@@ -8,7 +8,7 @@ llm_base_prompt = """
     trivial or equivalent to the input query.
     """
 queries_path = "./data/generated_queries/TPCDS_FORMATTED_QUERIES"
-total_queries = 5
+total_queries = 100
 seed = 42
 dataset = "TPCDS"
 destination_folder = "./data/generated_queries/TPCDS_LLM"
