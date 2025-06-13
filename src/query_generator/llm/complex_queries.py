@@ -55,8 +55,11 @@ def get_random_prompt(
 
 
 def extract_sql(llm_text: str) -> str:
-  _, _, tail = llm_text.partition("</think>")
-  m = re.search(r"```sql\s*(.*?)\s*```", tail, re.DOTALL | re.IGNORECASE)
+  if '<think>' in llm_text:
+    _, _, text = llm_text.partition("</think>")
+  else:
+    text = llm_text
+  m = re.search(r"```sql\s*(.*?)\s*```", text, re.DOTALL | re.IGNORECASE)
   return m.group(1).strip() if m else ""
 
 
