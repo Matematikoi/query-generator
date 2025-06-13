@@ -23,6 +23,7 @@ class ComplexQueryGenerationParametersEndpoint:
   seed: int
   dataset: Dataset
   destination_folder: str
+  retry: int
 
 
 @dataclass

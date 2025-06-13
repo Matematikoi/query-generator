@@ -1,5 +1,6 @@
 import random
 import re
+from collections import defaultdict
 from pathlib import Path
 
 from duckdb import DuckDBPyConnection
@@ -10,19 +11,20 @@ from query_generator.duckdb_connection.setup import setup_duckdb
 from query_generator.utils.params import (
   ComplexQueryGenerationParametersEndpoint,
 )
-from collections import defaultdict
 
-LLM_Message = list[dict[str,str]]
+LLM_Message = list[dict[str, str]]
 
-def query_llm(client: Client, messages: LLM_Message, model: str) -> str:
+
+def query_llm(client: Client, messages: LLM_Message, model: str) -> None:
   """Send a single request to the LLM and return its response."""
-  response = client.chat(
-    model=model, messages=messages, stream=False
-  )
+  response = client.chat(model=model, messages=messages, stream=False)
   response_str = response.message.content
   if not response_str:
-    return ""
-  return response_str
+    messages.append(
+      {"role": "assistant", "content": "I can't help you with that"}
+    )
+  else:
+    messages.append({"role": "assistant", "content": response_str})
 
 
 def get_random_queries(
@@ -35,19 +37,22 @@ def get_random_queries(
 
 def get_random_prompt(
   params: ComplexQueryGenerationParametersEndpoint, query: str
-) -> tuple[str, str]:
+) -> tuple[str, LLM_Message]:
   extension_types = list(params.llm_prompts.keys())
   weights = [params.llm_prompts[e].weight for e in extension_types]
   extension_type = random.choices(extension_types, weights=weights)[0]
 
-  return extension_type, [{
-    "role":"system",
-    "content": params.llm_base_prompt
-  },
-    {"role": "user", "content": f"""
+  return extension_type, [
+    {"role": "system", "content": params.llm_base_prompt},
+    {
+      "role": "user",
+      "content": f"""
 
   {params.llm_prompts[extension_type].prompt}
-  {query}"""}]
+  {query}""",
+    },
+  ]
+
 
 def extract_sql(llm_text: str) -> str:
   _, _, tail = llm_text.partition("</think>")
@@ -55,13 +60,29 @@ def extract_sql(llm_text: str) -> str:
   return m.group(1).strip() if m else ""
 
 
-def validate_query_duckdb(con: DuckDBPyConnection, query: str) -> bool:
+def validate_query_duckdb(
+  con: DuckDBPyConnection, query: str
+) -> tuple[bool, Exception]:
   try:
     con.sql(query).fetchone()
-  except Exception:
-    return False
+  except Exception as e:
+    return False, e
   else:
-    return True
+    return True, Exception("no exception found")
+
+
+def add_retry_query_to_messages(
+  messages: LLM_Message, exception: Exception
+) -> None:
+  messages.append(
+    {
+      "role": "user",
+      "content": f"""
+      Fix this error with the query you provided:
+      {str(exception)}
+    """,
+    }
+  )
 
 
 def create_complex_queries(
@@ -71,16 +92,29 @@ def create_complex_queries(
   random.seed(params.seed)
   con = setup_duckdb(params.dataset, 0)
   destination_path = Path(params.destination_folder)
-  query_counter: dict[str,int] = defaultdict(int)
+  query_counter: dict[str, int] = defaultdict(int)
   for query in tqdm(get_random_queries(params)):
-    extension_type, prompt = get_random_prompt(params, query)
-    llm_response = query_llm(llm_client, prompt, params.llm_model)
-    llm_extracted_query = extract_sql(llm_response)
-    valid_query = validate_query_duckdb(con, llm_extracted_query)
+    retries = 0
+    valid_query = False
+    duckdb_exception = Exception("no query was found")
+    while retries <= params.retry and not valid_query:
+      if retries == 0:
+        extension_type, messages = get_random_prompt(params, query)
+      else:
+        add_retry_query_to_messages(messages, duckdb_exception)
+      query_llm(llm_client, messages, params.llm_model)
+      llm_extracted_query = extract_sql(messages[-1]["content"])
+      valid_query, duckdb_exception = validate_query_duckdb(
+        con, llm_extracted_query
+      )
+      retries += 1
 
     if valid_query:
       query_counter[extension_type] = 1 + query_counter[extension_type]
-      new_path = destination_path/ extension_type/ f"{query_counter[extension_type]}.sql"
+      new_path = (
+        destination_path
+        / extension_type
+        / f"{query_counter[extension_type]}.sql"
+      )
       new_path.parent.mkdir(parents=True, exist_ok=True)
       new_path.write_text(llm_extracted_query)
-    

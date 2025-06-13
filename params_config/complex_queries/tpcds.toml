@@ -1,4 +1,5 @@
 llm = false
+retry = 2
 llm_model = "deepseek-r1:70b"
 llm_base_prompt = """
     You are a database expert. And you are writing \
