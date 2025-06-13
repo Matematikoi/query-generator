@@ -12,12 +12,12 @@ from query_generator.utils.params import (
 )
 from collections import defaultdict
 
+LLM_Message = list[dict[str,str]]
 
-
-def query_llm(client: Client, prompt: str, model: str) -> str:
+def query_llm(client: Client, messages: LLM_Message, model: str) -> str:
   """Send a single request to the LLM and return its response."""
   response = client.chat(
-    model=model, messages=[{"role": "user", "content": prompt}], stream=False
+    model=model, messages=messages, stream=False
   )
   response_str = response.message.content
   if not response_str:
@@ -40,15 +40,14 @@ def get_random_prompt(
   weights = [params.llm_prompts[e].weight for e in extension_types]
   extension_type = random.choices(extension_types, weights=weights)[0]
 
-  return (
-    extension_type,
-    f"""
-  {params.llm_base_prompt}
-  {params.llm_prompts[extension_type].prompt}
-  {query}
-  """,
-  )
+  return extension_type, [{
+    "role":"system",
+    "content": params.llm_base_prompt
+  },
+    {"role": "user", "content": f"""
 
+  {params.llm_prompts[extension_type].prompt}
+  {query}"""}]
 
 def extract_sql(llm_text: str) -> str:
   _, _, tail = llm_text.partition("</think>")
