@@ -29,6 +29,7 @@ from query_generator.tools.histograms import (
   make_redundant_histograms,
   query_histograms,
 )
+from query_generator.tools.union_queries import union_queries
 from query_generator.utils.definitions import (
   Dataset,
   Extension,
@@ -395,6 +396,41 @@ def add_complex_queries(
     Path(config_file), ComplexQueryGenerationParametersEndpoint
   )
   create_complex_queries(params)
+
+
+@app.command("union-queries")
+def union_queries_endpoint(
+  csv_path: Annotated[
+    str,
+    typer.Option(
+      "--csv",
+      "-c",
+      help="The path to the csv file with queries to union",
+    ),
+  ],
+  destination: Annotated[
+    str,
+    typer.Option(
+      "--destination",
+      "-d",
+      help="The path to the destination folder for union queries",
+    ),
+  ],
+  max_queries: Annotated[
+    int,
+    typer.Option(
+      "--max-queries",
+      "-m",
+      help="The maximum number of queries to union",
+      min=1,
+    ),
+  ] = 5,
+) -> None:
+  union_queries(
+    Path(csv_path),
+    Path(destination),
+    max_queries,
+  )
 
 
 if __name__ == "__main__":

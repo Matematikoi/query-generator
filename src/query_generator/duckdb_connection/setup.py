@@ -61,7 +61,7 @@ def setup_duckdb(
   db_path = get_path(dataset, scale_factor)
   if os.path.exists(db_path):
     print(f"Database {db_path} already exists")
-    return duckdb.connect(db_path, read_only = True)
+    return duckdb.connect(db_path, read_only=True)
 
   if scale_factor is None:
     # scale factor can only be ommited for JOB dataset
