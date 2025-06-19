@@ -29,10 +29,13 @@ def query_llm(client: Client, messages: LLM_Message, model: str) -> None:
 
 def get_random_queries(
   params: ComplexQueryGenerationParametersEndpoint,
-) -> list[str]:
+) -> list[tuple[str, Path]]:
   sql_files = list(Path(params.queries_path).rglob("*.sql"))
   random_query_paths = random.sample(sql_files, params.total_queries)
-  return [p.read_text() for p in random_query_paths]
+  return [
+    (p.read_text(), p.relative_to(params.queries_path))
+    for p in random_query_paths
+  ]
 
 
 def get_random_prompt(
@@ -96,7 +99,8 @@ def create_complex_queries(
   con = setup_duckdb(params.dataset, 0)
   destination_path = Path(params.destination_folder)
   query_counter: dict[str, int] = defaultdict(int)
-  for query in tqdm(get_random_queries(params)):
+  rows: list[dict[str, str]] = []
+  for query, original_path in tqdm(get_random_queries(params)):
     retries = 0
     valid_query = False
     duckdb_exception = Exception("no query was found")
@@ -121,3 +125,11 @@ def create_complex_queries(
       )
       new_path.parent.mkdir(parents=True, exist_ok=True)
       new_path.write_text(llm_extracted_query)
+      rows.append(
+        {
+          "extension_type": extension_type,
+          "retries": str(retries),
+          "original_path": str(original_path),
+          "new_path": str(new_path.relative_to(destination_path)),
+        }
+      )

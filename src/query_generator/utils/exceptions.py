@@ -69,3 +69,8 @@ class InvalidHistogramTypeError(Exception):
     super().__init__(
       f"Unsupported type {type} for histogram. Please check the histogram data."
     )
+
+
+class InvalidQueryError(Exception):
+  def __init__(self, query: str) -> None:
+    super().__init__(f"Invalid query: {query}. Please check the query syntax.")
