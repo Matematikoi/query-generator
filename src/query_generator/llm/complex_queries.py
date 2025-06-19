@@ -3,6 +3,7 @@ import re
 from collections import defaultdict
 from pathlib import Path
 
+import polars as pl
 from duckdb import DuckDBPyConnection
 from ollama import Client
 from tqdm import tqdm
@@ -133,3 +134,5 @@ def create_complex_queries(
           "new_path": str(new_path.relative_to(destination_path)),
         }
       )
+  new_queries_df = pl.DataFrame(rows)
+  new_queries_df.write_csv(destination_path / "complex_queries.csv")
