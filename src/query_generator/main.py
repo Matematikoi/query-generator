@@ -15,6 +15,7 @@ from query_generator.join_based_query_generator.utils.query_writer import (
   write_parquet,
   write_redundant_histogram_csv,
 )
+from query_generator.llm.complex_queries import create_complex_queries
 from query_generator.tools.cherry_pick_binning import (
   CherryPickParameters,
   cherry_pick_binning,
@@ -28,12 +29,14 @@ from query_generator.tools.histograms import (
   make_redundant_histograms,
   query_histograms,
 )
+from query_generator.tools.union_queries import union_queries
 from query_generator.utils.definitions import (
   Dataset,
   Extension,
   QueryGenerationParameters,
 )
 from query_generator.utils.params import (
+  ComplexQueryGenerationParametersEndpoint,
   SearchParametersEndpoint,
   SnowflakeEndpoint,
   read_and_parse_toml,
@@ -372,6 +375,61 @@ def make_histograms(
   )
   write_redundant_histogram_csv(
     redundant_histogram_df, destination_path.parent / "regrouped_job_hist.csv"
+  )
+
+
+@app.command()
+def add_complex_queries(
+  config_file: Annotated[
+    str,
+    typer.Option(
+      "--config",
+      "-c",
+      help="The path to the configuration file with complex queries",
+    ),
+  ],
+) -> None:
+  """Add complex queries using LLM prompts.
+  The configuration file should be a TOML file with the
+  ComplexQueryGenerationParametersEndpoint structure."""
+  params = read_and_parse_toml(
+    Path(config_file), ComplexQueryGenerationParametersEndpoint
+  )
+  create_complex_queries(params)
+
+
+@app.command("union-queries")
+def union_queries_endpoint(
+  csv_path: Annotated[
+    str,
+    typer.Option(
+      "--csv",
+      "-c",
+      help="The path to the csv file with queries to union",
+    ),
+  ],
+  destination: Annotated[
+    str,
+    typer.Option(
+      "--destination",
+      "-d",
+      help="The path to the destination folder for union queries",
+    ),
+  ],
+  max_queries: Annotated[
+    int,
+    typer.Option(
+      "--max-queries",
+      "-m",
+      help="The maximum number of queries to union",
+      min=1,
+    ),
+  ] = 5,
+) -> None:
+  union_queries(
+    Path(csv_path),
+    Path(destination),
+    max_queries,
   )
 
 

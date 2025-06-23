@@ -2,7 +2,7 @@
 name = "query-generator"
 version = "0.2.0"
 requires-python = ">= 3.11"
-dependencies = []
+dependencies = ["ollama>=0.5.1,<0.6"]
 
 [project.optional-dependencies]
 test = ["pytest"]
@@ -102,7 +102,7 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 pythonpath = "."
-
+testpaths = [ "tests" ]
 
 [tool.ruff.lint.per-file-ignores]
 # Too many arguments
