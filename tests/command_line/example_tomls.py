@@ -9,7 +9,9 @@ from query_generator.utils.params import (
 base_path = Path(__file__).parent.parent
 
 
-@pytest.mark.parametrize("file_name", ["tpcds_dev.toml", "tpcds.toml"])
+@pytest.mark.parametrize(
+  "file_name", ["tpcds_dev.toml", "tpcds.toml", "job.toml", "job_dev.toml"]
+)
 def test_param_search(file_name):
   """
   Test that the example toml provided for the param-search
