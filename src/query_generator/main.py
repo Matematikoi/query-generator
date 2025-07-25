@@ -225,6 +225,11 @@ def filter_null(
     ),
   ],
 ) -> None:
+  """Filters null queries and formats for traces collection
+
+  Supports JOB and TPCDS separately since the trace collection
+  works different for the two of them.
+  """
   csv_path = Path(csv)
   destination_path = Path(destination)
   validate_file_path(csv_path)
