@@ -43,7 +43,17 @@ def test_snowflake(file_name):
   assert params is not None
 
 
-@pytest.mark.parametrize("file_name", ["tpcds_dev.toml", "tpcds.toml"])
+@pytest.mark.parametrize(
+  "file_name",
+  [
+    "tpcds_dev.toml",
+    "tpcds.toml",
+    "tpcds_devstral.toml",
+    "tpcds_gemma.toml",
+    "tpcds_llama4.toml",
+    "tpcds_qwen.toml",
+  ],
+)
 def test_add_complex_queries(file_name):
   file_path = base_path / f"params_config/complex_queries/{file_name}"
   params = read_and_parse_toml(
