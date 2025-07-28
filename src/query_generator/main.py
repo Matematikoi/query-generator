@@ -171,6 +171,8 @@ def cherry_pick(
   binning process. It randomly picks queries from the
   binning process and saves them in a folder.
   """
+  # TODO(Gabriel): https://chiselapp.com/user/matematikoi/repository/query-generation/tktview/19a06e6eab725f84b5c74a94fda4efb5e8d43dbc
+  # the input should be a toml file configuration file
   csv_path = (
     Path(
       f"data/generated_queries/{Extension.SNOWFLAKE_SEARCH_PARAMS.value}/{dataset.value}/{dataset.value}_batches.csv",
