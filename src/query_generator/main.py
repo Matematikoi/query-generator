@@ -112,13 +112,13 @@ def cherry_pick(
     Dataset,
     typer.Option("--dataset", "-d", help="The dataset used"),
   ],
-  csv: Annotated[
+  parquet: Annotated[
     str | None,
     typer.Option(
-      "--csv",
-      "-c",
-      help="The path to the batches csv",
-      show_default="data/generated_queries/BINNING_SNOWFLAKE/{dataset}/{dataset}_values.csv",
+      "--parquet",
+      "-p",
+      help="The path to the batches parquet",
+      show_default="data/generated_queries/BINNING_SNOWFLAKE/{dataset}/{dataset}_values.parquet",
     ),
   ] = None,
   queries_per_bin: Annotated[
@@ -173,12 +173,12 @@ def cherry_pick(
   """
   # TODO(Gabriel): https://chiselapp.com/user/matematikoi/repository/query-generation/tktview/19a06e6eab725f84b5c74a94fda4efb5e8d43dbc
   # the input should be a toml file configuration file
-  csv_path = (
+  parquet_path = (
     Path(
-      f"data/generated_queries/{Extension.SNOWFLAKE_SEARCH_PARAMS.value}/{dataset.value}/{dataset.value}_batches.csv",
+      f"data/generated_queries/{Extension.SNOWFLAKE_SEARCH_PARAMS.value}/{dataset.value}/{dataset.value}_batches.parquet",
     )
-    if csv is None
-    else Path(csv)
+    if parquet is None
+    else Path(parquet)
   )
   destination_folder_path = (
     Path(
@@ -187,10 +187,10 @@ def cherry_pick(
     if destination_folder is None
     else Path(destination_folder)
   )
-  validate_file_path(csv_path)
+  validate_file_path(parquet_path)
   cherry_pick_binning(
     CherryPickParameters(
-      csv_path=csv_path,
+      parquet_path=parquet_path,
       queries_per_bin=queries_per_bin,
       upper_bound=upper_bound,
       total_bins=total_bins,
@@ -242,7 +242,7 @@ def filter_null(
     )
   else:
     filter_null_and_format_tpcds(
-      csv_path=csv_path,
+      parquet_path=csv_path,
       destination_path=destination_path,
     )
 

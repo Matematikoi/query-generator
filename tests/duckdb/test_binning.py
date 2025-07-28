@@ -9,7 +9,7 @@ from query_generator.duckdb_connection.binning import (
   SearchParameters,
   run_snowflake_param_search,
 )
-from query_generator.tools.cherry_pick_binning import make_bins_in_csv
+from query_generator.tools.cherry_pick_binning import make_bins
 from query_generator.utils.params import SearchParametersEndpoint
 
 
@@ -31,7 +31,7 @@ from query_generator.utils.params import SearchParametersEndpoint
 def test_make_bins_in_csv(count_star, upper_bound, total_bins, expected_bin):
   # Create a DataFrame with a single value
   test_df = pl.DataFrame({"count_star": [count_star]})
-  result_df = make_bins_in_csv(test_df, upper_bound, total_bins)
+  result_df = make_bins(test_df, upper_bound, total_bins)
 
   # Extract the computed bin
   computed_bin = result_df["bin"][0]

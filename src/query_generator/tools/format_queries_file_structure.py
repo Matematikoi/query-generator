@@ -50,6 +50,6 @@ def format_queries_file_structure(
       pl.col("original_name").cast(pl.Utf8),
       pl.col("new_name").cast(pl.Utf8),
     ]
-  ).write_csv(str(dst_folder_path / "mapping.csv"))
+  ).write_parquet(str(dst_folder_path / "mapping.parquet"))
   query_dict_path = dst_folder_path / "queries.json"
   query_dict_path.write_text(json.dumps(query_dict, indent=2))
