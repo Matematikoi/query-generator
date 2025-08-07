@@ -50,6 +50,8 @@ class Writer:
     self.extension = extension
     self.dataset = dataset
 
+  # TODO(Gabriel): https://chiselapp.com/user/matematikoi/repository/query-generation/tktview/8dd46fc66a
+  # this should be a pathlib
   def write_query(self, query: GeneratedQueryFeatures) -> None:
     """Write the generated queries to a file.
 
@@ -67,6 +69,7 @@ class Writer:
     file_name = f"{query.template_number}_{query.predicate_number}.sql"
     with open(os.path.join(folder, file_name), "w") as f:
       f.write(query.query)
+      print("Query written to:", os.path.join(folder, file_name))
 
   def get_binning_folder(self) -> Path:
     path = Path(
@@ -93,8 +96,8 @@ class Writer:
 
   def write_dataframe(self, input_dataframe: pl.DataFrame) -> None:
     folder = self.get_binning_folder()
-    path = f"{folder}/{self.dataset.value}_batches.csv"
-    input_dataframe.write_csv(path)
+    path = f"{folder}/{self.dataset.value}_batches.parquet"
+    input_dataframe.write_parquet(path)
 
   def write_toml(self, input_toml: str) -> None:
     folder = self.get_binning_folder()

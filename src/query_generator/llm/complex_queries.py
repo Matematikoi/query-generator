@@ -135,4 +135,4 @@ def create_complex_queries(
         }
       )
   new_queries_df = pl.DataFrame(rows)
-  new_queries_df.write_csv(destination_path / "complex_queries.csv")
+  new_queries_df.write_parquet(destination_path / "complex_queries.parquet")
