@@ -56,6 +56,22 @@ Param search works by running multiple parameters of the
 to running multiple `snowflake` with different parameters and
 running and saving the results with a database.
 
+A simple example of the code would be:
+
+```bash
+pixi run main param-search -c params_config/search_params/tpcds_dev.toml
+```
+
+This example does the following:
+1. Creates the TPC-DS database in a small scale factor (0.1)
+1. Creates a SQL synthetic snowflake workload but validating
+the output with the database created.
+1. Saves the queries into `data/generated_queries/SNOWFLAKE_SEARCH_PARAMS/TPCDS`
+1. Saves the parquet with the information from duckdb run in 
+`data/generated_queries/SNOWFLAKE_SEARCH_PARAMS/TPCDS/TPCDS_batches.parquet`
+1. Saves the toml used to run the output in 
+`data/generated_queries/SNOWFLAKE_SEARCH_PARAMS/TPCDS/parameters.toml`
+
 ~~~pikchr
 S: circle "Start" fit
 arrow
@@ -115,8 +131,9 @@ arrow  from PARQUET.s  to F1.n
 line  to PARQUET.s  from F1.n "input" aligned "for filter" aligned
 ~~~
 
-Using Cherry-pick there is first a stage of running the queries with `search-params`
-and then we use the cardinalities of the answer set to sample from equi-width
+Using Cherry-pick there is first a stage of running the queries 
+with `search-params`and then we use the cardinalities of the answer 
+set to sample from equi-width
 bins.
 
 
@@ -163,7 +180,8 @@ line  to PARQUET.s  from F1.n "input" aligned "for filter" aligned
 Once we have a set of queries we want to augment using LLMs we can use
 the LLM endpoint `add-complex-queries`.
 
-For a more in detail description [see the LLM wiki](/wiki?name=LLM%20augmentation)
+For a more in detail description 
+[see the LLM wiki](/wiki?name=LLM%20augmentation)
 
 ~~~pikchr
 S: circle "Start" fit
