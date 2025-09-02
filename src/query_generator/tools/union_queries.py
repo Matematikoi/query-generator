@@ -56,6 +56,7 @@ def union_queries(
   set_seed()
   df_input = pl.read_parquet(parquet_path)
   cnt = 0
+  rows = []
   for _, df_signature in df_input.group_by(
     "subgraph_signature", maintain_order=True
   ):
@@ -67,7 +68,7 @@ def union_queries(
     if len(queries_paths) < MINIMUM_QUERIES_TO_UNION:
       continue
 
-    sampled_query_paths = random.sample(
+    sampled_query_paths: list[Path] = random.sample(
       queries_paths,
       k=random.randint(
         MINIMUM_QUERIES_TO_UNION, min(max_queries, len(queries_paths))
@@ -78,3 +79,21 @@ def union_queries(
     new_query_path.parent.mkdir(parents=True, exist_ok=True)
     new_query_path.write_text(new_query)
     cnt += 1
+    rows.append(
+      {
+        "relative_path": str(new_query_path.relative_to(destination_path)),
+        "used_queries": [
+          str(query.relative_to(parquet_path.parent))
+          for query in sampled_query_paths
+        ],
+      }
+    )
+  df_output = pl.from_dicts(
+    rows,
+    schema={
+      "relative_path": pl.Utf8,
+      "used_queries": pl.List(pl.Utf8),
+    },
+  )
+  df_output_path = destination_path / "union_description.parquet"
+  df_output.write_parquet(df_output_path)
