@@ -53,6 +53,9 @@ def cherry_pick_binning(
         / f"bin_{bin}"
         / f"{relative_path[0].replace('/', '_')}"
       )
+      # TODO(Gabriel): https://3.basecamp.com/6011347/buckets/43334967/card_tables/cards/9022731546
+      # This should have "relative_path" as the most recent path
+
       old_path = params.parquet_path.parent / relative_path[0]
       new_path.parent.mkdir(parents=True, exist_ok=True)
       new_path.write_text(old_path.read_text())
