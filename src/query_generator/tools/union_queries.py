@@ -17,15 +17,37 @@ def get_select_list(query: str) -> str:
   return match.group(1)
 
 
+def get_list_of_columns(select_list: str) -> list[str]:
+  result = list(re.findall(r"COUNT\(([^*)]+)\)", select_list))
+  if len(result) < MINIMUM_QUERIES_TO_UNION:
+    raise InvalidQueryError(select_list)
+  return result
+
+
+def rename_select_list(columns: list[str]) -> str:
+  return ",".join([f"{col} AS column_{cnt}" for cnt, col in enumerate(columns)])
+
+
+def get_count_select_list(size: int) -> str:
+  return ",".join(["COUNT(*)"] + [f"COUNT(column_{i})" for i in range(size)])
+
+
 def get_new_query(sampled_query_paths: list[Path]) -> str:
   """Generate a new query by combining sampled queries."""
   queries = [path.read_text() for path in sampled_query_paths]
   base_select_list = get_select_list(queries[0])
+  columns = get_list_of_columns(base_select_list)
+  new_select_list = rename_select_list(columns)
   new_queries = [
-    re.sub(r"SELECT (.*) FROM", f"SELECT {base_select_list} FROM", query)
+    re.sub(r"SELECT (.*) FROM", f"SELECT {new_select_list} FROM", query)
     for query in queries
   ]
-  return " UNION ALL ".join(new_queries)
+  return f"""\
+WITH union_queries AS (\
+{" UNION ".join([f"({q})" for q in new_queries])}\
+) \
+SELECT {get_count_select_list(len(columns))} FROM union_queries
+"""
 
 
 def union_queries(

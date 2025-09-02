@@ -1,4 +1,8 @@
-from query_generator.tools.union_queries import get_select_list
+from query_generator.tools.union_queries import (
+  get_list_of_columns,
+  get_select_list,
+  rename_select_list,
+)
 
 
 def test_get_select_list():
@@ -17,3 +21,33 @@ def test_get_select_list():
   )
   print(query)
   assert get_select_list(query) == expected
+
+
+def test_get_list_of_columns():
+  select_list = (
+    "COUNT(*),COUNT(t.t_minute),COUNT(wp.wp_link_count),"
+    "COUNT(c.c_birth_day),COUNT(wr.wr_net_loss)"
+  )
+  expected = [
+    "t.t_minute",
+    "wp.wp_link_count",
+    "c.c_birth_day",
+    "wr.wr_net_loss",
+  ]
+  assert get_list_of_columns(select_list) == expected
+
+
+def test_rename_select_list():
+  columns = [
+    "t.t_minute",
+    "wp.wp_link_count",
+    "c.c_birth_day",
+    "wr.wr_net_loss",
+  ]
+  expected = (
+    "t.t_minute AS column_0,wp.wp_link_count AS column_1,"
+    "c.c_birth_day AS column_2,wr.wr_net_loss AS column_3"
+  )
+  print(expected)
+  print(rename_select_list(columns))
+  assert rename_select_list(columns) == expected
