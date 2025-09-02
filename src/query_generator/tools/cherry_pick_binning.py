@@ -65,11 +65,13 @@ def cherry_pick_binning(
   )
 
 
+# TODO(Gabriel): https://3.basecamp.com/6011347/buckets/43334967/card_tables/cards/9022731546
+# deprecate this formatting for JOB.
 def filter_null_and_format_job(
-  csv_path: Path,
+  parquet_path: Path,
   destination_path: Path,
 ) -> None:
-  count_star_df = pl.read_parquet(csv_path).filter(pl.col("count_star") > 0)
+  count_star_df = pl.read_parquet(parquet_path).filter(pl.col("count_star") > 0)
   unique_joins_df = count_star_df.unique("subgraph_signature")
   query_dict: dict[int, str] = {}
   cnt = 0
@@ -80,7 +82,7 @@ def filter_null_and_format_job(
     for query_row in unique_join_df.sort("relative_path").iter_rows(named=True):
       cnt += 1
       new_path = destination_path / f"snowflake_{cnt}.sql"
-      old_path = csv_path.parent / query_row["relative_path"]
+      old_path = parquet_path.parent / query_row["relative_path"]
       query_dict[cnt] = old_path.read_text()
       new_path.parent.mkdir(parents=True, exist_ok=True)
       new_path.write_text(old_path.read_text())

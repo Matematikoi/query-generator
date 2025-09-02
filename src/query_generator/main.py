@@ -202,12 +202,12 @@ def cherry_pick(
 
 @app.command()
 def filter_null(
-  csv: Annotated[
+  parquet_path_str: Annotated[
     str,
     typer.Option(
-      "--csv",
-      "-c",
-      help="The path to the csv file with queries",
+      "--parquet",
+      "-p",
+      help="The path to the parquet file with queries",
     ),
   ],
   dataset: Annotated[
@@ -232,17 +232,17 @@ def filter_null(
   Supports JOB and TPCDS separately since the trace collection
   works different for the two of them.
   """
-  csv_path = Path(csv)
+  parquet_path = Path(parquet_path_str)
   destination_path = Path(destination)
-  validate_file_path(csv_path)
+  validate_file_path(parquet_path)
   if dataset == Dataset.JOB:
     filter_null_and_format_job(
-      csv_path=csv_path,
+      parquet_path=parquet_path,
       destination_path=destination_path,
     )
   else:
     filter_null_and_format_tpcds(
-      parquet_path=csv_path,
+      parquet_path=parquet_path,
       destination_path=destination_path,
     )
 
@@ -407,12 +407,12 @@ def add_complex_queries(
 
 @app.command("union-queries")
 def union_queries_endpoint(
-  csv_path: Annotated[
+  parquet_path: Annotated[
     str,
     typer.Option(
-      "--csv",
-      "-c",
-      help="The path to the csv file with queries to union",
+      "--parquet",
+      "-p",
+      help="The path to the parquet file with queries to union",
     ),
   ],
   destination: Annotated[
@@ -434,7 +434,7 @@ def union_queries_endpoint(
   ] = 5,
 ) -> None:
   union_queries(
-    Path(csv_path),
+    Path(parquet_path),
     Path(destination),
     max_queries,
   )

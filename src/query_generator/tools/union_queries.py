@@ -23,10 +23,10 @@ def get_new_query(sampled_query_paths: list[Path]) -> str:
 
 
 def union_queries(
-  csv_path: Path, destination_path: Path, max_queries: int
+  parquet_path: Path, destination_path: Path, max_queries: int
 ) -> None:
   set_seed()
-  path_to_dirs = csv_path.parent
+  path_to_dirs = parquet_path.parent
   cnt = 0
   for dir in path_to_dirs.iterdir():
     if dir.is_dir():
