@@ -17,7 +17,30 @@ from query_generator.utils.definitions import (
 
 @dataclass
 class ComplexQueryGenerationParametersEndpoint:
-  """Basic Docstring"""
+  """Uses an LLM to generate complex queries based on synthetic queries.
+
+  Attributes:
+  - llm_base_prompt (str): The base prompt to use for the LLM.
+  - llm_model (str): The model to use for the LLM from ollama.
+  - queries_path (str): The path to the synthetic queries files.
+  - total_queries (int): The total number of queries to generate.
+  - seed (int): The seed to use for random operations.
+  - dataset (Dataset): The dataset to use for query generation.
+  - destination_folder (str): The folder to save the generated queries.
+  - retry (int): The number of times to retry generating a query if it fails.
+  - llm_prompts (dict[str, ComplexQueryLLMPrompt]): A dictionary of
+      additional prompts to use for the LLM.
+      This dictionary maps any operations e.g. `group_by` to a prompt
+      configuration. You need to specify two attributes for each prompt,
+      a `prompt` that will be used and a `weight` that defines the
+      probability of using that prompt.
+      The weights do not need to sum up to 1, they will be normalized
+      automatically.
+      The higher the weight, the more likely the prompt will be used.
+
+  examples of toml files can be found in:
+  `params_config/complex_queries/*toml`
+  """
 
   llm_base_prompt: str
   llm_model: str
@@ -41,7 +64,7 @@ class SearchParametersEndpoint:
 
   Attributes:
   - dataset (Dataset): The dataset to be queried.
-    dev (bool): Flag indicating whether to use development settings.
+  - dev (bool): Flag indicating whether to use development settings.
   - max_queries_per_fact_table (int): Maximum number of queries per fact
       table.
   - max_queries_per_signature (int): Maximum number of queries per
@@ -126,40 +149,15 @@ def no_rewrap(s: str) -> str:
   return "\b\n" + s.replace("\n\n", "\n\n\b\n")
 
 
-def _toml_literal(literal: Any) -> str:
-  if isinstance(literal, bool):
-    return "true" if literal else "false"
-  if isinstance(literal, (int | float)):
-    return str(literal)
-  # strings / placeholders
-  return f'"{literal}"'
-
-
-def md_hard_breaks(s: str) -> str:
-  # add two spaces at EOL for every single newline (but keep blank lines)
+def markdown_hard_breaks(s: str) -> str:
+  """add two spaces at EOL for every single newline"""
   return re.sub(r"(?<!\n)\n(?!\n)", "  \n", s)
 
 
-def _placeholder(name: str, type: Any) -> str:
-  # reasonable TOML placeholders by type
-  try:
-    if type is int:
-      return "0"
-    if type is float:
-      return "0.0"
-    if type is bool:
-      return "true"
-    if type is str:
-      return f'"/path/to/{name}"' if "path" in name else f'"<{name}>"'
-  except Exception:
-    pass
-  return f'"<{name}>"'
-
-
 def build_help_from_dataclass(cls: Any) -> str:
-  doc = md_hard_breaks(inspect.getdoc(cls) or "")
+  doc = markdown_hard_breaks(inspect.getdoc(cls) or "")
   hints = get_type_hints(cls)
-  lines = [doc, "", "TOML keys:"]
+  lines = [doc, "", "Parameters summary:"]
   for field in fields(cls):
     type = hints.get(field.name, field.type)
     type_name = getattr(type, "__name__", str(type))
@@ -167,19 +165,6 @@ def build_help_from_dataclass(cls: Any) -> str:
       lines.append(f"- {field.name} ({type_name}, required)")
     else:
       lines.append(f"- {field.name} ({type_name}, default={field.default})")
-
-  # Example TOML block
-  ex_lines = []
-  for field in fields(cls):
-    type = hints.get(field.name, field.type)
-    if field.default is MISSING:
-      ex_val = _placeholder(field.name, type)
-    else:
-      ex_val = _toml_literal(field.default)
-    ex_lines.append(f"{field.name} = {ex_val}")
-
-  example = "```toml\n# Example\n" + "\n".join(ex_lines) + "\n```"
-  lines += ["", "Example config:", example]
   return no_rewrap("\n".join(lines))
 
 
