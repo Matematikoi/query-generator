@@ -11,11 +11,12 @@ from query_generator.utils.definitions import (
   PredicateOperatorProbability,
   PredicateParameters,
 )
+from query_generator.utils.toml_examples import TOML_EXAMPLE
 
 
 @dataclass
 class ComplexQueryGenerationParametersEndpoint:
-  """Uses an LLM to generate complex queries based on synthetic queries.
+  __doc__ = f"""Uses LLM to generate complex queries based on synthetic queries.
 
   Attributes:
   - llm_base_prompt (str): The base prompt to use for the LLM.
@@ -38,6 +39,11 @@ class ComplexQueryGenerationParametersEndpoint:
 
   examples of toml files can be found in:
   `params_config/complex_queries/*toml`
+
+  Example:
+  ```toml
+  {TOML_EXAMPLE["llm_augmentation"]}
+  ```
   """
 
   llm_base_prompt: str
@@ -103,7 +109,7 @@ class SearchParametersEndpoint:
 
 @dataclass
 class SnowflakeEndpoint:
-  """
+  __doc__ = f"""
   Represents the parameters used for configuring query generation,
   including query builder, subgraph, and predicate options.
 
@@ -127,6 +133,11 @@ class SnowflakeEndpoint:
 
   Examples of toml files can be found in:
   `params_config/snowflake/*toml`
+
+  Example TOML
+  ```toml
+  {TOML_EXAMPLE["snowflake"]}
+  ```
   """
 
   # Query builder
