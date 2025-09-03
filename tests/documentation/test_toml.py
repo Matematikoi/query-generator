@@ -3,6 +3,7 @@ import tomllib
 from cattrs import structure
 from query_generator.utils.params import (
   ComplexQueryGenerationParametersEndpoint,
+  SearchParametersEndpoint,
   SnowflakeEndpoint,
   read_and_parse_toml,
 )
@@ -14,6 +15,7 @@ def test_toml():
   mapping = {
     "llm_augmentation": ComplexQueryGenerationParametersEndpoint,
     "snowflake": SnowflakeEndpoint,
+    "synthetic_generation": SearchParametersEndpoint,
   }
   for key, toml_raw in TOML_EXAMPLE.items():
     toml_dict = tomllib.loads(toml_raw)

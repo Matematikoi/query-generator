@@ -59,7 +59,7 @@ class ComplexQueryGenerationParametersEndpoint:
 
 @dataclass
 class SearchParametersEndpoint:
-  """
+  __doc__ = f"""
   Represents the parameters used for configuring search queries, including
   query builder, subgraph, and predicate options.
 
@@ -88,6 +88,11 @@ class SearchParametersEndpoint:
 
   Examples of toml files can be found in:
   `params_config/search_params/*toml`
+
+  Example:
+  ```toml
+  {TOML_EXAMPLE["synthetic_generation"]}
+  ```
   """
 
   # Query Builder
