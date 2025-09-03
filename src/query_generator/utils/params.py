@@ -81,6 +81,9 @@ class SearchParametersEndpoint:
       distribution for predicate operators.
   - equality_lower_bound_probability (float): Lower bound probability when
       using the `=` and the `IN` operators
+
+  Examples of toml files can be found in:
+  `params_config/search_params/*toml`
   """
 
   # Query Builder
@@ -108,6 +111,7 @@ class SnowflakeEndpoint:
 
   Attributes:
   - dataset (Dataset): The dataset to be used for query generation.
+    The currently supported datasets are TPC-H, TPC-DS, and JOB.
   - max_queries_per_signature (int): Maximum number of queries to generate
       per signature.
   - max_queries_per_fact_table (int): Maximum number of queries to generate
@@ -122,6 +126,9 @@ class SnowflakeEndpoint:
       distribution for predicate operators.
   - equality_lower_bound_probability (float): Probability of using a lower
       bound for equality predicates.
+
+  Examples of toml files can be found in:
+  `params_config/snowflake/*toml`
   """
 
   # Query builder
