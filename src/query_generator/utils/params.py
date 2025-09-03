@@ -1,9 +1,7 @@
-import inspect
-import re
 import tomllib
-from dataclasses import MISSING, dataclass, fields
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, TypeVar, get_type_hints
+from typing import TypeVar
 
 from cattrs import structure
 
@@ -148,31 +146,6 @@ class CherryPickBase:
   upper_bound: int
   total_bins: int
   seed: int = 42
-
-
-def no_rewrap(s: str) -> str:
-  # Preserve formatting for all paragraphs
-  s = s.strip()
-  return "\b\n" + s.replace("\n\n", "\n\n\b\n")
-
-
-def markdown_hard_breaks(s: str) -> str:
-  """add two spaces at EOL for every single newline"""
-  return re.sub(r"(?<!\n)\n(?!\n)", "  \n", s)
-
-
-def build_help_from_dataclass(cls: Any) -> str:
-  doc = markdown_hard_breaks(inspect.getdoc(cls) or "")
-  hints = get_type_hints(cls)
-  lines = [doc, "", "Parameters summary:"]
-  for field in fields(cls):
-    type = hints.get(field.name, field.type)
-    type_name = getattr(type, "__name__", str(type))
-    if field.default is MISSING:
-      lines.append(f"- {field.name} ({type_name}, required)")
-    else:
-      lines.append(f"- {field.name} ({type_name}, default={field.default})")
-  return no_rewrap("\n".join(lines))
 
 
 T = TypeVar("T")

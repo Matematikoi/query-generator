@@ -39,11 +39,13 @@ from query_generator.utils.params import (
   ComplexQueryGenerationParametersEndpoint,
   SearchParametersEndpoint,
   SnowflakeEndpoint,
-  build_help_from_dataclass,
   read_and_parse_toml,
 )
 from query_generator.utils.show_messages import show_dev_warning
-from query_generator.utils.utils import validate_file_path
+from query_generator.utils.utils import (
+  build_help_from_dataclass,
+  validate_file_path,
+)
 
 app = typer.Typer(name="Query Generation", rich_markup_mode="markdown")
 
