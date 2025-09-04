@@ -268,7 +268,9 @@ def make_histograms(
   )
 
 
-@app.command(help=build_help_from_dataclass(LLMExtensionEndpoint))
+@app.command(
+  "llm-extension", help=build_help_from_dataclass(LLMExtensionEndpoint)
+)
 def llm_extension_endpoint(
   config_file: Annotated[
     str,

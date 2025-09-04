@@ -30,11 +30,11 @@ def query_llm(client: Client, messages: LLM_Message, model: str) -> None:
 
 def get_random_queries(
   params: LLMExtensionEndpoint,
-) -> list[tuple[str, Path]]:
+) -> list[tuple[str, str]]:
   sql_files = list(Path(params.queries_path).rglob("*.sql"))
   random_query_paths = random.sample(sql_files, params.total_queries)
   return [
-    (p.read_text(), p.relative_to(params.queries_path))
+    (p.read_text(), str(p.relative_to(params.queries_path)))
     for p in random_query_paths
   ]
 
@@ -127,7 +127,7 @@ def llm_extension(
         {
           "extension_type": extension_type,
           "retries": str(retries),
-          "original_path": str(original_path),
+          "original_path": (original_path),
           "new_path": str(new_path.relative_to(destination_path)),
         }
       )
@@ -138,7 +138,7 @@ def llm_extension(
         {
           "extension_type": extension_type,
           "retries": str(retries),
-          "original_path": str(original_path),
+          "original_path": (original_path),
           "valid_query": valid_query,
           "last_duckdb_exception": str(duckdb_exception)
           if not valid_query
