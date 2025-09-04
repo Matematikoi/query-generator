@@ -17,7 +17,7 @@ from query_generator.utils.toml_examples import TOML_EXAMPLE
 
 
 @dataclass
-class ComplexQueryGenerationParametersEndpoint:
+class LLMExtensionEndpoint:
   __doc__ = f"""Uses LLM to generate complex queries based on synthetic queries.
 
   Attributes:

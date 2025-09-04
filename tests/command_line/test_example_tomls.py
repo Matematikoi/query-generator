@@ -2,7 +2,7 @@ from pathlib import Path
 import pytest
 
 from query_generator.utils.params import (
-  ComplexQueryGenerationParametersEndpoint,
+  LLMExtensionEndpoint,
   SearchParametersEndpoint,
   SnowflakeEndpoint,
   read_and_parse_toml,
@@ -58,6 +58,6 @@ def test_add_complex_queries(file_name):
   file_path = base_path / f"params_config/complex_queries/{file_name}"
   params = read_and_parse_toml(
     Path(file_path),
-    ComplexQueryGenerationParametersEndpoint,
+    LLMExtensionEndpoint,
   )
   assert params is not None

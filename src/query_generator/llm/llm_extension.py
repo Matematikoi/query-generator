@@ -1,6 +1,6 @@
+import json
 import random
 import re
-from collections import defaultdict
 from pathlib import Path
 
 import polars as pl
@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from query_generator.duckdb_connection.setup import setup_duckdb
 from query_generator.utils.params import (
-  ComplexQueryGenerationParametersEndpoint,
+  LLMExtensionEndpoint,
 )
 
 LLM_Message = list[dict[str, str]]
@@ -29,7 +29,7 @@ def query_llm(client: Client, messages: LLM_Message, model: str) -> None:
 
 
 def get_random_queries(
-  params: ComplexQueryGenerationParametersEndpoint,
+  params: LLMExtensionEndpoint,
 ) -> list[tuple[str, Path]]:
   sql_files = list(Path(params.queries_path).rglob("*.sql"))
   random_query_paths = random.sample(sql_files, params.total_queries)
@@ -40,7 +40,7 @@ def get_random_queries(
 
 
 def get_random_prompt(
-  params: ComplexQueryGenerationParametersEndpoint, query: str
+  params: LLMExtensionEndpoint, query: str
 ) -> tuple[str, LLM_Message]:
   extension_types = list(params.llm_prompts.keys())
   weights = [params.llm_prompts[e].weight for e in extension_types]
@@ -92,15 +92,15 @@ def add_retry_query_to_messages(
   )
 
 
-def create_complex_queries(
-  params: ComplexQueryGenerationParametersEndpoint,
+def llm_extension(
+  params: LLMExtensionEndpoint,
 ) -> None:
   llm_client = Client()
   random.seed(params.seed)
   con = setup_duckdb(params.dataset, 0)
   destination_path = Path(params.destination_folder)
-  query_counter: dict[str, int] = defaultdict(int)
   rows: list[dict[str, str]] = []
+  log_rows: list[dict[str, str | bool]] = []
   for query, original_path in tqdm(get_random_queries(params)):
     retries = 0
     valid_query = False
@@ -116,13 +116,10 @@ def create_complex_queries(
         con, llm_extracted_query
       )
       retries += 1
-
+    # Save query
     if valid_query:
-      query_counter[extension_type] = 1 + query_counter[extension_type]
       new_path = (
-        destination_path
-        / extension_type
-        / f"{query_counter[extension_type]}.sql"
+        destination_path / extension_type / f"{original_path.replace('/', '_')}"
       )
       new_path.parent.mkdir(parents=True, exist_ok=True)
       new_path.write_text(llm_extracted_query)
@@ -134,5 +131,22 @@ def create_complex_queries(
           "new_path": str(new_path.relative_to(destination_path)),
         }
       )
+
+    # Adds logs even if the query is not valid
+    if valid_query or retries == params.retry + 1:
+      log_rows.append(
+        {
+          "extension_type": extension_type,
+          "retries": str(retries),
+          "original_path": str(original_path),
+          "valid_query": valid_query,
+          "last_duckdb_exception": str(duckdb_exception)
+          if not valid_query
+          else "",
+          "messages": json.dumps(messages),
+        }
+      )
   new_queries_df = pl.DataFrame(rows)
-  new_queries_df.write_parquet(destination_path / "complex_queries.parquet")
+  new_queries_df.write_parquet(destination_path / "llm_extension.parquet")
+  logs_df = pl.DataFrame(log_rows)
+  logs_df.write_parquet(destination_path / "logs.parquet")

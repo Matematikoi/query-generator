@@ -2,7 +2,7 @@ import tomllib
 
 from cattrs import structure
 from query_generator.utils.params import (
-  ComplexQueryGenerationParametersEndpoint,
+  LLMExtensionEndpoint,
   FilterEndpoint,
   SearchParametersEndpoint,
   SnowflakeEndpoint,
@@ -14,7 +14,7 @@ from query_generator.utils.toml_examples import TOML_EXAMPLE
 def test_toml():
   """All toml used should be mapped and validated"""
   mapping = {
-    "llm_augmentation": ComplexQueryGenerationParametersEndpoint,
+    "llm_augmentation": LLMExtensionEndpoint,
     "snowflake": SnowflakeEndpoint,
     "synthetic_generation": SearchParametersEndpoint,
     "filter": FilterEndpoint,

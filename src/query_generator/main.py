@@ -12,7 +12,7 @@ from query_generator.join_based_query_generator.utils.query_writer import (
   write_parquet,
   write_redundant_histogram_csv,
 )
-from query_generator.llm.complex_queries import create_complex_queries
+from query_generator.llm.llm_extension import llm_extension
 from query_generator.synthetic_queries.synthetic_query_generator import (
   SearchParameters,
   run_snowflake_param_search,
@@ -30,8 +30,8 @@ from query_generator.utils.definitions import (
   QueryGenerationParameters,
 )
 from query_generator.utils.params import (
-  ComplexQueryGenerationParametersEndpoint,
   FilterEndpoint,
+  LLMExtensionEndpoint,
   SearchParametersEndpoint,
   SnowflakeEndpoint,
   read_and_parse_toml,
@@ -268,10 +268,8 @@ def make_histograms(
   )
 
 
-@app.command(
-  help=build_help_from_dataclass(ComplexQueryGenerationParametersEndpoint)
-)
-def add_complex_queries(
+@app.command(help=build_help_from_dataclass(LLMExtensionEndpoint))
+def llm_extension_endpoint(
   config_file: Annotated[
     str,
     typer.Option(
@@ -284,10 +282,8 @@ def add_complex_queries(
   """Add complex queries using LLM prompts.
   The configuration file should be a TOML file with the
   ComplexQueryGenerationParametersEndpoint structure."""
-  params = read_and_parse_toml(
-    Path(config_file), ComplexQueryGenerationParametersEndpoint
-  )
-  create_complex_queries(params)
+  params = read_and_parse_toml(Path(config_file), LLMExtensionEndpoint)
+  llm_extension(params)
 
 
 @app.command("union-queries")
