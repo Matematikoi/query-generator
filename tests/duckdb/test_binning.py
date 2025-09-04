@@ -9,7 +9,7 @@ from query_generator.duckdb_connection.binning import (
   SearchParameters,
   run_snowflake_param_search,
 )
-from query_generator.filter.cherry_pick_binning import make_bins
+from query_generator.filter.filter import make_bins
 from query_generator.utils.params import SearchParametersEndpoint
 
 
