@@ -8,12 +8,7 @@ from query_generator.duckdb_connection.binning import (
   run_snowflake_param_search,
 )
 from query_generator.duckdb_connection.setup import setup_duckdb
-from query_generator.filter.cherry_pick_binning import (
-  CherryPickParameters,
-  cherry_pick_binning,
-  filter_null_and_format_job,
-  filter_null_and_format_tpcds,
-)
+from query_generator.filter.cherry_pick_binning import filter_synthetic_queries
 from query_generator.join_based_query_generator.snowflake import (
   generate_and_write_queries,
 )
@@ -32,7 +27,6 @@ from query_generator.tools.histograms import (
 from query_generator.tools.union_queries import union_queries
 from query_generator.utils.definitions import (
   Dataset,
-  Extension,
   QueryGenerationParameters,
 )
 from query_generator.utils.params import (
@@ -45,7 +39,6 @@ from query_generator.utils.params import (
 from query_generator.utils.show_messages import show_dev_warning
 from query_generator.utils.utils import (
   build_help_from_dataclass,
-  validate_file_path,
 )
 
 app = typer.Typer(name="Query Generation", rich_markup_mode="markdown")
@@ -110,149 +103,8 @@ def param_search(
   )
 
 
-@app.command()
-def cherry_pick(
-  dataset: Annotated[
-    Dataset,
-    typer.Option("--dataset", "-d", help="The dataset used"),
-  ],
-  parquet: Annotated[
-    str | None,
-    typer.Option(
-      "--parquet",
-      "-p",
-      help="The path to the batches parquet",
-      show_default="data/generated_queries/BINNING_SNOWFLAKE/{dataset}/{dataset}_values.parquet",
-    ),
-  ] = None,
-  queries_per_bin: Annotated[
-    int,
-    typer.Option(
-      "--queries",
-      "-q",
-      help="The number of queries to be randomly picked per bin",
-      min=1,
-    ),
-  ] = 10,
-  upper_bound: Annotated[
-    int,
-    typer.Option(
-      "--upper-bound",
-      "-u",
-      help="The upper bound of the binning process",
-      min=1,
-    ),
-  ] = 1_000_000_000,
-  total_bins: Annotated[
-    int,
-    typer.Option(
-      "--total-bins",
-      "-b",
-      help="The number of bins to create",
-      min=10,
-    ),
-  ] = 1000,
-  seed: Annotated[
-    int,
-    typer.Option(
-      "--seed",
-      "-s",
-      help="The seed to use for the random queries selection",
-      min=0,
-    ),
-  ] = 42,
-  destination_folder: Annotated[
-    str | None,
-    typer.Option(
-      "--destination-folder",
-      "-df",
-      help="The folder to save the cherry picked queries",
-      show_default=f"data/generated_queries/{Extension.BINNING_CHERRY_PICKING.value}/{{dataset}}",
-    ),
-  ] = None,
-) -> None:
-  """This function is used to cherry pick queries from the
-  binning process. It randomly picks queries from the
-  binning process and saves them in a folder.
-  """
-  # TODO(Gabriel): https://chiselapp.com/user/matematikoi/repository/query-generation/tktview/19a06e6eab725f84b5c74a94fda4efb5e8d43dbc
-  # the input should be a toml file configuration file
-  parquet_path = (
-    Path(
-      f"data/generated_queries/{Extension.SNOWFLAKE_SEARCH_PARAMS.value}/{dataset.value}/{dataset.value}_batches.parquet",
-    )
-    if parquet is None
-    else Path(parquet)
-  )
-  destination_folder_path = (
-    Path(
-      f"data/generated_queries/{Extension.BINNING_CHERRY_PICKING.value}/{dataset.value}",
-    )
-    if destination_folder is None
-    else Path(destination_folder)
-  )
-  validate_file_path(parquet_path)
-  cherry_pick_binning(
-    CherryPickParameters(
-      parquet_path=parquet_path,
-      queries_per_bin=queries_per_bin,
-      upper_bound=upper_bound,
-      total_bins=total_bins,
-      destination_folder=destination_folder_path,
-      seed=seed,
-    ),
-  )
-
-
-@app.command()
-def filter_null(
-  parquet_path_str: Annotated[
-    str,
-    typer.Option(
-      "--parquet",
-      "-p",
-      help="The path to the parquet file with queries",
-    ),
-  ],
-  dataset: Annotated[
-    Dataset,
-    typer.Option(
-      "--dataset",
-      "-d",
-      help="The dataset used",
-    ),
-  ],
-  destination: Annotated[
-    str,
-    typer.Option(
-      "--destination",
-      "-e",
-      help="The path to the destination folder",
-    ),
-  ],
-) -> None:
-  """Filters null queries and formats for traces collection
-
-  Supports JOB and TPCDS separately since the trace collection
-  works different for the two of them.
-  """
-  parquet_path = Path(parquet_path_str)
-  destination_path = Path(destination)
-  validate_file_path(parquet_path)
-  if dataset == Dataset.JOB:
-    filter_null_and_format_job(
-      parquet_path=parquet_path,
-      destination_path=destination_path,
-    )
-  else:
-    filter_null_and_format_tpcds(
-      parquet_path=parquet_path,
-      destination_path=destination_path,
-    )
-
-
-@app.command("filter", help=build_help_from_dataclass(FilterEndpoint))
-def filter_endpoint(
+@app.command("filter-synthetic", help=build_help_from_dataclass(FilterEndpoint))
+def filter_synthetic_endpoint(
   config_path: Annotated[
     str,
     typer.Option(
@@ -271,7 +123,11 @@ def filter_endpoint(
   based on the parameters provided by the user and picks queries
   in each bin up to a limit)
   """
-  print(config_path)
+  params = read_and_parse_toml(
+    Path(config_path),
+    FilterEndpoint,
+  )
+  filter_synthetic_queries(params)
 
 
 @app.command()
