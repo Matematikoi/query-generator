@@ -2,7 +2,11 @@ from pathlib import Path
 
 import polars as pl
 
-from query_generator.utils.params import CherryPickBase, FilterEndpoint
+from query_generator.utils.params import (
+  CherryPickBase,
+  FilterEndpoint,
+  get_toml_from_params,
+)
 
 
 def make_bins(
@@ -74,6 +78,12 @@ def filter_synthetic_queries(params: FilterEndpoint) -> None:
     new_path.parent.mkdir(parents=True, exist_ok=True)
     new_path.write_text(old_path.read_text())
     new_paths.append(str(new_path.relative_to(params.destination_folder)))
+
+  # Write parquet and params
   df_filtered = df_filtered.with_columns(pl.Series("relative_path", new_paths))
   df_filtered_output = Path(params.destination_folder) / "filtered.parquet"
   df_filtered.write_parquet(df_filtered_output)
+  params_toml = get_toml_from_params(params)
+  (Path(params.destination_folder) / "filter_params.toml").write_text(
+    params_toml, encoding="utf-8"
+  )

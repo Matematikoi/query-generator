@@ -1,8 +1,10 @@
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TypeVar
+from typing import Any, TypeVar
 
+import cattrs
+import toml
 from cattrs import structure
 
 from query_generator.utils.definitions import (
@@ -194,3 +196,11 @@ T = TypeVar("T")
 def read_and_parse_toml(path: Path, cls: type[T]) -> T:
   toml_dict = tomllib.loads(path.read_text())
   return structure(toml_dict, cls)
+
+
+def get_toml_from_params(
+  params: Any,
+) -> str:
+  converter = cattrs.Converter()
+  params_dict = converter.unstructure(params)
+  return toml.dumps(params_dict)

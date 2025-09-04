@@ -3,10 +3,8 @@ from dataclasses import dataclass
 from itertools import product
 from typing import Any
 
-import cattrs
 import duckdb
 import polars as pl
-import toml
 from tqdm import tqdm
 
 from query_generator.join_based_query_generator.snowflake import (
@@ -21,7 +19,10 @@ from query_generator.utils.definitions import (
   PredicateParameters,
   QueryGenerationParameters,
 )
-from query_generator.utils.params import SearchParametersEndpoint
+from query_generator.utils.params import (
+  SearchParametersEndpoint,
+  get_toml_from_params,
+)
 
 
 @dataclass
@@ -168,18 +169,8 @@ def run_snowflake_param_search(
       seen_subgraphs = query_generator.subgraph_generator.seen_subgraphs
     checkpoint_queries_csv(rows, writer)
   checkpoint_queries_csv(rows, writer)
-  save_params(search_params, writer)
-
-
-def save_params(
-  search_params: SearchParameters,
-  writer: Writer,
-) -> None:
-  converter = cattrs.Converter()
-  params_dict = converter.unstructure(search_params.user_input)
-  params_toml = toml.dumps(params_dict)
-
-  writer.write_toml(params_toml)
+  toml_params = get_toml_from_params(search_params.user_input)
+  writer.write_toml(toml_params)
 
 
 def checkpoint_queries_csv(rows: list[Any], query_writer: Writer) -> None:
