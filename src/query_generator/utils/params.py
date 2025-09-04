@@ -164,6 +164,30 @@ class CherryPickBase:
   seed: int = 42
 
 
+@dataclass
+class FilterEndpoint:
+  __doc__ = f"""
+  Attributes:
+  - filter_null (bool): Whether to filter out null values from the results.
+  - cherry_pick (bool): Whether to cherry-pick queries based on specific
+      criteria.
+  - cherry_pick_config (CherryPickBase): Configuration for cherry-picking
+      queries. This is required if `cherry_pick` is set to True.
+  Examples of toml files can be found in:
+  `params_config/filter/*toml`
+
+  Example:
+  ```toml
+  {TOML_EXAMPLE["filter"]}
+  ```
+  """
+  input_parquet: str
+  destination_folder: str
+  filter_null: bool
+  cherry_pick: bool
+  cherry_pick_config: CherryPickBase | None = None
+
+
 T = TypeVar("T")
 
 

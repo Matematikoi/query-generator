@@ -37,6 +37,7 @@ from query_generator.utils.definitions import (
 )
 from query_generator.utils.params import (
   ComplexQueryGenerationParametersEndpoint,
+  FilterEndpoint,
   SearchParametersEndpoint,
   SnowflakeEndpoint,
   read_and_parse_toml,
@@ -248,6 +249,29 @@ def filter_null(
       parquet_path=parquet_path,
       destination_path=destination_path,
     )
+
+
+@app.command("filter", help=build_help_from_dataclass(FilterEndpoint))
+def filter_endpoint(
+  config_path: Annotated[
+    str,
+    typer.Option(
+      "-c",
+      "--config",
+      help="The path to the configuration file"
+      "They can be found in the params_config/filter/ folder",
+    ),
+  ],
+) -> None:
+  """Filters queries based on the Count Star
+
+  Supports two methods of filtering:
+  - Filter null queries and format for traces collection (count star = 0)
+  - Cherry pick queries based on binning (makes equi-width bins
+  based on the parameters provided by the user and picks queries
+  in each bin up to a limit)
+  """
+  print(config_path)
 
 
 @app.command()

@@ -63,4 +63,14 @@ operator_in = 1
 operator_range = 3
 operator_equal = 3
 """,
+  "filter": """\
+input_parquet = "/path/to/file.parquet"
+destination_folder = "/path/to/destination/"
+filter_null = true
+cherry_pick = true
+[cherry_pick_config]
+queries_per_bin = 100
+upper_bound = 1000000
+total_bins = 100
+  """,
 }
