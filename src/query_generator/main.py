@@ -3,10 +3,6 @@ from typing import Annotated
 
 import typer
 
-from query_generator.duckdb_connection.binning import (
-  SearchParameters,
-  run_snowflake_param_search,
-)
 from query_generator.duckdb_connection.setup import setup_duckdb
 from query_generator.filter.filter import filter_synthetic_queries
 from query_generator.join_based_query_generator.snowflake import (
@@ -17,6 +13,10 @@ from query_generator.join_based_query_generator.utils.query_writer import (
   write_redundant_histogram_csv,
 )
 from query_generator.llm.complex_queries import create_complex_queries
+from query_generator.synthetic_queries.synthetic_query_generator import (
+  SearchParameters,
+  run_snowflake_param_search,
+)
 from query_generator.tools.format_queries_file_structure import (
   format_queries_file_structure,
 )

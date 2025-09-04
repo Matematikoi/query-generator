@@ -5,7 +5,7 @@ from cattrs import structure
 import polars as pl
 import pytest
 
-from query_generator.duckdb_connection.binning import (
+from query_generator.synthetic_queries.synthetic_query_generator import (
   SearchParameters,
   run_snowflake_param_search,
 )
@@ -55,10 +55,10 @@ def test_make_bins_in_csv(count_star, upper_bound, total_bins, expected_bin):
 )
 def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
   with mock.patch(
-    "query_generator.duckdb_connection.binning.Writer.write_query_to_batch",
+    "query_generator.join_based_query_generator.utils.query_writer.Writer.write_query_to_batch",
   ) as mock_writer:
     with mock.patch(
-      "query_generator.duckdb_connection.binning.get_result_from_duckdb",
+      "query_generator.synthetic_queries.synthetic_query_generator.get_result_from_duckdb",
     ) as mock_connect:
       mock_connect.return_value = 0
       data_toml = f"""
