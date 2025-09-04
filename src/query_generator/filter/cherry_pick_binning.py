@@ -36,7 +36,7 @@ def cherry_pick_filter(
       shuffle=True,
       seed=params.seed,
       with_replacement=False,
-    )
+    ).with_columns(pl.lit(bin).alias("bin"))
     dfs_sampled_array.append(sample_df)
   return pl.concat(dfs_sampled_array)
 
