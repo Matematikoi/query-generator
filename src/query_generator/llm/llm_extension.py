@@ -146,6 +146,7 @@ def llm_extension(
           "messages": json.dumps(messages),
         }
       )
+  destination_path.mkdir(parents=True, exist_ok=True)
   new_queries_df = pl.DataFrame(rows)
   new_queries_df.write_parquet(destination_path / "llm_extension.parquet")
   logs_df = pl.DataFrame(log_rows)
