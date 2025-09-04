@@ -8,6 +8,12 @@ from query_generator.duckdb_connection.binning import (
   run_snowflake_param_search,
 )
 from query_generator.duckdb_connection.setup import setup_duckdb
+from query_generator.filter.cherry_pick_binning import (
+  CherryPickParameters,
+  cherry_pick_binning,
+  filter_null_and_format_job,
+  filter_null_and_format_tpcds,
+)
 from query_generator.join_based_query_generator.snowflake import (
   generate_and_write_queries,
 )
@@ -16,12 +22,6 @@ from query_generator.join_based_query_generator.utils.query_writer import (
   write_redundant_histogram_csv,
 )
 from query_generator.llm.complex_queries import create_complex_queries
-from query_generator.tools.cherry_pick_binning import (
-  CherryPickParameters,
-  cherry_pick_binning,
-  filter_null_and_format_job,
-  filter_null_and_format_tpcds,
-)
 from query_generator.tools.format_queries_file_structure import (
   format_queries_file_structure,
 )
