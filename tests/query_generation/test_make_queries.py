@@ -4,7 +4,7 @@ import pytest
 
 
 from query_generator.database_schemas.schemas import get_schema
-from query_generator.join_based_query_generator.snowflake import (
+from query_generator.synthetic_queries.snowflake import (
   QueryBuilder,
 )
 from query_generator.predicate_generator.predicate_generator import (

@@ -7,12 +7,10 @@ import duckdb
 import polars as pl
 from tqdm import tqdm
 
-from query_generator.join_based_query_generator.snowflake import (
+from query_generator.synthetic_queries.snowflake import (
   QueryGenerator,
 )
-from query_generator.join_based_query_generator.utils.query_writer import (
-  Writer,
-)
+from query_generator.synthetic_queries.utils.query_writer import Writer
 from query_generator.utils.definitions import (
   BatchGeneratedQueryToWrite,
   PredicateParameters,

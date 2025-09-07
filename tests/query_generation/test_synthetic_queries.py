@@ -56,7 +56,7 @@ def test_cherry_pick(count_star, upper_bound, total_bins, expected_bin):
 def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
   with (
     mock.patch(
-      "query_generator.join_based_query_generator.utils.query_writer.Writer.write_query_to_batch"
+      "query_generator.synthetic_queries.utils.query_writer.Writer.write_query_to_batch"
     ) as mock_writer,
     mock.patch(
       "query_generator.synthetic_queries.synthetic_query_generator.get_result_from_duckdb"
@@ -65,7 +65,7 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       "query_generator.synthetic_queries.synthetic_query_generator.checkpoint_queries_parquet"
     ),
     mock.patch(
-      "query_generator.join_based_query_generator.utils.query_writer.Writer.write_toml"
+      "query_generator.synthetic_queries.utils.query_writer.Writer.write_toml"
     ),
   ):
     mock_connect.return_value = 0

@@ -8,12 +8,6 @@ from pypika import functions as fn
 from query_generator.data_structures.foreign_key_graph import ForeignKeyGraph
 from query_generator.database_schemas.schemas import get_schema
 
-# fmt: off
-from query_generator.join_based_query_generator.\
-  utils.subgraph_generator import (
-  SubGraphGenerator,
-)
-
 # fmt: on
 from query_generator.predicate_generator.predicate_generator import (
   HistogramDataType,
@@ -22,6 +16,12 @@ from query_generator.predicate_generator.predicate_generator import (
   PredicateIn,
   PredicateRange,
   SupportedHistogramType,
+)
+
+# fmt: off
+from query_generator.synthetic_queries.\
+  utils.subgraph_generator import (
+  SubGraphGenerator,
 )
 from query_generator.utils.definitions import (
   Dataset,

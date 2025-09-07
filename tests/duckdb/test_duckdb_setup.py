@@ -1,8 +1,5 @@
 import pytest
 
-from query_generator.synthetic_queries.synthetic_query_generator import (
-  get_result_from_duckdb,
-)
 from query_generator.duckdb_connection.setup import setup_duckdb
 from query_generator.utils.definitions import Dataset
 from query_generator.utils.params import GenerateDBEndpoint
