@@ -27,8 +27,6 @@ def test_param_search(file_name):
   assert params is not None
 
 
-
-
 @pytest.mark.parametrize(
   "file_name",
   [

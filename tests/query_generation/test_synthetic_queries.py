@@ -100,5 +100,3 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       f"Expected {expected_call_count} calls to write_query, "
       f"but got {mock_writer.call_count}"
     )
-
-

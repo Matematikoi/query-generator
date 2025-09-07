@@ -9,7 +9,9 @@ from query_generator.duckdb_connection.utils import (
   get_equi_height_histogram,
   get_frequent_non_null_values,
 )
-from query_generator.synthetic_queries.synthetic_query_generator import get_result_from_duckdb
+from query_generator.synthetic_queries.synthetic_query_generator import (
+  get_result_from_duckdb,
+)
 from query_generator.tools.histograms import DuckDBHistogramParser
 from query_generator.utils.definitions import Dataset
 from query_generator.utils.params import GenerateDBEndpoint
@@ -20,19 +22,21 @@ TEMP_DB_PATH = "/tmp/tests/small_tpcds_0.1.db"
 
 @pytest.fixture(scope="module")
 def duckdb_connection():
-    """Fixture to set up and tear down a DuckDB connection."""
-    con = setup_duckdb(GenerateDBEndpoint(Dataset.TPCDS, TEMP_DB_PATH, 0.1))
-    yield con  
-    con.close()
-    db_path = Path(TEMP_DB_PATH)
-    if db_path.exists():
-        db_path.unlink()
+  """Fixture to set up and tear down a DuckDB connection."""
+  con = setup_duckdb(GenerateDBEndpoint(Dataset.TPCDS, TEMP_DB_PATH, 0.1))
+  yield con
+  con.close()
+  db_path = Path(TEMP_DB_PATH)
+  if db_path.exists():
+    db_path.unlink()
+
 
 def test_distinct_values(duckdb_connection):
   """Test the setup of DuckDB."""
   # Setup DuckDB
   con = duckdb_connection
   assert get_distinct_count(con, "call_center", "cc_call_center_sk") == 1
+
 
 @pytest.mark.parametrize(
   "query, expected_result",
@@ -41,7 +45,7 @@ def test_distinct_values(duckdb_connection):
     ("SELECT 1", 1),
   ],
 )
-def test_duck_db_execution(query, expected_result,duckdb_connection):
+def test_duck_db_execution(query, expected_result, duckdb_connection):
   """Test the execution of queries in DuckDB."""
   # Setup DuckDB
   con = duckdb_connection
