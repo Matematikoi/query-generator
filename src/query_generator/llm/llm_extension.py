@@ -3,12 +3,12 @@ import random
 import re
 from pathlib import Path
 
+import duckdb
 import polars as pl
 from duckdb import DuckDBPyConnection
 from ollama import Client
 from tqdm import tqdm
 
-from query_generator.duckdb_connection.setup import setup_duckdb
 from query_generator.utils.params import (
   LLMExtensionEndpoint,
 )
@@ -97,7 +97,7 @@ def llm_extension(
 ) -> None:
   llm_client = Client()
   random.seed(params.seed)
-  con = setup_duckdb(params.dataset, 0)
+  con = duckdb.connect(database=params.database_path, read_only=True)
   destination_path = Path(params.destination_folder)
   rows: list[dict[str, str]] = []
   log_rows: list[dict[str, str | bool]] = []

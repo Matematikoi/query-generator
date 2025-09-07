@@ -23,12 +23,10 @@ from query_generator.tools.histograms import (
   query_histograms,
 )
 from query_generator.tools.union_queries import union_queries
-from query_generator.utils.definitions import (
-  Dataset,
-)
 from query_generator.utils.params import (
   FilterEndpoint,
   GenerateDBEndpoint,
+  HistogramEndpoint,
   LLMExtensionEndpoint,
   SyntheticQueriesEndpoint,
   read_and_parse_toml,
@@ -86,7 +84,6 @@ def generate_db(
     Path(config_path),
     GenerateDBEndpoint,
   )
-  # TODO: implement this part
   setup_duckdb(params)
 
 
@@ -171,80 +168,33 @@ def format_queries(
 
 @app.command()
 def make_histograms(
-  dataset: Annotated[
-    Dataset,
-    typer.Option("--dataset", "-d", help="The dataset used"),
-  ],
-  histogram_size: Annotated[
-    int,
+  config_path: Annotated[
+    str,
     typer.Option(
-      "--histogram-size",
-      "-h",
-      help="The size of the histogram",
-      min=1,
-    ),
-  ] = 51,
-  common_values_size: Annotated[
-    int,
-    typer.Option(
-      "--common-values-size",
       "-c",
-      help="The size of the common values",
-      min=1,
+      "--config",
+      help="The path to the configuration file"
+      "They can be found in the params_config/histograms/ folder",
     ),
-  ] = 10,
-  destination_str: Annotated[
-    str | None,
-    typer.Option(
-      "--path",
-      "-p",
-      help="The folder to save the histograms",
-      show_default="data/generated_histograms/{dataset}/histogram.parquet",
-    ),
-  ] = None,
-  *,
-  dev: Annotated[
-    bool,
-    typer.Option(
-      "--dev",
-      help="Development testing. If true then uses scale factor 0.1 to check.",
-    ),
-  ] = False,
-  include_mvc: Annotated[
-    bool,
-    typer.Option(
-      "--exclude-mvc",
-      "-e",
-      help="If true then we generate most common values",
-    ),
-  ] = False,
+  ],
 ) -> None:
   """This function is used to create histograms in parquet format."""
-  destination_path = (
-    Path(
-      f"data/generated_histograms/{dataset.value}/histogram.parquet",
-    )
-    if destination_str is None
-    else Path(destination_str)
-  )
-  scale_factor = 0.1 if dev else 100
+  params = read_and_parse_toml(Path(config_path), HistogramEndpoint)
+  destination_path = Path(params.output_folder) / "histogram.parquet"
 
-  con = setup_duckdb(
-    dataset,
-    scale_factor,
-  )
+  con = duckdb.connect()
   histograms_df = query_histograms(
-    histogram_size=histogram_size,
-    common_values_size=common_values_size,
+    histogram_size=params.histogram_size,
+    common_values_size=params.common_values_size,
     con=con,
-    include_mvc=include_mvc,
+    include_mcv=params.include_mcv,
   )
   write_parquet(histograms_df, destination_path)
   # TODO(Gabriel):  http://localhost:8080/tktview/46fca17ee0
   #  Delete this code and everything that
   #  touches it [46fca17ee0ab9e46]
   redundant_histogram_df = make_redundant_histograms(
-    destination_path, histogram_size
+    destination_path, params.histogram_size
   )
   write_parquet(
     redundant_histogram_df,

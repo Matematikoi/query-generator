@@ -3,6 +3,7 @@ import tomllib
 from cattrs import structure
 from query_generator.utils.params import (
   GenerateDBEndpoint,
+  HistogramEndpoint,
   LLMExtensionEndpoint,
   FilterEndpoint,
   SyntheticQueriesEndpoint,
@@ -18,6 +19,7 @@ def test_toml():
     "synthetic_generation": SyntheticQueriesEndpoint,
     "filter": FilterEndpoint,
     "generate_db": GenerateDBEndpoint,
+    "histogram": HistogramEndpoint,
   }
   for key, toml_raw in TOML_EXAMPLE.items():
     toml_dict = tomllib.loads(toml_raw)

@@ -1,4 +1,5 @@
 llm = false
+database_path = "data/duckdb/TPCDS/0.db"
 retry = 1
 llm_model = "gemma3:27b"
 llm_base_prompt = """

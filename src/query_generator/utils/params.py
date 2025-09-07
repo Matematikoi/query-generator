@@ -28,6 +28,8 @@ class LLMExtensionEndpoint:
   - dataset (Dataset): The dataset to use for query generation.
   - destination_folder (str): The folder to save the generated queries.
   - retry (int): The number of times to retry generating a query if it fails.
+  - database_path (str): The path to the DuckDB database to use for query
+      generation.
   - llm_prompts (dict[str, ComplexQueryLLMPrompt]): A dictionary of
       additional prompts to use for the LLM.
       This dictionary maps any operations e.g. `group_by` to a prompt
@@ -56,6 +58,7 @@ class LLMExtensionEndpoint:
   destination_folder: str
   retry: int
   llm_prompts: dict[str, ComplexQueryLLMPrompt]
+  database_path: str
 
 
 @dataclass
@@ -176,6 +179,35 @@ class FilterEndpoint:
   filter_null: bool
   cherry_pick: bool
   cherry_pick_config: CherryPickBase | None = None
+
+
+@dataclass
+class HistogramEndpoint:
+  __doc__ = f"""Parameters for generating histograms from a database
+
+  Attributes:
+  - output_folder (str): The folder to save the generated histogram parquet
+      file.
+  - database_path (str): The path to the DuckDB database to use for generating
+      histograms.
+  - histogram_size (int): The number of bins to use for the histogram.
+      Default is 51.
+  - common_values_size (int): The number of common values to include in the
+      histogram. Default is 10.
+  - include_mvc (bool): Whether to include most common values (MCV) in the
+      histogram. Default is False.
+  Examples of toml files can be found in:
+  `params_config/histogram/*toml`
+  Example:
+  ```toml
+  {TOML_EXAMPLE["histogram"]}
+  ```
+  """
+  output_folder: str
+  database_path: str
+  histogram_size: int = 51
+  common_values_size: int = 10
+  include_mcv: bool = False
 
 
 T = TypeVar("T")

@@ -1,4 +1,5 @@
 llm = false
+database_path = "data/duckdb/TPCDS/0.db"
 retry = 1
 llm_model = "deepseek-r1:1.5b"
 llm_base_prompt = """

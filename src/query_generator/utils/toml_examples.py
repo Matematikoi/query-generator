@@ -1,6 +1,6 @@
 TOML_EXAMPLE = {
   "llm_augmentation": '''\
-llm = false
+database_path = "path/to/duckdb.db"
 retry = 1
 llm_model = "llama4:16x17b"
 llm_base_prompt = """
@@ -62,5 +62,12 @@ total_bins = 100
 dataset = "TPCDS"
 scale_factor = 0.1
 db_path = "path/to/duckdb.db"
+""",
+  "histogram": """\
+output_folder = "path/to/destination/"
+database_path = "path/to/duckdb.db"
+histogram_size = 51
+common_values_size = 10
+include_mcv = true
 """,
 }

@@ -138,7 +138,7 @@ def query_histograms(
   common_values_size: int,
   con: duckdb.DuckDBPyConnection,
   *,
-  include_mvc: bool,
+  include_mcv: bool,
 ) -> pl.DataFrame:
   """Creates histograms for the given dataset.
   Args:
@@ -174,7 +174,7 @@ def query_histograms(
         HistogramColumns.DTYPE.value: column.column_type,
         HistogramColumns.TABLE_SIZE.value: table_size,
       }
-      if include_mvc:
+      if include_mcv:
         # Get most common values
         most_common_values = get_most_common_values(
           con,
