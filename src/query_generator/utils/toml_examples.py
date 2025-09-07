@@ -46,8 +46,8 @@ operator_range = 3
 operator_equal = 3
 """,
   "synthetic_generation": """\
-dataset = "TPCDS"
-dev = true
+duckdb_database = "path/to/duckdb.db"
+output_folder = "path/to/destination/"
 max_hops = [1]
 extra_predicates = [5]
 row_retention_probability = [0.2, 0.9]
@@ -73,4 +73,9 @@ queries_per_bin = 100
 upper_bound = 1000000
 total_bins = 100
   """,
+  "generate_db": """\
+dataset = "TPCDS"
+scale_factor = 0.1
+db_path = "data/duckdb/TPCDS/0.1.db"
+""",
 }

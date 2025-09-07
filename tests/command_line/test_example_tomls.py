@@ -3,7 +3,7 @@ import pytest
 
 from query_generator.utils.params import (
   LLMExtensionEndpoint,
-  SearchParametersEndpoint,
+  SyntheticQueriesEndpoint,
   SnowflakeEndpoint,
   read_and_parse_toml,
 )
@@ -23,7 +23,7 @@ def test_param_search(file_name):
   file_path = base_path / f"params_config/search_params/{file_name}"
   params = read_and_parse_toml(
     Path(file_path),
-    SearchParametersEndpoint,
+    SyntheticQueriesEndpoint,
   )
   assert params is not None
 

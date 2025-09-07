@@ -1,12 +1,9 @@
-import os
 from pathlib import Path
 
 import polars as pl
 
 from query_generator.utils.definitions import (
   BatchGeneratedQueryToWrite,
-  Dataset,
-  Extension,
   GeneratedQueryFeatures,
 )
 from query_generator.utils.exceptions import OverwriteFileError
@@ -46,9 +43,8 @@ def write_redundant_histogram_csv(
 
 
 class Writer:
-  def __init__(self, dataset: Dataset, extension: Extension) -> None:
-    self.extension = extension
-    self.dataset = dataset
+  def __init__(self, destination_folder: str) -> None:
+    self.destination_folder = Path(destination_folder)
 
   # TODO(Gabriel): https://chiselapp.com/user/matematikoi/repository/query-generation/tktview/8dd46fc66a
   # this should be a pathlib
@@ -60,28 +56,20 @@ class Writer:
         file_name (str): Name of the output file.
 
     """
-    folder = (
-      "data/generated_queries/"
-      f"{self.extension.value}/{self.dataset.value}/{query.fact_table}_{query.template_number}"
-    )
-    if not os.path.exists(folder):
-      os.makedirs(folder)
-    file_name = f"{query.template_number}_{query.predicate_number}.sql"
-    with open(os.path.join(folder, file_name), "w") as f:
-      f.write(query.query)
-      print("Query written to:", os.path.join(folder, file_name))
 
-  def get_binning_folder(self) -> Path:
-    path = Path(
-      f"data/generated_queries/{self.extension.value}/{self.dataset.value}",
+    file = (
+      self.destination_folder
+      / f"{query.fact_table}_{query.template_number}"
+      / f"{query.template_number}_{query.predicate_number}.sql"
     )
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    file.parent.mkdir(parents=True, exist_ok=True)
+    file.write_text(query.query, encoding="utf-8")
+    print("Query written to:", file)
 
   def write_query_to_batch(self, query: BatchGeneratedQueryToWrite) -> str:
     """Returns relative path of the file to the final CSV"""
     prefix = f"batch_{query.batch_number}"
-    batch_dir = Path(self.get_binning_folder()) / prefix
+    batch_dir = self.destination_folder / prefix
 
     batch_dir.mkdir(parents=True, exist_ok=True)
 
@@ -92,16 +80,16 @@ class Writer:
 
     self._do_not_overwrite(file_path)
     file_path.write_text(query.query, encoding="utf-8")
-    return str(file_path.relative_to(self.get_binning_folder()))
+    return str(file_path.relative_to(self.destination_folder))
 
-  def write_dataframe(self, input_dataframe: pl.DataFrame) -> None:
-    folder = self.get_binning_folder()
-    path = f"{folder}/{self.dataset.value}_batches.parquet"
-    input_dataframe.write_parquet(path)
+  def write_dataframe(
+    self, input_dataframe: pl.DataFrame, name: str = "output.parquet"
+  ) -> None:
+    file_path = self.destination_folder / "output.parquet"
+    input_dataframe.write_parquet(file_path)
 
   def write_toml(self, input_toml: str) -> None:
-    folder = self.get_binning_folder()
-    path = folder / "parameters.toml"
+    path = self.destination_folder / "parameters.toml"
     path.write_text(input_toml, encoding="utf-8")
 
   def _do_not_overwrite(self, path: Path) -> None:

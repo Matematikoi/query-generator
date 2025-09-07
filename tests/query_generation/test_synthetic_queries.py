@@ -6,11 +6,11 @@ import polars as pl
 import pytest
 
 from query_generator.synthetic_queries.synthetic_query_generator import (
-  SearchParameters,
-  run_snowflake_param_search,
+  SyntheticQueriesParams,
+  generate_synthetic_queries,
 )
 from query_generator.filter.filter import make_bins
-from query_generator.utils.params import SearchParametersEndpoint
+from query_generator.utils.params import SyntheticQueriesEndpoint
 
 
 @pytest.mark.parametrize(
@@ -87,9 +87,9 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       operator_range = 3
       operator_equal = 3
       """
-    user_input = structure(tomllib.loads(data_toml), SearchParametersEndpoint)
-    run_snowflake_param_search(
-      search_params=SearchParameters(
+    user_input = structure(tomllib.loads(data_toml), SyntheticQueriesEndpoint)
+    generate_synthetic_queries(
+      params=SyntheticQueriesParams(
         scale_factor=0,
         con=None,
         user_input=user_input,

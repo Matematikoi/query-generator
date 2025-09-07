@@ -1,13 +1,15 @@
-import os
+
+from pathlib import Path
 
 import duckdb
 
 from query_generator.utils.definitions import Dataset
 from query_generator.utils.exceptions import (
-  MissingScaleFactorError,
+  DatabaseGenerationNotImplementedError,
   PartiallySupportedDatasetError,
   UnkownDatasetError,
 )
+from query_generator.utils.params import GenerateDBEndpoint
 
 
 def load_and_install_libraries() -> None:
@@ -43,10 +45,7 @@ def get_path(
   raise UnkownDatasetError(dataset.value)
 
 
-def setup_duckdb(
-  dataset: Dataset,
-  scale_factor: int | float | None = None,
-) -> duckdb.DuckDBPyConnection:
+def setup_duckdb(params: GenerateDBEndpoint) -> duckdb.DuckDBPyConnection:
   """Installs TPCDS and TPCH datasets in DuckDB.
 
   If the scale factor required is not generated, it will generate it.
@@ -58,18 +57,17 @@ def setup_duckdb(
           It is only none for JOB dataset.
   """
   load_and_install_libraries()
-  db_path = get_path(dataset, scale_factor)
-  if os.path.exists(db_path):
-    print(f"Database {db_path} already exists")
-    return duckdb.connect(db_path, read_only=True)
+  db_path = Path(params.db_path)
 
-  if scale_factor is None:
+  if params.dataset not in [Dataset.TPCDS, Dataset.TPCH]:
+    raise UnkownDatasetError(params.dataset.value)
+
+  if params.scale_factor is None:
     # scale factor can only be ommited for JOB dataset
     # and currently we can't generate it
-    raise MissingScaleFactorError(dataset.value)
+    raise DatabaseGenerationNotImplementedError(params.dataset.value)
 
-  os.makedirs(os.path.dirname(db_path), exist_ok=True)
+  db_path.parent.mkdir(parents=True, exist_ok=True)
   con = duckdb.connect(db_path)
-  generate_data(scale_factor, dataset, con)
+  generate_data(params.scale_factor, params.dataset, con)
   print(f"Database {db_path} created.")
-  return con

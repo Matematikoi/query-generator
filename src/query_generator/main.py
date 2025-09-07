@@ -1,21 +1,19 @@
 from pathlib import Path
 from typing import Annotated
 
+import duckdb
 import typer
 
 from query_generator.duckdb_connection.setup import setup_duckdb
 from query_generator.filter.filter import filter_synthetic_queries
-from query_generator.join_based_query_generator.snowflake import (
-  generate_and_write_queries,
-)
 from query_generator.join_based_query_generator.utils.query_writer import (
   write_parquet,
   write_redundant_histogram_csv,
 )
 from query_generator.llm.llm_extension import llm_extension
 from query_generator.synthetic_queries.synthetic_query_generator import (
-  SearchParameters,
-  run_snowflake_param_search,
+  SyntheticQueriesParams,
+  generate_synthetic_queries,
 )
 from query_generator.tools.format_queries_file_structure import (
   format_queries_file_structure,
@@ -27,16 +25,14 @@ from query_generator.tools.histograms import (
 from query_generator.tools.union_queries import union_queries
 from query_generator.utils.definitions import (
   Dataset,
-  QueryGenerationParameters,
 )
 from query_generator.utils.params import (
   FilterEndpoint,
+  GenerateDBEndpoint,
   LLMExtensionEndpoint,
-  SearchParametersEndpoint,
-  SnowflakeEndpoint,
+  SyntheticQueriesEndpoint,
   read_and_parse_toml,
 )
-from query_generator.utils.show_messages import show_dev_warning
 from query_generator.utils.utils import (
   build_help_from_dataclass,
 )
@@ -44,34 +40,8 @@ from query_generator.utils.utils import (
 app = typer.Typer(name="Query Generation", rich_markup_mode="markdown")
 
 
-@app.command(help=build_help_from_dataclass(SnowflakeEndpoint))
-def snowflake(
-  config_path: Annotated[
-    str,
-    typer.Option(
-      "-c",
-      "--config",
-      help="The path to the configuration file"
-      "They can be found in the params_config/query_generation/ folder",
-    ),
-  ],
-) -> None:
-  """Generate queries using a random subgraph."""
-  params_endpoint = read_and_parse_toml(Path(config_path), SnowflakeEndpoint)
-  params = QueryGenerationParameters(
-    dataset=params_endpoint.dataset,
-    max_hops=params_endpoint.max_hops,
-    max_queries_per_fact_table=params_endpoint.max_queries_per_fact_table,
-    max_queries_per_signature=params_endpoint.max_queries_per_signature,
-    keep_edge_probability=params_endpoint.keep_edge_probability,
-    seen_subgraphs={},
-    predicate_parameters=params_endpoint.predicate_parameters,
-  )
-  generate_and_write_queries(params)
-
-
-@app.command(help=build_help_from_dataclass(SearchParametersEndpoint))
-def param_search(
+@app.command(help=build_help_from_dataclass(SyntheticQueriesEndpoint))
+def synthetic_queries(
   config_path: Annotated[
     str,
     typer.Option(
@@ -89,18 +59,35 @@ def param_search(
   """
   params = read_and_parse_toml(
     Path(config_path),
-    SearchParametersEndpoint,
+    SyntheticQueriesEndpoint,
   )
-  show_dev_warning(dev=params.dev)
-  scale_factor = 0.1 if params.dev else 100
-  con = setup_duckdb(params.dataset, scale_factor)
-  run_snowflake_param_search(
-    SearchParameters(
-      scale_factor=scale_factor,
+  con = duckdb.connect(database=params.duckdb_database, read_only=True)
+  generate_synthetic_queries(
+    SyntheticQueriesParams(
       con=con,
       user_input=params,
     ),
   )
+
+
+@app.command(help=build_help_from_dataclass(GenerateDBEndpoint))
+def generate_db(
+  config_path: Annotated[
+    str,
+    typer.Option("-c", "--config", help="The path to the configuration file"),
+  ],
+) -> None:
+  """Generates a DuckDB database with TPCDS or TPCH datasets.
+
+  If the scale factor required is not generated, it will generate it.
+  It returns a duckdb connection to the database.
+  """
+  params = read_and_parse_toml(
+    Path(config_path),
+    GenerateDBEndpoint,
+  )
+  # TODO: implement this part
+  setup_duckdb(params)
 
 
 @app.command("filter-synthetic", help=build_help_from_dataclass(FilterEndpoint))

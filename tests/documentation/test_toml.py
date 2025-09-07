@@ -4,7 +4,7 @@ from cattrs import structure
 from query_generator.utils.params import (
   LLMExtensionEndpoint,
   FilterEndpoint,
-  SearchParametersEndpoint,
+  SyntheticQueriesEndpoint,
   SnowflakeEndpoint,
   read_and_parse_toml,
 )
@@ -16,7 +16,7 @@ def test_toml():
   mapping = {
     "llm_augmentation": LLMExtensionEndpoint,
     "snowflake": SnowflakeEndpoint,
-    "synthetic_generation": SearchParametersEndpoint,
+    "synthetic_generation": SyntheticQueriesEndpoint,
     "filter": FilterEndpoint,
   }
   for key, toml_raw in TOML_EXAMPLE.items():

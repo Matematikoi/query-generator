@@ -11,7 +11,6 @@ from query_generator.utils.definitions import (
   ComplexQueryLLMPrompt,
   Dataset,
   PredicateOperatorProbability,
-  PredicateParameters,
 )
 from query_generator.utils.toml_examples import TOML_EXAMPLE
 
@@ -60,7 +59,7 @@ class LLMExtensionEndpoint:
 
 
 @dataclass
-class SearchParametersEndpoint:
+class SyntheticQueriesEndpoint:
   __doc__ = f"""
   Represents the parameters used for configuring search queries, including
   query builder, subgraph, and predicate options.
@@ -69,7 +68,7 @@ class SearchParametersEndpoint:
   query generation.
 
   Attributes:
-  - dataset (Dataset): The dataset to be queried.
+  - duckdb_database (str): The path to the DuckDB database file.
   - dev (bool): Flag indicating whether to use development settings.
   - max_queries_per_fact_table (int): Maximum number of queries per fact
       table.
@@ -98,11 +97,10 @@ class SearchParametersEndpoint:
   """
 
   # Query Builder
-  dataset: Dataset
-  dev: bool
   max_queries_per_fact_table: int
   max_queries_per_signature: int
   # Subgraph
+  dataset: Dataset
   unique_joins: bool
   max_hops: list[int]
   keep_edge_probability: list[float]
@@ -112,50 +110,34 @@ class SearchParametersEndpoint:
   operator_weights: PredicateOperatorProbability
   equality_lower_bound_probability: list[float]
   extra_values_for_in: int
+  # Paths
+  duckdb_database: str
+  output_folder: str
 
 
 @dataclass
-class SnowflakeEndpoint:
+class GenerateDBEndpoint:
   __doc__ = f"""
-  Represents the parameters used for configuring query generation,
-  including query builder, subgraph, and predicate options.
+  Parameters for generating a DuckDB database with TPCDS or TPCH datasets.
 
   Attributes:
-  - dataset (Dataset): The dataset to be used for query generation.
-    The currently supported datasets are TPC-H, TPC-DS, and JOB.
-  - max_queries_per_signature (int): Maximum number of queries to generate
-      per signature.
-  - max_queries_per_fact_table (int): Maximum number of queries to generate
-      per fact table.
-  - max_hops (int): Maximum number of hops allowed in the subgraph.
-  - keep_edge_probability (float): Probability of retaining an edge in the
-      subgraph.
-  - extra_predicates (int): Number of extra predicates to add to the query.
-  - row_retention_probability (float): Probability of retaining a row after
-      applying predicates.
-  - operator_weights (PredicateOperatorProbability): Probability
-      distribution for predicate operators.
-  - equality_lower_bound_probability (float): Probability of using a lower
-      bound for equality predicates.
-
+  - dataset (Dataset): The dataset to be used (TPCDS, TPCH).
+  - scale_factor (int | float | None): The scale factor for the dataset.
+      It is only None for JOB dataset.
+  - db_path (str): The path where the DuckDB database will be stored.
   Examples of toml files can be found in:
-  `params_config/snowflake/*toml`
+  `params_config/generate_db/*toml`
 
-  Example TOML
+  Example:
   ```toml
-  {TOML_EXAMPLE["snowflake"]}
+  {TOML_EXAMPLE["generate_db"]}
   ```
   """
 
   # Query builder
   dataset: Dataset
-  max_queries_per_signature: int
-  max_queries_per_fact_table: int
-  # Subgraph
-  max_hops: int
-  keep_edge_probability: float
-  # Predicates
-  predicate_parameters: PredicateParameters
+  scale_factor: int | float | None
+  db_path: str
 
 
 @dataclass
@@ -168,7 +150,13 @@ class CherryPickBase:
 
 @dataclass
 class FilterEndpoint:
-  __doc__ = f"""
+  __doc__ = f"""Filter synthetic queries based on various criteria.
+
+  Two filtering methods are available:
+  1. Null Filter: Removes queries with null values in the `count_star`
+      column.
+  2. Cherry-Pick Filter: Divides queries into bins based on the `count_star`
+      values and randomly selects a specified number of queries from each bin.
   Attributes:
   - filter_null (bool): Whether to filter out null values from the results.
   - cherry_pick (bool): Whether to cherry-pick queries based on specific

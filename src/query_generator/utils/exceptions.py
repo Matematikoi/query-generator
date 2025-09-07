@@ -32,6 +32,13 @@ class UnkownDatasetError(Exception):
     super().__init__(f"Unknown dataset: {dataset}")
 
 
+class DatabaseGenerationNotImplementedError(Exception):
+  def __init__(self, dataset: str) -> None:
+    super().__init__(
+      f"Database generation not implemented for dataset: {dataset}"
+    )
+
+
 class MissingScaleFactorError(Exception):
   def __init__(self, dataset: str) -> None:
     super().__init__(

@@ -16,7 +16,7 @@ from query_generator.utils.definitions import (
   Dataset,
   PredicateOperatorProbability,
   PredicateParameters,
-  QueryGenerationParameters,
+  SyntheticQueryGenerationParameters,
 )
 from query_generator.utils.exceptions import UnkownDatasetError
 from pypika import OracleQuery
@@ -28,7 +28,7 @@ def test_tpch_query_generation():
     "query_generator.join_based_query_generator.snowflake.Writer.write_query",
   ) as mock_writer:
     generate_and_write_queries(
-      QueryGenerationParameters(
+      SyntheticQueryGenerationParameters(
         dataset=Dataset.TPCDS,
         max_hops=1,
         max_queries_per_fact_table=1,
@@ -57,7 +57,7 @@ def test_tpcds_query_generation():
     "query_generator.join_based_query_generator.snowflake.Writer.write_query",
   ) as mock_writer:
     generate_and_write_queries(
-      QueryGenerationParameters(
+      SyntheticQueryGenerationParameters(
         dataset=Dataset.TPCDS,
         max_hops=1,
         max_queries_per_fact_table=1,
@@ -87,7 +87,7 @@ def test_non_implemented_dataset():
   ) as mock_writer:
     with pytest.raises(UnkownDatasetError):
       generate_and_write_queries(
-        QueryGenerationParameters(
+        SyntheticQueryGenerationParameters(
           dataset="non_implemented_dataset",
           max_hops=1,
           max_queries_per_fact_table=1,
