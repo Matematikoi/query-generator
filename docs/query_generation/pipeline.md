@@ -1,14 +1,3 @@
-# Index
-
-1. [Snowflake](#snowflake) - Our simplest method
-2. [Running multiple Snowflake](#searchparams) the `search-params` endpoint
-1. [Cherry pick](#cherrypick) diverse data.
-1. [Filter null](#filternull).
-1. [LLM extension](#llm)
-1. [Union queries](#union)
-
-
-
 
 ~~~pikchr
 S: circle "start" fit
@@ -139,4 +128,4 @@ cherry_pick = false
 
 TODO
 
-<!-- <a name="snowflake"></a> -->
+
