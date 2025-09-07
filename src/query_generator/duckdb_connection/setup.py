@@ -71,3 +71,4 @@ def setup_duckdb(params: GenerateDBEndpoint) -> duckdb.DuckDBPyConnection:
   con = duckdb.connect(db_path)
   generate_data(params.scale_factor, params.dataset, con)
   print(f"Database {db_path} created.")
+  return con
