@@ -19,7 +19,7 @@ def test_param_search(file_name):
   endpoint are valid
   """
 
-  file_path = base_path / f"params_config/search_params/{file_name}"
+  file_path = base_path / f"params_config/synthetic_queries/{file_name}"
   params = read_and_parse_toml(
     Path(file_path),
     SyntheticQueriesEndpoint,
