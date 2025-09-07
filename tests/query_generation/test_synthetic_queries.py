@@ -28,7 +28,7 @@ from query_generator.utils.params import SyntheticQueriesEndpoint
     (20, 11, 5, 6),
   ],
 )
-def test_make_bins_in_csv(count_star, upper_bound, total_bins, expected_bin):
+def test_cherry_pick(count_star, upper_bound, total_bins, expected_bin):
   # Create a DataFrame with a single value
   test_df = pl.DataFrame({"count_star": [count_star]})
   result_df = make_bins(test_df, upper_bound, total_bins)
@@ -71,6 +71,8 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
     mock_connect.return_value = 0
     data_toml = f"""
       dataset = "TPCDS"
+      output_folder = ""
+      duckdb_database = ""
       dev = true
       max_hops = [1]
       extra_predicates = {extra_predicates}
@@ -90,7 +92,6 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
     user_input = structure(tomllib.loads(data_toml), SyntheticQueriesEndpoint)
     generate_synthetic_queries(
       params=SyntheticQueriesParams(
-        scale_factor=0,
         con=None,
         user_input=user_input,
       ),
@@ -99,3 +100,5 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       f"Expected {expected_call_count} calls to write_query, "
       f"but got {mock_writer.call_count}"
     )
+
+

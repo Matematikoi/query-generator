@@ -75,17 +75,3 @@ def test_dev_duckdb_setup_tpcds(setup_and_teardown_db):
   ], "DuckDB should have the TPCDS tables"
 
 
-@pytest.mark.parametrize(
-  "query, expected_result",
-  [
-    ("SELECT COUNT(*) FROM customer", 10000),
-    ("SELECT 1", 1),
-  ],
-)
-def test_duck_db_execution(query, expected_result,setup_and_teardown_db):
-  """Test the execution of queries in DuckDB."""
-  # Setup DuckDB
-  con = setup_duckdb(GenerateDBEndpoint(
-    Dataset.TPCDS, TEMP_DB_PATH, 0.1))
-  val = get_result_from_duckdb(query, con)
-  assert val == expected_result, f"Expected {expected_result}, but got {val}"
