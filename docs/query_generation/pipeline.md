@@ -7,6 +7,56 @@
 1. [LLM extension](#llm)
 1. [Union queries](#union)
 
+
+
+
+~~~pikchr
+S: circle "start" fit
+arrow
+MDB: box "generate-db" fit 
+arrow
+P: box "synthetic-queries" fit
+arrow 
+F1: box "filter-synthetic" fit 
+arrow
+LLM: box "llm-extension" fit
+arrow
+circle "dataset" "ready" fit
+
+
+
+
+H: box "make-histograms" fit at (P + (0,-2))
+arrow dashed from S.s to H.nw "for non" aligned "precomputed DB" aligned
+F: file "histogram" at ( P + (1.5,-1.2)) fit
+arrow from H.n to F.s "generates" aligned ""
+arrow <- from P.s to F.n "uses" aligned ""
+spline from S.n  up 0.5 then right until even with P.nw then to P.nw dashed ->
+text "If database is not supported" at (MDB + (0,0.74)) "" "for generation" 
+
+DB: cylinder "DuckDB Database" fit at (P + (0,-1))
+arrow from P.s to DB.n "run" aligned "queries" aligned
+arrow from MDB.s to DB.nw "generates" aligned "DuckDB database" aligned 
+arrow from H.n to DB.s  "queries" aligned ""
+spline <- from DB.ne right 0.5 then to LLM.sw dashed "Syntax Check" aligned
+
+
+PARQUET: file "cardinalities" fit at (P + (0.5,1.3))
+arrow from P.n to PARQUET.sw "generates" aligned "parquet" aligned
+arrow  from PARQUET.se  to F1.n "uses" aligned "cardinalities" aligned
+~~~
+
+
+
+# Example Full run
+We follow a small example for explaining this 
+1. Generate TPC-DS
+1. 
+
+
+
+
+
 <a name="snowflake"></a>
 # Snowflake
 
