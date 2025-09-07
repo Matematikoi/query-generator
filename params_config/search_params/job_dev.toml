@@ -1,5 +1,6 @@
 dataset = "JOB"
-dev = true
+duckdb_database = "data/duckdb/JOB/job.db"
+output_folder = "data/generated_queries/synthetic_queries/Job_dev"
 max_hops = [2,3]
 extra_predicates = [1,2,3]
 row_retention_probability = [0.2,0.3,0.5,0.8]

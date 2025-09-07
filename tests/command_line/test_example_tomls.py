@@ -4,7 +4,6 @@ import pytest
 from query_generator.utils.params import (
   LLMExtensionEndpoint,
   SyntheticQueriesEndpoint,
-  SnowflakeEndpoint,
   read_and_parse_toml,
 )
 
@@ -28,19 +27,6 @@ def test_param_search(file_name):
   assert params is not None
 
 
-@pytest.mark.parametrize("file_name", ["tpcds.toml"])
-def test_snowflake(file_name):
-  """
-  Test that the example toml provided for the param-search
-  endpoint are valid
-  """
-
-  file_path = base_path / f"params_config/snowflake/{file_name}"
-  params = read_and_parse_toml(
-    Path(file_path),
-    SnowflakeEndpoint,
-  )
-  assert params is not None
 
 
 @pytest.mark.parametrize(

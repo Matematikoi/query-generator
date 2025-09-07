@@ -29,23 +29,8 @@ prompt = """Your task is to modify one join to add \
     an outer-join while keeping the predicates"""
 weight = 10
 ''',
-  "snowflake": """\
-dataset = "TPCDS"
-max_hops = 3
-max_queries_per_fact_table = 100
-max_queries_per_signature = 1
-keep_edge_probability = 0.2
-[predicate_parameters]
-row_retention_probability = 0.2
-equality_lower_bound_probability = 0.01
-extra_values_for_in = 3
-extra_predicates = 3
-[predicate_parameters.operator_weights]
-operator_in = 1
-operator_range = 3
-operator_equal = 3
-""",
   "synthetic_generation": """\
+dataset = "JOB"
 duckdb_database = "path/to/duckdb.db"
 output_folder = "path/to/destination/"
 max_hops = [1]
@@ -76,6 +61,6 @@ total_bins = 100
   "generate_db": """\
 dataset = "TPCDS"
 scale_factor = 0.1
-db_path = "data/duckdb/TPCDS/0.1.db"
+db_path = "path/to/duckdb.db"
 """,
 }

@@ -136,8 +136,8 @@ class GenerateDBEndpoint:
 
   # Query builder
   dataset: Dataset
-  scale_factor: int | float | None
   db_path: str
+  scale_factor: float | None = None
 
 
 @dataclass

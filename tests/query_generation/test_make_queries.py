@@ -6,7 +6,6 @@ import pytest
 from query_generator.database_schemas.schemas import get_schema
 from query_generator.join_based_query_generator.snowflake import (
   QueryBuilder,
-  generate_and_write_queries,
 )
 from query_generator.predicate_generator.predicate_generator import (
   HistogramDataType,
