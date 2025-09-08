@@ -1,8 +1,10 @@
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TypeVar
+from typing import Any, TypeVar
 
+import cattrs
+import toml
 from cattrs import structure
 
 from query_generator.utils.definitions import (
@@ -11,12 +13,42 @@ from query_generator.utils.definitions import (
   PredicateOperatorProbability,
   PredicateParameters,
 )
+from query_generator.utils.toml_examples import TOML_EXAMPLE
 
 
 @dataclass
 class ComplexQueryGenerationParametersEndpoint:
+  __doc__ = f"""Uses LLM to generate complex queries based on synthetic queries.
+
+  Attributes:
+  - llm_base_prompt (str): The base prompt to use for the LLM.
+  - llm_model (str): The model to use for the LLM from ollama.
+  - queries_path (str): The path to the synthetic queries files.
+  - total_queries (int): The total number of queries to generate.
+  - seed (int): The seed to use for random operations.
+  - dataset (Dataset): The dataset to use for query generation.
+  - destination_folder (str): The folder to save the generated queries.
+  - retry (int): The number of times to retry generating a query if it fails.
+  - llm_prompts (dict[str, ComplexQueryLLMPrompt]): A dictionary of
+      additional prompts to use for the LLM.
+      This dictionary maps any operations e.g. `group_by` to a prompt
+      configuration. You need to specify two attributes for each prompt,
+      a `prompt` that will be used and a `weight` that defines the
+      probability of using that prompt.
+      The weights do not need to sum up to 1, they will be normalized
+      automatically.
+      The higher the weight, the more likely the prompt will be used.
+
+  examples of toml files can be found in:
+  `params_config/complex_queries/*toml`
+
+  Example:
+  ```toml
+  {TOML_EXAMPLE["llm_augmentation"]}
+  ```
+  """
+
   llm_base_prompt: str
-  llm_prompts: dict[str, ComplexQueryLLMPrompt]
   llm_model: str
   queries_path: str
   total_queries: int
@@ -24,11 +56,12 @@ class ComplexQueryGenerationParametersEndpoint:
   dataset: Dataset
   destination_folder: str
   retry: int
+  llm_prompts: dict[str, ComplexQueryLLMPrompt]
 
 
 @dataclass
 class SearchParametersEndpoint:
-  """
+  __doc__ = f"""
   Represents the parameters used for configuring search queries, including
   query builder, subgraph, and predicate options.
 
@@ -36,24 +69,32 @@ class SearchParametersEndpoint:
   query generation.
 
   Attributes:
-    dataset (Dataset): The dataset to be queried.
-    dev (bool): Flag indicating whether to use development settings.
-    max_queries_per_fact_table (int): Maximum number of queries per fact
+  - dataset (Dataset): The dataset to be queried.
+  - dev (bool): Flag indicating whether to use development settings.
+  - max_queries_per_fact_table (int): Maximum number of queries per fact
       table.
-    max_queries_per_signature (int): Maximum number of queries per
+  - max_queries_per_signature (int): Maximum number of queries per
       signature.
-    unique_joins (bool): Whether to enforce unique joins in the subgraph.
-    max_hops (list[int]): Maximum number of hops allowed in the subgraph.
-    keep_edge_probability (float): Probability of retaining an edge in the
+  - unique_joins (bool): Whether to enforce unique joins in the subgraph.
+  - max_hops (list[int]): Maximum number of hops allowed in the subgraph.
+  - keep_edge_probability (float): Probability of retaining an edge in the
       subgraph.
-    extra_predicates (list[int]): Number of additional predicates to include
+  - extra_predicates (list[int]): Number of additional predicates to include
       in the query.
-    row_retention_probability (list[float]): Probability of retaining a row
+  - row_retention_probability (list[float]): Probability of retaining a row
       for range predicates
-    operator_weights (PredicateOperatorProbability): Probability
+  - operator_weights (PredicateOperatorProbability): Probability
       distribution for predicate operators.
-    equality_lower_bound_probability (float): Lower bound probability when
+  - equality_lower_bound_probability (float): Lower bound probability when
       using the `=` and the `IN` operators
+
+  Examples of toml files can be found in:
+  `params_config/search_params/*toml`
+
+  Example:
+  ```toml
+  {TOML_EXAMPLE["synthetic_generation"]}
+  ```
   """
 
   # Query Builder
@@ -75,26 +116,35 @@ class SearchParametersEndpoint:
 
 @dataclass
 class SnowflakeEndpoint:
-  """
+  __doc__ = f"""
   Represents the parameters used for configuring query generation,
   including query builder, subgraph, and predicate options.
 
   Attributes:
-    dataset (Dataset): The dataset to be used for query generation.
-    max_queries_per_signature (int): Maximum number of queries to generate
+  - dataset (Dataset): The dataset to be used for query generation.
+    The currently supported datasets are TPC-H, TPC-DS, and JOB.
+  - max_queries_per_signature (int): Maximum number of queries to generate
       per signature.
-    max_queries_per_fact_table (int): Maximum number of queries to generate
+  - max_queries_per_fact_table (int): Maximum number of queries to generate
       per fact table.
-    max_hops (int): Maximum number of hops allowed in the subgraph.
-    keep_edge_probability (float): Probability of retaining an edge in the
+  - max_hops (int): Maximum number of hops allowed in the subgraph.
+  - keep_edge_probability (float): Probability of retaining an edge in the
       subgraph.
-    extra_predicates (int): Number of extra predicates to add to the query.
-    row_retention_probability (float): Probability of retaining a row after
+  - extra_predicates (int): Number of extra predicates to add to the query.
+  - row_retention_probability (float): Probability of retaining a row after
       applying predicates.
-    operator_weights (PredicateOperatorProbability): Probability
+  - operator_weights (PredicateOperatorProbability): Probability
       distribution for predicate operators.
-    equality_lower_bound_probability (float): Probability of using a lower
+  - equality_lower_bound_probability (float): Probability of using a lower
       bound for equality predicates.
+
+  Examples of toml files can be found in:
+  `params_config/snowflake/*toml`
+
+  Example TOML
+  ```toml
+  {TOML_EXAMPLE["snowflake"]}
+  ```
   """
 
   # Query builder
@@ -108,9 +158,49 @@ class SnowflakeEndpoint:
   predicate_parameters: PredicateParameters
 
 
+@dataclass
+class CherryPickBase:
+  queries_per_bin: int
+  upper_bound: int
+  total_bins: int
+  seed: int = 42
+
+
+@dataclass
+class FilterEndpoint:
+  __doc__ = f"""
+  Attributes:
+  - filter_null (bool): Whether to filter out null values from the results.
+  - cherry_pick (bool): Whether to cherry-pick queries based on specific
+      criteria.
+  - cherry_pick_config (CherryPickBase): Configuration for cherry-picking
+      queries. This is required if `cherry_pick` is set to True.
+  Examples of toml files can be found in:
+  `params_config/filter/*toml`
+
+  Example:
+  ```toml
+  {TOML_EXAMPLE["filter"]}
+  ```
+  """
+  input_parquet: str
+  destination_folder: str
+  filter_null: bool
+  cherry_pick: bool
+  cherry_pick_config: CherryPickBase | None = None
+
+
 T = TypeVar("T")
 
 
 def read_and_parse_toml(path: Path, cls: type[T]) -> T:
   toml_dict = tomllib.loads(path.read_text())
   return structure(toml_dict, cls)
+
+
+def get_toml_from_params(
+  params: Any,
+) -> str:
+  converter = cattrs.Converter()
+  params_dict = converter.unstructure(params)
+  return toml.dumps(params_dict)

@@ -3,10 +3,8 @@ from dataclasses import dataclass
 from itertools import product
 from typing import Any
 
-import cattrs
 import duckdb
 import polars as pl
-import toml
 from tqdm import tqdm
 
 from query_generator.join_based_query_generator.snowflake import (
@@ -21,7 +19,10 @@ from query_generator.utils.definitions import (
   PredicateParameters,
   QueryGenerationParameters,
 )
-from query_generator.utils.params import SearchParametersEndpoint
+from query_generator.utils.params import (
+  SearchParametersEndpoint,
+  get_toml_from_params,
+)
 
 
 @dataclass
@@ -166,22 +167,12 @@ def run_snowflake_param_search(
     # Update the seen subgraphs with the new ones
     if search_params.user_input.unique_joins:
       seen_subgraphs = query_generator.subgraph_generator.seen_subgraphs
-    checkpoint_queries_csv(rows, writer)
-  checkpoint_queries_csv(rows, writer)
-  save_params(search_params, writer)
+    checkpoint_queries_parquet(rows, writer)
+  checkpoint_queries_parquet(rows, writer)
+  toml_params = get_toml_from_params(search_params.user_input)
+  writer.write_toml(toml_params)
 
 
-def save_params(
-  search_params: SearchParameters,
-  writer: Writer,
-) -> None:
-  converter = cattrs.Converter()
-  params_dict = converter.unstructure(search_params.user_input)
-  params_toml = toml.dumps(params_dict)
-
-  writer.write_toml(params_toml)
-
-
-def checkpoint_queries_csv(rows: list[Any], query_writer: Writer) -> None:
+def checkpoint_queries_parquet(rows: list[Any], query_writer: Writer) -> None:
   df_queries = pl.DataFrame(rows)
   query_writer.write_dataframe(df_queries)
