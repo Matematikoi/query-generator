@@ -6,11 +6,11 @@ import polars as pl
 import pytest
 
 from query_generator.synthetic_queries.synthetic_query_generator import (
-  SearchParameters,
-  run_snowflake_param_search,
+  SyntheticQueriesParams,
+  generate_synthetic_queries,
 )
 from query_generator.filter.filter import make_bins
-from query_generator.utils.params import SearchParametersEndpoint
+from query_generator.utils.params import SyntheticQueriesEndpoint
 
 
 @pytest.mark.parametrize(
@@ -28,7 +28,7 @@ from query_generator.utils.params import SearchParametersEndpoint
     (20, 11, 5, 6),
   ],
 )
-def test_make_bins_in_csv(count_star, upper_bound, total_bins, expected_bin):
+def test_cherry_pick(count_star, upper_bound, total_bins, expected_bin):
   # Create a DataFrame with a single value
   test_df = pl.DataFrame({"count_star": [count_star]})
   result_df = make_bins(test_df, upper_bound, total_bins)
@@ -56,7 +56,7 @@ def test_make_bins_in_csv(count_star, upper_bound, total_bins, expected_bin):
 def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
   with (
     mock.patch(
-      "query_generator.join_based_query_generator.utils.query_writer.Writer.write_query_to_batch"
+      "query_generator.synthetic_queries.utils.query_writer.Writer.write_query_to_batch"
     ) as mock_writer,
     mock.patch(
       "query_generator.synthetic_queries.synthetic_query_generator.get_result_from_duckdb"
@@ -65,12 +65,14 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       "query_generator.synthetic_queries.synthetic_query_generator.checkpoint_queries_parquet"
     ),
     mock.patch(
-      "query_generator.join_based_query_generator.utils.query_writer.Writer.write_toml"
+      "query_generator.synthetic_queries.utils.query_writer.Writer.write_toml"
     ),
   ):
     mock_connect.return_value = 0
     data_toml = f"""
       dataset = "TPCDS"
+      output_folder = ""
+      duckdb_database = ""
       dev = true
       max_hops = [1]
       extra_predicates = {extra_predicates}
@@ -87,10 +89,9 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       operator_range = 3
       operator_equal = 3
       """
-    user_input = structure(tomllib.loads(data_toml), SearchParametersEndpoint)
-    run_snowflake_param_search(
-      search_params=SearchParameters(
-        scale_factor=0,
+    user_input = structure(tomllib.loads(data_toml), SyntheticQueriesEndpoint)
+    generate_synthetic_queries(
+      params=SyntheticQueriesParams(
         con=None,
         user_input=user_input,
       ),

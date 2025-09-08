@@ -1,4 +1,4 @@
-from query_generator.tools.union_queries import (
+from query_generator.extensions.union_queries import (
   get_list_of_columns,
   get_select_list,
   rename_select_list,

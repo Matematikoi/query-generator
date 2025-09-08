@@ -3,7 +3,7 @@ from collections import deque
 from collections.abc import Iterator
 from dataclasses import dataclass
 
-from query_generator.data_structures.foreign_key_graph import ForeignKeyGraph
+from query_generator.synthetic_queries.foreign_key_graph import ForeignKeyGraph
 from query_generator.utils.exceptions import GraphExploredError
 
 MAX_ATTEMPTS_FOR_NEW_SUBGRAPH = 1000

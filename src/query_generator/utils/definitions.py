@@ -2,16 +2,6 @@ from dataclasses import dataclass
 from enum import Enum
 
 
-class Extension(Enum):
-  SNOWFLAKE = "SNOWFLAKE"
-  SNOWFLAKE_SEARCH_PARAMS = "SNOWFLAKE_SEARCH_PARAMS"
-  BINNING_CHERRY_PICKING = "BINNING_CHERRY_PICKING"
-
-
-class Utility(Enum):
-  HISTOGRAM = "HISTOGRAM"
-
-
 class Dataset(Enum):
   TPCDS = "TPCDS"
   TPCH = "TPCH"
@@ -41,7 +31,7 @@ class PredicateParameters:
 
 # TODO(Gabriel): http://localhost:8080/tktview/205e90a1fa
 @dataclass
-class QueryGenerationParameters:
+class SyntheticQueryGenerationParameters:
   dataset: Dataset
   max_hops: int
   max_queries_per_signature: int

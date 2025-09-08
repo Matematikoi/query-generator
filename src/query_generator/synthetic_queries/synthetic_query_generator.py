@@ -7,28 +7,24 @@ import duckdb
 import polars as pl
 from tqdm import tqdm
 
-from query_generator.join_based_query_generator.snowflake import (
+from query_generator.synthetic_queries.query_builder import (
   QueryGenerator,
 )
-from query_generator.join_based_query_generator.utils.query_writer import (
-  Writer,
-)
+from query_generator.synthetic_queries.utils.query_writer import Writer
 from query_generator.utils.definitions import (
   BatchGeneratedQueryToWrite,
-  Extension,
   PredicateParameters,
-  QueryGenerationParameters,
+  SyntheticQueryGenerationParameters,
 )
 from query_generator.utils.params import (
-  SearchParametersEndpoint,
+  SyntheticQueriesEndpoint,
   get_toml_from_params,
 )
 
 
 @dataclass
-class SearchParameters:
-  user_input: SearchParametersEndpoint
-  scale_factor: int | float
+class SyntheticQueriesParams:
+  user_input: SyntheticQueriesEndpoint
   con: duckdb.DuckDBPyConnection
 
 
@@ -55,7 +51,7 @@ def get_result_from_duckdb(
     timer.cancel()
 
 
-def get_total_iterations(search_params: SearchParametersEndpoint) -> int:
+def get_total_iterations(search_params: SyntheticQueriesEndpoint) -> int:
   """Get the total number of iterations for the Snowflake binning process.
 
   Args:
@@ -75,8 +71,8 @@ def get_total_iterations(search_params: SearchParametersEndpoint) -> int:
   )
 
 
-def run_snowflake_param_search(
-  search_params: SearchParameters,
+def generate_synthetic_queries(
+  params: SyntheticQueriesParams,
 ) -> None:
   """Run the Snowflake binning process. Binning is equiwidth binning.
 
@@ -85,12 +81,9 @@ def run_snowflake_param_search(
     the Snowflake binning process.
 
   """
-  writer = Writer(
-    search_params.user_input.dataset,
-    Extension.SNOWFLAKE_SEARCH_PARAMS,
-  )
+  writer = Writer(params.user_input.output_folder)
   rows: list[dict[str, str | int | float]] = []
-  total_iterations = get_total_iterations(search_params.user_input)
+  total_iterations = get_total_iterations(params.user_input)
   batch_number = 0
   seen_subgraphs: dict[int, bool] = {}
   for (
@@ -101,35 +94,35 @@ def run_snowflake_param_search(
     keep_edge_probability,
   ) in tqdm(
     product(
-      search_params.user_input.max_hops,
-      search_params.user_input.extra_predicates,
-      search_params.user_input.row_retention_probability,
-      search_params.user_input.equality_lower_bound_probability,
-      search_params.user_input.keep_edge_probability,
+      params.user_input.max_hops,
+      params.user_input.extra_predicates,
+      params.user_input.row_retention_probability,
+      params.user_input.equality_lower_bound_probability,
+      params.user_input.keep_edge_probability,
     ),
     total=total_iterations,
     desc="Progress",
   ):
     batch_number += 1
     query_generator = QueryGenerator(
-      QueryGenerationParameters(
-        dataset=search_params.user_input.dataset,
+      SyntheticQueryGenerationParameters(
+        dataset=params.user_input.dataset,
         max_hops=max_hops,
-        max_queries_per_fact_table=search_params.user_input.max_queries_per_fact_table,
-        max_queries_per_signature=search_params.user_input.max_queries_per_signature,
+        max_queries_per_fact_table=params.user_input.max_queries_per_fact_table,
+        max_queries_per_signature=params.user_input.max_queries_per_signature,
         keep_edge_probability=keep_edge_probability,
         seen_subgraphs=seen_subgraphs,
         predicate_parameters=PredicateParameters(
           extra_predicates=extra_predicates,
           row_retention_probability=row_retention_probability,
-          operator_weights=search_params.user_input.operator_weights,
+          operator_weights=params.user_input.operator_weights,
           equality_lower_bound_probability=equality_lower_bound_probability,
-          extra_values_for_in=search_params.user_input.extra_values_for_in,
+          extra_values_for_in=params.user_input.extra_values_for_in,
         ),
       )
     )
     for query in query_generator.generate_queries():
-      selected_rows = get_result_from_duckdb(query.query, search_params.con)
+      selected_rows = get_result_from_duckdb(query.query, params.con)
       if selected_rows == -1:
         continue  # invalid query
 
@@ -165,11 +158,11 @@ def run_snowflake_param_search(
         },
       )
     # Update the seen subgraphs with the new ones
-    if search_params.user_input.unique_joins:
+    if params.user_input.unique_joins:
       seen_subgraphs = query_generator.subgraph_generator.seen_subgraphs
     checkpoint_queries_parquet(rows, writer)
   checkpoint_queries_parquet(rows, writer)
-  toml_params = get_toml_from_params(search_params.user_input)
+  toml_params = get_toml_from_params(params.user_input)
   writer.write_toml(toml_params)
 
 

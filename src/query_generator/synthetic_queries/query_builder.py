@@ -5,20 +5,17 @@ from typing import Any
 from pypika import OracleQuery, Table
 from pypika import functions as fn
 
-from query_generator.data_structures.foreign_key_graph import ForeignKeyGraph
 from query_generator.database_schemas.schemas import get_schema
 
 # fmt: off
-from query_generator.join_based_query_generator.\
+from query_generator.synthetic_queries.\
   utils.subgraph_generator import (
   SubGraphGenerator,
 )
+from query_generator.synthetic_queries.foreign_key_graph import ForeignKeyGraph
 
 # fmt: on
-from query_generator.join_based_query_generator.utils.query_writer import (
-  Writer,
-)
-from query_generator.predicate_generator.predicate_generator import (
+from query_generator.synthetic_queries.predicate_generator import (
   HistogramDataType,
   PredicateEquality,
   PredicateGenerator,
@@ -28,11 +25,10 @@ from query_generator.predicate_generator.predicate_generator import (
 )
 from query_generator.utils.definitions import (
   Dataset,
-  Extension,
   GeneratedPredicateTypes,
   GeneratedQueryFeatures,
   PredicateParameters,
-  QueryGenerationParameters,
+  SyntheticQueryGenerationParameters,
 )
 from query_generator.utils.utils import set_seed
 
@@ -145,7 +141,7 @@ class QueryBuilder:
 
 
 class QueryGenerator:
-  def __init__(self, params: QueryGenerationParameters) -> None:
+  def __init__(self, params: SyntheticQueryGenerationParameters) -> None:
     set_seed()
     self.params = params
     self.tables_schema, self.fact_tables = get_schema(params.dataset)
@@ -189,19 +185,3 @@ class QueryGenerator:
               subgraph
             ),
           )
-
-
-def generate_and_write_queries(params: QueryGenerationParameters) -> None:
-  """Generate and write queries to a file.
-
-  Args:
-      params (QueryGenerationParameters): Query generation parameters.
-
-  """
-  query_writer = Writer(
-    params.dataset,
-    Extension.SNOWFLAKE,
-  )
-  query_generator = QueryGenerator(params)
-  for query in query_generator.generate_queries():
-    query_writer.write_query(query)

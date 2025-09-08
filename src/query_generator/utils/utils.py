@@ -8,7 +8,7 @@ from typing import Any, get_type_hints
 
 def set_seed() -> None:
   """Set the seed for random number generation."""
-  seed = 80
+  seed = 42
   random.seed(seed)
 
 

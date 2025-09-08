@@ -1,53 +1,38 @@
 TOML_EXAMPLE = {
-  "llm_augmentation": '''\
-llm = false
+  "extension_and_llm": '''\
+llm_extension = true
+union_extension = true
+database_path = "data/duckdb/TPCDS/0.db"
+queries_parquet = "tmp/filtered_queries/filtered.parquet"
+destination_folder = "tmp/extended_queries"
+[union_params]
+max_queries = 5
+probability = 0.7
+
+[llm_params]
 retry = 1
-llm_model = "llama4:16x17b"
+total_queries = 5
+llm_model = "deepseek-r1:1.5b"
 llm_base_prompt = """
-    You are a database expert. And you are writing \
-    queries to test your current database with the TPCDS \
-    dataset with challenging and diverse queries. You are \
-    currently re-writing new queries that should not be \
-    trivial or equivalent to the input query.\
-    When answering, only answer with the query in markdown,\
-    for example:\
-    ```sql select * from table```
+    You are writing queries for a markdown text using \
+    the format:```sql for correct formatting in markdown
+
+    your only task is to write the given sql query again but 
+    surrounding it with ```sql Select from....```
     """
-queries_path = "/path/to/synthetic/queries"
-total_queries = 10000
-seed = 424
-dataset = "TPCDS"
-destination_folder = "/path/to/destination"
 
-[llm_prompts.self_join]
-prompt = """Your task is modify this query to add \
-    a self-join while keeping the predicates"""
-weight = 10
+[llm_params.llm_prompts.self_join]
+prompt = "write this query again only adding the ```sql for markdown"
+weight = 30
 
-[llm_prompts.outer_join]
-prompt = """Your task is to modify one join to add \
-    an outer-join while keeping the predicates"""
-weight = 10
+[llm_params.llm_prompts.outer_join]
+prompt = "write this query again only adding the ```sql for markdown"
+weight = 30
 ''',
-  "snowflake": """\
-dataset = "TPCDS"
-max_hops = 3
-max_queries_per_fact_table = 100
-max_queries_per_signature = 1
-keep_edge_probability = 0.2
-[predicate_parameters]
-row_retention_probability = 0.2
-equality_lower_bound_probability = 0.01
-extra_values_for_in = 3
-extra_predicates = 3
-[predicate_parameters.operator_weights]
-operator_in = 1
-operator_range = 3
-operator_equal = 3
-""",
   "synthetic_generation": """\
-dataset = "TPCDS"
-dev = true
+dataset = "JOB"
+duckdb_database = "path/to/duckdb.db"
+output_folder = "path/to/destination/"
 max_hops = [1]
 extra_predicates = [5]
 row_retention_probability = [0.2, 0.9]
@@ -73,4 +58,16 @@ queries_per_bin = 100
 upper_bound = 1000000
 total_bins = 100
   """,
+  "generate_db": """\
+dataset = "TPCDS"
+scale_factor = 0.1
+db_path = "path/to/duckdb.db"
+""",
+  "histogram": """\
+output_folder = "path/to/destination/"
+database_path = "path/to/duckdb.db"
+histogram_size = 51
+common_values_size = 10
+include_mcv = true
+""",
 }
