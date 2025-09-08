@@ -125,7 +125,40 @@ cherry_pick = false
 
 
 **Extension and LLM**
+Finally we can do extensions for extra relational algebra operators.
+This extension takes as input the filtered queries. To run 
+```bash
+pixi run main extensions-and-llm -c params_config/complex_queries/tpcds_dev.toml
+```
+This will generate the union and llm extension, the provided toml is:
+```toml
+llm_extension = true
+union_extension = true
+union_max_queries = 5
+database_path = "data/duckdb/TPCDS/0.db"
+queries_parquet = "tmp/filtered_queries/filtered.parquet"
+destination_folder = "tmp/extended_queries"
 
-TODO
+[llm_params]
+retry = 1
+total_queries = 5
+llm_model = "deepseek-r1:1.5b"
+llm_base_prompt = """
+    You are writing queries for a markdown text using \
+    the format:```sql for correct formatting in markdown
+
+    your only task is to write the given sql query again but 
+    surrounding it with ```sql Select from....```
+    """
+
+[llm_params.llm_prompts.self_join]
+prompt = "write this query again only adding the ```sql for markdown"
+weight = 30
+
+[llm_params.llm_prompts.outer_join]
+prompt = "write this query again only adding the ```sql for markdown"
+weight = 30
+
+```
 
 
