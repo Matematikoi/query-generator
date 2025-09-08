@@ -29,6 +29,7 @@ from query_generator.utils.params import (
   GenerateDBEndpoint,
   HistogramEndpoint,
   SyntheticQueriesEndpoint,
+  get_toml_from_params,
   read_and_parse_toml,
 )
 from query_generator.utils.utils import (
@@ -208,7 +209,7 @@ def make_histograms(
 @app.command(
   "extensions-and-llm", help=build_help_from_dataclass(ExtensionAndLLMEndpoint)
 )
-def llm_extension_endpoint(
+def extension_and_llm_endpoint(
   config_file: Annotated[
     str,
     typer.Option(
@@ -234,6 +235,10 @@ def llm_extension_endpoint(
 
   if params.llm_extension:
     llm_extension(params)
+  toml_params = get_toml_from_params(params)
+  (Path(params.destination_folder) / "extension_config.toml").write_text(
+    toml_params
+  )
 
 
 if __name__ == "__main__":

@@ -77,7 +77,7 @@ def union_queries(
   df_input = pl.read_parquet(parquet_path)
   cnt = 0
   rows = []
-  for _, df_signature in df_input.group_by(
+  for join_signature, df_signature in df_input.group_by(
     "subgraph_signature", maintain_order=True
   ):
     queries_relative_paths = df_signature.get_column("relative_path").to_list()
@@ -95,7 +95,9 @@ def union_queries(
       ),
     )
     new_query = get_new_query(sampled_query_paths, probability)
-    new_query_path = destination_path / "union" / f"union-{cnt}.sql"
+    new_query_path = (
+      destination_path / "union" / f"union-{join_signature[0]}.sql"
+    )
     new_query_path.parent.mkdir(parents=True, exist_ok=True)
     new_query_path.write_text(new_query)
     cnt += 1
