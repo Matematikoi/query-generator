@@ -27,12 +27,15 @@ pixi run commit # Commits changes after checking lint and test
 
 # Execution
 ## Main program
-For documentation you may run
+For documentation you may get a list of all endpoints by doing:
 ```bash
 pixi run main --help
 ```
 This will show several endpoints that you may understand by running
 
 ```bash
-pixi run main snowflake --help
+pixi run main {endpoint} --help
 ```
+
+For more information you may refer to the 
+[documentation of the endpoints here](http://localhost:8080/file?name=docs/query_generation/pipeline.md&ci=docs). This shows a list of examples. 
