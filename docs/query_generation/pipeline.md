@@ -158,7 +158,6 @@ weight = 30
 [llm_params.llm_prompts.outer_join]
 prompt = "write this query again only adding the ```sql for markdown"
 weight = 30
-
 ```
 
 
