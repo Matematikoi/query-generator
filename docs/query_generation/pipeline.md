@@ -8,7 +8,7 @@ P: box "synthetic-queries" fit
 arrow 
 F1: box "filter-synthetic" fit 
 arrow
-LLM: box "llm-extension" fit
+LLM: box "extensions-and-llm" fit
 arrow
 circle "dataset" "ready" fit
 
@@ -47,7 +47,7 @@ endpoint.
 1. Generate queries with the database and the histograms
 of the previous steps.
 1. Filter the generated synthetic queries.
-1. Augment them using llm.
+1. Augment them using llm and unions.
 
 **Generate TPCDS**
 We choose the `generate-db` endpoint to generate the data, and we pass
@@ -124,7 +124,7 @@ cherry_pick = false
 ```
 
 
-**LLM augmentation**
+**Extension and LLM**
 
 TODO
 
