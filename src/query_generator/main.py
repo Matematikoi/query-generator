@@ -4,7 +4,7 @@ from typing import Annotated
 import duckdb
 import typer
 
-from query_generator.duckdb_connection.setup import setup_duckdb
+from query_generator.duckdb_connection.setup import generate_db
 from query_generator.filter.filter import filter_synthetic_queries
 from query_generator.llm.llm_extension import llm_extension
 from query_generator.synthetic_queries.synthetic_query_generator import (
@@ -68,8 +68,8 @@ def synthetic_queries(
   )
 
 
-@app.command(help=build_help_from_dataclass(GenerateDBEndpoint))
-def generate_db(
+@app.command("generate-db", help=build_help_from_dataclass(GenerateDBEndpoint))
+def generate_db_endpoint(
   config_path: Annotated[
     str,
     typer.Option("-c", "--config", help="The path to the configuration file"),
@@ -84,7 +84,7 @@ def generate_db(
     Path(config_path),
     GenerateDBEndpoint,
   )
-  setup_duckdb(params)
+  generate_db(params)
 
 
 @app.command("filter-synthetic", help=build_help_from_dataclass(FilterEndpoint))

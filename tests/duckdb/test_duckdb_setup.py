@@ -1,6 +1,6 @@
 import pytest
 
-from query_generator.duckdb_connection.setup import setup_duckdb
+from query_generator.duckdb_connection.setup import generate_db
 from query_generator.utils.definitions import Dataset
 from query_generator.utils.params import GenerateDBEndpoint
 from pathlib import Path
@@ -22,7 +22,7 @@ def setup_and_teardown_db():
 def test_dev_duckdb_setup_tpch(setup_and_teardown_db):
   """Test the setup of DuckDB."""
   # Setup DuckDB
-  con = setup_duckdb(GenerateDBEndpoint(Dataset.TPCH, TEMP_DB_PATH, 0.0))
+  con = generate_db(GenerateDBEndpoint(Dataset.TPCH, TEMP_DB_PATH, 0.0))
   assert con is not None, "DuckDB connection should not be None"
   assert con.execute("SELECT 1").fetchall() == [(1,)], "DuckDB should return 1"
   assert con.sql("show tables").fetchall() == [
@@ -40,7 +40,7 @@ def test_dev_duckdb_setup_tpch(setup_and_teardown_db):
 def test_dev_duckdb_setup_tpcds(setup_and_teardown_db):
   """Test the setup of DuckDB."""
   # Setup DuckDB
-  con = setup_duckdb(GenerateDBEndpoint(Dataset.TPCDS, TEMP_DB_PATH, 0.0))
+  con = generate_db(GenerateDBEndpoint(Dataset.TPCDS, TEMP_DB_PATH, 0.0))
   assert con is not None, "DuckDB connection should not be None"
   assert con.execute("SELECT 1").fetchall() == [(1,)], "DuckDB should return 1"
   assert con.sql("show tables").fetchall() == [

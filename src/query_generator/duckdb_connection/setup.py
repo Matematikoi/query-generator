@@ -44,7 +44,7 @@ def get_path(
   raise UnkownDatasetError(dataset.value)
 
 
-def setup_duckdb(params: GenerateDBEndpoint) -> duckdb.DuckDBPyConnection:
+def generate_db(params: GenerateDBEndpoint) -> duckdb.DuckDBPyConnection:
   """Installs TPCDS and TPCH datasets in DuckDB.
 
   If the scale factor required is not generated, it will generate it.

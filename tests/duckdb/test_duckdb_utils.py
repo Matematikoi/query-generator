@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from query_generator.duckdb_connection.setup import setup_duckdb
+from query_generator.duckdb_connection.setup import generate_db
 from query_generator.duckdb_connection.utils import (
   get_distinct_count,
   get_equi_height_histogram,
@@ -23,7 +23,7 @@ TEMP_DB_PATH = "/tmp/tests/small_tpcds_0.1.db"
 @pytest.fixture(scope="module")
 def duckdb_connection():
   """Fixture to set up and tear down a DuckDB connection."""
-  con = setup_duckdb(GenerateDBEndpoint(Dataset.TPCDS, TEMP_DB_PATH, 0.1))
+  con = generate_db(GenerateDBEndpoint(Dataset.TPCDS, TEMP_DB_PATH, 0.1))
   yield con
   con.close()
   db_path = Path(TEMP_DB_PATH)
