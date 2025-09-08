@@ -25,6 +25,16 @@ class LLMParams:
   retry: int
   llm_prompts: dict[str, ComplexQueryLLMPrompt]
 
+@dataclass
+class UnionParams:
+  """Params used for the union extension
+  Attributes:
+  - max_queries (int): The maximum number of queries to union. Default is 5.
+  - probability (float): The probability of using UNION instead of UNION ALL.
+      Default is 0.5.
+  """
+  max_queries: int = 5
+  probability: float = 0.5
 
 @dataclass
 class ExtensionAndLLMEndpoint:
@@ -44,6 +54,11 @@ class ExtensionAndLLMEndpoint:
   - llm_params (LLMParams | None): The parameters for the LLM. see below for
       details.
 
+  
+  Attributes Union params:
+  - max_queries (int): The maximum number of queries to union. Default is 5.
+  - probability (float): The probability of using UNION instead of UNION ALL.
+      Default is 0.5.
 
   Attributes llm params:
   - llm_base_prompt (str): The base prompt to use for the LLM.
@@ -73,8 +88,8 @@ class ExtensionAndLLMEndpoint:
   llm_extension: bool
   union_extension: bool
   destination_folder: str
-  union_max_queries: int = 5
   llm_params: LLMParams | None = None
+  union_params : UnionParams | None = None
 
 
 @dataclass

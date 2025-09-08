@@ -2,10 +2,12 @@ TOML_EXAMPLE = {
   "extension_and_llm": '''\
 llm_extension = true
 union_extension = true
-union_max_queries = 5
 database_path = "data/duckdb/TPCDS/0.db"
 queries_parquet = "tmp/filtered_queries/filtered.parquet"
 destination_folder = "tmp/extended_queries"
+[union_params]
+max_queries = 5
+probability = 0.7
 
 [llm_params]
 retry = 1

@@ -223,10 +223,12 @@ def llm_extension_endpoint(
   ComplexQueryGenerationParametersEndpoint structure."""
   params = read_and_parse_toml(Path(config_file), ExtensionAndLLMEndpoint)
   if params.union_extension:
+    assert params.union_params is not None
     union_queries(
       Path(params.queries_parquet),
       Path(params.destination_folder),
-      params.union_max_queries,
+      params.union_params.max_queries,
+      params.union_params.probability,
     )
     print("Union extension done")
 
