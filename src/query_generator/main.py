@@ -6,7 +6,7 @@ import typer
 
 from query_generator.duckdb_connection.setup import generate_db
 from query_generator.filter.filter import filter_synthetic_queries
-from query_generator.llm.llm_extension import llm_extension
+from query_generator.extensions.llm_extension import llm_extension
 from query_generator.synthetic_queries.synthetic_query_generator import (
   SyntheticQueriesParams,
   generate_synthetic_queries,
@@ -22,7 +22,7 @@ from query_generator.tools.histograms import (
   make_redundant_histograms,
   query_histograms,
 )
-from query_generator.tools.union_queries import union_queries
+from query_generator.extensions.union_queries import union_queries
 from query_generator.utils.params import (
   ExtensionAndLLMEndpoint,
   FilterEndpoint,
