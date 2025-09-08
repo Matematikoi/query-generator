@@ -127,10 +127,12 @@ cherry_pick = false
 **Extension and LLM**
 Finally we can do extensions for extra relational algebra operators.
 This extension takes as input the filtered queries. To run 
+
 ```bash
 pixi run main extensions-and-llm -c params_config/complex_queries/tpcds_dev.toml
 ```
 This will generate the union and llm extension, the provided toml is:
+
 ```toml
 llm_extension = true
 union_extension = true
