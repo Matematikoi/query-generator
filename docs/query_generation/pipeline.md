@@ -49,6 +49,17 @@ of the previous steps.
 1. Filter the generated synthetic queries.
 1. Augment them using llm and unions.
 
+## Summary
+Just in case you just want the commands to run the examples:
+
+```bash
+pixi run main generate-db -c params_config/generate_db/tpcds_dev.toml
+pixi run main make-histograms -c params_config/make_histograms/tpcds_dev.toml
+pixi run main synthetic-queries -c params_config/synthetic_queries/tpcds_dev.toml
+pixi run main filter-synthetic -c params_config/filter_synthetic/filter_tpcds_dev.toml
+pixi run main extensions-and-llm -c params_config/extensions_and_llms/tpcds_dev.toml
+```
+
 ## **Generate TPCDS**
 
 We choose the `generate-db` endpoint to generate the data, and we pass
@@ -134,7 +145,7 @@ Finally we can do extensions for extra relational algebra operators.
 This extension takes as input the filtered queries. To run 
 
 ```bash
-pixi run main extensions-and-llm -c params_config/complex_queries/tpcds_dev.toml
+pixi run main extensions-and-llm -c params_config/extensions_and_llms/tpcds_dev.toml
 ```
 This will generate the union and llm extension, the provided toml is:
 

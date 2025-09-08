@@ -42,10 +42,21 @@ curl -fsSL https://ollama.com/install.sh | sh
 
 For Mac you can use [the installer](https://ollama.com/download/mac).
 
+## Pixi cheatsheet
+If you want to run the formatter and the test make sure you are in the
+dev environment and run it with 
+
+```bash
+pixi shell -e dev
+pixi run lint
+```
+If all went well there are no errors on the formatting or the tests.
+
 # Running the generator
 
 We support various ways of running queries. 
-To see our supported pipelines see [the query-generation](/file?name=docs/query_generation/pipeline.md&ci=docs)
+To see our supported pipelines see 
+[the query-generation](/file?name=docs/query_generation/pipeline.md&ci=docs)
 pipelines available.
 
 # Authors and contact
