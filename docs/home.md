@@ -9,8 +9,8 @@ The queries are generated based on foreign keys, and stats collected from the
 database itself.
 
 # Important links
-1. [Project structure](/file?name=docs/miscellaneous/data_structure.md&ci=docs)
 1. [Pipeline with examples](/file?name=docs/query_generation/pipeline.md&ci=docs)
+1. [Project structure](/file?name=docs/miscellaneous/data_structure.md&ci=docs)
 1. [Snowflake Algorithm](/wiki?name=Snowflake)
 1. [LLM augmentation](/wiki?name=LLM%20augmentation)
 
