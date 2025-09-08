@@ -36,6 +36,7 @@ class RedundantHistogramsDataType(Enum):
 
   INTEGER = "int"
   STRING = "string"
+  DATE = "DATE"
 
 
 class HistogramColumns(Enum):
@@ -222,6 +223,8 @@ def get_basic_element_of_redundant_histogram(
     return "0"
   if dtype == RedundantHistogramsDataType.STRING.value:
     return "A"
+  if dtype == RedundantHistogramsDataType.DATE.value:
+    return "1970-01-01"
   raise InvalidHistogramTypeError(dtype)
 
 

@@ -24,10 +24,10 @@ from query_generator.tools.histograms import (
 )
 from query_generator.tools.union_queries import union_queries
 from query_generator.utils.params import (
+  ExtensionAndLLMEndpoint,
   FilterEndpoint,
   GenerateDBEndpoint,
   HistogramEndpoint,
-  LLMExtensionEndpoint,
   SyntheticQueriesEndpoint,
   read_and_parse_toml,
 )
@@ -182,7 +182,7 @@ def make_histograms(
   params = read_and_parse_toml(Path(config_path), HistogramEndpoint)
   destination_path = Path(params.output_folder) / "histogram.parquet"
 
-  con = duckdb.connect()
+  con = duckdb.connect(params.database_path, read_only=True)
   histograms_df = query_histograms(
     histogram_size=params.histogram_size,
     common_values_size=params.common_values_size,
@@ -206,7 +206,7 @@ def make_histograms(
 
 
 @app.command(
-  "llm-extension", help=build_help_from_dataclass(LLMExtensionEndpoint)
+  "extensions-and-llm", help=build_help_from_dataclass(ExtensionAndLLMEndpoint)
 )
 def llm_extension_endpoint(
   config_file: Annotated[
@@ -221,8 +221,17 @@ def llm_extension_endpoint(
   """Add complex queries using LLM prompts.
   The configuration file should be a TOML file with the
   ComplexQueryGenerationParametersEndpoint structure."""
-  params = read_and_parse_toml(Path(config_file), LLMExtensionEndpoint)
-  llm_extension(params)
+  params = read_and_parse_toml(Path(config_file), ExtensionAndLLMEndpoint)
+  if params.union_extension:
+    union_queries(
+      Path(params.queries_parquet),
+      Path(params.destination_folder),
+      params.union_max_queries,
+    )
+    print("Union extension done")
+
+  if params.llm_extension:
+    llm_extension(params)
 
 
 @app.command("union-queries")

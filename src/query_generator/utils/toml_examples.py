@@ -1,33 +1,31 @@
 TOML_EXAMPLE = {
-  "llm_augmentation": '''\
-database_path = "path/to/duckdb.db"
+  "extension_and_llm": '''\
+llm_extension = true
+union_extension = true
+union_max_queries = 5
+database_path = "data/duckdb/TPCDS/0.db"
+queries_parquet = "tmp/filtered_queries/filtered.parquet"
+destination_folder = "tmp/extended_queries"
+
+[llm_params]
 retry = 1
-llm_model = "llama4:16x17b"
+total_queries = 5
+llm_model = "deepseek-r1:1.5b"
 llm_base_prompt = """
-    You are a database expert. And you are writing \
-    queries to test your current database with the TPCDS \
-    dataset with challenging and diverse queries. You are \
-    currently re-writing new queries that should not be \
-    trivial or equivalent to the input query.\
-    When answering, only answer with the query in markdown,\
-    for example:\
-    ```sql select * from table```
+    You are writing queries for a markdown text using \
+    the format:```sql for correct formatting in markdown
+
+    your only task is to write the given sql query again but 
+    surrounding it with ```sql Select from....```
     """
-queries_path = "/path/to/synthetic/queries"
-total_queries = 10000
-seed = 424
-dataset = "TPCDS"
-destination_folder = "/path/to/destination"
 
-[llm_prompts.self_join]
-prompt = """Your task is modify this query to add \
-    a self-join while keeping the predicates"""
-weight = 10
+[llm_params.llm_prompts.self_join]
+prompt = "write this query again only adding the ```sql for markdown"
+weight = 30
 
-[llm_prompts.outer_join]
-prompt = """Your task is to modify one join to add \
-    an outer-join while keeping the predicates"""
-weight = 10
+[llm_params.llm_prompts.outer_join]
+prompt = "write this query again only adding the ```sql for markdown"
+weight = 30
 ''',
   "synthetic_generation": """\
 dataset = "JOB"

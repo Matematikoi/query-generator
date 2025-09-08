@@ -1,21 +1,26 @@
-llm = false
+llm_extension = true
+union_extension = true
+union_max_queries = 5
 database_path = "data/duckdb/TPCDS/0.db"
+queries_parquet = "tmp/filtered_queries/filtered.parquet"
+destination_folder = "tmp/extended_queries"
+
+[llm_params]
 retry = 1
+total_queries = 5
 llm_model = "deepseek-r1:1.5b"
 llm_base_prompt = """
     You are writing queries for a markdown text using \
     the format:```sql for correct formatting in markdown
-    """
-queries_path = "./data/generated_queries/TPCDS_FORMATTED_QUERIES"
-total_queries = 5
-seed = 42
-dataset = "TPCDS"
-destination_folder = "/home/mathos/phd/repos/query_generation/trunk/data/generated_queries/TPCDS_LLM"
 
-[llm_prompts.self_join]
+    your only task is to write the given sql query again but 
+    surrounding it with ```sql Select from....```
+    """
+
+[llm_params.llm_prompts.self_join]
 prompt = "write this query again only adding the ```sql for markdown"
 weight = 30
 
-[llm_prompts.outer_join]
+[llm_params.llm_prompts.outer_join]
 prompt = "write this query again only adding the ```sql for markdown"
 weight = 30

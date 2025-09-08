@@ -16,20 +16,40 @@ from query_generator.utils.toml_examples import TOML_EXAMPLE
 
 
 @dataclass
-class LLMExtensionEndpoint:
+class LLMParams:
+  """Params used for the LLM endpoint"""
+
+  llm_base_prompt: str
+  llm_model: str
+  total_queries: int
+  retry: int
+  llm_prompts: dict[str, ComplexQueryLLMPrompt]
+
+
+@dataclass
+class ExtensionAndLLMEndpoint:
   __doc__ = f"""Uses LLM to generate complex queries based on synthetic queries.
 
   Attributes:
+  - database_path (str): The path to the DuckDB database file.
+  - seed (int): The seed for random number generation to ensure reproducibility.
+    by default, it is set to 42.
+  - queries_parquet (str): The path to the parquet file containing synthetic
+      queries.
+  - llm_extension (bool): Whether to use the LLM extension.
+  - union_extension (bool): Whether to use the union extension.
+  - destination_folder (str): The folder to save the generated complex queries.
+  - union_max_queries (int): The maximum number of queries to union if the
+      union extension is used. Default is 5.
+  - llm_params (LLMParams | None): The parameters for the LLM. see below for
+      details.
+
+
+  Attributes llm params:
   - llm_base_prompt (str): The base prompt to use for the LLM.
   - llm_model (str): The model to use for the LLM from ollama.
-  - queries_path (str): The path to the synthetic queries files.
-  - total_queries (int): The total number of queries to generate.
-  - seed (int): The seed to use for random operations.
-  - dataset (Dataset): The dataset to use for query generation.
-  - destination_folder (str): The folder to save the generated queries.
+  - total_queries (int): The total number of queries to generate with LLM.
   - retry (int): The number of times to retry generating a query if it fails.
-  - database_path (str): The path to the DuckDB database to use for query
-      generation.
   - llm_prompts (dict[str, ComplexQueryLLMPrompt]): A dictionary of
       additional prompts to use for the LLM.
       This dictionary maps any operations e.g. `group_by` to a prompt
@@ -45,20 +65,16 @@ class LLMExtensionEndpoint:
 
   Example:
   ```toml
-  {TOML_EXAMPLE["llm_augmentation"]}
+  {TOML_EXAMPLE["extension_and_llm"]}
   ```
   """
-
-  llm_base_prompt: str
-  llm_model: str
-  queries_path: str
-  total_queries: int
-  seed: int
-  dataset: Dataset
-  destination_folder: str
-  retry: int
-  llm_prompts: dict[str, ComplexQueryLLMPrompt]
   database_path: str
+  queries_parquet: str
+  llm_extension: bool
+  union_extension: bool
+  destination_folder: str
+  union_max_queries: int = 5
+  llm_params: LLMParams | None = None
 
 
 @dataclass

@@ -2,7 +2,7 @@ from pathlib import Path
 import pytest
 
 from query_generator.utils.params import (
-  LLMExtensionEndpoint,
+  ExtensionAndLLMEndpoint,
   SyntheticQueriesEndpoint,
   read_and_parse_toml,
 )
@@ -42,6 +42,6 @@ def test_add_complex_queries(file_name):
   file_path = base_path / f"params_config/complex_queries/{file_name}"
   params = read_and_parse_toml(
     Path(file_path),
-    LLMExtensionEndpoint,
+    ExtensionAndLLMEndpoint,
   )
   assert params is not None
