@@ -49,7 +49,8 @@ of the previous steps.
 1. Filter the generated synthetic queries.
 1. Augment them using llm and unions.
 
-**Generate TPCDS**
+## **Generate TPCDS**
+
 We choose the `generate-db` endpoint to generate the data, and we pass
 the `params_config/generate_db/tpcds_dev.toml` configuration to
 generate a small TPCDS of scale factor 0.1. The toml contains all the 
@@ -67,7 +68,8 @@ scale_factor = 0.1
 db_path = "tmp/database_TPCDS_0.1.duckdb"
 ```
 
-**Make histograms**
+## **Make histograms**
+
 Same as before we run
 ```bash
 pixi run main make-histograms -c params_config/make_histograms/tpcds_dev.toml
@@ -83,7 +85,8 @@ common_values_size = 10
 include_mcv = true
 ```
 
-**Make Synthetic Queries**
+## **Make Synthetic Queries**
+
 We now run the query generation with 
 ```bash
 pixi run main synthetic-queries -c params_config/synthetic_queries/tpcds_dev.toml
@@ -109,7 +112,8 @@ operator_range = 3
 operator_equal = 3
 ```
 
-**Filtering the queries**
+## **Filtering the queries**
+
 To filter the queries we use 
 ```bash
 pixi run main filter-synthetic -c params_config/filter_synthetic/filter_tpcds_dev.toml
@@ -124,7 +128,8 @@ cherry_pick = false
 ```
 
 
-**Extension and LLM**
+## **Extension and LLM**
+
 Finally we can do extensions for extra relational algebra operators.
 This extension takes as input the filtered queries. To run 
 
