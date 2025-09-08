@@ -7,7 +7,7 @@ import duckdb
 import polars as pl
 from tqdm import tqdm
 
-from query_generator.synthetic_queries.snowflake import (
+from query_generator.synthetic_queries.query_builder import (
   QueryGenerator,
 )
 from query_generator.synthetic_queries.utils.query_writer import Writer
