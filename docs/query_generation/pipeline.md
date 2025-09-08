@@ -147,18 +147,16 @@ total_queries = 5
 llm_model = "deepseek-r1:1.5b"
 llm_base_prompt = """
     You are writing queries for a markdown text using \
-    the format:```sql for correct formatting in markdown
-
-    your only task is to write the given sql query again but 
-    surrounding it with ```sql Select from....```
+    the format:sql for correct formatting in markdown. the schema
+    is: ...
     """
 
 [llm_params.llm_prompts.self_join]
-prompt = "write this query again only adding the ```sql for markdown"
+prompt = "write this query with a self join"
 weight = 30
 
 [llm_params.llm_prompts.outer_join]
-prompt = "write this query again only adding the ```sql for markdown"
+prompt = "write this query with an outer join"
 weight = 30
 ```
 
