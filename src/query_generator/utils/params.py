@@ -25,6 +25,7 @@ class LLMParams:
   retry: int
   llm_prompts: dict[str, ComplexQueryLLMPrompt]
 
+
 @dataclass
 class UnionParams:
   """Params used for the union extension
@@ -33,8 +34,10 @@ class UnionParams:
   - probability (float): The probability of using UNION instead of UNION ALL.
       Default is 0.5.
   """
+
   max_queries: int = 5
   probability: float = 0.5
+
 
 @dataclass
 class ExtensionAndLLMEndpoint:
@@ -89,7 +92,7 @@ class ExtensionAndLLMEndpoint:
   union_extension: bool
   destination_folder: str
   llm_params: LLMParams | None = None
-  union_params : UnionParams | None = None
+  union_params: UnionParams | None = None
 
 
 @dataclass

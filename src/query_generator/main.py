@@ -236,40 +236,5 @@ def llm_extension_endpoint(
     llm_extension(params)
 
 
-@app.command("union-queries")
-def union_queries_endpoint(
-  parquet_path: Annotated[
-    str,
-    typer.Option(
-      "--parquet",
-      "-p",
-      help="The path to the parquet file with queries to union",
-    ),
-  ],
-  destination: Annotated[
-    str,
-    typer.Option(
-      "--destination",
-      "-d",
-      help="The path to the destination folder for union queries",
-    ),
-  ],
-  max_queries: Annotated[
-    int,
-    typer.Option(
-      "--max-queries",
-      "-m",
-      help="The maximum number of queries to union",
-      min=1,
-    ),
-  ] = 5,
-) -> None:
-  union_queries(
-    Path(parquet_path),
-    Path(destination),
-    max_queries,
-  )
-
-
 if __name__ == "__main__":
   app()

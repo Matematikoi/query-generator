@@ -34,7 +34,7 @@ def get_count_select_list(size: int) -> str:
 
 def get_new_query(sampled_query_paths: list[Path], probability: float) -> str:
   """Generate a new query by combining sampled queries.
-  
+
   Args:
       sampled_query_paths (list[Path]): List of paths to the sampled queries.
       probability (float): The probability of using UNION instead of UNION ALL.
@@ -59,13 +59,17 @@ SELECT {get_count_select_list(len(columns))} FROM union_queries
 
 
 def union_queries(
-  parquet_path: Path, destination_path: Path, max_queries: int, probability: float
+  parquet_path: Path,
+  destination_path: Path,
+  max_queries: int,
+  probability: float,
 ) -> None:
   """Generate union queries from a parquet file of queries.
-  
+
   Args:
       parquet_path (Path): The path to the parquet file with queries.
-      destination_path (Path): The path to the destination folder for union queries.
+      destination_path (Path): The path to the destination folder for union
+      queries.
       max_queries (int): The maximum number of queries to union.
       probability (float): The probability of using UNION instead of UNION ALL.
   """
