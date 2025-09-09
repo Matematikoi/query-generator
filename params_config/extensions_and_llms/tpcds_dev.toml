@@ -1,6 +1,6 @@
 llm_extension = true
 union_extension = true
-database_path = "data/duckdb/TPCDS/0.db"
+database_path = "tmp/database_TPCDS_0.1.duckdb"
 queries_parquet = "tmp/filtered_queries/filtered.parquet"
 destination_folder = "tmp/extended_queries"
 
