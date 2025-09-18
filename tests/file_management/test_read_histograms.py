@@ -3,7 +3,7 @@ from unittest import mock
 import polars as pl
 import pytest
 
-from query_generator.predicate_generator.predicate_generator import (
+from query_generator.synthetic_queries.predicate_generator import (
   HistogramDataType,
   PredicateGenerator,
 )
@@ -75,7 +75,7 @@ def test_get_min_max_from_bins(
   dtype,
 ):
   with mock.patch(
-    "query_generator.predicate_generator.predicate_generator.random.randint",
+    "query_generator.synthetic_queries.predicate_generator.random.randint",
     return_value=mock_rand,
   ):
     predicate_generator = PredicateGenerator(

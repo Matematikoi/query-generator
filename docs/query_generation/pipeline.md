@@ -1,4 +1,3 @@
-
 ~~~pikchr
 S: circle "start" fit
 arrow
@@ -178,5 +177,3 @@ weight = 30
 prompt = "write this query with an outer join"
 weight = 30
 ```
-
-

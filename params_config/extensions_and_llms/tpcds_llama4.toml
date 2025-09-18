@@ -1,0 +1,65 @@
+llm_extension = true
+union_extension = false
+database_path = "data/duckdb/TPCDS/0.db"
+destination_folder = "/home/gabriel/query_generation/query_generation/data/generated_queries/LLM_QUERIES_llama_unseen"
+queries_parquet = "/home/gabriel/query_generation/query_generation/data/generated_queries/FORMATTED_TPCDS/filtered.parquet"
+
+[llm_params]
+retry = 1
+llm_model = "llama4:16x17b"
+llm_base_prompt = """
+    You are a database expert. And you are writing \
+    queries to test your current database with the TPCDS \
+    dataset with challenging and diverse queries. You are \
+    currently re-writing new queries that should not be \
+    trivial or equivalent to the input query.\
+    When answering, only answer with the query in markdown,\
+    for example:\
+    ```sql select * from table```
+    """
+total_queries = 10000
+
+[llm_params.llm_prompts.self_join]
+prompt = "Your task is modify this query to add a self-join while keeping the predicates"
+weight = 10
+
+[llm_params.llm_prompts.outer_join]
+prompt = "Your task is to modify one join to add an outer-join while keeping the predicates"
+weight = 10
+
+[llm_params.llm_prompts.nested_join_in]
+prompt = """Your task is to take this query and add a nested query in the type of \
+    an IN nested query. Make sure to add a column of outside the nested query\
+    to make it a challenging query that has to be computed everytime \
+    otherwise it will just be a constant. Keep the predicates."""
+weight = 5
+
+[llm_params.llm_prompts.nested_join_exists]
+prompt = """Your task is to take this query and add a nested query in the type of \
+    an EXISTS nested query. Make sure to add a column of outside the nested query\
+    to make it a challenging query that has to be computed everytime \
+    otherwise it will just be a constant. Keep the predicates."""
+weight = 5
+
+[llm_params.llm_prompts.window_function]
+prompt = """Your task is to add a window function to this query \
+    It must be done in a way that works in most SQL dialects. \
+    You should keep the predicates of the query mostly intact."""
+weight = 10
+
+[llm_params.llm_prompts.inequality_join]
+prompt = """Your task is to modify one join to make it an inequality join \
+    while keeping the predicates of the following query"""
+weight = 10
+
+[llm_params.llm_prompts.group_by]
+prompt = """Your task is to keep most of the query while adding a group by"""
+weight = 20
+
+[llm_params.llm_prompts.group_by_order_by]
+prompt = """Your task is to keep most of the query while adding a group by and order by"""
+weight = 10
+
+[llm_params.llm_prompts.group_by_rollup]
+prompt = """Your task is to keep most of the query while adding a group by with rollup"""
+weight = 5

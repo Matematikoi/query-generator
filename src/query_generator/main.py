@@ -1,26 +1,19 @@
 from pathlib import Path
 from typing import Annotated
 
+import duckdb
 import typer
 
-from query_generator.duckdb_connection.binning import (
-  SearchParameters,
-  run_snowflake_param_search,
+from query_generator.duckdb_connection.setup import generate_db
+from query_generator.filter.filter import filter_synthetic_queries
+from query_generator.extensions.llm_extension import llm_extension
+from query_generator.synthetic_queries.synthetic_query_generator import (
+  SyntheticQueriesParams,
+  generate_synthetic_queries,
 )
-from query_generator.duckdb_connection.setup import setup_duckdb
-from query_generator.join_based_query_generator.snowflake import (
-  generate_and_write_queries,
-)
-from query_generator.join_based_query_generator.utils.query_writer import (
+from query_generator.synthetic_queries.utils.query_writer import (
   write_parquet,
   write_redundant_histogram_csv,
-)
-from query_generator.llm.complex_queries import create_complex_queries
-from query_generator.tools.cherry_pick_binning import (
-  CherryPickParameters,
-  cherry_pick_binning,
-  filter_null_and_format_job,
-  filter_null_and_format_tpcds,
 )
 from query_generator.tools.format_queries_file_structure import (
   format_queries_file_structure,
@@ -29,52 +22,25 @@ from query_generator.tools.histograms import (
   make_redundant_histograms,
   query_histograms,
 )
-from query_generator.tools.union_queries import union_queries
-from query_generator.utils.definitions import (
-  Dataset,
-  Extension,
-  QueryGenerationParameters,
-)
+from query_generator.extensions.union_queries import union_queries
 from query_generator.utils.params import (
-  ComplexQueryGenerationParametersEndpoint,
-  SearchParametersEndpoint,
-  SnowflakeEndpoint,
+  ExtensionAndLLMEndpoint,
+  FilterEndpoint,
+  GenerateDBEndpoint,
+  HistogramEndpoint,
+  SyntheticQueriesEndpoint,
+  get_toml_from_params,
   read_and_parse_toml,
 )
-from query_generator.utils.show_messages import show_dev_warning
-from query_generator.utils.utils import validate_file_path
+from query_generator.utils.utils import (
+  build_help_from_dataclass,
+)
 
-app = typer.Typer(name="Query Generation")
-
-
-@app.command()
-def snowflake(
-  config_path: Annotated[
-    str,
-    typer.Option(
-      "-c",
-      "--config",
-      help="The path to the configuration file"
-      "They can be found in the params_config/query_generation/ folder",
-    ),
-  ],
-) -> None:
-  """Generate queries using a random subgraph."""
-  params_endpoint = read_and_parse_toml(Path(config_path), SnowflakeEndpoint)
-  params = QueryGenerationParameters(
-    dataset=params_endpoint.dataset,
-    max_hops=params_endpoint.max_hops,
-    max_queries_per_fact_table=params_endpoint.max_queries_per_fact_table,
-    max_queries_per_signature=params_endpoint.max_queries_per_signature,
-    keep_edge_probability=params_endpoint.keep_edge_probability,
-    seen_subgraphs={},
-    predicate_parameters=params_endpoint.predicate_parameters,
-  )
-  generate_and_write_queries(params)
+app = typer.Typer(name="Query Generation", rich_markup_mode="markdown")
 
 
-@app.command()
-def param_search(
+@app.command(help=build_help_from_dataclass(SyntheticQueriesEndpoint))
+def synthetic_queries(
   config_path: Annotated[
     str,
     typer.Option(
@@ -92,159 +58,61 @@ def param_search(
   """
   params = read_and_parse_toml(
     Path(config_path),
-    SearchParametersEndpoint,
+    SyntheticQueriesEndpoint,
   )
-  show_dev_warning(dev=params.dev)
-  scale_factor = 0.1 if params.dev else 100
-  con = setup_duckdb(params.dataset, scale_factor)
-  run_snowflake_param_search(
-    SearchParameters(
-      scale_factor=scale_factor,
+  con = duckdb.connect(database=params.duckdb_database, read_only=True)
+  generate_synthetic_queries(
+    SyntheticQueriesParams(
       con=con,
       user_input=params,
     ),
   )
 
 
-@app.command()
-def cherry_pick(
-  dataset: Annotated[
-    Dataset,
-    typer.Option("--dataset", "-d", help="The dataset used"),
+@app.command("generate-db", help=build_help_from_dataclass(GenerateDBEndpoint))
+def generate_db_endpoint(
+  config_path: Annotated[
+    str,
+    typer.Option("-c", "--config", help="The path to the configuration file"),
   ],
-  parquet: Annotated[
-    str | None,
-    typer.Option(
-      "--parquet",
-      "-p",
-      help="The path to the batches parquet",
-      show_default="data/generated_queries/BINNING_SNOWFLAKE/{dataset}/{dataset}_values.parquet",
-    ),
-  ] = None,
-  queries_per_bin: Annotated[
-    int,
-    typer.Option(
-      "--queries",
-      "-q",
-      help="The number of queries to be randomly picked per bin",
-      min=1,
-    ),
-  ] = 10,
-  upper_bound: Annotated[
-    int,
-    typer.Option(
-      "--upper-bound",
-      "-u",
-      help="The upper bound of the binning process",
-      min=1,
-    ),
-  ] = 1_000_000_000,
-  total_bins: Annotated[
-    int,
-    typer.Option(
-      "--total-bins",
-      "-b",
-      help="The number of bins to create",
-      min=10,
-    ),
-  ] = 1000,
-  seed: Annotated[
-    int,
-    typer.Option(
-      "--seed",
-      "-s",
-      help="The seed to use for the random queries selection",
-      min=0,
-    ),
-  ] = 42,
-  destination_folder: Annotated[
-    str | None,
-    typer.Option(
-      "--destination-folder",
-      "-df",
-      help="The folder to save the cherry picked queries",
-      show_default=f"data/generated_queries/{Extension.BINNING_CHERRY_PICKING.value}/{{dataset}}",
-    ),
-  ] = None,
 ) -> None:
-  """This function is used to cherry pick queries from the
-  binning process. It randomly picks queries from the
-  binning process and saves them in a folder.
+  """Generates a DuckDB database with TPCDS or TPCH datasets.
+
+  If the scale factor required is not generated, it will generate it.
+  It returns a duckdb connection to the database.
   """
-  # TODO(Gabriel): https://chiselapp.com/user/matematikoi/repository/query-generation/tktview/19a06e6eab725f84b5c74a94fda4efb5e8d43dbc
-  # the input should be a toml file configuration file
-  parquet_path = (
-    Path(
-      f"data/generated_queries/{Extension.SNOWFLAKE_SEARCH_PARAMS.value}/{dataset.value}/{dataset.value}_batches.parquet",
-    )
-    if parquet is None
-    else Path(parquet)
+  params = read_and_parse_toml(
+    Path(config_path),
+    GenerateDBEndpoint,
   )
-  destination_folder_path = (
-    Path(
-      f"data/generated_queries/{Extension.BINNING_CHERRY_PICKING.value}/{dataset.value}",
-    )
-    if destination_folder is None
-    else Path(destination_folder)
-  )
-  validate_file_path(parquet_path)
-  cherry_pick_binning(
-    CherryPickParameters(
-      parquet_path=parquet_path,
-      queries_per_bin=queries_per_bin,
-      upper_bound=upper_bound,
-      total_bins=total_bins,
-      destination_folder=destination_folder_path,
-      seed=seed,
-    ),
-  )
+  generate_db(params)
 
 
-@app.command()
-def filter_null(
-  csv: Annotated[
+@app.command("filter-synthetic", help=build_help_from_dataclass(FilterEndpoint))
+def filter_synthetic_endpoint(
+  config_path: Annotated[
     str,
     typer.Option(
-      "--csv",
       "-c",
-      help="The path to the csv file with queries",
-    ),
-  ],
-  dataset: Annotated[
-    Dataset,
-    typer.Option(
-      "--dataset",
-      "-d",
-      help="The dataset used",
-    ),
-  ],
-  destination: Annotated[
-    str,
-    typer.Option(
-      "--destination",
-      "-e",
-      help="The path to the destination folder",
+      "--config",
+      help="The path to the configuration file"
+      "They can be found in the params_config/filter/ folder",
     ),
   ],
 ) -> None:
-  """Filters null queries and formats for traces collection
+  """Filters queries based on the Count Star
 
-  Supports JOB and TPCDS separately since the trace collection
-  works different for the two of them.
+  Supports two methods of filtering:
+  - Filter null queries and format for traces collection (count star = 0)
+  - Cherry pick queries based on binning (makes equi-width bins
+  based on the parameters provided by the user and picks queries
+  in each bin up to a limit)
   """
-  csv_path = Path(csv)
-  destination_path = Path(destination)
-  validate_file_path(csv_path)
-  if dataset == Dataset.JOB:
-    filter_null_and_format_job(
-      csv_path=csv_path,
-      destination_path=destination_path,
-    )
-  else:
-    filter_null_and_format_tpcds(
-      parquet_path=csv_path,
-      destination_path=destination_path,
-    )
+  params = read_and_parse_toml(
+    Path(config_path),
+    FilterEndpoint,
+  )
+  filter_synthetic_queries(params)
 
 
 @app.command()
@@ -301,80 +169,33 @@ def format_queries(
 
 @app.command()
 def make_histograms(
-  dataset: Annotated[
-    Dataset,
-    typer.Option("--dataset", "-d", help="The dataset used"),
-  ],
-  histogram_size: Annotated[
-    int,
+  config_path: Annotated[
+    str,
     typer.Option(
-      "--histogram-size",
-      "-h",
-      help="The size of the histogram",
-      min=1,
-    ),
-  ] = 51,
-  common_values_size: Annotated[
-    int,
-    typer.Option(
-      "--common-values-size",
       "-c",
-      help="The size of the common values",
-      min=1,
+      "--config",
+      help="The path to the configuration file"
+      "They can be found in the params_config/histograms/ folder",
     ),
-  ] = 10,
-  destination_str: Annotated[
-    str | None,
-    typer.Option(
-      "--path",
-      "-p",
-      help="The folder to save the histograms",
-      show_default="data/generated_histograms/{dataset}/histogram.parquet",
-    ),
-  ] = None,
-  *,
-  dev: Annotated[
-    bool,
-    typer.Option(
-      "--dev",
-      help="Development testing. If true then uses scale factor 0.1 to check.",
-    ),
-  ] = False,
-  include_mvc: Annotated[
-    bool,
-    typer.Option(
-      "--exclude-mvc",
-      "-e",
-      help="If true then we generate most common values",
-    ),
-  ] = False,
+  ],
 ) -> None:
   """This function is used to create histograms in parquet format."""
-  destination_path = (
-    Path(
-      f"data/generated_histograms/{dataset.value}/histogram.parquet",
-    )
-    if destination_str is None
-    else Path(destination_str)
-  )
-  scale_factor = 0.1 if dev else 100
+  params = read_and_parse_toml(Path(config_path), HistogramEndpoint)
+  destination_path = Path(params.output_folder) / "histogram.parquet"
 
-  con = setup_duckdb(
-    dataset,
-    scale_factor,
-  )
+  con = duckdb.connect(params.database_path, read_only=True)
   histograms_df = query_histograms(
-    histogram_size=histogram_size,
-    common_values_size=common_values_size,
+    histogram_size=params.histogram_size,
+    common_values_size=params.common_values_size,
     con=con,
-    include_mvc=include_mvc,
+    include_mcv=params.include_mcv,
   )
   write_parquet(histograms_df, destination_path)
   # TODO(Gabriel):  http://localhost:8080/tktview/46fca17ee0
   #  Delete this code and everything that
   #  touches it [46fca17ee0ab9e46]
   redundant_histogram_df = make_redundant_histograms(
-    destination_path, histogram_size
+    destination_path, params.histogram_size
   )
   write_parquet(
     redundant_histogram_df,
@@ -385,8 +206,10 @@ def make_histograms(
   )
 
 
-@app.command()
-def add_complex_queries(
+@app.command(
+  "extensions-and-llm", help=build_help_from_dataclass(ExtensionAndLLMEndpoint)
+)
+def extension_and_llm_endpoint(
   config_file: Annotated[
     str,
     typer.Option(
@@ -399,44 +222,22 @@ def add_complex_queries(
   """Add complex queries using LLM prompts.
   The configuration file should be a TOML file with the
   ComplexQueryGenerationParametersEndpoint structure."""
-  params = read_and_parse_toml(
-    Path(config_file), ComplexQueryGenerationParametersEndpoint
-  )
-  create_complex_queries(params)
+  params = read_and_parse_toml(Path(config_file), ExtensionAndLLMEndpoint)
+  if params.union_extension:
+    assert params.union_params is not None
+    union_queries(
+      Path(params.queries_parquet),
+      Path(params.destination_folder),
+      params.union_params.max_queries,
+      params.union_params.probability,
+    )
+    print("Union extension done")
 
-
-@app.command("union-queries")
-def union_queries_endpoint(
-  csv_path: Annotated[
-    str,
-    typer.Option(
-      "--csv",
-      "-c",
-      help="The path to the csv file with queries to union",
-    ),
-  ],
-  destination: Annotated[
-    str,
-    typer.Option(
-      "--destination",
-      "-d",
-      help="The path to the destination folder for union queries",
-    ),
-  ],
-  max_queries: Annotated[
-    int,
-    typer.Option(
-      "--max-queries",
-      "-m",
-      help="The maximum number of queries to union",
-      min=1,
-    ),
-  ] = 5,
-) -> None:
-  union_queries(
-    Path(csv_path),
-    Path(destination),
-    max_queries,
+  if params.llm_extension:
+    llm_extension(params)
+  toml_params = get_toml_from_params(params)
+  (Path(params.destination_folder) / "extension_config.toml").write_text(
+    toml_params
   )
 
 

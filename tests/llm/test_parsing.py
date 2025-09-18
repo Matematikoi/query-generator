@@ -1,6 +1,6 @@
 import pytest
 
-from query_generator.llm.complex_queries import extract_sql
+from query_generator.extensions.llm_extension import extract_sql
 
 
 @pytest.mark.parametrize(

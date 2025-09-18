@@ -36,6 +36,7 @@ class RedundantHistogramsDataType(Enum):
 
   INTEGER = "int"
   STRING = "string"
+  DATE = "DATE"
 
 
 class HistogramColumns(Enum):
@@ -138,7 +139,7 @@ def query_histograms(
   common_values_size: int,
   con: duckdb.DuckDBPyConnection,
   *,
-  include_mvc: bool,
+  include_mcv: bool,
 ) -> pl.DataFrame:
   """Creates histograms for the given dataset.
   Args:
@@ -174,7 +175,7 @@ def query_histograms(
         HistogramColumns.DTYPE.value: column.column_type,
         HistogramColumns.TABLE_SIZE.value: table_size,
       }
-      if include_mvc:
+      if include_mcv:
         # Get most common values
         most_common_values = get_most_common_values(
           con,
@@ -222,6 +223,8 @@ def get_basic_element_of_redundant_histogram(
     return "0"
   if dtype == RedundantHistogramsDataType.STRING.value:
     return "A"
+  if dtype == RedundantHistogramsDataType.DATE.value:
+    return "1970-01-01"
   raise InvalidHistogramTypeError(dtype)
 
 
