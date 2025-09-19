@@ -42,7 +42,7 @@ pixi run lint
 ```
 If all went well there are no errors on the formatting or the tests.
 # Pipeline
-![image](https://private-user-images.githubusercontent.com/37823629/487023573-989bfd79-4a43-44a8-956d-648e7f3c01d2.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NTczNzc2NDUsIm5iZiI6MTc1NzM3NzM0NSwicGF0aCI6Ii8zNzgyMzYyOS80ODcwMjM1NzMtOTg5YmZkNzktNGE0My00NGE4LTk1NmQtNjQ4ZTdmM2MwMWQyLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTA5MDklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwOTA5VDAwMjIyNVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTc4YTVjYjFiZWE1OWY1MTUwNjg2MTE3ZWZlZjE5MjBkZTA4ZmNmNDQyODQ5MDY5MDhhNzExOGFkMmJmYmNhOGUmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.gUSwRCjtxIn7aBbX5y6IVNv-iR70f983hPtwPgNfcy0)
+![image](https://lilac-apparel-9cd.notion.site/image/attachment%3Ad657932a-7863-43f9-8f48-7f4bf013c8f5%3Aimage.png?table=block&id=2725b26a-bc30-80cf-b94e-fec07f4a0464&spaceId=e8e5b26a-bc30-8134-8c9b-00034986fbe4&width=1420&userId=&cache=v2)
 
 # Example Full run
 
