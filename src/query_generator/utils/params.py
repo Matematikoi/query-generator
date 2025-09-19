@@ -242,6 +242,27 @@ class HistogramEndpoint:
   common_values_size: int = 10
   include_mcv: bool = False
 
+@dataclass
+class LLMFixEndpoint:
+  __doc__ = f"""Use an LLM to fix a set of queries
+
+  Attributes:
+  - database_path (str): The path to the DuckDB database to use for validating
+      queries.
+  - queries_parquet (str): The path to the parquet file containing queries to
+      be fixed.
+  - llm_base_prompt (str): The base prompt to use for the LLM.
+  - prompts (dict[str, ComplexQueryLLMPrompt]): A dictionary of prompts to use
+      for fixing queries. This dictionary maps a name to a prompt configuration.
+
+  Examples of toml files can be found in:
+  `params_config/llm_fix/*toml`
+  Example:
+  ```toml
+  {TOML_EXAMPLE["llm_fix"]}
+  ```
+  """
+
 
 T = TypeVar("T")
 

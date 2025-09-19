@@ -28,6 +28,7 @@ from query_generator.utils.params import (
   FilterEndpoint,
   GenerateDBEndpoint,
   HistogramEndpoint,
+  LLMFixEndpoint,
   SyntheticQueriesEndpoint,
   get_toml_from_params,
   read_and_parse_toml,
@@ -240,6 +241,23 @@ def extension_and_llm_endpoint(
     toml_params
   )
 
+@app.command(
+  "llm-fix", help=build_help_from_dataclass(LLMFixEndpoint)
+)
+def llm_fix_endpoint(
+  config_file: Annotated[
+    str,
+    typer.Option(
+      "--config",
+      "-c",
+      help="The path to the configuration file with complex queries",
+    ),
+  ],
+) -> None:
+  """Use an LLM to fix a set of queries.
+  The configuration file should be a TOML file with the
+  LLMFixEndpoint structure."""
+  return
 
 if __name__ == "__main__":
   app()
