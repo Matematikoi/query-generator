@@ -213,7 +213,7 @@ D: diamond "Is condition" "fulfilled?" fit
 arrow "Yes" above
 box "Do the fix" fit
 aa
-box "get new query" "and mark it as fixed" fit
+box "extract query from" "LLM output" fit
 aa
 L2: diamond "is fixed?" fit
 aa
