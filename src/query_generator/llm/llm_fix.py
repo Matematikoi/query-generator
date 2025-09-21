@@ -1,10 +1,14 @@
 from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Iterator
-import duckdb
 from ollama import Client
 from tqdm import tqdm
-from query_generator.llm.utils import LLM_Message, extract_sql, query_llm
+from query_generator.llm.utils import (
+  LLM_Message,
+  get_text_after_think,
+  query_llm,
+  validate_and_retry_query_with_llm,
+)
 from query_generator.utils.file_writing import write_to_file, write_to_toml
 from query_generator.utils.params import LLMFixEndpoint
 from pathlib import Path
@@ -54,7 +58,7 @@ def copy_non_sql_files(src_folder: Path, dest_folder: Path) -> None:
 
 
 def build_llm_input(
-  condition: str, base_prompt: str, query: str
+  user_petition: str, base_prompt: str, query: str
 ) -> LLM_Message:
   """Gets the messages to send to the LLM for a specific petition"""
   return [
@@ -62,7 +66,7 @@ def build_llm_input(
     {
       "role": "user",
       "content": f"""
-    {condition}
+    {user_petition}
     {query}""",
     },
   ]
@@ -71,7 +75,7 @@ def build_llm_input(
 def llm_response_to_boolean(response: str) -> bool:
   """Convert an LLM response to a boolean."""
   response = "".join(filter(str.isalnum, response)).lower()
-  return response in ["yes", "true"]
+  return "yes" in get_text_after_think(response)
 
 
 def query_fulfills_condition(
@@ -83,7 +87,7 @@ def query_fulfills_condition(
 ) -> bool:
   """Check if a query fulfills a specific condition using the LLM."""
   messages = build_llm_input(
-    condition=params.prompts[condition_name].condition,
+    user_petition=params.prompts[condition_name].condition,
     base_prompt=params.llm_base_condition_prompt,
     query=query,
   )
@@ -106,13 +110,15 @@ def fix_query_with_llm(
   logger: FixLLMLogs,
 ) -> str:
   messages = build_llm_input(
-    condition=params.prompts[prompt_name].condition,
+    user_petition=params.prompts[prompt_name].fix,
     base_prompt=params.llm_base_fix_prompt,
     query=query,
   )
-  response = query_llm(llm_client, messages, params.llm_model)
+  query_llm(llm_client, messages, params.llm_model)
+  new_query = validate_and_retry_query_with_llm(
+    messages, llm_client, params.database_path, params.retry, params.llm_model
+  )
   logger.logs_fix[prompt_name] = messages
-  new_query = extract_sql(response[-1]["content"])
   return query if new_query == "" else new_query
 
 
@@ -120,7 +126,7 @@ def get_rows_from_log(log: FixLLMLogs) -> list[dict]:
   """Get rows from a FixLLMLogs object for saving to a DataFrame."""
   rows = []
   for condition_name, condition_log in log.logs_condition.items():
-    was_fixed = condition_name in log.conditions_fulfilled
+    was_fixed = log.fixed_query != log.original_query
     fix_log = log.logs_fix.get(condition_name, [])
     rows.append(
       {
@@ -150,7 +156,6 @@ def llm_fix(params: LLMFixEndpoint) -> None:
   new_queries_path = Path(params.new_queries_path)
   sql_files = get_sql_queries_from_folder(old_queries_path)
   llm_client = Client()
-  con = duckdb.connect(database=params.database_path, read_only=True)
   logs: list[FixLLMLogs] = []
   for sql_file in tqdm(sql_files, desc="Fixing queries"):
     query = sql_file.read_text()
@@ -173,8 +178,6 @@ def llm_fix(params: LLMFixEndpoint) -> None:
       new_queries_path / sql_file.relative_to(params.queries_path),
       fixed_query,
     )
-
-  con.close()
   logs_df = get_dataframe_from_logs(logs)
   logs_df.write_parquet(new_queries_path / "llm_fix_logs.parquet")
   copy_non_sql_files(old_queries_path, new_queries_path)

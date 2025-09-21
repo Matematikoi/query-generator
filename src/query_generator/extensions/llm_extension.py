@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 from query_generator.llm.utils import (
   LLM_Message,
+  add_retry_query_to_messages,
   extract_sql,
   query_llm,
   validate_query_duckdb,
@@ -50,20 +51,6 @@ def get_random_prompt(params: LLMParams, query: str) -> tuple[str, LLM_Message]:
   {query}""",
     },
   ]
-
-
-def add_retry_query_to_messages(
-  messages: LLM_Message, exception: Exception
-) -> None:
-  messages.append(
-    {
-      "role": "user",
-      "content": f"""
-      Fix this error with the query you provided:
-      {str(exception)}
-    """,
-    }
-  )
 
 
 def llm_extension(

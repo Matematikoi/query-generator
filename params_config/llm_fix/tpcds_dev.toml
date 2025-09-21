@@ -2,10 +2,26 @@ database_path = "tmp/database_TPCDS_0.1.duckdb"
 queries_path = "tmp/extended_queries/"
 new_queries_path = "tmp/fixed_queries/"
 llm_base_condition_prompt = """
-    Say yes if the query fulfills the condition\
-    and no if it does not."""
-llm_base_fix_prompt = "Fix the SQL query according to the condition."
+Say yes if the query fulfills the condition\ 
+and no if it does not.\ 
+All your text must be in english.
+"""
+llm_base_fix_prompt = """
+Fix the SQL query according to the user request. You must rewrite the \
+entire query. You must not make any assumptions about the data. \
+You must not add any explanations. You must only output the fixed query.\
+You must give a fully executable SQL query, no comments, no explanations.\
+All your text must be in english. Use standard SQL syntax.\
+
+When you write the SQL query make sure to surround it by tiple backticks (```)\
+so that it can be easily extracted.
+for example 
+```sql
+SELECT * FROM table;
+``` 
+"""
 llm_model = "deepseek-r1:1.5b"
+retry = 2
 
 [prompts.union]
 fix = "Fix this query by changing `UNION` to `UNION ALL`"

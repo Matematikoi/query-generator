@@ -277,6 +277,7 @@ class LLMFixEndpoint:
   llm_base_condition_prompt: str
   llm_model: str
   prompts: dict[str, LLMFixPrompt]
+  retry: int
 
   # TODO add test
   def get_sorted_prompts(self) -> list[tuple[str, LLMFixPrompt]]:
