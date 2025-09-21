@@ -1,7 +1,8 @@
 from pathlib import Path
+from typing import Any
 
 import polars as pl
-from traitlets import Any
+
 
 from query_generator.utils.params import get_toml_from_params
 

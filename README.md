@@ -67,6 +67,7 @@ pixi run main make-histograms -c params_config/make_histograms/tpcds_dev.toml
 pixi run main synthetic-queries -c params_config/synthetic_queries/tpcds_dev.toml
 pixi run main filter-synthetic -c params_config/filter_synthetic/filter_tpcds_dev.toml
 pixi run main extensions-and-llm -c params_config/extensions_and_llms/tpcds_dev.toml
+pixi run main llm-fix -c params_config/llm_fix/tpcds_dev.toml 
 ```
 
 ## **Generate TPCDS**
