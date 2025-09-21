@@ -70,7 +70,7 @@ histogram_size = 51
 common_values_size = 10
 include_mcv = true
 """,
-  "llm_fix": '''\
+  "llm_fix": """\
 database_path = "path/"
 queries_parquet = "path/"
 base_prompt = "base promp...."
@@ -85,5 +85,5 @@ priority = 1
 condition = "Another condition for the LLM"
 fix= "Fix to apply if condition is fulfilled"
 
-'''
+""",
 }

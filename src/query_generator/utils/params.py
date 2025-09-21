@@ -242,6 +242,14 @@ class HistogramEndpoint:
   common_values_size: int = 10
   include_mcv: bool = False
 
+
+@dataclass
+class LLMFixPrompt:
+  priority: int
+  condition: str
+  fix: str
+
+
 @dataclass
 class LLMFixEndpoint:
   __doc__ = f"""Use an LLM to fix a set of queries
@@ -262,6 +270,21 @@ class LLMFixEndpoint:
   {TOML_EXAMPLE["llm_fix"]}
   ```
   """
+  database_path: str
+  queries_path: str
+  new_queries_path: str
+  llm_base_fix_prompt: str
+  llm_base_condition_prompt: str
+  llm_model: str
+  prompts: dict[str, LLMFixPrompt]
+
+  # TODO add test
+  def get_sorted_prompts(self) -> list[tuple[str, LLMFixPrompt]]:
+    """Get prompts sorted by priority.
+
+    Returns prompt names and prompts as a list of tuples.
+    """
+    return sorted(self.prompts.items(), key=lambda item: item[1].priority)
 
 
 T = TypeVar("T")

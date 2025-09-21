@@ -1,0 +1,19 @@
+database_path = "tmp/database_TPCDS_0.1.duckdb"
+queries_path = "tmp/extended_queries/"
+new_queries_path = "tmp/fixed_queries/"
+llm_base_condition_prompt = """
+    Say yes if the query fulfills the condition\
+    and no if it does not."""
+llm_base_fix_prompt = "Fix the SQL query according to the condition."
+llm_model = "deepseek-r1:1.5b"
+
+[prompts.union]
+fix = "Fix this query by changing `UNION` to `UNION ALL`"
+condition = "Does the query use union?"
+priority = 0
+
+[prompts.count]
+fix = "Fix this query by adding a distinct count"
+condition = "Does the query use count without distinct?"
+priority = 0
+

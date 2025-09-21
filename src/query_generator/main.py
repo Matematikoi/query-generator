@@ -8,6 +8,7 @@ from query_generator.duckdb_connection.setup import generate_db
 from query_generator.extensions.llm_extension import llm_extension
 from query_generator.extensions.union_queries import union_queries
 from query_generator.filter.filter import filter_synthetic_queries
+from query_generator.llm.llm_fix import llm_fix
 from query_generator.synthetic_queries.synthetic_query_generator import (
   SyntheticQueriesParams,
   generate_synthetic_queries,
@@ -241,9 +242,8 @@ def extension_and_llm_endpoint(
     toml_params
   )
 
-@app.command(
-  "llm-fix", help=build_help_from_dataclass(LLMFixEndpoint)
-)
+
+@app.command("llm-fix", help=build_help_from_dataclass(LLMFixEndpoint))
 def llm_fix_endpoint(
   config_file: Annotated[
     str,
@@ -257,7 +257,9 @@ def llm_fix_endpoint(
   """Use an LLM to fix a set of queries.
   The configuration file should be a TOML file with the
   LLMFixEndpoint structure."""
-  return
+  params = read_and_parse_toml(Path(config_file), LLMFixEndpoint)
+  llm_fix(params)
+
 
 if __name__ == "__main__":
   app()
