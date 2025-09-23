@@ -66,3 +66,13 @@ def test_filter_synthetic():
       FilterEndpoint,
     )
     assert params is not None
+
+
+def test_fix_llm():
+  file_path = base_path / f"params_config/fix_llm"
+  for file in Path(file_path).glob("*.toml"):
+    params = read_and_parse_toml(
+      file,
+      FilterEndpoint,
+    )
+    assert params is not None

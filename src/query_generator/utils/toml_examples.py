@@ -71,19 +71,22 @@ common_values_size = 10
 include_mcv = true
 """,
   "llm_fix": """\
-database_path = "path/"
-queries_parquet = "path/"
-base_prompt = "base promp...."
+database_path = "path/to/duckdb.db"
+queries_path = "path/to/queries"
+new_queries_path = "path/to/destination/"
+llm_base_condition_prompt = "Some base prompt"
+llm_base_fix_prompt = "Some base prompt"
+llm_model = "deepseek-r1:1.5b"
+retry = 2
 
-[prompts.prompt_1]
+[prompts.union]
+fix = "Fix this query by changing `UNION` to `UNION ALL`"
+condition = "Does the query use union?"
 priority = 0
-condition = "Some condition for the LLM"
-fix= "Fix to apply if condition is fulfilled"
 
-[prompts.prompt_2]
-priority = 1
-condition = "Another condition for the LLM"
-fix= "Fix to apply if condition is fulfilled"
-
+[prompts.count]
+fix = "Fix this query by adding a distinct count"
+condition = "Does the query use count without distinct?"
+priority = 0
 """,
 }

@@ -6,6 +6,7 @@ from query_generator.utils.params import (
   HistogramEndpoint,
   ExtensionAndLLMEndpoint,
   FilterEndpoint,
+  LLMFixEndpoint,
   SyntheticQueriesEndpoint,
   read_and_parse_toml,
 )
@@ -20,6 +21,7 @@ def test_toml():
     "filter": FilterEndpoint,
     "generate_db": GenerateDBEndpoint,
     "histogram": HistogramEndpoint,
+    "llm_fix": LLMFixEndpoint,
   }
   for key, toml_raw in TOML_EXAMPLE.items():
     toml_dict = tomllib.loads(toml_raw)

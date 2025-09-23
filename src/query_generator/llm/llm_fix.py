@@ -1,8 +1,13 @@
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Iterator
+from pathlib import Path
+from typing import Any
+
+import polars as pl
 from ollama import Client
 from tqdm import tqdm
+
 from query_generator.llm.utils import (
   LLM_Message,
   get_text_after_think,
@@ -11,8 +16,6 @@ from query_generator.llm.utils import (
 )
 from query_generator.utils.file_writing import write_to_file, write_to_toml
 from query_generator.utils.params import LLMFixEndpoint
-from pathlib import Path
-import polars as pl
 
 
 @dataclass
@@ -122,7 +125,7 @@ def fix_query_with_llm(
   return query if new_query == "" else new_query
 
 
-def get_rows_from_log(log: FixLLMLogs) -> list[dict]:
+def get_rows_from_log(log: FixLLMLogs) -> list[dict[LLMFixLogColumns, Any]]:
   """Get rows from a FixLLMLogs object for saving to a DataFrame."""
   rows = []
   for condition_name, condition_log in log.logs_condition.items():
@@ -142,7 +145,7 @@ def get_rows_from_log(log: FixLLMLogs) -> list[dict]:
   return rows
 
 
-def get_dataframe_from_logs(logs: list[FixLLMLogs]):
+def get_dataframe_from_logs(logs: list[FixLLMLogs]) -> pl.DataFrame:
   """Get a DataFrame from a list of FixLLMLogs."""
   rows = []
   for log in logs:

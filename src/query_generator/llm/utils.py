@@ -1,7 +1,7 @@
 import re
 
-from duckdb import DuckDBPyConnection
 import duckdb
+from duckdb import DuckDBPyConnection
 from ollama import Client
 
 LLM_Message = list[dict[str, str]]

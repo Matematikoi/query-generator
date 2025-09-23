@@ -279,7 +279,6 @@ class LLMFixEndpoint:
   prompts: dict[str, LLMFixPrompt]
   retry: int
 
-  # TODO add test
   def get_sorted_prompts(self) -> list[tuple[str, LLMFixPrompt]]:
     """Get prompts sorted by priority.
 

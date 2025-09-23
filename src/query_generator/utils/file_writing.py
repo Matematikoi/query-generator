@@ -3,7 +3,6 @@ from typing import Any
 
 import polars as pl
 
-
 from query_generator.utils.params import get_toml_from_params
 
 
@@ -14,7 +13,7 @@ def write_to_file(file_path: Path, content: str) -> None:
 
 
 def write_to_parquet(file_path: Path, df: pl.DataFrame) -> None:
-  """Write a DataFrame to a parquet file, creating parent directories if needed."""
+  """Write a DataFrame to a parquet file."""
   file_path.parent.mkdir(parents=True, exist_ok=True)
   df.write_parquet(file_path)
 
