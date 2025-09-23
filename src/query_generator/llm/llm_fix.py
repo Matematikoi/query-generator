@@ -178,7 +178,7 @@ def llm_fix(params: LLMFixEndpoint) -> None:
       new_queries_path / sql_file.relative_to(params.queries_path),
       fixed_query,
     )
-  logs_df = get_dataframe_from_logs(logs)
-  logs_df.write_parquet(new_queries_path / "llm_fix_logs.parquet")
+    logs_df = get_dataframe_from_logs(logs)
+    logs_df.write_parquet(new_queries_path / "llm_fix_logs.parquet")
   copy_non_sql_files(old_queries_path, new_queries_path)
   write_to_toml(new_queries_path / "llm_fix_config.toml", params)
