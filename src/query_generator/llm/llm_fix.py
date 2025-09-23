@@ -157,6 +157,7 @@ def llm_fix(params: LLMFixEndpoint) -> None:
   """Use an LLM to fix a set of queries."""
   old_queries_path = Path(params.queries_path)
   new_queries_path = Path(params.new_queries_path)
+  write_to_toml(new_queries_path / "llm_fix_config.toml", params)
   sql_files = get_sql_queries_from_folder(old_queries_path)
   llm_client = Client()
   logs: list[FixLLMLogs] = []
@@ -184,4 +185,3 @@ def llm_fix(params: LLMFixEndpoint) -> None:
     logs_df = get_dataframe_from_logs(logs)
     logs_df.write_parquet(new_queries_path / "llm_fix_logs.parquet")
   copy_non_sql_files(old_queries_path, new_queries_path)
-  write_to_toml(new_queries_path / "llm_fix_config.toml", params)
