@@ -128,7 +128,7 @@ def fix_query_with_llm(
 def get_rows_from_log(log: FixLLMLogs) -> list[dict[LLMFixLogColumns, Any]]:
   """Get rows from a FixLLMLogs object for saving to a DataFrame."""
   rows = []
-  for condition_name, condition_log in log.logs_condition.items():
+  for condition_name, condition_log in log.logs_fix.items():
     was_fixed = log.fixed_query != log.original_query
     fix_log = log.logs_fix.get(condition_name, [])
     rows.append(
@@ -137,7 +137,7 @@ def get_rows_from_log(log: FixLLMLogs) -> list[dict[LLMFixLogColumns, Any]]:
         LLMFixLogColumns.ORIGINAL_QUERY: log.original_query,
         LLMFixLogColumns.FIXED_QUERY: log.fixed_query,
         LLMFixLogColumns.CONDITION_NAME: condition_name,
-        LLMFixLogColumns.CONDITION_LOG: condition_log,
+        # LLMFixLogColumns.CONDITION_LOG: condition_log,
         LLMFixLogColumns.FIX_LOGS: fix_log,
         LLMFixLogColumns.WAS_FIXED: was_fixed,
       }
@@ -170,12 +170,9 @@ def llm_fix(params: LLMFixEndpoint) -> None:
     )
     fixed_query = query
     for prompt_name, _ in params.get_sorted_prompts():
-      if query_fulfills_condition(
+      fixed_query = fix_query_with_llm(
         fixed_query, params, prompt_name, llm_client, logger
-      ):
-        fixed_query = fix_query_with_llm(
-          fixed_query, params, prompt_name, llm_client, logger
-        )
+      )
     logger.fixed_query = fixed_query
     logs.append(logger)
     write_to_file(
