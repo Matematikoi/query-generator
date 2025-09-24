@@ -61,22 +61,20 @@ def copy_non_sql_files(src_folder: Path, dest_folder: Path) -> None:
 
 
 def setup_llm(
-  user_petition: str, base_prompt: str, query: str, model:str, client: Client
+  user_petition: str, base_prompt: str, query: str, model: str, client: Client
 ) -> LLM_Message:
   """Gets the messages to send to the LLM for a specific petition"""
-  messages = [
-    {"role": "user", "content": base_prompt}
-  ]
-  query_llm (client, messages, model)
-  messages.append({
+  messages = [{"role": "user", "content": base_prompt}]
+  query_llm(client, messages, model)
+  messages.append(
+    {
       "role": "user",
       "content": f"""
     {user_petition}
     {query}""",
-    })
-  return [
-    {"role": "system", "content": base_prompt}
-  ]
+    }
+  )
+  return messages
 
 
 def llm_response_to_boolean(response: str) -> bool:
@@ -167,7 +165,6 @@ def llm_fix(params: LLMFixEndpoint) -> None:
   new_queries_path = Path(params.new_queries_path)
   write_to_toml(new_queries_path / "llm_fix_config.toml", params)
   sql_files = get_sql_queries_from_folder(old_queries_path)
-  llm_client = Client()
   logs: list[FixLLMLogs] = []
   for sql_file in tqdm(sql_files, desc="Fixing queries"):
     query = sql_file.read_text()
@@ -178,6 +175,7 @@ def llm_fix(params: LLMFixEndpoint) -> None:
     )
     fixed_query = query
     for prompt_name, _ in params.get_sorted_prompts():
+      llm_client = Client()
       fixed_query = fix_query_with_llm(
         fixed_query, params, prompt_name, llm_client, logger
       )
