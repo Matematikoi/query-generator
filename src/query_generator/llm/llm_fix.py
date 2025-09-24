@@ -122,6 +122,8 @@ def fix_query_with_llm(
     user_petition=params.prompts[prompt_name].fix,
     base_prompt=params.llm_base_fix_prompt,
     query=query,
+    model=params.llm_model,
+    client=llm_client,
   )
   query_llm(llm_client, messages, params.llm_model)
   new_query = validate_and_retry_query_with_llm(
