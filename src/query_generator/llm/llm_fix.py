@@ -60,18 +60,22 @@ def copy_non_sql_files(src_folder: Path, dest_folder: Path) -> None:
     dest_path.write_bytes(file_path.read_bytes())
 
 
-def build_llm_input(
-  user_petition: str, base_prompt: str, query: str
+def setup_llm(
+  user_petition: str, base_prompt: str, query: str, model:str, client: Client
 ) -> LLM_Message:
   """Gets the messages to send to the LLM for a specific petition"""
-  return [
-    {"role": "system", "content": base_prompt},
-    {
+  messages = [
+    {"role": "user", "content": base_prompt}
+  ]
+  query_llm (client, messages, model)
+  messages.append({
       "role": "user",
       "content": f"""
     {user_petition}
     {query}""",
-    },
+    })
+  return [
+    {"role": "system", "content": base_prompt}
   ]
 
 
@@ -89,10 +93,12 @@ def query_fulfills_condition(
   logger: FixLLMLogs,
 ) -> bool:
   """Check if a query fulfills a specific condition using the LLM."""
-  messages = build_llm_input(
+  messages = setup_llm(
     user_petition=params.prompts[condition_name].condition,
     base_prompt=params.llm_base_condition_prompt,
     query=query,
+    model=params.llm_model,
+    client=llm_client,
   )
   query_llm(llm_client, messages, params.llm_model)
   response = messages[-1]["content"].strip().lower()
@@ -112,7 +118,7 @@ def fix_query_with_llm(
   llm_client: Client,
   logger: FixLLMLogs,
 ) -> str:
-  messages = build_llm_input(
+  messages = setup_llm(
     user_petition=params.prompts[prompt_name].fix,
     base_prompt=params.llm_base_fix_prompt,
     query=query,
