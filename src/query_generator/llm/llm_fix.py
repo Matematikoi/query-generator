@@ -64,12 +64,12 @@ def setup_llm(
   user_petition: str, base_prompt: str, query: str, model: str, client: Client
 ) -> LLM_Message:
   """Gets the messages to send to the LLM for a specific petition"""
-  messages = [{"role": "user", "content": base_prompt}]
-  query_llm(client, messages, model)
+  messages = []
   messages.append(
     {
       "role": "user",
       "content": f"""
+    {base_prompt}
     {user_petition}
     {query}""",
     }
