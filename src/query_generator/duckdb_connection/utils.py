@@ -182,6 +182,7 @@ def get_schema_as_str(con: duckdb.DuckDBPyConnection) -> str:
   """
   tables = con.execute("SHOW TABLES").fetchall()
   result = ""
+  print(tables)
   for (table,) in tables:
-    result = result + f"\n{con.execute(f'DESCRIBE {table}')};\n".fetchall()
+    result = result + f"\n{con.execute(f'DESCRIBE {table}').fetchall()};\n"
   return result
