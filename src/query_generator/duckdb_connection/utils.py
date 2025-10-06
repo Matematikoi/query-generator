@@ -170,3 +170,18 @@ def get_histogram_excluding_common_values(
   """
   data = con.execute(query).fetchall()
   return [RawDuckDBHistograms(bin=d[0], count=d[1]) for d in data]
+
+def get_schema_as_str(con: duckdb.DuckDBPyConnection) -> str:
+  """Retrieve the schema of the database.
+
+  Args:
+      con (duckdb.DuckDBPyConnection): The connection to the database.
+
+  Returns:
+      str: The schema of the database as a string.
+  """
+  tables = con.execute("SHOW TABLES").fetchall()
+  result = ""
+  for (table,) in tables:
+    result = result + f"\n{con.execute(f'DESCRIBE {table}')};\n".fetchall()
+  return result
