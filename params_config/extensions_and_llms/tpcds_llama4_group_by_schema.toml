@@ -516,12 +516,12 @@ CREATE TABLE web_site
     web_tax_percentage DECIMAL(5, 2)
 );
 """
-total_queries = 10
+total_queries = 15
 
 [llm_params.llm_prompts.inequality_join]
 prompt = """Your task is to modify one join to make it an inequality join \
     while keeping the predicates of the following query"""
-weight = 1
+weight = 30 
 
 [llm_params.llm_prompts.group_by_3]
 prompt = """
