@@ -1,16 +1,18 @@
 database_path = "tmp/database_TPCDS_0.1.duckdb"
 queries_path = "/home/gabriel/query_generation/query_generation/data/LLM1/LLM1_groupby"
-new_queries_path = "/home/gabriel/query_generation/query_generation/data/LLM1/LLM1_fixed_devstral_revised"
-llm_model = "devstral:24b"
-retry = 2
+new_queries_path = "/home/gabriel/query_generation/query_generation/data/LLM1/LLM1_fixed_devstral_revised_6"
+llm_model = "deepseek-r1:70b"
+retry = 1
 llm_base_condition_prompt = """
 Say yes if the query fulfills the condition \ 
 and no if it does not. \ 
 All your text must be in english.
 """
 llm_base_fix_prompt = """
-You are an expert SQL query fixer. You are working with TPC-DS schema.
-The schema is:
+You are going to modify a query that was made for the TPC-DS
+database. The database schema is the following, use it when
+replacing columns to have an actual column that exists in the
+schema:
 ```sql
 CREATE TABLE call_center
 (
@@ -510,41 +512,74 @@ CREATE TABLE web_site
     web_tax_percentage DECIMAL(5, 2)
 );
 ```
-
-Fix the SQL query according to the user request. You must rewrite the \
-entire query. You must not make any assumptions about the data. \
-You must not add any explanations. You must only output the fixed query.\
-You must give a fully executable SQL query, no comments, no explanations.\
-All your text must be in english. Use standard SQL syntax.\
-
-When you write the SQL query make sure to surround it by tiple backticks (```)\
-so that it can be easily extracted.
-for example 
-```sql
-SELECT * FROM table;
-``` 
 """
 
 
 [prompts.group_by]
 fix = """
-Your task is to change the select clause with two changes:
 
-First change:
-Change the attributes used in the aggregate function, to be different from
-those used in the group by clause if there is a group by.
+For each column that appear in both the select clause and the group by clause replace the select
+clause by another column from the schema.
 
-Second change:
-You will change some aggregates to add more variety.\
-For non numerical values alternate between count and count distinct.\
-For numerical values alternate between min, max, count and count distinct.\
-Don't add more columns than necessary. one per table is enough."""
+Here are the steps that you must follow:
+1. identify columns that appear in the group by and in the select clause
+2. for each column that appear in both the group by and in the select clause, choose a suitable replacement.
+3. rewrite the full query, replacing columns only in the select clause
+
+
+
+# Example
+
+
+Input:
+```sql
+SELECT COUNT(*),
+       COUNT(ws.ws_net_paid_inc_ship_tax),
+       COUNT(hd.hd_dep_count),
+       COUNT(wp.wp_link_count),
+       COUNT(cd.cd_demo_sk),
+       COUNT(web.web_open_date_sk),
+       COUNT(ca.ca_address_sk),
+       COUNT(p.p_item_sk),
+       COUNT(sm.sm_ship_mode_sk)
+FROM web_sales ws
+JOIN household_demographics hd ON ws.ws_bill_hdemo_sk = hd.hd_demo_sk
+JOIN customer_demographics cd ON ws.ws_bill_cdemo_sk = cd.cd_demo_sk
+JOIN web_page wp ON ws.ws_web_page_sk = wp.wp_web_page_sk
+JOIN web_site web ON ws.ws_web_site_sk = web.web_site_sk
+JOIN customer_address ca ON ws.ws_ship_addr_sk = ca.ca_address_sk
+JOIN promotion p ON ws.ws_promo_sk = p.p_promo_sk
+JOIN ship_mode sm ON ws.ws_ship_mode_sk = sm.sm_ship_mode_sk
+WHERE ws.ws_net_profit >= -2487.11 AND ws.ws_net_profit < -42.3 AND ws.ws_quantity = 90
+GROUP BY wp.wp_link_count, cd.cd_demo_sk, web.web_open_date_sk, ca.ca_address_sk, p.p_item_sk, sm.sm_ship_mode_sk;
+```
+
+
+output (wp.wp_link_count, cd.cd_demo_sk, web.web_open_date_sk, ca_ca_address_sk, p.p_item_sk, sm.sm_ship_mode_sk are in both select and group by, so we replace those):
+```sql
+SELECT COUNT(*),
+       COUNT(ws.ws_order_number),
+       COUNT(hd.hd_dep_count),
+       COUNT(wp.wp_max_ad_count),
+       COUNT(cd.cd_gender),
+       COUNT(web.web_class),
+       COUNT(ca.ca_state),
+       COUNT(p.p_response_target),
+       COUNT(sm.sm_code)
+FROM web_sales ws
+JOIN household_demographics hd ON ws.ws_bill_hdemo_sk = hd.hd_demo_sk
+JOIN customer_demographics cd ON ws.ws_bill_cdemo_sk = cd.cd_demo_sk
+JOIN web_page wp ON ws.ws_web_page_sk = wp.wp_web_page_sk
+JOIN web_site web ON ws.ws_web_site_sk = web.web_site_sk
+JOIN customer_address ca ON ws.ws_ship_addr_sk = ca.ca_address_sk
+JOIN promotion p ON ws.ws_promo_sk = p.p_promo_sk
+JOIN ship_mode sm ON ws.ws_ship_mode_sk = sm.sm_ship_mode_sk
+WHERE ws.ws_net_profit >= -2487.11 AND ws.ws_net_profit < -42.3 AND ws.ws_quantity = 90
+GROUP BY wp.wp_link_count, cd.cd_demo_sk, web.web_open_date_sk, ca.ca_address_sk, p.p_item_sk, sm.sm_ship_mode_sk;
+```
+
+Write the SQL query with the change in the select clause make sure to surround it by tiple backticks (```)
+without any comments or explanations.
+""""
 condition = "Does this query contain a Group By Clause?"
 priority = 0
-
-[prompts.count]
-fix = """ 
-"""
-condition = "Does this query contain a Count Aggregation?"
-priority = 1
-
