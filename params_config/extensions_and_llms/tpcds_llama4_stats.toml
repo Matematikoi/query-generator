@@ -1,12 +1,13 @@
 llm_extension = true
 union_extension = false
 database_path = "data/duckdb/TPCDS/0.db"
-destination_folder = "/home/gabriel/query_generation/query_generation/data/generated_queries/LLM_QUERIES_fix_inequality_deepseek"
+destination_folder = "/home/gabriel/query_generation/query_generation/data/generated_queries/LLM_QUERIES_fix_inequality_deepseek_stats"
 queries_parquet = "/home/gabriel/query_generation/query_generation/data/generated_queries/FORMATTED_TPCDS/filtered.parquet"
 
 [llm_params]
 retry = 1
 llm_model = "llama4:16x17b"
+statistics_parquet = "/home/gabriel/query_generation/query_generation/data/generated_histograms/TPCDS/histogram.parquet-original"
 llm_base_prompt = """
     You are a database expert. And you are writing \
     queries to test your current database with the TPCDS \
