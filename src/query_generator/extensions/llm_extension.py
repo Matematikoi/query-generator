@@ -9,6 +9,7 @@ from duckdb import DuckDBPyConnection
 from ollama import Client
 from tqdm import tqdm
 
+from query_generator.tools.format_histogram import get_histogram_as_str
 from query_generator.utils.params import (
   ExtensionAndLLMEndpoint,
   LLMParams,
@@ -45,7 +46,7 @@ def get_random_queries(
   ]
 
 
-def get_random_prompt(params: LLMParams, query: str) -> tuple[str, LLM_Message]:
+def get_random_prompt(params: LLMParams, query: str, context: str) -> tuple[str, LLM_Message]:
   extension_types = list(params.llm_prompts.keys())
   weights = [params.llm_prompts[e].weight for e in extension_types]
   extension_type = random.choices(extension_types, weights=weights)[0]
@@ -55,9 +56,18 @@ def get_random_prompt(params: LLMParams, query: str) -> tuple[str, LLM_Message]:
     {
       "role": "user",
       "content": f"""
+Here is the context you need for your task. You have the schema, and
+some stats of all the columns along with the most common values:
+{context}
 
-  {params.llm_prompts[extension_type].prompt}
-  {query}""",
+Here is your specific task:
+
+{params.llm_prompts[extension_type].prompt}
+
+```sql
+{query}
+```
+""",
     },
   ]
 
@@ -96,6 +106,11 @@ def add_retry_query_to_messages(
   )
 
 
+def get_schema_from_statistics(params: ExtensionAndLLMEndpoint,) -> pl.DataFrame:
+  """Get the schema of a db from the parquet stats file."""
+  df_stats = pl.read_parquet(params.llm_params.statistics_parquet)
+  return get_histogram_as_str(df_stats)
+
 def llm_extension(
   params: ExtensionAndLLMEndpoint,
 ) -> None:
@@ -105,6 +120,7 @@ def llm_extension(
   random.seed(42)
   con = duckdb.connect(database=params.database_path, read_only=True)
   destination_path = Path(params.destination_folder)
+  schema_context:str  = get_schema_from_statistics(params)
   rows: list[dict[str, str]] = []
   log_rows: list[dict[str, str | bool]] = []
   for query, original_path in tqdm(get_random_queries(params)):
