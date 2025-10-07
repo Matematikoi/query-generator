@@ -1,0 +1,56 @@
+llm_extension = true
+union_extension = false
+database_path = "data/duckdb/TPCDS/0.db"
+destination_folder = "/home/gabriel/query_generation/query_generation/data/generated_queries/LLM_QUERIES_fix_inequality_deepseek_stats"
+queries_parquet = "/home/gabriel/query_generation/query_generation/data/generated_queries/FORMATTED_TPCDS/filtered.parquet"
+
+[llm_params]
+retry = 1
+llm_model = "llama4:16x17b"
+llm_base_prompt = """
+    You are a database expert. And you are writing \
+    queries to test your current database with the TPCDS \
+    dataset with challenging and diverse queries. You are \
+    currently re-writing new queries that should not be \
+    trivial or equivalent to the input query.\
+    When answering, only answer with the query in markdown,\
+    for example:\
+    ```sql select * from table```
+    """
+total_queries = 10
+
+[llm_params.llm_prompts.inequality_join]
+prompt = """Your task is to modify one join to make it an inequality join \
+    while keeping the predicates of the following query"""
+weight = 1
+
+[llm_params.llm_prompts.group_by_3]
+prompt = """
+Your task is to add a group by clause to the query.
+Make sure that none of the elements in the group by clause are 
+already present in the select clause.
+
+Set the group by clause size to 5.
+"""
+weight = 30
+
+[llm_params.llm_prompts.group_by_5]
+prompt = """
+Your task is to add a group by clause to the query.
+Make sure that none of the elements in the group by clause are 
+already present in the select clause.
+
+Set the group by clause size to 5.
+"""
+weight = 30
+
+
+[llm_params.llm_prompts.group_by_2]
+prompt = """
+Your task is to add a group by clause to the query.
+Make sure that none of the elements in the group by clause are 
+already present in the select clause.
+
+Set the group by clause size to 2.
+"""
+weight = 30

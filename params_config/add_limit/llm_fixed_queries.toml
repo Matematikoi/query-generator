@@ -1,0 +1,4 @@
+traces_parquet = "/home/mathos/Downloads/foo/llm-fix/llm/traces.parquet"
+queries_folder = "/home/mathos/phd/data/llm1_fix/LLM1_min_max"
+destination_folder = "/home/mathos/phd/data/llm1_fix/LLM1_min_max_limit"
+max_output_size = 100
