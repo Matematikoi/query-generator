@@ -24,7 +24,7 @@ class LLMParams:
   total_queries: int
   retry: int
   llm_prompts: dict[str, ComplexQueryLLMPrompt]
-  statistics_parquet : str|None = None
+  statistics_parquet: str | None = None
 
 
 @dataclass
