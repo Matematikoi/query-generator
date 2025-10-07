@@ -26,7 +26,7 @@ def get_histogram_as_str(histogram: pl.DataFrame) -> str:
       f" type: {row[HistogramColumns.DTYPE.value]},"
       f" distinct count: {row[HistogramColumns.DISTINCT_COUNT.value]},"
       f" table size: {row[HistogramColumns.TABLE_SIZE.value]},"
-      f" most common values: "
-      f"{get_mcv_as_str(row[HistogramColumns.MOST_COMMON_VALUES.value])}"
+      # f" most common values: "
+      # f"{get_mcv_as_str(row[HistogramColumns.MOST_COMMON_VALUES.value])}"
     )
   return "\n\n".join(result)
