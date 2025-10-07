@@ -108,6 +108,8 @@ def add_retry_query_to_messages(
 
 def get_schema_from_statistics(params: ExtensionAndLLMEndpoint,) -> pl.DataFrame:
   """Get the schema of a db from the parquet stats file."""
+  if params.llm_params.statistics_parquet is None:
+    return ""
   df_stats = pl.read_parquet(params.llm_params.statistics_parquet)
   return get_histogram_as_str(df_stats)
 
