@@ -243,6 +243,29 @@ class HistogramEndpoint:
   common_values_size: int = 10
   include_mcv: bool = False
 
+@dataclass
+class AddLimitEndpoint:
+  __doc__ = f"""Adds LIMIT to sql queries according to output size.
+
+  Attributes:
+  - traces_parquet (str): The path to the parquet file containing the traces
+      with the output sizes of the queries.
+  - queries_folder (str): The folder containing the sql queries to
+      which the LIMIT will be added.
+  - destination_folder (str): The folder to save the formatted queries.
+  - max_output_size (int): The maximum output size for the queries. Queries
+      with an output size greater than this value will have a LIMIT added.
+  Examples of toml files can be found in:
+  `params_config/add_limit/*toml`
+  Example:
+  ```toml
+  {TOML_EXAMPLE["add_limit"]}
+  ```
+  """
+  traces_parquet: str
+  queries_folder: str
+  destination_folder: str
+  max_output_size: int
 
 T = TypeVar("T")
 

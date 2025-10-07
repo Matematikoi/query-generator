@@ -70,4 +70,10 @@ histogram_size = 51
 common_values_size = 10
 include_mcv = true
 """,
+  "add_limit": '''\
+destination_folder = "path/to/destination/"
+max_output_size = 1000
+traces_parquet = "path/to/traces.parquet"
+queries_folder = "path/to/queries/"
+'''
 }
