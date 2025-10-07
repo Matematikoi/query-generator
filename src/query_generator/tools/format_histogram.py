@@ -20,7 +20,6 @@ def get_mcv_as_str(mcv: dict[Any, str]) -> str:
 def get_histogram_as_str(histogram: pl.DataFrame) -> str:
   result = []
   for row in histogram.iter_rows(named=True):
-    print(row)
     result.append(
       f"Table: {row[HistogramColumns.TABLE.value]},"
       f" attribute: {row[HistogramColumns.COLUMN.value]},"
