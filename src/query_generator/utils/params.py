@@ -244,7 +244,7 @@ class HistogramEndpoint:
   include_mcv: bool = False
 
 @dataclass
-class AddLimitEndpoint:
+class FixTransformEndpoint:
   __doc__ = f"""Adds LIMIT to sql queries according to output size.
 
   Attributes:
@@ -259,7 +259,7 @@ class AddLimitEndpoint:
   `params_config/add_limit/*toml`
   Example:
   ```toml
-  {TOML_EXAMPLE["add_limit"]}
+  {TOML_EXAMPLE["fix_transform"]}
   ```
   """
   traces_parquet: str

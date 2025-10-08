@@ -70,7 +70,7 @@ histogram_size = 51
 common_values_size = 10
 include_mcv = true
 """,
-  "add_limit": '''\
+  "fix_transform": '''\
 destination_folder = "path/to/destination/"
 max_output_size = 1000
 traces_parquet = "path/to/traces.parquet"

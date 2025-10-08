@@ -1,6 +1,6 @@
 from enum import StrEnum
 from pathlib import Path
-from query_generator.utils.params import AddLimitEndpoint
+from query_generator.utils.params import FixTransformEndpoint
 from sqlglot import exp, parse_one
 import polars as pl
 from tqdm import tqdm
@@ -40,7 +40,7 @@ def wrap_query_with_limit(sql:str, limit:int) -> str:
 
     return outer_select.sql(pretty=True)
 
-def add_limit(params: AddLimitEndpoint) -> None:
+def add_limit(params: FixTransformEndpoint) -> None:
     """Add LIMIT to sql queries according to output size."""
     df_traces = pl.read_parquet(params.traces_parquet)
     queries_folder: Path = Path(params.queries_folder)
