@@ -14,6 +14,7 @@ class DuckDBTraceEnum(StrEnum):
     error = "error"
     trace_success = "trace_success"
     duckdb_output = "duckdb_output"
+    error_group_by_sqlglot = "error_group_by_sqlglot"
 
 
 CTE_NAME = "cte_for_limit"
@@ -127,16 +128,24 @@ def make_select_group_by_clause_disjoint(query:str)-> tuple[str, Exception]:
 
 def fix_transform(params: FixTransformEndpoint) -> None:
     """Add LIMIT to sql queries according to output size."""
-    df_traces = pl.read_parquet(params.traces_parquet)
     queries_folder: Path = Path(params.queries_folder)
     destination_folder = Path(params.destination_folder)
-    
-    for row in tqdm(df_traces.iter_rows(named=True), total=len(df_traces)):
-        query_path = queries_folder / row[DuckDBTraceEnum.relative_path]
+    queries_paths = list(queries_folder.glob('**/*.sql'))
+    rows = []
+    for query_path in tqdm(queries_paths, total=len(queries_paths)):
         query = query_path.read_text()
-        query,exception_group_by = make_select_group_by_clause_disjoint(query)
-        if len(list((row[DuckDBTraceEnum.duckdb_output]))) > params.max_output_size:
-            query = wrap_query_with_limit(query, params.max_output_size)
-        new_query_path = destination_folder / row[DuckDBTraceEnum.relative_path]
+        # if len(list((row[DuckDBTraceEnum.duckdb_output]))) > params.max_output_size:
+            # query = wrap_query_with_limit(query, params.max_output_size)
+
+        # group by transform
+        query, exception_group_by = make_select_group_by_clause_disjoint(query)
+
+        new_query_path = destination_folder / query_path.relative_to(queries_folder)
         new_query_path.parent.mkdir(parents=True, exist_ok=True)
         new_query_path.write_text(query)
+        rows.append({
+            DuckDBTraceEnum.relative_path :str( Path(query_path).relative_to(queries_folder)),
+            DuckDBTraceEnum.error_group_by_sqlglot : str(exception_group_by) if exception_group_by is not None else ""
+        })
+    df_transformation = pl.DataFrame(rows)
+    df_transformation.write_parquet(destination_folder/'transformation_log.parquet')
