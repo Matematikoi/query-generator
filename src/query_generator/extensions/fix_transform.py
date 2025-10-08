@@ -4,6 +4,8 @@ from query_generator.utils.params import FixTransformEndpoint
 from sqlglot import exp, parse_one
 import polars as pl
 from tqdm import tqdm
+import random
+
 class DuckDBTraceEnum(StrEnum):
     """Rows for DuckDBTraceOuputDataFrameRow."""
 
@@ -15,6 +17,11 @@ class DuckDBTraceEnum(StrEnum):
     trace_success = "trace_success"
     duckdb_output = "duckdb_output"
     error_group_by_sqlglot = "error_group_by_sqlglot"
+class TransformationCount(StrEnum):
+    COUNT = "COUNT"
+    MAX  = "MAX "
+    MIN  = "MIN "
+    DISTINCT = "DISTINCT"
 
 
 CTE_NAME = "cte_for_limit"
@@ -123,11 +130,77 @@ def make_select_group_by_clause_disjoint(query:str)-> tuple[str, Exception]:
         return query, e
     return query, None
 
+def get_transformation(*,is_numeric:bool):
+    possibilites = [TransformationCount.COUNT, TransformationCount.DISTINCT]
+    if is_numeric:
+        possibilites.append(TransformationCount.MIN)
+        possibilites.append(TransformationCount.MAX)
+    return random.choice(possibilites)
+
+
+
+def replace_min_max(sql):
+    """
+    Transform COUNT(column) in SELECT:
+      - column startswith 'a' -> leave as is
+      - column startswith 'b' -> COUNT(DISTINCT column)
+      - column startswith 'c' -> MIN(column)
+    COUNT(*) is left unchanged. Only operates on SELECT expressions.
+    """
+    root = parse_one(sql)
+
+    # Only touch COUNTs in the top-level SELECT list
+    select = root.find(exp.Select)
+    if not select:
+        return root.sql()
+
+    def transformer(node: exp.Expression) -> exp.Expression:
+        # Single-level guard clauses, no nested ifs
+        if not isinstance(node, exp.Count):
+            return node
+
+        arg = node.this  # Column / Identifier / Star
+        if isinstance(arg, exp.Star):
+            return node  # leave COUNT(*) unchanged
+
+        name = (
+            arg.name if isinstance(arg, exp.Column)
+            else (arg.this if isinstance(arg, exp.Identifier) else None)
+        )
+        if not name:
+            return node
+
+        table = get_table_from_column(name)
+        if table is None or 'distinct' in node.sql().lower():
+            return node
+        is_numeric = any(keyword in tables[table][name.lower()] for keyword in ['INT', 'DECIMAL'] )
+        transformation = get_transformation(is_numeric=is_numeric)
+        if transformation == TransformationCount.COUNT:
+            # Rewrite as COUNT(DISTINCT col)
+            return node
+        elif transformation == TransformationCount.DISTINCT:
+            # return exp.Count(this=arg.copy(), distinct = True)
+            return  exp.Count(this=exp.Distinct(expressions=[arg.copy()]))
+        elif transformation == TransformationCount.MIN:
+            return exp.Min(this=arg.copy())
+        elif transformation == TransformationCount.MAX:
+            return exp.Max(this=arg.copy())
+        
+        return node
+
+    # Apply only within SELECT's expressions
+    select.set(
+        "expressions",
+        [proj.transform(transformer) for proj in select.expressions],
+    )
+
+    return root.sql(pretty = True)
 
 
 
 def fix_transform(params: FixTransformEndpoint) -> None:
     """Add LIMIT to sql queries according to output size."""
+    random.seed(42)
     queries_folder: Path = Path(params.queries_folder)
     destination_folder = Path(params.destination_folder)
     queries_paths = list(queries_folder.glob('**/*.sql'))
@@ -139,6 +212,8 @@ def fix_transform(params: FixTransformEndpoint) -> None:
 
         # group by transform
         query, exception_group_by = make_select_group_by_clause_disjoint(query)
+
+        query = replace_min_max(query)
 
         new_query_path = destination_folder / query_path.relative_to(queries_folder)
         new_query_path.parent.mkdir(parents=True, exist_ok=True)
