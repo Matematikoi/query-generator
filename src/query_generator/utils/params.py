@@ -266,6 +266,7 @@ class FixTransformEndpoint:
   queries_folder: str
   destination_folder: str
   max_output_size: int
+  duckdb_database: str
 
 T = TypeVar("T")
 
