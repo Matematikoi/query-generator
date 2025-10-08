@@ -5,7 +5,7 @@ import duckdb
 import typer
 
 from query_generator.duckdb_connection.setup import generate_db
-from query_generator.extensions.fix_transform import add_limit
+from query_generator.extensions.fix_transform import fix_transform
 from query_generator.extensions.llm_extension import llm_extension
 from query_generator.extensions.union_queries import union_queries
 from query_generator.filter.filter import filter_synthetic_queries
@@ -254,7 +254,7 @@ def add_limit_endpoint(
   ],
 ):
   params = read_and_parse_toml(Path(config_file), FixTransformEndpoint)
-  add_limit(params)
+  fix_transform(params)
 
 if __name__ == "__main__":
   app()
