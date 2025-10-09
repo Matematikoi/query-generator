@@ -1,0 +1,5 @@
+destination_folder = "tmp/fixed_queries/"
+max_output_size = 1
+timeout_seconds = 2
+queries_folder = "tmp/extended_queries"
+duckdb_database = "tmp/database_TPCDS_0.1.duckdb"

@@ -70,4 +70,11 @@ histogram_size = 51
 common_values_size = 10
 include_mcv = true
 """,
+  "fix_transform": """\
+destination_folder = "path/to/destination/"
+max_output_size = 1000
+queries_folder = "path/to/queries/"
+timeout_seconds = 10
+duckdb_database  = "path/to/duckdb_database.duckdb"
+""",
 }

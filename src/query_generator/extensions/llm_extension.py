@@ -9,6 +9,7 @@ from duckdb import DuckDBPyConnection
 from ollama import Client
 from tqdm import tqdm
 
+from query_generator.tools.format_histogram import get_histogram_as_str
 from query_generator.utils.params import (
   ExtensionAndLLMEndpoint,
   LLMParams,
@@ -45,7 +46,9 @@ def get_random_queries(
   ]
 
 
-def get_random_prompt(params: LLMParams, query: str) -> tuple[str, LLM_Message]:
+def get_random_prompt(
+  params: LLMParams, query: str, context: str
+) -> tuple[str, LLM_Message]:
   extension_types = list(params.llm_prompts.keys())
   weights = [params.llm_prompts[e].weight for e in extension_types]
   extension_type = random.choices(extension_types, weights=weights)[0]
@@ -55,9 +58,11 @@ def get_random_prompt(params: LLMParams, query: str) -> tuple[str, LLM_Message]:
     {
       "role": "user",
       "content": f"""
-
-  {params.llm_prompts[extension_type].prompt}
-  {query}""",
+{params.llm_prompts[extension_type].prompt}
+```sql
+{query}
+```
+""",
     },
   ]
 
@@ -96,6 +101,16 @@ def add_retry_query_to_messages(
   )
 
 
+def get_schema_from_statistics(
+  params: LLMParams,
+) -> str:
+  """Get the schema of a db from the parquet stats file."""
+  if params.statistics_parquet is None:
+    return ""
+  df_stats = pl.read_parquet(params.statistics_parquet)
+  return get_histogram_as_str(df_stats)
+
+
 def llm_extension(
   params: ExtensionAndLLMEndpoint,
 ) -> None:
@@ -105,6 +120,7 @@ def llm_extension(
   random.seed(42)
   con = duckdb.connect(database=params.database_path, read_only=True)
   destination_path = Path(params.destination_folder)
+  schema_context: str = get_schema_from_statistics(llm_params)
   rows: list[dict[str, str]] = []
   log_rows: list[dict[str, str | bool]] = []
   for query, original_path in tqdm(get_random_queries(params)):
@@ -113,7 +129,9 @@ def llm_extension(
     duckdb_exception = Exception("no query was found")
     while retries <= llm_params.retry and not valid_query:
       if retries == 0:
-        extension_type, messages = get_random_prompt(llm_params, query)
+        extension_type, messages = get_random_prompt(
+          llm_params, query, schema_context
+        )
       else:
         add_retry_query_to_messages(messages, duckdb_exception)
       query_llm(llm_client, messages, llm_params.llm_model)

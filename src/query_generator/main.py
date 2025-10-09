@@ -5,8 +5,10 @@ import duckdb
 import typer
 
 from query_generator.duckdb_connection.setup import generate_db
-from query_generator.filter.filter import filter_synthetic_queries
+from query_generator.extensions.fix_transform import fix_transform
 from query_generator.extensions.llm_extension import llm_extension
+from query_generator.extensions.union_queries import union_queries
+from query_generator.filter.filter import filter_synthetic_queries
 from query_generator.synthetic_queries.synthetic_query_generator import (
   SyntheticQueriesParams,
   generate_synthetic_queries,
@@ -22,10 +24,10 @@ from query_generator.tools.histograms import (
   make_redundant_histograms,
   query_histograms,
 )
-from query_generator.extensions.union_queries import union_queries
 from query_generator.utils.params import (
   ExtensionAndLLMEndpoint,
   FilterEndpoint,
+  FixTransformEndpoint,
   GenerateDBEndpoint,
   HistogramEndpoint,
   SyntheticQueriesEndpoint,
@@ -239,6 +241,23 @@ def extension_and_llm_endpoint(
   (Path(params.destination_folder) / "extension_config.toml").write_text(
     toml_params
   )
+
+
+@app.command(
+  "fix-transform", help=build_help_from_dataclass(FixTransformEndpoint)
+)
+def add_limit_endpoint(
+  config_file: Annotated[
+    str,
+    typer.Option(
+      "--config",
+      "-c",
+      help="The path to the configuration file with complex queries",
+    ),
+  ],
+):
+  params = read_and_parse_toml(Path(config_file), FixTransformEndpoint)
+  fix_transform(params)
 
 
 if __name__ == "__main__":
