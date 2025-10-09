@@ -1,5 +1,5 @@
-duckdb_database = "tmp/database_TPCDS_0.1.duckdb"
 dataset = "TPCDS"
+duckdb_database = "tmp/database_TPCDS_0.1.duckdb"
 output_folder = "tmp/synthetic_queries"
 max_hops = [1]
 extra_predicates = [5]
