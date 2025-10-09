@@ -73,7 +73,8 @@ include_mcv = true
   "fix_transform": """\
 destination_folder = "path/to/destination/"
 max_output_size = 1000
-traces_parquet = "path/to/traces.parquet"
 queries_folder = "path/to/queries/"
+timeout_seconds = 10
+duckdb_database  = "path/to/duckdb_database.duckdb"
 """,
 }
