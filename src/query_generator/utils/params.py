@@ -100,14 +100,18 @@ class ExtensionAndLLMEndpoint:
 class SyntheticQueriesEndpoint:
   __doc__ = f"""
   Represents the parameters used for configuring search queries, including
-  query builder, subgraph, and predicate options.
+  query builder, subgraph, and predicate options. 
 
-  This class is designed to support both the `IN` and `=` statements in
+  This class is designed to support both the `IN`, `<` and `=` statements in
   query generation.
 
+  This endpoint generates batches of queries, for each batch one value of each
+  attribute is sampled. Attributes that are a list mean that batches will
+  exhaustively search over all the values in the list. For example, if
+  `max_hops = [2, 3]` and `keep_edge_probability = [0.5, 0.7]`, then 4 batches
+  will be generated.
   Attributes:
   - duckdb_database (str): The path to the DuckDB database file.
-  - dev (bool): Flag indicating whether to use development settings.
   - max_queries_per_fact_table (int): Maximum number of queries per fact
       table.
   - max_queries_per_signature (int): Maximum number of queries per
