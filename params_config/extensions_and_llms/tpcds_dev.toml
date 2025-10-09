@@ -9,9 +9,9 @@ max_queries = 5
 probability = 0.7
 
 [llm_params]
-retry = 1
-total_queries = 5
-llm_model = "deepseek-r1:1.5b"
+retry = 0
+total_queries = 7
+llm_model = "llama3:latest"
 llm_base_prompt = """
     You are writing queries for a markdown text using \
     the format:```sql for correct formatting in markdown
@@ -21,9 +21,9 @@ llm_base_prompt = """
     """
 
 [llm_params.llm_prompts.self_join]
-prompt = "write this query again only adding the ```sql for markdown"
+prompt = "write the exact same query, change nothing, don't overthink it, no change is required only adding the ```sql Select ...``` for markdown:"
 weight = 30
 
 [llm_params.llm_prompts.outer_join]
-prompt = "write this query again only adding the ```sql for markdown"
+prompt = "write this query again but remove the COUNT from the select clause"
 weight = 30

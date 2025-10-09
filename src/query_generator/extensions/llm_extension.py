@@ -58,14 +58,7 @@ def get_random_prompt(
     {
       "role": "user",
       "content": f"""
-Here is the context you need for your task. You have the schema, and
-some stats of all the columns along with the most common values:
-{context}
-
-Here is your specific task:
-
 {params.llm_prompts[extension_type].prompt}
-
 ```sql
 {query}
 ```

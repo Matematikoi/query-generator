@@ -263,7 +263,6 @@ class FixTransformEndpoint:
   {TOML_EXAMPLE["fix_transform"]}
   ```
   """
-  traces_parquet: str
   queries_folder: str
   destination_folder: str
   max_output_size: int
