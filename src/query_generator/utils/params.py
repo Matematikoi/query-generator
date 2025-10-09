@@ -120,8 +120,8 @@ class SyntheticQueriesEndpoint:
   - max_hops (list[int]): Maximum number of hops allowed in the subgraph.
   - keep_edge_probability (float): Probability of retaining an edge in the
       subgraph.
-  - extra_predicates (list[int]): Number of additional predicates to include
-      in the query.
+  - extra_predicates (list[int]): Number of column predicates, in addition to 
+      join predicates to include.
   - row_retention_probability (list[float]): Probability of retaining a row
       for range predicates
   - operator_weights (PredicateOperatorProbability): Probability
