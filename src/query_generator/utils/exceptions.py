@@ -11,6 +11,7 @@ class InvalidHistogramError(Exception):
       "minimum size of a valid histogram"
     )
 
+
 class GraphExploredError(Exception):
   def __init__(self, attempts: int) -> None:
     super().__init__(f"Graph has been explored {attempts} times.")

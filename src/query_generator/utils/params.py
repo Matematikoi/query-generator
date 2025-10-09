@@ -228,8 +228,6 @@ class HistogramEndpoint:
       Default is 51.
   - common_values_size (int): The number of common values to include in the
       histogram. Default is 10.
-  - include_mvc (bool): Whether to include most common values (MCV) in the
-      histogram. Default is False.
   Examples of toml files can be found in:
   `params_config/histogram/*toml`
   Example:
@@ -241,7 +239,6 @@ class HistogramEndpoint:
   database_path: str
   histogram_size: int = 51
   common_values_size: int = 10
-  include_mcv: bool = False
 
 
 @dataclass

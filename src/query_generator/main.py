@@ -190,7 +190,7 @@ def make_histograms(
     histogram_size=params.histogram_size,
     common_values_size=params.common_values_size,
     con=con,
-    include_mcv=params.include_mcv,
+    include_mcv=True if params.common_values_size > 0 else False,
   )
   write_parquet(histograms_df, destination_path)
   # TODO(Gabriel):  http://localhost:8080/tktview/46fca17ee0
