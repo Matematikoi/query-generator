@@ -32,15 +32,6 @@ curl -fsSL https://ollama.com/install.sh | sh
 
 For Mac you can use [the installer](https://ollama.com/download/mac).
 
-## Pixi cheatsheet
-If you want to run the formatter and the test make sure you are in the
-dev environment and run it with 
-
-```bash
-pixi shell -e dev
-pixi run lint
-```
-If all went well there are no errors on the formatting or the tests.
 # Pipeline
 ![image](https://matematikoi.github.io/org/images/pipeline_query_generation.png)
 
@@ -51,7 +42,7 @@ We follow a small example for explaining these steps. We invite the reader
 to run `pixi run main --help` to get documentation of the existing endpoints
 and to run `pixi run main {endpoint} --help` to get documentation of each
 endpoint.
-1. Generate TPC-DS
+1. Generate Database (only TPCDS and TPCH are currently supported)
 1. Make histograms (column statistics) of the generated database in step 1
 1. Generate join queries using the database and the histograms of the previous steps.
 1. Filter the generated join queries to  
@@ -74,7 +65,9 @@ pixi run main extensions-and-llm -c params_config/extensions_and_llms/tpcds_dev.
 pixi run main fix-transform -c params_config/fix_transform/tpcds_dev.toml
 ```
 
-## **Generate TPCDS**
+## **Generate database**
+
+Currently only TPC-DS and TPC-H are being supported.
 
 We choose the `generate-db` endpoint to generate the data, and we pass
 the `params_config/generate_db/tpcds_dev.toml` configuration to
