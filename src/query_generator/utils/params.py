@@ -267,6 +267,7 @@ class FixTransformEndpoint:
   destination_folder: str
   max_output_size: int
   duckdb_database: str
+  timeout_seconds: float
 
 T = TypeVar("T")
 

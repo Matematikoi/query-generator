@@ -1,38 +1,42 @@
 from enum import StrEnum
 from pathlib import Path
+from query_generator.duckdb_connection.trace_collection import DuckDBTraceOuputDataFrameRow, DuckDBTraceParams, duckdb_collect_one_trace
 from query_generator.utils.params import FixTransformEndpoint
 from sqlglot import exp, parse_one
 import polars as pl
 from tqdm import tqdm
 import random
 import duckdb
+from cattrs import unstructure
 
 CTE_NAME = "cte_for_limit"
 
-class DuckDBTraceEnum(StrEnum):
+class TransformEnum(StrEnum):
     """Rows for DuckDBTraceOuputDataFrameRow."""
 
     relative_path = "relative_path"
-    query_folder = "query_folder"
-    query_name = "query_name"
-    duckdb_trace = "duckdb_trace"
-    error = "error"
-    trace_success = "trace_success"
-    duckdb_output = "duckdb_output"
     error_group_by_sqlglot = "error_group_by_sqlglot"
+    was_transformed = "was_transformed"
+    original_query = "original_query"
+    new_query = "new_query"
+
+
 class TransformationCount(StrEnum):
     COUNT = "COUNT"
     MAX  = "MAX "
     MIN  = "MIN "
     DISTINCT = "DISTINCT"
 
-def get_duckdb_schema(conn: duckdb.DuckDBPyConnection) -> dict[str, dict[str, str]]:
+def get_duckdb_schema(duckdb_database:str) -> dict[str, dict[str, str]]:
+    """Gets the schema from a given database"""
+    conn = duckdb.connect(database=duckdb_database, read_only=True)
     rows = conn.execute("""
         SELECT table_name, column_name, data_type
         FROM information_schema.columns
         WHERE table_schema NOT IN ('information_schema','pg_catalog','duckdb_internal')
         ORDER BY table_name, ordinal_position
     """).fetchall()
+    conn.close()
 
     out, ints, texts = {}, {
         'TINYINT','SMALLINT','INTEGER','BIGINT','HUGEINT',
@@ -210,33 +214,54 @@ def replace_min_max(sql: str, schema: dict[str, dict[str, str]] = None) -> str:
 
     return root.sql(pretty = True)
 
+def get_trace_from_transform(query:str, query_path:Path, params:FixTransformEndpoint)-> tuple[DuckDBTraceOuputDataFrameRow, bool]:
+    trace_params = DuckDBTraceParams(
+        queries_path = params.queries_folder,
+        duckdb_path = params.duckdb_database,
+        timeout_seconds = params.timeout_seconds,
+        fetch_limit = params.max_output_size,
+        output_folder=params.destination_folder
+    )
 
+    trace = duckdb_collect_one_trace(query,query_path,trace_params)
+    if trace.trace_success:
+        return trace, True
+    # Transformation failed, fall back to previous query
+    return duckdb_collect_one_trace(query_path.read_text(),query_path,trace_params), False
 
 def fix_transform(params: FixTransformEndpoint) -> None:
     """Add LIMIT to sql queries according to output size."""
     random.seed(42)
     queries_folder: Path = Path(params.queries_folder)
     destination_folder = Path(params.destination_folder)
-    queries_paths = list(queries_folder.glob('**/*.sql'))
+    queries_paths = list(queries_folder.glob('**/*.sql'))[:200]
     rows = []
-    con = duckdb.connect(database=params.duckdb_database, read_only=True)
-    schema = get_duckdb_schema(con)
+    
+    schema = get_duckdb_schema(params.duckdb_database)
+    traces = []
     for query_path in tqdm(queries_paths, total=len(queries_paths)):
         query = query_path.read_text()
         query, exception_group_by = make_select_group_by_clause_disjoint(query, schema)
 
         query = replace_min_max(query, schema)
-        query = wrap_query_with_limit(query, params.max_output_size)
 
+        trace, transformation_success = get_trace_from_transform(query,query_path,params)
+        traces.append(trace)
+
+        if len(trace.duckdb_output)> params.max_output_size:
+            query = wrap_query_with_limit(query, params.max_output_size)
+        
         new_query_path = destination_folder / query_path.relative_to(queries_folder)
         new_query_path.parent.mkdir(parents=True, exist_ok=True)
         new_query_path.write_text(query)
         rows.append({
-            DuckDBTraceEnum.relative_path :str( Path(query_path).relative_to(queries_folder)),
-            DuckDBTraceEnum.error_group_by_sqlglot : str(exception_group_by) if exception_group_by is not None else "",
-            "original": query_path.read_text(),
-            "new_query": query
-
+            TransformEnum.relative_path :str( Path(query_path).relative_to(queries_folder)),
+            TransformEnum.error_group_by_sqlglot : str(exception_group_by) if exception_group_by is not None else "",
+            TransformEnum.original_query: query_path.read_text(),
+            TransformEnum.new_query: query,
+            TransformEnum.was_transformed: transformation_success,
         })
+    df_traces = pl.DataFrame([unstructure(t) for t in traces])
+    df_traces.write_parquet(destination_folder/"traces_duckdb.parquet")
     df_transformation = pl.DataFrame(rows)
     df_transformation.write_parquet(destination_folder/'transformation_log.parquet')
