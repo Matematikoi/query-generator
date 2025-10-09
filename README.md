@@ -37,11 +37,7 @@ For Mac you can use [the installer](https://ollama.com/download/mac).
 
 # Example Full run
 
-
-We follow a small example for explaining these steps. We invite the reader
-to run `pixi run main --help` to get documentation of the existing endpoints
-and to run `pixi run main {endpoint} --help` to get documentation of each
-endpoint.
+We provide a small example for explaining the main steps of database and query generation: 
 1. Generate Database (only TPCDS and TPCH are currently supported)
 1. Make histograms (column statistics) of the generated database in step 1
 1. Generate join queries using the database and the histograms of the previous steps.
@@ -53,8 +49,12 @@ endpoint.
 	1. fixing LLM issues (e.g., for Group By-Aggregation)
 	1. adding LIMIT 100 if the query returns too many rows 
 
+We invite the user to run `pixi run main --help` to get documentation of all of the existing endpoints. 
+
+The user can then run `pixi run main {endpoint} --help` to get documentation of each endpoint.
+
 ## Summary
-Just in case you just want the commands to run the examples:
+In case that you just want the commands to run the examples:
 
 ```bash
 pixi run main generate-db -c params_config/generate_db/tpcds_dev.toml
