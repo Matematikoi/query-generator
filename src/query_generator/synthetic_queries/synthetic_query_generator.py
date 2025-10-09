@@ -108,7 +108,7 @@ def generate_synthetic_queries(
       SyntheticQueryGenerationParameters(
         dataset=params.user_input.dataset,
         max_hops=max_hops,
-        max_queries_per_fact_table=params.user_input.max_queries_per_fact_table,
+        max_queries_per_fact_table=params.user_input.max_signatures_per_fact_table,
         max_queries_per_signature=params.user_input.max_queries_per_signature,
         keep_edge_probability=keep_edge_probability,
         seen_subgraphs=seen_subgraphs,

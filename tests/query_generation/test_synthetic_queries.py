@@ -78,7 +78,7 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       extra_predicates = {extra_predicates}
       row_retention_probability = [0.2]
       unique_joins = {unique_joins}
-      max_queries_per_fact_table = 10
+      max_signatures_per_fact_table = 10
       max_queries_per_signature = 2
       keep_edge_probability = [0.2]
       equality_lower_bound_probability = [0]

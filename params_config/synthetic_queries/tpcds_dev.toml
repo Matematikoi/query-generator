@@ -3,7 +3,7 @@ duckdb_database = "tmp/database_TPCDS_0.1.duckdb"
 output_folder = "tmp/synthetic_queries"
 
 unique_joins = true
-max_queries_per_fact_table = 1
+max_signatures_per_fact_table = 1
 max_queries_per_signature = 2
 
 max_hops = [1]

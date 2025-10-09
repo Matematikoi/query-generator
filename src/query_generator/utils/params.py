@@ -111,15 +111,20 @@ class SyntheticQueriesEndpoint:
   `max_hops = [2, 3]` and `keep_edge_probability = [0.5, 0.7]`, then 4 batches
   will be generated.
   Attributes:
+  - dataset (Dataset): The dataset to be used (TPCDS, TPCH).
   - duckdb_database (str): The path to the DuckDB database file.
+  - output_folder (str): The folder to save the generated queries.
+
+  - unique_joins (bool): Whether to enforce unique joins in the subgraph.
+  - max_signatures_per_signature (int): Maximum number of signatures per
+      signature. Meaning that for each fact table we will generate this number
+      of unique join strucutures/ signatures.
   - max_queries_per_fact_table (int): Maximum number of queries per fact
       table.
-  - max_queries_per_signature (int): Maximum number of queries per
-      signature.
-  - unique_joins (bool): Whether to enforce unique joins in the subgraph.
   - max_hops (list[int]): Maximum number of hops allowed in the subgraph.
   - keep_edge_probability (float): Probability of retaining an edge in the
       subgraph.
+    
   - extra_predicates (list[int]): Number of column predicates, in addition to 
       join predicates to include.
   - row_retention_probability (list[float]): Probability of retaining a row
@@ -128,6 +133,18 @@ class SyntheticQueriesEndpoint:
       distribution for predicate operators.
   - equality_lower_bound_probability (float): Lower bound probability when
       using the `=` and the `IN` operators
+  - extra_values_for_in: Extra values to add when using the `IN` operator. For
+    IN we take a value of the most common values and add a number of extra
+    values to it. This parameter defines how many extra values to add.
+
+    
+  - operator_weights: The weights are used to sample the operator for each
+      predicate. The weights do not need to sum up to 1, they will be
+      normalized automatically. The higher the weight, the more likely the
+      operator will be used.
+      - operator_in : Weight for the `IN` operator.
+      - operator_equals : Weight for the `=` operator.
+      - operator_range : Weight for the `<` , `>` operator.
 
   Examples of toml files can be found in:
   `params_config/search_params/*toml`
@@ -138,14 +155,14 @@ class SyntheticQueriesEndpoint:
   ```
   """
 
-  # Query Builder
-  max_queries_per_fact_table: int
-  max_queries_per_signature: int
   # Subgraph
   dataset: Dataset
   unique_joins: bool
   max_hops: list[int]
   keep_edge_probability: list[float]
+  # Query Builder
+  max_signatures_per_fact_table: int
+  max_queries_per_signature: int
   # Predicates
   extra_predicates: list[int]
   row_retention_probability: list[float]
