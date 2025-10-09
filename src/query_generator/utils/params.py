@@ -243,6 +243,7 @@ class HistogramEndpoint:
   common_values_size: int = 10
   include_mcv: bool = False
 
+
 @dataclass
 class FixTransformEndpoint:
   __doc__ = f"""Adds LIMIT to sql queries according to output size.
@@ -268,6 +269,7 @@ class FixTransformEndpoint:
   max_output_size: int
   duckdb_database: str
   timeout_seconds: float
+
 
 T = TypeVar("T")
 

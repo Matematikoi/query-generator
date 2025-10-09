@@ -25,9 +25,9 @@ from query_generator.tools.histograms import (
   query_histograms,
 )
 from query_generator.utils.params import (
-  FixTransformEndpoint,
   ExtensionAndLLMEndpoint,
   FilterEndpoint,
+  FixTransformEndpoint,
   GenerateDBEndpoint,
   HistogramEndpoint,
   SyntheticQueriesEndpoint,
@@ -242,7 +242,10 @@ def extension_and_llm_endpoint(
     toml_params
   )
 
-@app.command("fix-transform", help=build_help_from_dataclass(FixTransformEndpoint))
+
+@app.command(
+  "fix-transform", help=build_help_from_dataclass(FixTransformEndpoint)
+)
 def add_limit_endpoint(
   config_file: Annotated[
     str,
@@ -255,6 +258,7 @@ def add_limit_endpoint(
 ):
   params = read_and_parse_toml(Path(config_file), FixTransformEndpoint)
   fix_transform(params)
+
 
 if __name__ == "__main__":
   app()
