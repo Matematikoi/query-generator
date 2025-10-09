@@ -1,4 +1,6 @@
+# The histogram implementation includes the MCV 
+histogram_size = 51
 output_folder = "tmp/histograms/"
 database_path = "tmp/database_TPCDS_0.1.duckdb"
-histogram_size = 51
+# If common values is set to 0 then the mcv will not be computed
 common_values_size = 10
