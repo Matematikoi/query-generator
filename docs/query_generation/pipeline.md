@@ -1,3 +1,4 @@
+
 ~~~pikchr
 S: circle "start" fit
 arrow
@@ -9,9 +10,9 @@ F1: box "filter-synthetic" fit
 arrow
 LLM: box "extensions-and-llm" fit
 arrow
+FIX: box "fix-transform" fit
+arrow
 circle "dataset" "ready" fit
-
-
 
 
 H: box "make-histograms" fit at (P + (0,-2))
