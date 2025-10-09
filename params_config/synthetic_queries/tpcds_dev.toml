@@ -1,13 +1,16 @@
 dataset = "TPCDS"
 duckdb_database = "tmp/database_TPCDS_0.1.duckdb"
 output_folder = "tmp/synthetic_queries"
-max_hops = [1]
-extra_predicates = [5]
-row_retention_probability = [0.2, 0.9]
+
 unique_joins = true
 max_queries_per_fact_table = 1
 max_queries_per_signature = 2
+
+max_hops = [1]
 keep_edge_probability = [0.2]
+
+extra_predicates = [5]
+row_retention_probability = [0.2, 0.9]
 equality_lower_bound_probability = [0,0.1]
 extra_values_for_in = 3
 
