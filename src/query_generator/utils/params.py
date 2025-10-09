@@ -110,16 +110,20 @@ class SyntheticQueriesEndpoint:
   exhaustively search over all the values in the list. For example, if
   `max_hops = [2, 3]` and `keep_edge_probability = [0.5, 0.7]`, then 4 batches
   will be generated.
+
+  Termination conditions: We ran all possible batches, generating for each batch
+  up to `max_signatures_per_fact_table` signatures per fact table, and for
+  each signature up to `max_queries_per_signature` queries.
   Attributes:
   - dataset (Dataset): The dataset to be used (TPCDS, TPCH).
   - duckdb_database (str): The path to the DuckDB database file.
   - output_folder (str): The folder to save the generated queries.
 
   - unique_joins (bool): Whether to enforce unique joins in the subgraph.
-  - max_signatures_per_signature (int): Maximum number of signatures per
+  - max_signatures_per_fact_table (int): Maximum number of signatures per
       signature. Meaning that for each fact table we will generate this number
       of unique join strucutures/ signatures.
-  - max_queries_per_fact_table (int): Maximum number of queries per fact
+  - max_queries_per_signature (int): Maximum number of queries per fact
       table.
   - max_hops (list[int]): Maximum number of hops allowed in the subgraph.
   - keep_edge_probability (float): Probability of retaining an edge in the
