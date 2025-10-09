@@ -47,16 +47,20 @@ If all went well there are no errors on the formatting or the tests.
 # Example Full run
 
 
-We follow a small example for explaining this steps. We invite the reader
+We follow a small example for explaining these steps. We invite the reader
 to run `pixi run main --help` to get documentation of the existing endpoints
 and to run `pixi run main {endpoint} --help` to get documentation of each
 endpoint.
 1. Generate TPC-DS
-1. Make histograms of the generated database in step 1
-1. Generate queries with the database and the histograms
-of the previous steps.
-1. Filter the generated synthetic queries.
-1. Augment them using llm and unions.
+1. Make histograms (column statistics) of the generated database in step 1
+1. Generate join queries using the database and the histograms of the previous steps.
+1. Filter the generated join queries to  
+	1. remove queries with empty results;
+	1. optionally, bin the queries based on the output cardinality and subsample in each bin.  
+1. Augment the join queries using LLMs and unions.
+1. OPTIONAL. Post-process the queries by 
+	1. fixing LLM issues (e.g., for Group By-Aggregation)
+	1. adding LIMIT 100 if the query returns too many rows 
 
 ## Summary
 Just in case you just want the commands to run the examples:
