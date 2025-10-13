@@ -43,7 +43,7 @@ class UnionParams:
 
 @dataclass
 class ExtensionAndOllamaEndpoint:
-  __doc__ = f"""Uses LLM to generate complex queries based on synthetic queries.
+  __doc__ = f"""Makes complex queries from synthetic ones, mainly using ollama.
 
   # Attributes:
   - llm_extension (bool): Whether to use the LLM extension.
@@ -123,7 +123,8 @@ class ExtensionAndOllamaEndpoint:
 
 @dataclass
 class SyntheticQueriesEndpoint:
-  __doc__ = f"""
+  __doc__ = f"""Generates Synthetic queries based on column statistics.
+
   Represents the parameters used for configuring search queries, including
   query builder, subgraph, and predicate options. 
 
@@ -275,7 +276,7 @@ class FilterEndpoint:
 
 @dataclass
 class HistogramEndpoint:
-  __doc__ = f"""Parameters for generating column statistics from a database
+  __doc__ = f"""Generates column statistics from a database
 
   Attributes:
   - output_folder (str): The folder to save the generated histogram parquet

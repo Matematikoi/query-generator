@@ -40,6 +40,65 @@ from query_generator.utils.utils import (
 
 app = typer.Typer(name="Query Generation", rich_markup_mode="markdown")
 
+@app.command("generate-db", help=build_help_from_dataclass(GenerateDBEndpoint))
+def generate_db_endpoint(
+  config_path: Annotated[
+    str,
+    typer.Option("-c", "--config", help="The path to the configuration file"),
+  ],
+) -> None:
+  """Generates a DuckDB database with TPCDS or TPCH datasets.
+
+  If the scale factor required is not generated, it will generate it.
+  It returns a duckdb connection to the database.
+  """
+  params = read_and_parse_toml(
+    Path(config_path),
+    GenerateDBEndpoint,
+  )
+  generate_db(params)
+
+
+@app.command(
+  "make-histograms", help=build_help_from_dataclass(HistogramEndpoint)
+)
+def make_histograms(
+  config_path: Annotated[
+    str,
+    typer.Option(
+      "-c",
+      "--config",
+      help="The path to the configuration file"
+      "They can be found in the params_config/histograms/ folder",
+    ),
+  ],
+) -> None:
+  """This function is used to create histograms in parquet format."""
+  params = read_and_parse_toml(Path(config_path), HistogramEndpoint)
+  destination_path = Path(params.output_folder) / "histogram.parquet"
+
+  con = duckdb.connect(params.database_path, read_only=True)
+  histograms_df = query_histograms(
+    histogram_size=params.histogram_size,
+    common_values_size=params.common_values_size,
+    con=con,
+    include_mcv=True if params.common_values_size > 0 else False,
+  )
+  write_parquet(histograms_df, destination_path)
+  # TODO(Gabriel):  http://localhost:8080/tktview/46fca17ee0
+  #  Delete this code and everything that
+  #  touches it [46fca17ee0ab9e46]
+  redundant_histogram_df = make_redundant_histograms(
+    destination_path, params.histogram_size
+  )
+  write_parquet(
+    redundant_histogram_df,
+    destination_path.parent / "regrouped_job_hist.parquet",
+  )
+  write_redundant_histogram_csv(
+    redundant_histogram_df, destination_path.parent / "regrouped_job_hist.csv"
+  )
+
 
 @app.command(help=build_help_from_dataclass(SyntheticQueriesEndpoint))
 def synthetic_queries(
@@ -71,25 +130,6 @@ def synthetic_queries(
   )
 
 
-@app.command("generate-db", help=build_help_from_dataclass(GenerateDBEndpoint))
-def generate_db_endpoint(
-  config_path: Annotated[
-    str,
-    typer.Option("-c", "--config", help="The path to the configuration file"),
-  ],
-) -> None:
-  """Generates a DuckDB database with TPCDS or TPCH datasets.
-
-  If the scale factor required is not generated, it will generate it.
-  It returns a duckdb connection to the database.
-  """
-  params = read_and_parse_toml(
-    Path(config_path),
-    GenerateDBEndpoint,
-  )
-  generate_db(params)
-
-
 @app.command("filter-synthetic", help=build_help_from_dataclass(FilterEndpoint))
 def filter_synthetic_endpoint(
   config_path: Annotated[
@@ -116,8 +156,7 @@ def filter_synthetic_endpoint(
   )
   filter_synthetic_queries(params)
 
-
-@app.command()
+# TODO: Remove this endpoint
 def format_queries(
   folder_src: Annotated[
     str,
@@ -168,46 +207,6 @@ def format_queries(
     dst_folder_path=dst_folder_path,
   )
 
-
-@app.command(
-  "make-histograms", help=build_help_from_dataclass(HistogramEndpoint)
-)
-def make_histograms(
-  config_path: Annotated[
-    str,
-    typer.Option(
-      "-c",
-      "--config",
-      help="The path to the configuration file"
-      "They can be found in the params_config/histograms/ folder",
-    ),
-  ],
-) -> None:
-  """This function is used to create histograms in parquet format."""
-  params = read_and_parse_toml(Path(config_path), HistogramEndpoint)
-  destination_path = Path(params.output_folder) / "histogram.parquet"
-
-  con = duckdb.connect(params.database_path, read_only=True)
-  histograms_df = query_histograms(
-    histogram_size=params.histogram_size,
-    common_values_size=params.common_values_size,
-    con=con,
-    include_mcv=True if params.common_values_size > 0 else False,
-  )
-  write_parquet(histograms_df, destination_path)
-  # TODO(Gabriel):  http://localhost:8080/tktview/46fca17ee0
-  #  Delete this code and everything that
-  #  touches it [46fca17ee0ab9e46]
-  redundant_histogram_df = make_redundant_histograms(
-    destination_path, params.histogram_size
-  )
-  write_parquet(
-    redundant_histogram_df,
-    destination_path.parent / "regrouped_job_hist.parquet",
-  )
-  write_redundant_histogram_csv(
-    redundant_histogram_df, destination_path.parent / "regrouped_job_hist.csv"
-  )
 
 
 @app.command(
