@@ -5,7 +5,7 @@ from query_generator.utils.params import (
   FixTransformEndpoint,
   GenerateDBEndpoint,
   HistogramEndpoint,
-  ExtensionAndLLMEndpoint,
+  ExtensionAndOllamaEndpoint,
   FilterEndpoint,
   SyntheticQueriesEndpoint,
   read_and_parse_toml,
@@ -16,7 +16,7 @@ from query_generator.utils.toml_examples import TOML_EXAMPLE
 def test_toml():
   """All toml used should be mapped and validated"""
   mapping = {
-    "extension_and_llm": ExtensionAndLLMEndpoint,
+    "extension_and_llm": ExtensionAndOllamaEndpoint,
     "synthetic_generation": SyntheticQueriesEndpoint,
     "filter": FilterEndpoint,
     "generate_db": GenerateDBEndpoint,

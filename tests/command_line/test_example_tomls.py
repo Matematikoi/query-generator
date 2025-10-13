@@ -2,7 +2,7 @@ from pathlib import Path
 import pytest
 
 from query_generator.utils.params import (
-  ExtensionAndLLMEndpoint,
+  ExtensionAndOllamaEndpoint,
   FilterEndpoint,
   GenerateDBEndpoint,
   HistogramEndpoint,
@@ -33,7 +33,7 @@ def test_extensions_and_llm():
   for file in Path(file_path).glob("*.toml"):
     params = read_and_parse_toml(
       file,
-      ExtensionAndLLMEndpoint,
+      ExtensionAndOllamaEndpoint,
     )
     assert params is not None
 

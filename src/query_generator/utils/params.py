@@ -41,7 +41,7 @@ class UnionParams:
 
 
 @dataclass
-class ExtensionAndLLMEndpoint:
+class ExtensionAndOllamaEndpoint:
   __doc__ = f"""Uses LLM to generate complex queries based on synthetic queries.
 
   Attributes:

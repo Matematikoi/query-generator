@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 from query_generator.tools.format_histogram import get_histogram_as_str
 from query_generator.utils.params import (
-  ExtensionAndLLMEndpoint,
+  ExtensionAndOllamaEndpoint,
   LLMParams,
 )
 
@@ -31,7 +31,7 @@ def query_llm(client: Client, messages: LLM_Message, model: str) -> None:
 
 
 def get_random_queries(
-  params: ExtensionAndLLMEndpoint,
+  params: ExtensionAndOllamaEndpoint,
 ) -> list[tuple[str, str]]:
   """Get random queries from the synthetic queries parquet file.
 
@@ -112,7 +112,7 @@ def get_schema_from_statistics(
 
 
 def llm_extension(
-  params: ExtensionAndLLMEndpoint,
+  params: ExtensionAndOllamaEndpoint,
 ) -> None:
   llm_params = params.llm_params
   assert llm_params is not None

@@ -25,7 +25,7 @@ from query_generator.tools.histograms import (
   query_histograms,
 )
 from query_generator.utils.params import (
-  ExtensionAndLLMEndpoint,
+  ExtensionAndOllamaEndpoint,
   FilterEndpoint,
   FixTransformEndpoint,
   GenerateDBEndpoint,
@@ -209,9 +209,9 @@ def make_histograms(
 
 
 @app.command(
-  "extensions-and-llm", help=build_help_from_dataclass(ExtensionAndLLMEndpoint)
+  "extensions-and-ollama", help=build_help_from_dataclass(ExtensionAndOllamaEndpoint)
 )
-def extension_and_llm_endpoint(
+def extension_and_ollama_endpoint(
   config_file: Annotated[
     str,
     typer.Option(
@@ -224,7 +224,7 @@ def extension_and_llm_endpoint(
   """Add complex queries using LLM prompts.
   The configuration file should be a TOML file with the
   ComplexQueryGenerationParametersEndpoint structure."""
-  params = read_and_parse_toml(Path(config_file), ExtensionAndLLMEndpoint)
+  params = read_and_parse_toml(Path(config_file), ExtensionAndOllamaEndpoint)
   if params.union_extension:
     assert params.union_params is not None
     union_queries(
