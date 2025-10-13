@@ -118,7 +118,7 @@ def llm_extension(
   assert llm_params is not None
   llm_client = Client()
   random.seed(42)
-  con = duckdb.connect(database=params.database_path, read_only=True)
+  con = duckdb.connect(database=llm_params.database_path, read_only=True)
   destination_path = Path(params.destination_folder)
   schema_context: str = get_schema_from_statistics(llm_params)
   rows: list[dict[str, str]] = []

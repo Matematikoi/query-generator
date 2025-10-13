@@ -17,16 +17,16 @@ llm_base_prompt = """
     You are writing queries for a markdown text using \
     the format:```sql for correct formatting in markdown
 
-    your only task is to write the given sql query again but 
+    your task is to write the given sql query again but with modificiation
     surrounding it with ```sql Select from....```
     """
 
 [llm_params.llm_prompts.self_join]
-prompt = "write this query again only adding the ```sql for markdown"
+prompt = "Add a self join to the query"
 weight = 30
 
 [llm_params.llm_prompts.outer_join]
-prompt = "write this query again only adding the ```sql for markdown"
+prompt = "Add an outer join to the query"
 weight = 30
 ''',
   "synthetic_generation": """\
