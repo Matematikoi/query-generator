@@ -69,7 +69,6 @@ output_folder = "path/to/destination/"
 database_path = "path/to/duckdb.db"
 histogram_size = 51
 common_values_size = 10
-include_mcv = true
 """,
   "fix_transform": """\
 destination_folder = "path/to/destination/"

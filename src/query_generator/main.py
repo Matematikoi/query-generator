@@ -169,7 +169,9 @@ def format_queries(
   )
 
 
-@app.command()
+@app.command(
+  "make-histograms", help=build_help_from_dataclass(HistogramEndpoint)
+)
 def make_histograms(
   config_path: Annotated[
     str,
@@ -209,7 +211,8 @@ def make_histograms(
 
 
 @app.command(
-  "extensions-and-ollama", help=build_help_from_dataclass(ExtensionAndOllamaEndpoint)
+  "extensions-and-ollama",
+  help=build_help_from_dataclass(ExtensionAndOllamaEndpoint),
 )
 def extension_and_ollama_endpoint(
   config_file: Annotated[

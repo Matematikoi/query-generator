@@ -139,7 +139,7 @@ class SyntheticQueriesEndpoint:
   Termination conditions: We ran all possible batches, generating for each batch
   up to `max_signatures_per_fact_table` signatures per fact table, and for
   each signature up to `max_queries_per_signature` queries.
-  Attributes:
+  # Attributes
   - dataset (Dataset): The dataset to be used (TPCDS, TPCH).
   - duckdb_database (str): The path to the DuckDB database file.
   - output_folder (str): The folder to save the generated queries.
@@ -178,7 +178,7 @@ class SyntheticQueriesEndpoint:
   Examples of toml files can be found in:
   `params_config/search_params/*toml`
 
-  Example:
+  # Example
   ```toml
   {TOML_EXAMPLE["synthetic_generation"]}
   ```
@@ -275,7 +275,7 @@ class FilterEndpoint:
 
 @dataclass
 class HistogramEndpoint:
-  __doc__ = f"""Parameters for generating histograms from a database
+  __doc__ = f"""Parameters for generating column statistics from a database
 
   Attributes:
   - output_folder (str): The folder to save the generated histogram parquet
@@ -284,8 +284,9 @@ class HistogramEndpoint:
       histograms.
   - histogram_size (int): The number of bins to use for the histogram.
       Default is 51.
-  - common_values_size (int): The number of common values to include in the
-      histogram. Default is 10.
+  - common_values_size (int): The number of common values to include. 
+    Default is 10. If the value of the `common_values_size` is 0 then, no
+    MCV will be calculated. 
   Examples of toml files can be found in:
   `params_config/histogram/*toml`
   Example:
