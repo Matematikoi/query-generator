@@ -40,6 +40,7 @@ from query_generator.utils.utils import (
 
 app = typer.Typer(name="Query Generation", rich_markup_mode="markdown")
 
+
 @app.command("generate-db", help=build_help_from_dataclass(GenerateDBEndpoint))
 def generate_db_endpoint(
   config_path: Annotated[
@@ -156,6 +157,7 @@ def filter_synthetic_endpoint(
   )
   filter_synthetic_queries(params)
 
+
 # TODO: Remove this endpoint
 def format_queries(
   folder_src: Annotated[
@@ -206,7 +208,6 @@ def format_queries(
     src_folder_path=src_folder_path,
     dst_folder_path=dst_folder_path,
   )
-
 
 
 @app.command(
