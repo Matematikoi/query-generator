@@ -209,14 +209,14 @@ class GenerateDBEndpoint:
   __doc__ = f"""
   Parameters for generating a DuckDB database with TPCDS or TPCH datasets.
 
-  Attributes:
+  # Attributes
   - dataset (Dataset): The dataset to be used (TPCDS, TPCH).
   - scale_factor (int | float): The scale factor for the dataset.
   - db_path (str): The path where the DuckDB database will be stored.
   Examples of toml files can be found in:
   `params_config/generate_db/*toml`
 
-  Example:
+  # Example
   ```toml
   {TOML_EXAMPLE["generate_db"]}
   ```
@@ -246,7 +246,7 @@ class FilterEndpoint:
   2. Cherry-Pick Filter: Divides queries into equi-width bins based on the 
       `count_star` values and samples up to a specified number of queries 
       from each bin.
-  Attributes:
+  # Attributes
   - filter_null (bool): Whether to filter out null values from the results.
   - cherry_pick (bool): Whether to cherry-pick queries based on specific
       criteria.
@@ -262,7 +262,7 @@ class FilterEndpoint:
   Examples of toml files can be found in:
   `params_config/filter/*toml`
 
-  Example:
+  # Example
   ```toml
   {TOML_EXAMPLE["filter"]}
   ```
@@ -278,7 +278,7 @@ class FilterEndpoint:
 class HistogramEndpoint:
   __doc__ = f"""Generates column statistics from a database
 
-  Attributes:
+  # Attributes
   - output_folder (str): The folder to save the generated histogram parquet
       file.
   - database_path (str): The path to the DuckDB database to use for generating
@@ -290,7 +290,7 @@ class HistogramEndpoint:
     MCV will be calculated. 
   Examples of toml files can be found in:
   `params_config/histogram/*toml`
-  Example:
+  # Example
   ```toml
   {TOML_EXAMPLE["histogram"]}
   ```
