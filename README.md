@@ -78,14 +78,8 @@ you can just change the toml scale factor and run the same command.
 ```bash
 pixi run main generate-db -c params_config/generate_db/tpcds_dev.toml
 ```
-The toml used was:
 
-```toml
-dataset = "TPCDS"
-scale_factor = 0.1
-db_path = "tmp/database_TPCDS_0.1.duckdb"
-```
-
+This will generate a database in the `./tmp/` folder
 ## **Make histograms**
 
 Same as before we run
@@ -93,15 +87,7 @@ Same as before we run
 pixi run main make-histograms -c params_config/make_histograms/tpcds_dev.toml
 ```
 
-with the toml file:
-
-```toml
-output_folder = "tmp/histograms/"
-database_path = "tmp/database_TPCDS_0.1.duckdb"
-histogram_size = 51
-common_values_size = 10
-include_mcv = true
-```
+This will generate column statistics in the `./tmp/histograms` folder.
 
 ## **Make Synthetic Queries**
 
@@ -110,81 +96,55 @@ We now run the query generation with
 pixi run main synthetic-queries -c params_config/synthetic_queries/tpcds_dev.toml
 ```
 
-```toml
-duckdb_database = "tmp/database_TPCDS_0.1.duckdb"
-dataset = "TPCDS"
-output_folder = "tmp/synthetic_queries"
-max_hops = [1]
-extra_predicates = [5]
-row_retention_probability = [0.2, 0.9]
-unique_joins = true
-max_queries_per_fact_table = 1
-max_queries_per_signature = 2
-keep_edge_probability = [0.2]
-equality_lower_bound_probability = [0,0.1]
-extra_values_for_in = 3
-
-[operator_weights]
-operator_in = 1
-operator_range = 3
-operator_equal = 3
-```
-
+This will generate the synthetic queries in the `./tmp/synthetic_queries` 
+folder. It would use the database and statistics created in the previous steps.
+Feel free to check the `toml` file `params_config/synthetic_queries/tpcds_dev.toml`
+for more details.
 ## **Filtering the queries**
 
 To filter the queries we use 
 ```bash
 pixi run main filter-synthetic -c params_config/filter_synthetic/filter_tpcds_dev.toml
 ```
-This will also split the queries by their query signature.
+The result will filter the queries according to two methods:
+1. Filter empty queries (no tuples returned)
+1. Sample according to the tuple output size using equi-width bins. 
 
-```toml
-input_parquet = "tmp/synthetic_queries/output.parquet"
-destination_folder = "tmp/filtered_queries"
-filter_null  = true
-cherry_pick = false
-```
-
+For more details please run `pixi run main filter-synthetic --help`
 
 ## **Extension and LLM**
 
-Finally we can do extensions for extra relational algebra operators.
-This extension takes as input the filtered queries. To run 
+We can do extensions for extra relational algebra operators.
+This extension takes as input the filtered queries. 
 
 ```bash
-pixi run main extensions-and-llm -c params_config/extensions_and_llms/tpcds_dev.toml
+pixi run main extensions-and-ollama -c params_config/extensions_and_ollama/tpcds_dev.toml
 ```
-This will generate the union and llm extension, the provided toml is:
+This will generate the union and ollama extension.
 
-```toml
-llm_extension = true
-union_extension = true
-database_path = "data/duckdb/TPCDS/0.db"
-queries_parquet = "tmp/filtered_queries/filtered.parquet"
-destination_folder = "tmp/extended_queries"
+To run this toml you will need to have OLLAMA installed. The example 
+uses the `llama3:latest` ollama model, which means that you should run
+`ollama pull llama3:latest` before running this command, otherwise the endpoint
+will fail since it won't find the model in your machine.
 
-[union_params]
-max_queries = 5
-probability = 0.7
-
-[llm_params]
-retry = 1
-total_queries = 5
-llm_model = "deepseek-r1:1.5b"
-llm_base_prompt = """
-    You are writing queries for a markdown text using \
-    the format:sql for correct formatting in markdown. the schema
-    is: ...
-    """
-
-[llm_params.llm_prompts.self_join]
-prompt = "write this query with a self join"
-weight = 30
-
-[llm_params.llm_prompts.outer_join]
-prompt = "write this query with an outer join"
-weight = 30
+For more details please run `pixi run main extensions-and-ollama --help`
+## **Fix Transform**
+We also provide a post-processing with sqlglot to adjust queries created
+with the LLMs. In the example run:
+```bash
+pixi run main fix-transform -c params_config/fix_transform/tpcds_dev.toml
 ```
+There are three transformation being done currently:
+1. Change the select clause to have disjoint attributes with the 
+group by clause.
+1. Change the `COUNT()` statements to one of the following:
+    1. `MIN` (only for numerical attributes)
+    1. `MAX` (only for numerical attributes)
+    1. `COUNT( DISTINCT )`
+    1. `COUNT`
+1. Add a limit to the query if the output of it is over the user defined 
+threshold.
+
 # Authors and contact
 This project was made by Gabriel Lozano under the supervision of Yanlei Diao
 and Guillaum Lachaud at École Polytechnique.
