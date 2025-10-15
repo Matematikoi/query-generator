@@ -29,6 +29,7 @@ def test_add_range_supports_all_histogram_types():
     tables_schema,
     Dataset.TPCH,
     PredicateParameters(
+      histogram_path=None,
       extra_predicates=None,
       row_retention_probability=0.2,
       operator_weights=None,

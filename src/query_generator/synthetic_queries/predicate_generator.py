@@ -18,7 +18,7 @@ from query_generator.utils.definitions import (
   PredicateParameters,
 )
 from query_generator.utils.exceptions import (
-  InvalidHistogramTypeError,
+  InvalidHistogramError,
 )
 
 SupportedHistogramType = float | int | str
@@ -93,7 +93,7 @@ class PredicateGenerator:
       return str_array
     if dtype == HistogramDataType.STRING:
       return str_array
-    raise InvalidHistogramTypeError(dtype)
+    raise InvalidHistogramError(dtype)
 
   def _cast_element(
     self, value: str, dtype: HistogramDataType
@@ -106,7 +106,7 @@ class PredicateGenerator:
       return value
     if dtype == HistogramDataType.STRING:
       return value
-    raise InvalidHistogramTypeError(dtype)
+    raise InvalidHistogramError(dtype)
 
   def _get_histogram_type(self, dtype: str) -> HistogramDataType:
     if dtype in ["INTEGER", "BIGINT"]:
@@ -117,7 +117,7 @@ class PredicateGenerator:
       return HistogramDataType.DATE
     if dtype == "VARCHAR":
       return HistogramDataType.STRING
-    raise InvalidHistogramTypeError(dtype)
+    raise InvalidHistogramError(dtype)
 
   def _choose_predicate_type(
     self, operator_weights: PredicateOperatorProbability

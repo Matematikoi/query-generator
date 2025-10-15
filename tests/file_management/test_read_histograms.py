@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest import mock
 
 import polars as pl
@@ -9,13 +10,22 @@ from query_generator.synthetic_queries.predicate_generator import (
 )
 from query_generator.tools.histograms import HistogramColumns
 from query_generator.utils.definitions import Dataset, PredicateParameters
-from query_generator.utils.exceptions import InvalidHistogramTypeError
+from query_generator.utils.exceptions import InvalidHistogramError
 
 
 def test_read_histograms():
   for dataset in Dataset:
-    predicate_generator = PredicateGenerator(dataset, None)
-    histogram = predicate_generator.read_histogram()
+    predicate_generator = PredicateGenerator(
+      PredicateParameters(
+        histogram_path=Path('/home/mathos/phd/repos/query_generation/git/query-generator/data/histograms/histogram_tpcds.parquet'),
+        extra_predicates=None,
+        row_retention_probability=None,
+        operator_weights=None,
+        equality_lower_bound_probability=None,
+        extra_values_for_in=None,
+      ),
+    )
+    histogram = predicate_generator.histogram
     assert not histogram.is_empty()
 
     assert histogram[HistogramColumns.DTYPE.value].dtype == pl.Utf8
@@ -79,8 +89,8 @@ def test_get_min_max_from_bins(
     return_value=mock_rand,
   ):
     predicate_generator = PredicateGenerator(
-      Dataset.TPCH,
       PredicateParameters(
+        histogram_path=Path('/home/mathos/phd/repos/query_generation/git/query-generator/data/histograms/histogram_tpcds.parquet'),
         extra_predicates=None,
         row_retention_probability=row_retention_probability,
         operator_weights=None,
@@ -94,13 +104,6 @@ def test_get_min_max_from_bins(
   assert min_value == bins_array[min_index]
   assert max_value == bins_array[max_index]
 
-
-def test_get_invalid_histogram_type():
-  predicate_generator = PredicateGenerator(Dataset.TPCH, None)
-  with pytest.raises(InvalidHistogramTypeError):
-    predicate_generator._get_histogram_type("not_supported_type")
-
-
 @pytest.mark.parametrize(
   "input_type, expected_type",
   [
@@ -113,5 +116,14 @@ def test_get_invalid_histogram_type():
   ],
 )
 def test_get_valid_histogram_type(input_type, expected_type):
-  predicate_generator = PredicateGenerator(Dataset.TPCH, None)
+  predicate_generator = PredicateGenerator(
+    PredicateParameters(
+        histogram_path=Path('/home/mathos/phd/repos/query_generation/git/query-generator/data/histograms/histogram_tpcds.parquet'),
+        extra_predicates=None,
+        row_retention_probability=None,
+        operator_weights=None,
+        equality_lower_bound_probability=None,
+        extra_values_for_in=None,
+      ),
+  )
   assert predicate_generator._get_histogram_type(input_type) == expected_type

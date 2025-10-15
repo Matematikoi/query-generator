@@ -18,7 +18,7 @@ from query_generator.duckdb_connection.utils import (
   get_histogram_excluding_common_values,
   get_tables,
 )
-from query_generator.utils.exceptions import InvalidHistogramTypeError
+from query_generator.utils.exceptions import InvalidHistogramError
 
 
 class MostCommonValuesColumns(Enum):
@@ -225,7 +225,7 @@ def get_basic_element_of_redundant_histogram(
     return "A"
   if dtype == RedundantHistogramsDataType.DATE.value:
     return "1970-01-01"
-  raise InvalidHistogramTypeError(dtype)
+  raise InvalidHistogramError(dtype)
 
 
 def force_histogram_to_lenght(
