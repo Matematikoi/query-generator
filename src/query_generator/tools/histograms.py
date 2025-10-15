@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -21,7 +21,7 @@ from query_generator.duckdb_connection.utils import (
 from query_generator.utils.exceptions import InvalidHistogramError
 
 
-class MostCommonValuesColumns(Enum):
+class MostCommonValuesColumns(StrEnum):
   VALUE = "value"
   COUNT = "count"
 
@@ -196,8 +196,8 @@ def query_histograms(
         row_dict |= {
           HistogramColumns.MOST_COMMON_VALUES.value: [
             {
-              MostCommonValuesColumns.VALUE.value: value.value,
-              MostCommonValuesColumns.COUNT.value: value.count,
+              MostCommonValuesColumns.VALUE: value.value,
+              MostCommonValuesColumns.COUNT: value.count,
             }
             for value in most_common_values
           ],

@@ -10,8 +10,8 @@ from query_generator.tools.histograms import (
 
 def get_mcv_as_str(mcv: dict[Any, str]) -> str:
   result = [
-    f"{item[MostCommonValuesColumns.VALUE.value]} "
-    f"(occurences:{item[MostCommonValuesColumns.COUNT.value]})"
+    f"{item[MostCommonValuesColumns.VALUE]} "
+    f"(occurences:{item[MostCommonValuesColumns.COUNT]})"
     for item in mcv
   ]
   return f"[{', '.join(result)}]"

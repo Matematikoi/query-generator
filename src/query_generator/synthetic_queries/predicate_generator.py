@@ -223,7 +223,7 @@ class PredicateGenerator:
     table_size: int,
   ) -> str | None:
     mcv_probabilities: list[float] = [
-      float(table_size) / float(v[MostCommonValuesColumns.COUNT.value])
+      float(table_size) / float(v[MostCommonValuesColumns.COUNT])
       for v in most_common_values
     ]
     mcv_probabilities_np = np.array(mcv_probabilities)
@@ -234,7 +234,7 @@ class PredicateGenerator:
     if len(filtered_indices) == 0:
       return None
     idx = random.choice(filtered_indices)
-    value = most_common_values[idx][MostCommonValuesColumns.VALUE.value]
+    value = most_common_values[idx][MostCommonValuesColumns.VALUE]
     assert isinstance(value, str)
     return value
 
