@@ -26,7 +26,7 @@ class MostCommonValuesColumns(StrEnum):
   COUNT = "count"
 
 
-class RedundantHistogramsDataType(Enum):
+class RedundantHistogramsDataType(StrEnum):
   """
   This class was made for compatibility with old code that
   generated this histogram:
@@ -219,11 +219,11 @@ def get_size_of_table(
 def get_basic_element_of_redundant_histogram(
   dtype: str,
 ) -> str:
-  if dtype == RedundantHistogramsDataType.INTEGER.value:
+  if dtype == RedundantHistogramsDataType.INTEGER:
     return "0"
-  if dtype == RedundantHistogramsDataType.STRING.value:
+  if dtype == RedundantHistogramsDataType.STRING:
     return "A"
-  if dtype == RedundantHistogramsDataType.DATE.value:
+  if dtype == RedundantHistogramsDataType.DATE:
     return "1970-01-01"
   raise InvalidHistogramError(dtype)
 
@@ -265,9 +265,9 @@ def get_redundant_bins(
 def get_redundant_histogram_type(histogram_df: pl.DataFrame) -> pl.DataFrame:
   return histogram_df.with_columns(
     pl.when(pl.col(HistogramColumns.DTYPE.value) == "VARCHAR")
-    .then(pl.lit(RedundantHistogramsDataType.STRING.value))
+    .then(pl.lit(RedundantHistogramsDataType.STRING))
     .when(pl.col(HistogramColumns.DTYPE.value) == "INTEGER")
-    .then(pl.lit(RedundantHistogramsDataType.INTEGER.value))
+    .then(pl.lit(RedundantHistogramsDataType.INTEGER))
     .otherwise(pl.col(HistogramColumns.DTYPE.value))
     .alias(HistogramColumns.DTYPE.value)
   )
