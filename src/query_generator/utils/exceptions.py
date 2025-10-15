@@ -71,12 +71,6 @@ class OverwriteFileError(Exception):
     super().__init__(f"File {str(file_path)} already exists.")
 
 
-class InvalidHistogramError(Exception):
-  def __init__(self, path: str) -> None:
-    super().__init__(
-      f"Histogram in path {path} does not exist or has invalid format."
-    )
-
 
 class InvalidQueryError(Exception):
   def __init__(self, query: str) -> None:

@@ -39,14 +39,13 @@ class QueryBuilder:
     subgraph_generator: SubGraphGenerator,
     # TODO(Gabriel): http://localhost:8080/tktview/b9400c203a38f3aef46ec250d98563638ba7988b
     tables_schema: Any,
-    dataset: Dataset,
     predicate_params: PredicateParameters,
   ) -> None:
     self.sub_graph_gen = subgraph_generator
     self.table_to_pypika_table = {
       i: Table(i, alias=tables_schema[i]["alias"]) for i in tables_schema
     }
-    self.predicate_gen = PredicateGenerator(dataset, predicate_params)
+    self.predicate_gen = PredicateGenerator( predicate_params)
     self.tables_schema = tables_schema
 
   def get_subgraph_tables(
@@ -155,7 +154,6 @@ class QueryGenerator:
     self.query_builder = QueryBuilder(
       self.subgraph_generator,
       self.tables_schema,
-      params.dataset,
       params.predicate_parameters,
     )
 

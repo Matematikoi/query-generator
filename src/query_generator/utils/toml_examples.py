@@ -43,6 +43,7 @@ max_queries_per_signature = 2
 keep_edge_probability = [0.2]
 equality_lower_bound_probability = [0,0.1]
 extra_values_for_in = 3
+histogram_path = "path/to/histogram"
 
 [operator_weights]
 operator_in = 1

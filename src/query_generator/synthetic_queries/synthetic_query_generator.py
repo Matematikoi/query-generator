@@ -113,6 +113,7 @@ def generate_synthetic_queries(
         keep_edge_probability=keep_edge_probability,
         seen_subgraphs=seen_subgraphs,
         predicate_parameters=PredicateParameters(
+          histogram_path=params.user_input.histogram_path,
           extra_predicates=extra_predicates,
           row_retention_probability=row_retention_probability,
           operator_weights=params.user_input.operator_weights,

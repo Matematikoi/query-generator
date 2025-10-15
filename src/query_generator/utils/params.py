@@ -202,6 +202,7 @@ class SyntheticQueriesEndpoint:
   # Paths
   duckdb_database: str
   output_folder: str
+  histogram_path: str
 
 
 @dataclass
