@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 
 
 class Dataset(Enum):
@@ -22,6 +23,7 @@ class PredicateOperatorProbability:
 
 @dataclass
 class PredicateParameters:
+  histogram_path: Path
   extra_predicates: int
   row_retention_probability: float
   operator_weights: PredicateOperatorProbability
