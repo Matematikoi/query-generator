@@ -29,11 +29,11 @@ def test_read_histograms():
     histogram = predicate_generator.histogram
     assert not histogram.is_empty()
 
-    assert histogram[HistogramColumns.DTYPE.value].dtype == pl.Utf8
-    assert histogram[HistogramColumns.COLUMN.value].dtype == pl.Utf8
-    assert histogram[HistogramColumns.DTYPE.value].dtype == pl.Utf8
-    assert histogram[HistogramColumns.HISTOGRAM.value].dtype == pl.List(pl.Utf8)
-    assert histogram[HistogramColumns.DISTINCT_COUNT.value].dtype == pl.Int64
+    assert histogram[HistogramColumns.DTYPE].dtype == pl.Utf8
+    assert histogram[HistogramColumns.COLUMN].dtype == pl.Utf8
+    assert histogram[HistogramColumns.DTYPE].dtype == pl.Utf8
+    assert histogram[HistogramColumns.HISTOGRAM].dtype == pl.List(pl.Utf8)
+    assert histogram[HistogramColumns.DISTINCT_COUNT].dtype == pl.Int64
 
 
 @pytest.mark.parametrize(

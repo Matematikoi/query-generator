@@ -39,7 +39,7 @@ class RedundantHistogramsDataType(StrEnum):
   DATE = "DATE"
 
 
-class HistogramColumns(Enum):
+class HistogramColumns(StrEnum):
   TABLE = "table"
   COLUMN = "column"
   HISTOGRAM = "histogram"
@@ -168,12 +168,12 @@ def query_histograms(
       distinct_count = get_distinct_count(con, table, column.column_name)
 
       row_dict: dict[str, Any] = {
-        HistogramColumns.TABLE.value: table,
-        HistogramColumns.COLUMN.value: column.column_name,
-        HistogramColumns.HISTOGRAM.value: histogram_array,
-        HistogramColumns.DISTINCT_COUNT.value: distinct_count,
-        HistogramColumns.DTYPE.value: column.column_type,
-        HistogramColumns.TABLE_SIZE.value: table_size,
+        HistogramColumns.TABLE: table,
+        HistogramColumns.COLUMN: column.column_name,
+        HistogramColumns.HISTOGRAM: histogram_array,
+        HistogramColumns.DISTINCT_COUNT: distinct_count,
+        HistogramColumns.DTYPE: column.column_type,
+        HistogramColumns.TABLE_SIZE: table_size,
       }
       if include_mcv:
         # Get most common values
@@ -249,12 +249,12 @@ def get_redundant_bins(
   histogram_df: pl.DataFrame, desired_length: int
 ) -> pl.DataFrame:
   return histogram_df.with_columns(
-    pl.struct([HistogramColumns.HISTOGRAM.value, HistogramColumns.DTYPE.value])
+    pl.struct([HistogramColumns.HISTOGRAM, HistogramColumns.DTYPE])
     .map_elements(
       lambda row: force_histogram_to_lenght(
-        row[HistogramColumns.HISTOGRAM.value],
+        row[HistogramColumns.HISTOGRAM],
         desired_length,
-        row[HistogramColumns.DTYPE.value],
+        row[HistogramColumns.DTYPE],
       ),
       return_dtype=pl.List(pl.Utf8),
     )
@@ -264,12 +264,12 @@ def get_redundant_bins(
 
 def get_redundant_histogram_type(histogram_df: pl.DataFrame) -> pl.DataFrame:
   return histogram_df.with_columns(
-    pl.when(pl.col(HistogramColumns.DTYPE.value) == "VARCHAR")
+    pl.when(pl.col(HistogramColumns.DTYPE) == "VARCHAR")
     .then(pl.lit(RedundantHistogramsDataType.STRING))
-    .when(pl.col(HistogramColumns.DTYPE.value) == "INTEGER")
+    .when(pl.col(HistogramColumns.DTYPE) == "INTEGER")
     .then(pl.lit(RedundantHistogramsDataType.INTEGER))
-    .otherwise(pl.col(HistogramColumns.DTYPE.value))
-    .alias(HistogramColumns.DTYPE.value)
+    .otherwise(pl.col(HistogramColumns.DTYPE))
+    .alias(HistogramColumns.DTYPE)
   )
 
 

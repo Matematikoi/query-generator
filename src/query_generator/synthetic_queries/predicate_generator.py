@@ -152,35 +152,35 @@ class PredicateGenerator:
 
     """
     selected_tables_histogram = self.histogram.filter(
-      pl.col(HistogramColumns.TABLE.value).is_in(tables)
+      pl.col(HistogramColumns.TABLE).is_in(tables)
     )
 
     for row in selected_tables_histogram.sample(
       n=self.predicate_params.extra_predicates
     ).iter_rows(named=True):
-      table = row[HistogramColumns.TABLE.value]
-      column = row[HistogramColumns.COLUMN.value]
-      dtype = self._get_histogram_type(row[HistogramColumns.DTYPE.value])
+      table = row[HistogramColumns.TABLE]
+      column = row[HistogramColumns.COLUMN]
+      dtype = self._get_histogram_type(row[HistogramColumns.DTYPE])
       predicate_type = self._choose_predicate_type(
         self.predicate_params.operator_weights
       )
 
       if predicate_type == PredicateTypes.RANGE:
         yield self._get_range_predicate(
-          table, column, row[HistogramColumns.HISTOGRAM.value], dtype
+          table, column, row[HistogramColumns.HISTOGRAM], dtype
         )
       elif predicate_type == PredicateTypes.IN:
         array = self._get_in_array(
-          row[HistogramColumns.MOST_COMMON_VALUES.value],
-          row[HistogramColumns.TABLE_SIZE.value],
-          row[HistogramColumns.HISTOGRAM_MCV.value],
+          row[HistogramColumns.MOST_COMMON_VALUES],
+          row[HistogramColumns.TABLE_SIZE],
+          row[HistogramColumns.HISTOGRAM_MCV],
         )
         if array is not None:
           yield self._get_in_predicate(array, table, column, dtype)
       elif predicate_type == PredicateTypes.EQUALITY:
         value = self._get_equality_value(
-          row[HistogramColumns.MOST_COMMON_VALUES.value],
-          row[HistogramColumns.TABLE_SIZE.value],
+          row[HistogramColumns.MOST_COMMON_VALUES],
+          row[HistogramColumns.TABLE_SIZE],
         )
         if value is not None:
           yield self._get_equality_predicate(value, table, column, dtype)
