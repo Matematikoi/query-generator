@@ -98,6 +98,8 @@ class SyntheticQueriesEndpoint:
 class GenerateDBEndpoint:
   __doc__ = f"""
   Parameters for generating a DuckDB database with TPCDS or TPCH datasets.
+  
+  
   {get_markdown_documentation(EndpointName.GENERATE_DB)}
 
   # Example
