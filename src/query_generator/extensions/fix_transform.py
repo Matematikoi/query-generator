@@ -13,6 +13,10 @@ from query_generator.duckdb_connection.trace_collection import (
   DuckDBTraceParams,
   duckdb_collect_one_trace,
 )
+from query_generator.utils.exceptions import (
+  ColumnNotFoundError,
+  NoColumnAlternativeError,
+)
 from query_generator.utils.params import FixTransformEndpoint
 
 CTE_NAME = "cte_for_limit"
@@ -41,7 +45,11 @@ def get_duckdb_schema(duckdb_database: str) -> dict[str, dict[str, str]]:
   rows = conn.execute("""
         SELECT table_name, column_name, data_type
         FROM information_schema.columns
-        WHERE table_schema NOT IN ('information_schema','pg_catalog','duckdb_internal')
+        WHERE table_schema NOT IN (
+                      'information_schema',
+                      'pg_catalog',
+                      'duckdb_internal'
+                      )
         ORDER BY table_name, ordinal_position
     """).fetchall()
   conn.close()
@@ -100,15 +108,15 @@ def get_only_columns_in_select(tree):
   return cols
 
 
-def get_group_by_attributes(tree):
+def get_group_by_attributes(tree: exp.Expression):
   return [i.sql() for i in tree.find(exp.Group).find_all(exp.Column)]
 
 
-def get_select_attributes(tree):
+def get_select_attributes(tree: exp.Expression):
   return [i.sql() for i in tree.find(exp.Select) if "*" not in i.sql()]
 
 
-def retrieve_column_name(table_dot_columns):
+def retrieve_column_name(table_dot_columns: list[str]) -> list[str]:
   result = []
   for t in table_dot_columns:
     if "." in table_dot_columns:
@@ -118,23 +126,25 @@ def retrieve_column_name(table_dot_columns):
   return result
 
 
-def get_subquery(tree, column):
+def get_subquery(tree: exp.Expression, column: str) -> str:
   select_values = get_select_attributes(tree)
   for select_value in select_values:
     if column in select_value:
       return select_value
-  raise KeyError("Column not found in select attributes")
+  raise ColumnNotFoundError(column)
 
 
 def get_table_from_column(col: str, schema: dict[str : dict[str, str]]) -> str:
   search_col = col.split(".")[1] if "." in col else col
-  for table_name in schema:
-    if search_col.lower() in schema[table_name].keys():
+  for table_name in schema:  # noqa: PLC0206
+    if search_col.lower() in schema[table_name]:
       return table_name
   return None
 
 
-def change_select_attribute(sql, sub_sql, new_column, old_column):
+def change_select_attribute(
+  sql: str, sub_sql: str, new_column: str, old_column: str
+) -> str:
   if any(
     keyword in sub_sql.lower()
     for keyword in ["order by", "grouping(", " over "]
@@ -145,7 +155,7 @@ def change_select_attribute(sql, sub_sql, new_column, old_column):
   return sql.replace(sub_sql, new_sub_sql)
 
 
-def get_repeated_columns(tree):
+def get_repeated_columns(tree: exp.Expression) -> list[str]:
   select_columns = get_only_columns_in_select(tree)
   group_by_columns = get_group_by_attributes(tree)
   repeated_columns = set(retrieve_column_name(select_columns)).intersection(
@@ -155,15 +165,15 @@ def get_repeated_columns(tree):
 
 
 def get_different_column(
-  table,
-  select_columns,
-  group_by_columns,
+  table: str,
+  select_columns: list[str],
+  group_by_columns: list[str],
   schema: dict[str : dict[str, str]] = None,
 ) -> str:
   for col in list(schema[table].keys())[::-1]:
     if not any(col in s for s in (select_columns + group_by_columns)):
       return col
-  raise KeyError("No different column found in table")
+  raise NoColumnAlternativeError()
 
 
 def make_select_group_by_clause_disjoint(
@@ -205,7 +215,7 @@ def replace_min_max(sql: str, schema: dict[str, dict[str, str]] = None) -> str:
   if not select:
     return root.sql()
 
-  def transformer(node: exp.Expression) -> exp.Expression:
+  def transformer(node: exp.Expression) -> exp.Expression:  # noqa: PLR0911
     if not isinstance(node, exp.Count):
       return node
 
