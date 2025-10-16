@@ -36,7 +36,7 @@ spline <- from DB.ne right 0.5 then to LLM.sw dashed "Syntax Check" aligned
 PARQUET: file "cardinalities" fit at (P + (0.5,1.3))
 arrow from P.n to PARQUET.sw "generates" aligned "parquet" aligned
 arrow  from PARQUET.se  to F1.n "uses" aligned "cardinalities" aligned
-~~~
+// <!-- ~~~ -->
 
 Current infrastructure
 

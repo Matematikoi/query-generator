@@ -10,18 +10,18 @@ from query_generator.utils.params import (
   SyntheticQueriesEndpoint,
   read_and_parse_toml,
 )
-from query_generator.utils.toml_examples import TOML_EXAMPLE
+from query_generator.utils.toml_examples import TOML_EXAMPLE, EndpointName
 
 
 def test_toml():
   """All toml used should be mapped and validated"""
   mapping = {
-    "extension_and_llm": ExtensionAndOllamaEndpoint,
-    "synthetic_generation": SyntheticQueriesEndpoint,
-    "filter": FilterEndpoint,
-    "generate_db": GenerateDBEndpoint,
-    "histogram": HistogramEndpoint,
-    "fix_transform": FixTransformEndpoint,
+    EndpointName.EXTENSION_AND_OLLAMA: ExtensionAndOllamaEndpoint,
+    EndpointName.SYNTHETIC_GENERATION: SyntheticQueriesEndpoint,
+    EndpointName.FILTER: FilterEndpoint,
+    EndpointName.GENERATE_DB: GenerateDBEndpoint,
+    EndpointName.HISTOGRAM: HistogramEndpoint,
+    EndpointName.FIX_TRANSFORM: FixTransformEndpoint,
   }
   for key, toml_raw in TOML_EXAMPLE.items():
     toml_dict = tomllib.loads(toml_raw)

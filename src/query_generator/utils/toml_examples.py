@@ -1,5 +1,18 @@
+
+from enum import StrEnum
+
+
+class EndpointName(StrEnum):
+  EXTENSION_AND_OLLAMA = "extension_and_ollama"
+  SYNTHETIC_GENERATION = "synthetic_generation"
+  FILTER = "filter"
+  GENERATE_DB = "generate_db"
+  HISTOGRAM = "histogram"
+  FIX_TRANSFORM = "fix_transform"
+
+
 TOML_EXAMPLE = {
-  "extension_and_llm": '''\
+  EndpointName.EXTENSION_AND_OLLAMA: '''\
 llm_extension = true
 union_extension = true
 queries_parquet = "tmp/filtered_queries/filtered.parquet"
@@ -30,7 +43,7 @@ weight = 30
 prompt = "Add an outer join to the query"
 weight = 30
 ''',
-  "synthetic_generation": """\
+  EndpointName.SYNTHETIC_GENERATION: """\
 dataset = "JOB"
 duckdb_database = "path/to/duckdb.db"
 output_folder = "path/to/destination/"
@@ -50,7 +63,7 @@ operator_in = 1
 operator_range = 3
 operator_equal = 3
 """,
-  "filter": """\
+  EndpointName.FILTER: """\
 input_parquet = "/path/to/file.parquet"
 destination_folder = "/path/to/destination/"
 filter_null = true
@@ -60,12 +73,12 @@ queries_per_bin = 100
 upper_bound = 1000000
 total_bins = 100
   """,
-  "generate_db": """\
+  EndpointName.GENERATE_DB: """\
 dataset = "TPCDS"
 scale_factor = 0.1
 db_path = "path/to/duckdb.db"
 """,
-  "histogram": """\
+  EndpointName.HISTOGRAM: """\
 output_folder = "path/to/destination/"
 database_path = "path/to/duckdb.db"
 histogram_size = 51
