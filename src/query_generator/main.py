@@ -192,7 +192,7 @@ def add_limit_endpoint(
       help="The path to the configuration file with complex queries",
     ),
   ],
-):
+) -> None:
   params = read_and_parse_toml(Path(config_file), FixTransformEndpoint)
   fix_transform(params)
 

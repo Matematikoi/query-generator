@@ -66,7 +66,7 @@ class PredicateIn(Predicate):
 
 
 class PredicateGenerator:
-  def __init__(self, predicate_params: PredicateParameters):
+  def __init__(self, predicate_params: PredicateParameters) -> None:
     self.predicate_params = predicate_params
     self.histogram: pl.DataFrame = pl.read_parquet(
       predicate_params.histogram_path

@@ -64,7 +64,7 @@ class DuckDBHistogramParser:
 
   def __init__(
     self, raw_histogram: list[RawDuckDBHistograms], duckdb_type: str
-  ):
+  ) -> None:
     self.bins = [data.bin for data in raw_histogram]
     self.counts = [data.count for data in raw_histogram]
     self._get_lower_upper_bounds()
@@ -150,15 +150,16 @@ def query_histograms(
     include_mvc (bool): Whether to include most common values in the histogram
   """
   rows: list[dict[str, Any]] = []
-  tables = get_tables(con)
-  for table in tqdm(tables, position=0):
-    columns = get_columns(con, table)
+  tables: list[str] = get_tables(con)
+  table_iter = tqdm(tables, position=0)
+  for table in table_iter:  # type: ignore
+    columns: list[RawDuckDBTableDescription] = get_columns(con, table)
     pbar = tqdm(columns, desc="Starting…", position=1, leave=False)
 
     # Get table size
     table_size = get_size_of_table(con, table)
-    for column in pbar:
-      pbar.set_description(
+    for column in pbar:  # type: ignore
+      pbar.set_description(  # type: ignore
         f"Processing table {table} column {column.column_name}"
       )
       histogram_params = HistogramParams(con, table, column, histogram_size)

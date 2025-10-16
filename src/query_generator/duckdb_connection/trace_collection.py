@@ -122,6 +122,8 @@ def _profile_worker(
     out_q.put((False, str(e), None))
   finally:
     with contextlib.suppress(Exception):
+      assert timer is not None
+      assert con is not None
       timer.cancel()
       timer.join(timeout=0.1)
       con.close()

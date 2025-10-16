@@ -11,6 +11,9 @@ allowed to run. Queries beyond this threshold will not be "valid" queries.
 - `duckdb_database` (str): Path to the duckdb database to make the validation.
 and extract tables, and attributes names.
 
+Since the limit on queries will be imposed based on the output of the queries,
+the queries need to be run. Additionally to collecting the queries 
+
 # Transformations
 There are three transformation being done currently:
 1. Change the select clause to have disjoint attributes with the 

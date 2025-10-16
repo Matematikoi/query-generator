@@ -6,6 +6,7 @@ import duckdb
 import polars as pl
 from cattrs import unstructure
 from sqlglot import exp, parse_one
+from sqlglot.expressions import Expression
 from tqdm import tqdm
 
 from query_generator.duckdb_connection.trace_collection import (
@@ -96,7 +97,7 @@ def wrap_query_with_limit(sql: str, limit: int) -> str:
   return outer_select.sql(pretty=True)
 
 
-def get_only_columns_in_select(tree):
+def get_only_columns_in_select(tree: Expression):
   cols = []
   select = tree.find(exp.Select)
   if select:
@@ -200,7 +201,7 @@ def make_select_group_by_clause_disjoint(
   return query, None
 
 
-def get_transformation(*, is_numeric: bool):
+def get_transformation(*, is_numeric: bool) -> TransformationCount:
   possibilites = [TransformationCount.COUNT, TransformationCount.DISTINCT]
   if is_numeric:
     possibilites.append(TransformationCount.MIN)

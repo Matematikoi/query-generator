@@ -1,6 +1,7 @@
 import threading
 from dataclasses import dataclass
 from itertools import product
+from pathlib import Path
 from typing import Any
 
 import duckdb
@@ -92,7 +93,7 @@ def generate_synthetic_queries(
     row_retention_probability,
     equality_lower_bound_probability,
     keep_edge_probability,
-  ) in tqdm(
+  ) in tqdm(  # type: ignore
     product(
       params.user_input.max_hops,
       params.user_input.extra_predicates,
@@ -113,7 +114,7 @@ def generate_synthetic_queries(
         keep_edge_probability=keep_edge_probability,
         seen_subgraphs=seen_subgraphs,
         predicate_parameters=PredicateParameters(
-          histogram_path=params.user_input.histogram_path,
+          histogram_path=Path(params.user_input.histogram_path),
           extra_predicates=extra_predicates,
           row_retention_probability=row_retention_probability,
           operator_weights=params.user_input.operator_weights,
