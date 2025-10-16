@@ -17,7 +17,9 @@ from query_generator.duckdb_connection.utils import (
   get_histogram_excluding_common_values,
   get_tables,
 )
-from query_generator.utils.exceptions import InvalidHistogramError
+from query_generator.utils.exceptions import (
+  NoBasicHistogramElementError,
+)
 
 
 class MostCommonValuesColumns(StrEnum):
@@ -218,13 +220,13 @@ def get_size_of_table(
 def get_basic_element_of_redundant_histogram(
   dtype: str,
 ) -> str:
-  if dtype == HistogramColumns.INTEGER:
+  if dtype == "INTEGER":
     return "0"
-  if dtype == HistogramColumns.STRING:
+  if dtype == "VARCHAR":
     return "A"
-  if dtype == HistogramColumns.DATE:
+  if dtype == "DATE":
     return "1970-01-01"
-  raise InvalidHistogramError(dtype)
+  raise NoBasicHistogramElementError(dtype)
 
 
 def force_histogram_to_lenght(
@@ -258,17 +260,6 @@ def get_redundant_bins(
       return_dtype=pl.List(pl.Utf8),
     )
     .alias("redundant_histogram")
-  )
-
-
-def get_redundant_histogram_type(histogram_df: pl.DataFrame) -> pl.DataFrame:
-  return histogram_df.with_columns(
-    pl.when(pl.col(HistogramColumns.DTYPE) == "VARCHAR")
-    .then(pl.lit(RedundantHistogramsDataType.STRING))
-    .when(pl.col(HistogramColumns.DTYPE) == "INTEGER")
-    .then(pl.lit(RedundantHistogramsDataType.INTEGER))
-    .otherwise(pl.col(HistogramColumns.DTYPE))
-    .alias(HistogramColumns.DTYPE)
   )
 
 

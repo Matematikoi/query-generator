@@ -85,6 +85,13 @@ class NoColumnAlternativeError(Exception):
     )
 
 
+class NoBasicHistogramElementError(Exception):
+  def __init__(self, dtype: str) -> None:
+    super().__init__(
+      f"No basic histogram element found for data type: {dtype}."
+    )
+
+
 class ColumnNotFoundError(Exception):
   def __init__(self, column: str) -> None:
     super().__init__(f"Column {column} not found in schema.")
