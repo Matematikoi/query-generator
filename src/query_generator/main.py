@@ -15,10 +15,6 @@ from query_generator.synthetic_queries.synthetic_query_generator import (
 )
 from query_generator.synthetic_queries.utils.query_writer import (
   write_parquet,
-  write_redundant_histogram_csv,
-)
-from query_generator.tools.format_queries_file_structure import (
-  format_queries_file_structure,
 )
 from query_generator.tools.histograms import (
   make_redundant_histograms,
@@ -83,22 +79,12 @@ def make_histograms(
     histogram_size=params.histogram_size,
     common_values_size=params.common_values_size,
     con=con,
-    include_mcv=True if params.common_values_size > 0 else False,
+    include_mcv=params.common_values_size > 0,
   )
-  write_parquet(histograms_df, destination_path)
-  # TODO(Gabriel):  http://localhost:8080/tktview/46fca17ee0
-  #  Delete this code and everything that
-  #  touches it [46fca17ee0ab9e46]
   redundant_histogram_df = make_redundant_histograms(
-    destination_path, params.histogram_size
+    histograms_df, params.redundant_histogram_size
   )
-  write_parquet(
-    redundant_histogram_df,
-    destination_path.parent / "regrouped_job_hist.parquet",
-  )
-  write_redundant_histogram_csv(
-    redundant_histogram_df, destination_path.parent / "regrouped_job_hist.csv"
-  )
+  write_parquet(redundant_histogram_df, destination_path)
 
 
 @app.command(help=build_help_from_dataclass(SyntheticQueriesEndpoint))
@@ -156,58 +142,6 @@ def filter_synthetic_endpoint(
     FilterEndpoint,
   )
   filter_synthetic_queries(params)
-
-
-# TODO: Remove this endpoint
-def format_queries(
-  folder_src: Annotated[
-    str,
-    typer.Option(
-      "--src",
-      "-s",
-      help="The folder to format the queries",
-    ),
-  ],
-  folder_dst: Annotated[
-    str,
-    typer.Option(
-      "--dst",
-      "-d",
-      help="The folder to save the formatted queries",
-    ),
-  ] = "data/generated_queries/FORMATTED_QUERIES",
-) -> None:
-  """Formats queries names for submission to spark
-
-  The input folder must have the following structure:\n
-  folder_src/ \n
-    ├── some_name_1 \n
-    │   ├── query_1.sql \n
-    │   ├── query_2.sql \n
-    │   └── ... \n
-    ├── some_name_2 \n
-    │   ├── query_1.sql \n
-    │   ├── query_2.sql \n
-    │   └── ... \n
-    └── ... \n
-  The output folder will have the following structure:\n
-  folder_dst/ \n
-    ├── some_name_1 \n
-    │   ├── some_name_1_1.sql \n
-    │   ├── some_name_1_2.sql \n
-    │   └── ... \n
-    ├── some_name_2 \n
-    │   ├── some_name_2_1.sql \n
-    │   ├── some_name_2_2.sql \n
-    │   └── ... \n
-    └── ... \n
-  """
-  src_folder_path = Path(folder_src)
-  dst_folder_path = Path(folder_dst)
-  format_queries_file_structure(
-    src_folder_path=src_folder_path,
-    dst_folder_path=dst_folder_path,
-  )
 
 
 @app.command(

@@ -71,7 +71,6 @@ class OverwriteFileError(Exception):
     super().__init__(f"File {str(file_path)} already exists.")
 
 
-
 class InvalidQueryError(Exception):
   def __init__(self, query: str) -> None:
     super().__init__(f"Invalid query: {query}. Please check the query syntax.")

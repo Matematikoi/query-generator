@@ -105,6 +105,7 @@ def test_get_min_max_from_bins(
   assert min_value == bins_array[min_index]
   assert max_value == bins_array[max_index]
 
+
 @pytest.mark.parametrize(
   "input_type, expected_type",
   [
@@ -119,12 +120,12 @@ def test_get_min_max_from_bins(
 def test_get_valid_histogram_type(input_type, expected_type):
   predicate_generator = PredicateGenerator(
     PredicateParameters(
-        histogram_path=get_precomputed_histograms(Dataset.TPCDS),
-        extra_predicates=None,
-        row_retention_probability=None,
-        operator_weights=None,
-        equality_lower_bound_probability=None,
-        extra_values_for_in=None,
-      ),
+      histogram_path=get_precomputed_histograms(Dataset.TPCDS),
+      extra_predicates=None,
+      row_retention_probability=None,
+      operator_weights=None,
+      equality_lower_bound_probability=None,
+      extra_values_for_in=None,
+    ),
   )
   assert predicate_generator._get_histogram_type(input_type) == expected_type

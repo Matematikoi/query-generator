@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from enum import Enum, StrEnum
-from pathlib import Path
+from enum import StrEnum
 from typing import Any
 
 import duckdb
@@ -219,11 +218,11 @@ def get_size_of_table(
 def get_basic_element_of_redundant_histogram(
   dtype: str,
 ) -> str:
-  if dtype == RedundantHistogramsDataType.INTEGER:
+  if dtype == HistogramColumns.INTEGER:
     return "0"
-  if dtype == RedundantHistogramsDataType.STRING:
+  if dtype == HistogramColumns.STRING:
     return "A"
-  if dtype == RedundantHistogramsDataType.DATE:
+  if dtype == HistogramColumns.DATE:
     return "1970-01-01"
   raise InvalidHistogramError(dtype)
 
@@ -273,21 +272,9 @@ def get_redundant_histogram_type(histogram_df: pl.DataFrame) -> pl.DataFrame:
   )
 
 
-def get_redundant_histograms_name_convention(
-  histogram_df: pl.DataFrame,
-) -> pl.DataFrame:
-  """
-  We only want to comply with old code. This is bad naming convention
-  """
-  return histogram_df.rename(
-    {"histogram": "bins", "redundant_histogram": "hists"}
-  )
-
-
 def make_redundant_histograms(
-  histogram_path: Path, desired_length: int
+  histogram_df: pl.DataFrame, desired_length: int
 ) -> pl.DataFrame:
-  histogram_df = pl.read_parquet(histogram_path)
-  modified_dtype_df = get_redundant_histogram_type(histogram_df)
-  redundant_histogram = get_redundant_bins(modified_dtype_df, desired_length)
-  return get_redundant_histograms_name_convention(redundant_histogram)
+  if desired_length == 0:
+    return histogram_df
+  return get_redundant_bins(histogram_df, desired_length)

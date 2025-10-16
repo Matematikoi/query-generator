@@ -24,7 +24,6 @@ from query_generator.synthetic_queries.predicate_generator import (
   SupportedHistogramType,
 )
 from query_generator.utils.definitions import (
-  Dataset,
   GeneratedPredicateTypes,
   GeneratedQueryFeatures,
   PredicateParameters,
@@ -45,7 +44,7 @@ class QueryBuilder:
     self.table_to_pypika_table = {
       i: Table(i, alias=tables_schema[i]["alias"]) for i in tables_schema
     }
-    self.predicate_gen = PredicateGenerator( predicate_params)
+    self.predicate_gen = PredicateGenerator(predicate_params)
     self.tables_schema = tables_schema
 
   def get_subgraph_tables(

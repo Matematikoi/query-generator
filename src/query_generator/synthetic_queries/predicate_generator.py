@@ -13,7 +13,6 @@ from query_generator.tools.histograms import (
   MostCommonValuesColumns,
 )
 from query_generator.utils.definitions import (
-  Dataset,
   PredicateOperatorProbability,
   PredicateParameters,
 )
