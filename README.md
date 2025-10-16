@@ -112,10 +112,11 @@ The result will filter the queries according to two methods:
 
 For more details please run `pixi run main filter-synthetic --help`
 
-## **Extension and LLM**
+## **Extension and Ollama**
 
 We can do extensions for extra relational algebra operators.
-This extension takes as input the filtered queries. 
+This extension takes as input the filtered queries. [For more details
+check the full documenation here](./docs/endpoints/extension_and_ollama.md)
 
 ```bash
 pixi run main extensions-and-ollama -c params_config/extensions_and_ollama/tpcds_dev.toml
