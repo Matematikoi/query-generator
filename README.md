@@ -73,11 +73,13 @@ We choose the `generate-db` endpoint to generate the data, and we pass
 the `params_config/generate_db/tpcds_dev.toml` configuration to
 generate a small TPCDS of scale factor 0.1. The toml contains all the 
 information of input. If you want to generate a different size of TPC-DS
-you can just change the toml scale factor and run the same command.
+you can change the toml scale factor and run the same command.
 
 ```bash
 pixi run main generate-db -c params_config/generate_db/tpcds_dev.toml
 ```
+[For more details
+check the full documentation here](./docs/endpoints/generate_db.md)
 
 This will generate a database in the `./tmp/` folder
 ## **Make histograms**
@@ -86,6 +88,8 @@ Same as before we run
 ```bash
 pixi run main make-histograms -c params_config/make_histograms/tpcds_dev.toml
 ```
+[For more details
+check the full documentation here](./docs/endpoints/histogram.md)
 
 This will generate column statistics in the `./tmp/histograms` folder.
 
@@ -95,6 +99,8 @@ We now run the query generation with
 ```bash
 pixi run main synthetic-queries -c params_config/synthetic_queries/tpcds_dev.toml
 ```
+[For more details
+check the full documentation here](./docs/endpoints/synthetic_generation.md)
 
 This will generate the synthetic queries in the `./tmp/synthetic_queries` 
 folder. It would use the database and statistics created in the previous steps.
@@ -106,6 +112,9 @@ To filter the queries we use
 ```bash
 pixi run main filter-synthetic -c params_config/filter_synthetic/filter_tpcds_dev.toml
 ```
+[For more details
+check the full documentation here](./docs/endpoints/filter.md)
+
 The result will filter the queries according to two methods:
 1. Filter empty queries (no tuples returned)
 1. Sample according to the tuple output size using equi-width bins. 
@@ -115,8 +124,9 @@ For more details please run `pixi run main filter-synthetic --help`
 ## **Extension and Ollama**
 
 We can do extensions for extra relational algebra operators.
-This extension takes as input the filtered queries. [For more details
-check the full documenation here](./docs/endpoints/extension_and_ollama.md)
+This extension takes as input the filtered queries. 
+[For more details
+check the full documentation here](./docs/endpoints/extension_and_ollama.md)
 
 ```bash
 pixi run main extensions-and-ollama -c params_config/extensions_and_ollama/tpcds_dev.toml
@@ -135,6 +145,9 @@ with the LLMs. In the example run:
 ```bash
 pixi run main fix-transform -c params_config/fix_transform/tpcds_dev.toml
 ```
+[For more details
+check the full documentation here](./docs/endpoints/.md)
+
 There are three transformation being done currently:
 1. Change the select clause to have disjoint attributes with the 
 group by clause.
