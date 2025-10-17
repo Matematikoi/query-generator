@@ -284,7 +284,7 @@ def fix_transform(params: FixTransformEndpoint) -> None:
   random.seed(42)
   queries_folder: Path = Path(params.queries_folder)
   destination_folder = Path(params.destination_folder)
-  queries_paths = list(queries_folder.glob("**/*.sql"))[:200]
+  queries_paths = list(queries_folder.glob("**/*.sql"))
   rows = []
 
   schema = get_duckdb_schema(params.duckdb_database)
