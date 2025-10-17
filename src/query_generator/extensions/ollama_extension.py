@@ -9,46 +9,32 @@ from duckdb import DuckDBPyConnection
 from ollama import Client
 from tqdm import tqdm
 
+from query_generator.extensions.utils import LLM_Message, LLMClient
 from query_generator.tools.format_histogram import get_histogram_as_str
 from query_generator.utils.params import (
   ExtensionAndOllamaEndpoint,
   LLMParams,
 )
 
-Ollama_Message = list[dict[str, str]]
-
-
-def query_llm(client: Client, messages: Ollama_Message, model: str) -> None:
-  """Send a single request to the LLM and return its response."""
-  response = client.chat(model=model, messages=messages, stream=False)
-  response_str = response.message.content
-  if not response_str:
-    messages.append(
-      {"role": "assistant", "content": "I can't help you with that"}
-    )
-  else:
-    messages.append({"role": "assistant", "content": response_str})
-
 
 def get_random_queries(
-  params: ExtensionAndOllamaEndpoint,
+  queries_base_path: Path, llm_params: LLMParams
 ) -> list[tuple[str, str]]:
   """Get random queries from the synthetic queries parquet file.
 
   Returns:
     A list of tuples containing the query and its original path."""
-  assert params.llm_params is not None
-  base_path = Path(params.queries_parquet).parent
-  sql_files = list(base_path.rglob("*.sql"))
-  random_query_paths = random.sample(sql_files, params.llm_params.total_queries)
+  sql_files = list(queries_base_path.rglob("*.sql"))
+  random_query_paths = random.sample(sql_files, llm_params.total_queries)
   return [
-    (p.read_text(), str(p.relative_to(base_path))) for p in random_query_paths
+    (p.read_text(), str(p.relative_to(queries_base_path)))
+    for p in random_query_paths
   ]
 
 
 def get_random_prompt(
   params: LLMParams, query: str, context: str
-) -> tuple[str, Ollama_Message]:
+) -> tuple[str, LLM_Message]:
   extension_types = list(params.llm_prompts.keys())
   weights = [params.llm_prompts[e].weight for e in extension_types]
   extension_type = random.choices(extension_types, weights=weights)[0]
@@ -88,7 +74,7 @@ def validate_query_duckdb(
 
 
 def add_retry_query_to_messages(
-  messages: Ollama_Message, exception: Exception
+  messages: LLM_Message, exception: Exception
 ) -> None:
   messages.append(
     {
@@ -112,18 +98,20 @@ def get_schema_from_statistics(
 
 
 def llm_extension(
-  params: ExtensionAndOllamaEndpoint,
+  llm_params: LLMParams,
+  llm_client: LLMClient,
+  llm_config_params: str,
+  input_queries_base_path: Path,
+  destination_path: Path,
 ) -> None:
-  llm_params = params.llm_params
-  assert llm_params is not None
-  llm_client = Client()
   random.seed(42)
   con = duckdb.connect(database=llm_params.database_path, read_only=True)
-  destination_path = Path(params.destination_folder)
   schema_context: str = get_schema_from_statistics(llm_params)
   rows: list[dict[str, str]] = []
   log_rows: list[dict[str, str | bool]] = []
-  for query, original_path in tqdm(get_random_queries(params)):
+  for query, original_path in tqdm(
+    get_random_queries(input_queries_base_path, llm_params)
+  ):
     retries = 0
     valid_query = False
     duckdb_exception = Exception("no query was found")
@@ -134,7 +122,7 @@ def llm_extension(
         )
       else:
         add_retry_query_to_messages(messages, duckdb_exception)
-      query_llm(llm_client, messages, params.ollama_model)
+      llm_client.query(messages, llm_config_params)
       llm_extracted_query = extract_sql(messages[-1]["content"])
       valid_query, duckdb_exception = validate_query_duckdb(
         con, llm_extracted_query

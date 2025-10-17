@@ -8,6 +8,7 @@ from query_generator.duckdb_connection.setup import generate_db
 from query_generator.extensions.fix_transform import fix_transform
 from query_generator.extensions.ollama_extension import llm_extension
 from query_generator.extensions.union_queries import union_queries
+from query_generator.extensions.utils import OllamaLLMClient
 from query_generator.filter.filter import filter_synthetic_queries
 from query_generator.synthetic_queries.synthetic_query_generator import (
   SyntheticQueriesParams,
@@ -173,7 +174,13 @@ def extension_and_ollama_endpoint(
     print("Union extension done")
 
   if params.llm_extension:
-    llm_extension(params)
+    llm_extension(
+      llm_params=params.llm_params,
+      llm_client=OllamaLLMClient(),
+      llm_config_params=params.ollama_model,
+      input_queries_base_path=Path(params.queries_parquet).parent,
+      destination_path=Path(params.destination_folder),
+    )
   toml_params = get_toml_from_params(params)
   (Path(params.destination_folder) / "extension_config.toml").write_text(
     toml_params
