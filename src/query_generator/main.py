@@ -6,9 +6,9 @@ import typer
 
 from query_generator.duckdb_connection.setup import generate_db
 from query_generator.extensions.fix_transform import fix_transform
-from query_generator.extensions.ollama_extension import llm_extension
+from query_generator.extensions.llm_extension import llm_extension
 from query_generator.extensions.union_queries import union_queries
-from query_generator.extensions.utils import OllamaLLMClient
+from query_generator.extensions.llm_clients import OllamaLLMClient
 from query_generator.filter.filter import filter_synthetic_queries
 from query_generator.synthetic_queries.synthetic_query_generator import (
   SyntheticQueriesParams,
