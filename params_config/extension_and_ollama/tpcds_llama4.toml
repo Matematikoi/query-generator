@@ -557,11 +557,13 @@ even bizarre SQL semantics."""
 weight = 40
 
 
+
 [llm_params.llm_prompts.group_by_1]
 prompt = """
 Your task is to add a group by clause to the query.
-Make sure that none of the elements in the group by clause are 
-already present in the select clause.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
 
 The group by clause size should be 1.
 """
@@ -571,8 +573,9 @@ weight = 7
 [llm_params.llm_prompts.group_by_order_by_1]
 prompt = """
 Your task is to add a group by clause and an order by clause to the query.
-Make sure that none of the elements in the group by clause are 
-already present in the select clause.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
 
 The group by clause size should be 1.
 """
@@ -581,8 +584,9 @@ weight = 3
 [llm_params.llm_prompts.group_by_rollup_1]
 prompt = """
 Your task is to add a group by clause with rollup to the query.
-Make sure that none of the elements in the group by clause are 
-already present in the select clause.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
 
 The group by clause size should be 1.
 """
@@ -592,8 +596,9 @@ weight = 1
 [llm_params.llm_prompts.group_by_2]
 prompt = """
 Your task is to add a group by clause to the query.
-Make sure that none of the elements in the group by clause are 
-already present in the select clause.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
 
 The group by clause size should be 2.
 """
@@ -603,8 +608,9 @@ weight = 7
 [llm_params.llm_prompts.group_by_order_by_2]
 prompt = """
 Your task is to add a group by clause and an order by clause to the query.
-Make sure that none of the elements in the group by clause are 
-already present in the select clause.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
 
 The group by clause size should be 2.
 """
@@ -613,8 +619,9 @@ weight = 3
 [llm_params.llm_prompts.group_by_rollup_2]
 prompt = """
 Your task is to add a group by clause with rollup to the query.
-Make sure that none of the elements in the group by clause are 
-already present in the select clause.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
 
 The group by clause size should be 2.
 """
@@ -624,8 +631,9 @@ weight = 1
 [llm_params.llm_prompts.group_by_3]
 prompt = """
 Your task is to add a group by clause to the query.
-Make sure that none of the elements in the group by clause are 
-already present in the select clause.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
 
 The group by clause size should be 3.
 """
@@ -635,8 +643,9 @@ weight = 7
 [llm_params.llm_prompts.group_by_order_by_3]
 prompt = """
 Your task is to add a group by clause and an order by clause to the query.
-Make sure that none of the elements in the group by clause are 
-already present in the select clause.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
 
 The group by clause size should be 3.
 """
@@ -645,8 +654,9 @@ weight = 3
 [llm_params.llm_prompts.group_by_rollup_3]
 prompt = """
 Your task is to add a group by clause with rollup to the query.
-Make sure that none of the elements in the group by clause are 
-already present in the select clause.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
 
 The group by clause size should be 3.
 """
@@ -656,8 +666,9 @@ weight = 1
 [llm_params.llm_prompts.group_by_4]
 prompt = """
 Your task is to add a group by clause to the query.
-Make sure that none of the elements in the group by clause are 
-already present in the select clause.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
 
 The group by clause size should be 4.
 """
@@ -667,8 +678,9 @@ weight = 4
 [llm_params.llm_prompts.group_by_order_by_4]
 prompt = """
 Your task is to add a group by clause and an order by clause to the query.
-Make sure that none of the elements in the group by clause are 
-already present in the select clause.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
 
 The group by clause size should be 4.
 """
@@ -677,8 +689,9 @@ weight = 2
 [llm_params.llm_prompts.group_by_rollup_4]
 prompt = """
 Your task is to add a group by clause with rollup to the query.
-Make sure that none of the elements in the group by clause are 
-already present in the select clause.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
 
 The group by clause size should be 4.
 """
@@ -688,8 +701,9 @@ weight = 1
 [llm_params.llm_prompts.group_by_6]
 prompt = """
 Your task is to add a group by clause to the query.
-Make sure that none of the elements in the group by clause are 
-already present in the select clause.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
 
 The group by clause size should be 6.
 """
@@ -699,8 +713,9 @@ weight = 1
 [llm_params.llm_prompts.group_by_order_by_6]
 prompt = """
 Your task is to add a group by clause and an order by clause to the query.
-Make sure that none of the elements in the group by clause are 
-already present in the select clause.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
 
 The group by clause size should be 6.
 """
@@ -709,8 +724,9 @@ weight = 1
 [llm_params.llm_prompts.group_by_rollup_6]
 prompt = """
 Your task is to add a group by clause with rollup to the query.
-Make sure that none of the elements in the group by clause are 
-already present in the select clause.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
 
 The group by clause size should be 6.
 """
