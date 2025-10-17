@@ -17,20 +17,23 @@ from query_generator.utils.toml_examples import TOML_EXAMPLE, EndpointName
 
 def get_markdown_documentation(name: EndpointName) -> str:
   """Returns the markdown documentation for the given endpoint name."""
-  
+
   return f"""
 
 
 
-  {(
-    Path(__file__).parent.parent.parent.parent
-    / "docs"
-    / "endpoints"
-    / f"{name}.md"
-  ).read_text()}
+  {
+    (
+      Path(__file__).parent.parent.parent.parent
+      / "docs"
+      / "endpoints"
+      / f"{name}.md"
+    ).read_text()
+  }
   
   You can find example toml files in `./params_config/{name}/*toml`
   """
+
 
 @dataclass
 class OllamaParams:
