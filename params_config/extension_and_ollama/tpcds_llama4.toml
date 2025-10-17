@@ -11,7 +11,7 @@ probability = 0.7
 [llm_params]
 database_path = "generated_data/TPCDS_100/database_empty/TPCDS_0.duckdb"
 retry = 1
-llm_model = "llama3:latest"
+llm_model = "llama4:16x17b"
 llm_base_prompt = """
     You are a database expert. And you are writing \
     queries to test your current database with the TPCDS \

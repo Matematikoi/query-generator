@@ -1,6 +1,7 @@
 # Index
 1. [Installation](#installation-of-requirements)
-1. [Pipeline](#pipeline)
+1. [Commands for small working example](#pipeline)
+1. [Full TPCDS query generation](#full-tpcds-run)
 1. [Authors](#authors-and-contact)
 
 
@@ -35,9 +36,10 @@ For Mac you can use [the installer](https://ollama.com/download/mac).
 # Pipeline
 ![image](https://matematikoi.github.io/org/images/pipeline_query_generation.png)
 
-# Example Full run
+# Small working example
 
-We provide a small example for explaining the main steps of database and query generation: 
+We provide a small example for explaining the main steps of database and 
+query generation: 
 1. Generate Database (only TPCDS and TPCH are currently supported)
 1. Make histograms (column statistics) of the generated database in step 1
 1. Generate join queries using the database and the histograms of the previous steps.
@@ -49,19 +51,25 @@ We provide a small example for explaining the main steps of database and query g
 	1. fixing LLM issues (e.g., for Group By-Aggregation)
 	1. adding LIMIT 100 if the query returns too many rows 
 
-We invite the user to run `pixi run main --help` to get documentation of all of the existing endpoints. 
+We invite the user to run `pixi run main --help` to get documentation of 
+all of the existing endpoints. 
 
-The user can then run `pixi run main {endpoint} --help` to get documentation of each endpoint.
+The user can then run `pixi run main {endpoint} --help` to get documentation 
+of each endpoint.
 
-## Summary
-In case that you just want the commands to run the examples:
+## Commands for small working example
+In case that you just want the commands to run the examples, you only need to 
+install pixi, and ollama to run all of these commands. For ollama we use the 
+model `llama3:latest` ollama model, which means that you should run
+`ollama pull llama3:latest` before running the `extensions-and-ollama` endpoint.
+
 
 ```bash
 pixi run main generate-db -c params_config/generate_db/tpcds_dev.toml
-pixi run main make-histograms -c params_config/make_histograms/tpcds_dev.toml
-pixi run main synthetic-queries -c params_config/synthetic_queries/tpcds_dev.toml
-pixi run main filter-synthetic -c params_config/filter_synthetic/filter_tpcds_dev.toml
-pixi run main extensions-and-ollama -c params_config/extensions_and_ollama/tpcds_dev.toml
+pixi run main make-histograms -c params_config/histogram/tpcds_dev.toml
+pixi run main synthetic-queries -c params_config/synthetic_generation/tpcds_dev.toml
+pixi run main filter-synthetic -c params_config/filter/filter_tpcds_dev.toml
+pixi run main extensions-and-ollama -c params_config/extension_and_ollama/tpcds_dev.toml
 pixi run main fix-transform -c params_config/fix_transform/tpcds_dev.toml
 ```
 
@@ -86,7 +94,7 @@ This will generate a database in the `./tmp/` folder
 
 Same as before we run
 ```bash
-pixi run main make-histograms -c params_config/make_histograms/tpcds_dev.toml
+pixi run main make-histograms -c params_config/histogram/tpcds_dev.toml
 ```
 [For more details
 check the full documentation here](./docs/endpoints/histogram.md)
@@ -97,7 +105,7 @@ This will generate column statistics in the `./tmp/histograms` folder.
 
 We now run the query generation with 
 ```bash
-pixi run main synthetic-queries -c params_config/synthetic_queries/tpcds_dev.toml
+pixi run main synthetic-queries -c params_config/synthetic_generation/tpcds_dev.toml
 ```
 [For more details
 check the full documentation here](./docs/endpoints/synthetic_generation.md)
@@ -110,7 +118,7 @@ for more details.
 
 To filter the queries we use 
 ```bash
-pixi run main filter-synthetic -c params_config/filter_synthetic/filter_tpcds_dev.toml
+pixi run main filter-synthetic -c params_config/filter/filter_tpcds_dev.toml
 ```
 [For more details
 check the full documentation here](./docs/endpoints/filter.md)
@@ -129,7 +137,7 @@ This extension takes as input the filtered queries.
 check the full documentation here](./docs/endpoints/extension_and_ollama.md)
 
 ```bash
-pixi run main extensions-and-ollama -c params_config/extensions_and_ollama/tpcds_dev.toml
+pixi run main extensions-and-ollama -c params_config/extension_and_ollama/tpcds_dev.toml
 ```
 This will generate the union and ollama extension.
 
