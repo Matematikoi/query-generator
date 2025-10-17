@@ -12,7 +12,7 @@ from tqdm import tqdm
 from query_generator.tools.format_histogram import get_histogram_as_str
 from query_generator.utils.params import (
   ExtensionAndOllamaEndpoint,
-  OllamaParams,
+  LLMParams,
 )
 
 Ollama_Message = list[dict[str, str]]
@@ -47,7 +47,7 @@ def get_random_queries(
 
 
 def get_random_prompt(
-  params: OllamaParams, query: str, context: str
+  params: LLMParams, query: str, context: str
 ) -> tuple[str, Ollama_Message]:
   extension_types = list(params.llm_prompts.keys())
   weights = [params.llm_prompts[e].weight for e in extension_types]
@@ -102,7 +102,7 @@ def add_retry_query_to_messages(
 
 
 def get_schema_from_statistics(
-  params: OllamaParams,
+  params: LLMParams,
 ) -> str:
   """Get the schema of a db from the parquet stats file."""
   if params.statistics_parquet is None:
