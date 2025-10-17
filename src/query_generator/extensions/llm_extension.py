@@ -6,13 +6,11 @@ from pathlib import Path
 import duckdb
 import polars as pl
 from duckdb import DuckDBPyConnection
-from ollama import Client
 from tqdm import tqdm
 
 from query_generator.extensions.llm_clients import LLM_Message, LLMClient
 from query_generator.tools.format_histogram import get_histogram_as_str
 from query_generator.utils.params import (
-  ExtensionAndOllamaEndpoint,
   LLMParams,
 )
 
