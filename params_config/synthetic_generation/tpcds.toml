@@ -1,7 +1,7 @@
 dataset = "TPCDS"
-duckdb_database = "data/duckdb/TPCDS/0.1.db"
-output_folder = "data/generated_queries/synthetic_queries/TPC_DS"
-histogram_path = "data/histograms/histogram_tpcds.parquet"
+duckdb_database = "generated_data/databases/TPCDS_100.duckdb"
+output_folder = "generated_data/TPCDS_100/synthetic_data/"
+histogram_path = "generated_data/TPCDS_100/histograms/histogram_tpcds.parquet"
 
 unique_joins = true
 max_signatures_per_fact_table = 10

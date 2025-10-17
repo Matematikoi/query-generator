@@ -1,10 +1,10 @@
 llm_extension = true
 union_extension = false
-destination_folder = "/home/gabriel/query_generation/query_generation/data/generated_queries/LLM_QUERIES_llama_unseen"
-queries_parquet = "/home/gabriel/query_generation/query_generation/data/generated_queries/FORMATTED_TPCDS/filtered.parquet"
+destination_folder = "generated_data/TPCDS_100/ollama_queries/"
+queries_parquet = "generated_data/TPCDS_100/filtered_queries/filtered.parquet"
 
 [llm_params]
-database_path = "data/duckdb/TPCDS/0.db"
+database_path = "generated_data/databases/TPCDS_0.duckdb"
 retry = 1
 llm_model = "llama4:16x17b"
 llm_base_prompt = """

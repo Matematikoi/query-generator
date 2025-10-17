@@ -159,6 +159,25 @@ group by clause.
 1. Add a limit to the query if the output of it is over the user defined 
 threshold.
 
+# Full TPCDS run
+
+```bash
+# generate the tpcds 100 dataset
+pixi run main generate-db -c params_config/generate_db/tpcds.toml
+# make histograms for TPCDS 100
+pixi run main make-histograms -c params_config/histogram/tpcds.toml
+# make synthetic queries
+pixi run main synthetic-queries -c params_config/synthetic_generation/tpcds.toml
+# filter the synthetic queries
+pixi run main filter-synthetic -c params_config/filter/filter_tpcds.toml
+# generate an empty dataset for the LLM
+pixi run main generate-db -c params_config/generate_db/tpcds_empty.toml
+# ollama augmentation and union
+pixi run main extensions-and-ollama -c params_config/extension_and_ollama/tpcds_llama4.toml
+# final transformation to the queries
+pixi run main fix-transform -c params_config/fix_transform/tpcds.toml
+```
+
 # Authors and contact
 This project was made by Gabriel Lozano under the supervision of Yanlei Diao
 and Guillaum Lachaud at École Polytechnique.
