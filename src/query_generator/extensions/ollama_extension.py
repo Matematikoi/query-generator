@@ -134,7 +134,7 @@ def llm_extension(
         )
       else:
         add_retry_query_to_messages(messages, duckdb_exception)
-      query_llm(llm_client, messages, llm_params.llm_model)
+      query_llm(llm_client, messages, params.ollama_model)
       llm_extracted_query = extract_sql(messages[-1]["content"])
       valid_query, duckdb_exception = validate_query_duckdb(
         con, llm_extracted_query

@@ -16,6 +16,7 @@ llm_extension = true
 union_extension = true
 queries_parquet = "tmp/filtered_queries/filtered.parquet"
 destination_folder = "tmp/extended_queries"
+ollama_model = "deepseek-r1:1.5b"
 
 [union_params]
 max_queries = 5
@@ -25,7 +26,6 @@ probability = 0.7
 database_path = "data/duckdb/TPCDS/0.db"
 retry = 1
 total_queries = 5
-llm_model = "deepseek-r1:1.5b"
 llm_base_prompt = """
     You are writing queries for a markdown text using \
     the format:```sql for correct formatting in markdown

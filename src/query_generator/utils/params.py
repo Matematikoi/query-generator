@@ -34,6 +34,7 @@ def get_markdown_documentation(name: EndpointName) -> str:
   You can find example toml files in `./params_config/{name}/*toml`
   """
 
+
 @dataclass
 class UnionParams:
   """Params used for the union extension
@@ -46,17 +47,18 @@ class UnionParams:
   max_queries: int = 5
   probability: float = 0.5
 
+
 @dataclass
 class LLMParams:
   """Params used for the LLM endpoint"""
 
   llm_base_prompt: str
   database_path: str
-  llm_model: str
   total_queries: int
   retry: int
   llm_prompts: dict[str, ComplexQueryLLMPrompt]
   statistics_parquet: str | None = None
+
 
 @dataclass
 class ExtensionAndOllamaEndpoint:
@@ -75,6 +77,7 @@ class ExtensionAndOllamaEndpoint:
   destination_folder: str
   llm_params: LLMParams | None = None
   union_params: UnionParams | None = None
+  ollama_model: str | None = None
 
 
 @dataclass
