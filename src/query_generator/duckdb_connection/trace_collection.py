@@ -28,7 +28,7 @@ class DuckDBTraceParams:
   queries_path: str
   duckdb_path: str
   timeout_seconds: float
-  fetch_limit: float
+  fetch_limit: int
   output_folder: str
 
   def get_queries_path(self) -> Path:
@@ -72,7 +72,7 @@ def _profile_worker(
   query: str,
   query_path: Path,
   params: DuckDBTraceParams,
-  out_q: Queue,
+  out_q: Queue[tuple[bool, str | list[str], Path | None]],
 ) -> None:
   """Execute one SQL with DuckDB JSON profiling.
 
@@ -103,8 +103,9 @@ def _profile_worker(
 
     if timeout_seconds and timeout_seconds > 0:
 
-      def _interrupt():
+      def _interrupt() -> None:
         with contextlib.suppress(Exception):
+          assert con is not None
           con.interrupt()
 
       timer = threading.Timer(timeout_seconds, _interrupt)
@@ -121,6 +122,8 @@ def _profile_worker(
     out_q.put((False, str(e), None))
   finally:
     with contextlib.suppress(Exception):
+      assert timer is not None
+      assert con is not None
       timer.cancel()
       timer.join(timeout=0.1)
       con.close()

@@ -2512,7 +2512,7 @@ packages:
 - pypi: .
   name: query-generator
   version: 0.2.0
-  sha256: a790c9fb67c217ad8f53fd46a38a1b97c0032fa603e418e162e3605dd27b3505
+  sha256: 2405c415997e338ccad5fac08672f09112c2257c88b07a06848a255b44ce65ce
   requires_dist:
   - ollama>=0.5.1,<0.6
   - pytest ; extra == 'test'

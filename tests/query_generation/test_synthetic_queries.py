@@ -10,7 +10,9 @@ from query_generator.synthetic_queries.synthetic_query_generator import (
   generate_synthetic_queries,
 )
 from query_generator.filter.filter import make_bins
+from query_generator.utils.definitions import Dataset
 from query_generator.utils.params import SyntheticQueriesEndpoint
+from tests.utils import get_precomputed_histograms
 
 
 @pytest.mark.parametrize(
@@ -83,12 +85,14 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       keep_edge_probability = [0.2]
       equality_lower_bound_probability = [0]
       extra_values_for_in = 3
+      histogram_path = "{str(get_precomputed_histograms(Dataset.TPCDS))}"
 
       [operator_weights]
       operator_in = 1
       operator_range = 3
       operator_equal = 3
       """
+    print(data_toml)
     user_input = structure(tomllib.loads(data_toml), SyntheticQueriesEndpoint)
     generate_synthetic_queries(
       params=SyntheticQueriesParams(

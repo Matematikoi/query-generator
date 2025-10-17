@@ -1,6 +1,7 @@
 dataset = "JOB"
 duckdb_database = "data/duckdb/JOB/job.db"
 output_folder = "data/generated_queries/synthetic_queries/Job"
+histogram_path = "data/histograms/histogram_job.parquet"
 
 unique_joins = true
 max_signatures_per_fact_table = 30

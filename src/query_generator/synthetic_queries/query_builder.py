@@ -12,9 +12,9 @@ from query_generator.synthetic_queries.\
   utils.subgraph_generator import (
   SubGraphGenerator,
 )
-from query_generator.synthetic_queries.foreign_key_graph import ForeignKeyGraph
 
 # fmt: on
+from query_generator.synthetic_queries.foreign_key_graph import ForeignKeyGraph
 from query_generator.synthetic_queries.predicate_generator import (
   HistogramDataType,
   PredicateEquality,
@@ -24,7 +24,6 @@ from query_generator.synthetic_queries.predicate_generator import (
   SupportedHistogramType,
 )
 from query_generator.utils.definitions import (
-  Dataset,
   GeneratedPredicateTypes,
   GeneratedQueryFeatures,
   PredicateParameters,
@@ -39,14 +38,13 @@ class QueryBuilder:
     subgraph_generator: SubGraphGenerator,
     # TODO(Gabriel): http://localhost:8080/tktview/b9400c203a38f3aef46ec250d98563638ba7988b
     tables_schema: Any,
-    dataset: Dataset,
     predicate_params: PredicateParameters,
   ) -> None:
     self.sub_graph_gen = subgraph_generator
     self.table_to_pypika_table = {
       i: Table(i, alias=tables_schema[i]["alias"]) for i in tables_schema
     }
-    self.predicate_gen = PredicateGenerator(dataset, predicate_params)
+    self.predicate_gen = PredicateGenerator(predicate_params)
     self.tables_schema = tables_schema
 
   def get_subgraph_tables(
@@ -63,7 +61,7 @@ class QueryBuilder:
   def generate_query_from_subgraph(
     self,
     subgraph: list[ForeignKeyGraph.Edge],
-  ) -> OracleQuery:
+  ):
     subgraph_tables = self.get_subgraph_tables(subgraph)
     query = OracleQuery().select(fn.Count("*"))
     for table in subgraph_tables:
@@ -116,7 +114,7 @@ class QueryBuilder:
   def _add_range(
     self, query: OracleQuery, predicate: PredicateRange
   ) -> OracleQuery:
-    return query.where(
+    return query.where(  # type: ignore
       self.table_to_pypika_table[predicate.table][predicate.column]
       >= self._cast_if_needed(predicate.min_value, predicate.dtype),
     ).where(
@@ -127,13 +125,13 @@ class QueryBuilder:
   def _add_equality(
     self, query: OracleQuery, predicate: PredicateEquality
   ) -> OracleQuery:
-    return query.where(
+    return query.where(  # type: ignore
       self.table_to_pypika_table[predicate.table][predicate.column]
       == predicate.equality_value
     )
 
   def _add_in(self, query: OracleQuery, predicate: PredicateIn) -> OracleQuery:
-    return query.where(
+    return query.where(  # type: ignore
       self.table_to_pypika_table[predicate.table][predicate.column].isin(
         [self._cast_if_needed(i, predicate.dtype) for i in predicate.in_values]
       )
@@ -155,7 +153,6 @@ class QueryGenerator:
     self.query_builder = QueryBuilder(
       self.subgraph_generator,
       self.tables_schema,
-      params.dataset,
       params.predicate_parameters,
     )
 
@@ -175,7 +172,7 @@ class QueryGenerator:
           )
 
           yield GeneratedQueryFeatures(
-            query=query.get_sql(),
+            query=query.get_sql(),  # type: ignore
             template_number=cnt,
             predicate_number=idx,
             fact_table=fact_table,

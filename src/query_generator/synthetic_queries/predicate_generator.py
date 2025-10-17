@@ -13,13 +13,11 @@ from query_generator.tools.histograms import (
   MostCommonValuesColumns,
 )
 from query_generator.utils.definitions import (
-  Dataset,
   PredicateOperatorProbability,
   PredicateParameters,
 )
 from query_generator.utils.exceptions import (
-  InvalidHistogramTypeError,
-  UnkownDatasetError,
+  InvalidHistogramError,
 )
 
 SupportedHistogramType = float | int | str
@@ -68,10 +66,11 @@ class PredicateIn(Predicate):
 
 
 class PredicateGenerator:
-  def __init__(self, dataset: Dataset, predicate_params: PredicateParameters):
-    self.dataset = dataset
-    self.histogram: pl.DataFrame = self.read_histogram()
+  def __init__(self, predicate_params: PredicateParameters) -> None:
     self.predicate_params = predicate_params
+    self.histogram: pl.DataFrame = pl.read_parquet(
+      predicate_params.histogram_path
+    ).filter(pl.col(HistogramColumns.HISTOGRAM.value) != [])
 
   def _cast_array(
     self, str_array: list[str], dtype: HistogramDataType
@@ -84,7 +83,6 @@ class PredicateGenerator:
 
     Returns:
         list: List of parsed values.
-
     """
     if dtype == HistogramDataType.INT:
       return [int(float(x)) for x in str_array]
@@ -94,7 +92,7 @@ class PredicateGenerator:
       return str_array
     if dtype == HistogramDataType.STRING:
       return str_array
-    raise InvalidHistogramTypeError(dtype)
+    raise InvalidHistogramError(dtype)
 
   def _cast_element(
     self, value: str, dtype: HistogramDataType
@@ -107,27 +105,7 @@ class PredicateGenerator:
       return value
     if dtype == HistogramDataType.STRING:
       return value
-    raise InvalidHistogramTypeError(dtype)
-
-  def read_histogram(self) -> pl.DataFrame:
-    """Read the histogram data for the specified dataset.
-
-    Args:
-        dataset: The dataset type (TPCH or TPCDS).
-
-    Returns:
-        pd.DataFrame: DataFrame containing the histogram data.
-
-    """
-    if self.dataset == Dataset.TPCH:
-      path = "data/histograms/histogram_tpch.parquet"
-    elif self.dataset == Dataset.TPCDS:
-      path = "data/histograms/histogram_tpcds.parquet"
-    elif self.dataset == Dataset.JOB:
-      path = "data/histograms/histogram_job.parquet"
-    else:
-      raise UnkownDatasetError(self.dataset.value)
-    return pl.read_parquet(path).filter(pl.col("histogram") != [])
+    raise InvalidHistogramError(dtype)
 
   def _get_histogram_type(self, dtype: str) -> HistogramDataType:
     if dtype in ["INTEGER", "BIGINT"]:
@@ -138,7 +116,7 @@ class PredicateGenerator:
       return HistogramDataType.DATE
     if dtype == "VARCHAR":
       return HistogramDataType.STRING
-    raise InvalidHistogramTypeError(dtype)
+    raise InvalidHistogramError(dtype)
 
   def _choose_predicate_type(
     self, operator_weights: PredicateOperatorProbability
@@ -173,35 +151,35 @@ class PredicateGenerator:
 
     """
     selected_tables_histogram = self.histogram.filter(
-      pl.col(HistogramColumns.TABLE.value).is_in(tables)
+      pl.col(HistogramColumns.TABLE).is_in(tables)
     )
 
     for row in selected_tables_histogram.sample(
       n=self.predicate_params.extra_predicates
     ).iter_rows(named=True):
-      table = row[HistogramColumns.TABLE.value]
-      column = row[HistogramColumns.COLUMN.value]
-      dtype = self._get_histogram_type(row[HistogramColumns.DTYPE.value])
+      table = row[HistogramColumns.TABLE]
+      column = row[HistogramColumns.COLUMN]
+      dtype = self._get_histogram_type(row[HistogramColumns.DTYPE])
       predicate_type = self._choose_predicate_type(
         self.predicate_params.operator_weights
       )
 
       if predicate_type == PredicateTypes.RANGE:
         yield self._get_range_predicate(
-          table, column, row[HistogramColumns.HISTOGRAM.value], dtype
+          table, column, row[HistogramColumns.HISTOGRAM], dtype
         )
       elif predicate_type == PredicateTypes.IN:
         array = self._get_in_array(
-          row[HistogramColumns.MOST_COMMON_VALUES.value],
-          row[HistogramColumns.TABLE_SIZE.value],
-          row[HistogramColumns.HISTOGRAM_MCV.value],
+          row[HistogramColumns.MOST_COMMON_VALUES],
+          row[HistogramColumns.TABLE_SIZE],
+          row[HistogramColumns.HISTOGRAM_MCV],
         )
         if array is not None:
           yield self._get_in_predicate(array, table, column, dtype)
       elif predicate_type == PredicateTypes.EQUALITY:
         value = self._get_equality_value(
-          row[HistogramColumns.MOST_COMMON_VALUES.value],
-          row[HistogramColumns.TABLE_SIZE.value],
+          row[HistogramColumns.MOST_COMMON_VALUES],
+          row[HistogramColumns.TABLE_SIZE],
         )
         if value is not None:
           yield self._get_equality_predicate(value, table, column, dtype)
@@ -244,7 +222,7 @@ class PredicateGenerator:
     table_size: int,
   ) -> str | None:
     mcv_probabilities: list[float] = [
-      float(table_size) / float(v[MostCommonValuesColumns.COUNT.value])
+      float(table_size) / float(v[MostCommonValuesColumns.COUNT])
       for v in most_common_values
     ]
     mcv_probabilities_np = np.array(mcv_probabilities)
@@ -255,7 +233,7 @@ class PredicateGenerator:
     if len(filtered_indices) == 0:
       return None
     idx = random.choice(filtered_indices)
-    value = most_common_values[idx][MostCommonValuesColumns.VALUE.value]
+    value = most_common_values[idx][MostCommonValuesColumns.VALUE]
     assert isinstance(value, str)
     return value
 

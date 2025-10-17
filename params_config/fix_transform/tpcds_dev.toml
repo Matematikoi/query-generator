@@ -1,4 +1,4 @@
-destination_folder = "tmp/fixed_queries/"
+destination_folder = "tmp/transformed_queries/"
 max_output_size = 1
 timeout_seconds = 2
 queries_folder = "tmp/extended_queries"

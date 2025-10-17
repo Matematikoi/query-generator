@@ -1,0 +1,5 @@
+destination_folder = "generated_data/TPCDS_100/transformed_queries/"
+max_output_size = 100
+timeout_seconds = 15
+queries_folder = "generated_data/TPCDS_100/ollama_queries/"
+duckdb_database = "generated_data/TPCDS_100/database/TPCDS_100.duckdb"

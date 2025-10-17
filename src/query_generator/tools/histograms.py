@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from enum import Enum
-from pathlib import Path
+from enum import StrEnum
 from typing import Any
 
 import duckdb
@@ -18,15 +17,17 @@ from query_generator.duckdb_connection.utils import (
   get_histogram_excluding_common_values,
   get_tables,
 )
-from query_generator.utils.exceptions import InvalidHistogramTypeError
+from query_generator.utils.exceptions import (
+  NoBasicHistogramElementError,
+)
 
 
-class MostCommonValuesColumns(Enum):
+class MostCommonValuesColumns(StrEnum):
   VALUE = "value"
   COUNT = "count"
 
 
-class RedundantHistogramsDataType(Enum):
+class RedundantHistogramsDataType(StrEnum):
   """
   This class was made for compatibility with old code that
   generated this histogram:
@@ -39,7 +40,7 @@ class RedundantHistogramsDataType(Enum):
   DATE = "DATE"
 
 
-class HistogramColumns(Enum):
+class HistogramColumns(StrEnum):
   TABLE = "table"
   COLUMN = "column"
   HISTOGRAM = "histogram"
@@ -63,7 +64,7 @@ class DuckDBHistogramParser:
 
   def __init__(
     self, raw_histogram: list[RawDuckDBHistograms], duckdb_type: str
-  ):
+  ) -> None:
     self.bins = [data.bin for data in raw_histogram]
     self.counts = [data.count for data in raw_histogram]
     self._get_lower_upper_bounds()
@@ -149,15 +150,16 @@ def query_histograms(
     include_mvc (bool): Whether to include most common values in the histogram
   """
   rows: list[dict[str, Any]] = []
-  tables = get_tables(con)
-  for table in tqdm(tables, position=0):
-    columns = get_columns(con, table)
+  tables: list[str] = get_tables(con)
+  table_iter = tqdm(tables, position=0)
+  for table in table_iter:  # type: ignore
+    columns: list[RawDuckDBTableDescription] = get_columns(con, table)
     pbar = tqdm(columns, desc="Starting…", position=1, leave=False)
 
     # Get table size
     table_size = get_size_of_table(con, table)
-    for column in pbar:
-      pbar.set_description(
+    for column in pbar:  # type: ignore
+      pbar.set_description(  # type: ignore
         f"Processing table {table} column {column.column_name}"
       )
       histogram_params = HistogramParams(con, table, column, histogram_size)
@@ -168,12 +170,12 @@ def query_histograms(
       distinct_count = get_distinct_count(con, table, column.column_name)
 
       row_dict: dict[str, Any] = {
-        HistogramColumns.TABLE.value: table,
-        HistogramColumns.COLUMN.value: column.column_name,
-        HistogramColumns.HISTOGRAM.value: histogram_array,
-        HistogramColumns.DISTINCT_COUNT.value: distinct_count,
-        HistogramColumns.DTYPE.value: column.column_type,
-        HistogramColumns.TABLE_SIZE.value: table_size,
+        HistogramColumns.TABLE: table,
+        HistogramColumns.COLUMN: column.column_name,
+        HistogramColumns.HISTOGRAM: histogram_array,
+        HistogramColumns.DISTINCT_COUNT: distinct_count,
+        HistogramColumns.DTYPE: column.column_type,
+        HistogramColumns.TABLE_SIZE: table_size,
       }
       if include_mcv:
         # Get most common values
@@ -196,8 +198,8 @@ def query_histograms(
         row_dict |= {
           HistogramColumns.MOST_COMMON_VALUES.value: [
             {
-              MostCommonValuesColumns.VALUE.value: value.value,
-              MostCommonValuesColumns.COUNT.value: value.count,
+              MostCommonValuesColumns.VALUE: value.value,
+              MostCommonValuesColumns.COUNT: value.count,
             }
             for value in most_common_values
           ],
@@ -219,13 +221,13 @@ def get_size_of_table(
 def get_basic_element_of_redundant_histogram(
   dtype: str,
 ) -> str:
-  if dtype == RedundantHistogramsDataType.INTEGER.value:
+  if dtype == "INTEGER":
     return "0"
-  if dtype == RedundantHistogramsDataType.STRING.value:
+  if dtype == "VARCHAR":
     return "A"
-  if dtype == RedundantHistogramsDataType.DATE.value:
+  if dtype == "DATE":
     return "1970-01-01"
-  raise InvalidHistogramTypeError(dtype)
+  raise NoBasicHistogramElementError(dtype)
 
 
 def force_histogram_to_lenght(
@@ -249,12 +251,12 @@ def get_redundant_bins(
   histogram_df: pl.DataFrame, desired_length: int
 ) -> pl.DataFrame:
   return histogram_df.with_columns(
-    pl.struct([HistogramColumns.HISTOGRAM.value, HistogramColumns.DTYPE.value])
+    pl.struct([HistogramColumns.HISTOGRAM, HistogramColumns.DTYPE])
     .map_elements(
       lambda row: force_histogram_to_lenght(
-        row[HistogramColumns.HISTOGRAM.value],
+        row[HistogramColumns.HISTOGRAM],
         desired_length,
-        row[HistogramColumns.DTYPE.value],
+        row[HistogramColumns.DTYPE],
       ),
       return_dtype=pl.List(pl.Utf8),
     )
@@ -262,32 +264,9 @@ def get_redundant_bins(
   )
 
 
-def get_redundant_histogram_type(histogram_df: pl.DataFrame) -> pl.DataFrame:
-  return histogram_df.with_columns(
-    pl.when(pl.col(HistogramColumns.DTYPE.value) == "VARCHAR")
-    .then(pl.lit(RedundantHistogramsDataType.STRING.value))
-    .when(pl.col(HistogramColumns.DTYPE.value) == "INTEGER")
-    .then(pl.lit(RedundantHistogramsDataType.INTEGER.value))
-    .otherwise(pl.col(HistogramColumns.DTYPE.value))
-    .alias(HistogramColumns.DTYPE.value)
-  )
-
-
-def get_redundant_histograms_name_convention(
-  histogram_df: pl.DataFrame,
-) -> pl.DataFrame:
-  """
-  We only want to comply with old code. This is bad naming convention
-  """
-  return histogram_df.rename(
-    {"histogram": "bins", "redundant_histogram": "hists"}
-  )
-
-
 def make_redundant_histograms(
-  histogram_path: Path, desired_length: int
+  histogram_df: pl.DataFrame, desired_length: int
 ) -> pl.DataFrame:
-  histogram_df = pl.read_parquet(histogram_path)
-  modified_dtype_df = get_redundant_histogram_type(histogram_df)
-  redundant_histogram = get_redundant_bins(modified_dtype_df, desired_length)
-  return get_redundant_histograms_name_convention(redundant_histogram)
+  if desired_length == 0:
+    return histogram_df
+  return get_redundant_bins(histogram_df, desired_length)

@@ -1,8 +1,5 @@
 from unittest import mock
 
-import pytest
-
-
 from query_generator.database_schemas.schemas import get_schema
 from query_generator.synthetic_queries.query_builder import (
   QueryBuilder,
@@ -13,13 +10,13 @@ from query_generator.synthetic_queries.predicate_generator import (
 )
 from query_generator.utils.definitions import (
   Dataset,
-  PredicateOperatorProbability,
   PredicateParameters,
-  SyntheticQueryGenerationParameters,
 )
 from query_generator.utils.exceptions import UnkownDatasetError
 from pypika import OracleQuery
 from pypika import functions as fn
+
+from tests.utils import get_precomputed_histograms
 
 
 def test_add_range_supports_all_histogram_types():
@@ -27,8 +24,8 @@ def test_add_range_supports_all_histogram_types():
   query_builder = QueryBuilder(
     None,
     tables_schema,
-    Dataset.TPCH,
     PredicateParameters(
+      histogram_path=get_precomputed_histograms(Dataset.TPCH),
       extra_predicates=None,
       row_retention_probability=0.2,
       operator_weights=None,

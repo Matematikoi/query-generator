@@ -71,13 +71,27 @@ class OverwriteFileError(Exception):
     super().__init__(f"File {str(file_path)} already exists.")
 
 
-class InvalidHistogramTypeError(Exception):
-  def __init__(self, type: str) -> None:
-    super().__init__(
-      f"Unsupported type {type} for histogram. Please check the histogram data."
-    )
-
-
 class InvalidQueryError(Exception):
   def __init__(self, query: str) -> None:
     super().__init__(f"Invalid query: {query}. Please check the query syntax.")
+
+
+class NoColumnAlternativeError(Exception):
+  def __init__(
+    self,
+  ) -> None:
+    super().__init__(
+      "No alternative column found to make select and group by disjoint."
+    )
+
+
+class NoBasicHistogramElementError(Exception):
+  def __init__(self, dtype: str) -> None:
+    super().__init__(
+      f"No basic histogram element found for data type: {dtype}."
+    )
+
+
+class ColumnNotFoundError(Exception):
+  def __init__(self, column: str) -> None:
+    super().__init__(f"Column {column} not found in schema.")

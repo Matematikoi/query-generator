@@ -12,13 +12,13 @@ from tqdm import tqdm
 from query_generator.tools.format_histogram import get_histogram_as_str
 from query_generator.utils.params import (
   ExtensionAndOllamaEndpoint,
-  LLMParams,
+  OllamaParams,
 )
 
-LLM_Message = list[dict[str, str]]
+Ollama_Message = list[dict[str, str]]
 
 
-def query_llm(client: Client, messages: LLM_Message, model: str) -> None:
+def query_llm(client: Client, messages: Ollama_Message, model: str) -> None:
   """Send a single request to the LLM and return its response."""
   response = client.chat(model=model, messages=messages, stream=False)
   response_str = response.message.content
@@ -47,8 +47,8 @@ def get_random_queries(
 
 
 def get_random_prompt(
-  params: LLMParams, query: str, context: str
-) -> tuple[str, LLM_Message]:
+  params: OllamaParams, query: str, context: str
+) -> tuple[str, Ollama_Message]:
   extension_types = list(params.llm_prompts.keys())
   weights = [params.llm_prompts[e].weight for e in extension_types]
   extension_type = random.choices(extension_types, weights=weights)[0]
@@ -88,7 +88,7 @@ def validate_query_duckdb(
 
 
 def add_retry_query_to_messages(
-  messages: LLM_Message, exception: Exception
+  messages: Ollama_Message, exception: Exception
 ) -> None:
   messages.append(
     {
@@ -102,7 +102,7 @@ def add_retry_query_to_messages(
 
 
 def get_schema_from_statistics(
-  params: LLMParams,
+  params: OllamaParams,
 ) -> str:
   """Get the schema of a db from the parquet stats file."""
   if params.statistics_parquet is None:

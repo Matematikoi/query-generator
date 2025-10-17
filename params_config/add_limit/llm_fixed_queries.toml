@@ -1,5 +1,0 @@
-queries_folder = "/home/mathos/phd/data/llm1_fix/LLM1"
-destination_folder = "/home/mathos/phd/data/llm1_fix/LLM1_fix_transform"
-max_output_size = 100
-duckdb_database = "/home/mathos/phd/data/TPCDS_100/100.db"
-timeout_seconds = 10

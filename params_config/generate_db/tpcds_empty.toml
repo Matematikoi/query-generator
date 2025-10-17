@@ -1,0 +1,3 @@
+dataset = "TPCDS"
+scale_factor = 0
+db_path = "generated_data/TPCDS_100/database_empty/TPCDS_0.duckdb"
