@@ -146,7 +146,7 @@ with the LLMs. In the example run:
 pixi run main fix-transform -c params_config/fix_transform/tpcds_dev.toml
 ```
 [For more details
-check the full documentation here](./docs/endpoints/.md)
+check the full documentation here](./docs/endpoints/fix_transform.md)
 
 There are three transformation being done currently:
 1. Change the select clause to have disjoint attributes with the 
