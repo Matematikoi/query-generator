@@ -33,7 +33,7 @@ def get_markdown_documentation(name: EndpointName) -> str:
   """
 
 @dataclass
-class LLMParams:
+class OllamaParams:
   """Params used for the LLM endpoint"""
 
   llm_base_prompt: str
@@ -73,7 +73,7 @@ class ExtensionAndOllamaEndpoint:
   llm_extension: bool
   union_extension: bool
   destination_folder: str
-  llm_params: LLMParams | None = None
+  llm_params: OllamaParams | None = None
   union_params: UnionParams | None = None
 
 
