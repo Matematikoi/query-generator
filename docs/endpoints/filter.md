@@ -24,6 +24,3 @@ representation of the bitmap that identifies the join signature.
     above this threshold will be grouped into the last bin.
 - total_bins (int): The total number of equi-width bins to create
     between 0 and the `upper_bound`.
-
-Examples of toml files can be found in:
-`params_config/filter/*toml`

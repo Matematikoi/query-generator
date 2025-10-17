@@ -59,6 +59,3 @@ a wrong column name, or syntax errors.
     - `weight` (float): The weight of the prompt. It assigns a probability to
     select this prompt over the others. The values don't have to add up
     to 1 since they will be normalized. 
-
-Examples of toml files can be found in:
-`params_config/complex_queries/*toml`

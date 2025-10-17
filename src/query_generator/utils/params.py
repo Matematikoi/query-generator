@@ -166,8 +166,6 @@ class FixTransformEndpoint:
   {get_markdown_documentation(EndpointName.FIX_TRANSFORM)}
 
 
-  Examples of toml files can be found in:
-  `params_config/add_limit/*toml`
   # Example
   ```toml
   {TOML_EXAMPLE["fix_transform"]}

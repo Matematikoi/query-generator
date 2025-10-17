@@ -12,5 +12,3 @@
 - common_values_size (int): The number of common values to include. 
 Default is 10. If the value of the `common_values_size` is 0 then, no
 MCV will be calculated. 
-Examples of toml files can be found in:
-`params_config/histogram/*toml`

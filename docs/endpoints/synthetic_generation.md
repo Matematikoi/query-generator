@@ -51,6 +51,3 @@ values to it. This parameter defines how many extra values to add.
     - operator_in : Weight for the `IN` operator.
     - operator_equals : Weight for the `=` operator.
     - operator_range : Weight for the `<` , `>` operator.
-
-Examples of toml files can be found in:
-`params_config/search_params/*toml`
