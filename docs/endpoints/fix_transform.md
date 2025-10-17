@@ -1,6 +1,5 @@
-
-
 # Attributes
+
 - `queries_folder` (str): The folder containing the sql queries to
     which the LIMIT will be added.
 - `destination_folder` (str): The folder to save the formatted queries.
@@ -15,6 +14,7 @@ Since the limit on queries will be imposed based on the output of the queries,
 the queries need to be run. Additionally to collecting the queries 
 
 # Transformations
+
 There are three transformation being done currently:
 1. Change the select clause to have disjoint attributes with the 
 group by clause.

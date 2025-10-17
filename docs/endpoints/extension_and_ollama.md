@@ -1,4 +1,5 @@
-# Attributes:
+# Attributes
+
 - `llm_extension` (bool): Whether to use the LLM extension.
 - `union_extension` (bool): Whether to use the union extension.
 - `queries_parquet` (str): The path to the parquet file generated in the

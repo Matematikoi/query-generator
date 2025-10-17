@@ -17,13 +17,20 @@ from query_generator.utils.toml_examples import TOML_EXAMPLE, EndpointName
 
 def get_markdown_documentation(name: EndpointName) -> str:
   """Returns the markdown documentation for the given endpoint name."""
-  return (
+  
+  return f"""
+
+
+
+  {(
     Path(__file__).parent.parent.parent.parent
     / "docs"
     / "endpoints"
     / f"{name}.md"
-  ).read_text()
-
+  ).read_text()}
+  
+  You can find example toml files in `./params_config/{name}/*toml`
+  """
 
 @dataclass
 class LLMParams:
@@ -54,12 +61,13 @@ class UnionParams:
 @dataclass
 class ExtensionAndOllamaEndpoint:
   __doc__ = f"""Makes complex queries from synthetic ones, mainly using ollama.
+{get_markdown_documentation(EndpointName.EXTENSION_AND_OLLAMA)}
 
-  {get_markdown_documentation(EndpointName.EXTENSION_AND_OLLAMA)}
-  # Example
-  ```toml
-  {TOML_EXAMPLE[EndpointName.EXTENSION_AND_OLLAMA]}
-  ```
+# Example
+
+```toml
+{TOML_EXAMPLE[EndpointName.EXTENSION_AND_OLLAMA]}
+```
   """
   queries_parquet: str
   llm_extension: bool
@@ -72,12 +80,13 @@ class ExtensionAndOllamaEndpoint:
 @dataclass
 class SyntheticQueriesEndpoint:
   __doc__ = f"""Generates Synthetic queries based on column statistics.
-  
-  {get_markdown_documentation(EndpointName.SYNTHETIC_GENERATION)}
-  # Example
-  ```toml
-  {TOML_EXAMPLE["synthetic_generation"]}
-  ```
+{get_markdown_documentation(EndpointName.SYNTHETIC_GENERATION)}
+
+# Example
+
+```toml
+{TOML_EXAMPLE["synthetic_generation"]}
+```
   """
 
   # Subgraph
@@ -102,16 +111,14 @@ class SyntheticQueriesEndpoint:
 
 @dataclass
 class GenerateDBEndpoint:
-  __doc__ = f"""
-  Parameters for generating a DuckDB database with TPCDS or TPCH datasets.
-  
-  
-  {get_markdown_documentation(EndpointName.GENERATE_DB)}
+  __doc__ = f"""Gnerate a DuckDB database with TPCDS or TPCH datasets.
+{get_markdown_documentation(EndpointName.GENERATE_DB)}
 
-  # Example
-  ```toml
-  {TOML_EXAMPLE["generate_db"]}
-  ```
+# Example
+
+```toml
+{TOML_EXAMPLE["generate_db"]}
+```
   """
 
   # Query builder
@@ -131,11 +138,13 @@ class CherryPickBase:
 @dataclass
 class FilterEndpoint:
   __doc__ = f"""Filter synthetic queries based on various criteria.
-  {get_markdown_documentation(EndpointName.FILTER)}
-  # Example
-  ```toml
-  {TOML_EXAMPLE["filter"]}
-  ```
+{get_markdown_documentation(EndpointName.FILTER)}
+
+# Example
+
+```toml
+{TOML_EXAMPLE["filter"]}
+```
   """
   input_parquet: str
   destination_folder: str
@@ -146,12 +155,14 @@ class FilterEndpoint:
 
 @dataclass
 class HistogramEndpoint:
-  __doc__ = f"""Generates column statistics from a database
-  {get_markdown_documentation(EndpointName.HISTOGRAM)}
-  # Example
-  ```toml
-  {TOML_EXAMPLE["histogram"]}
-  ```
+  __doc__ = f"""Generates column statistics from a database.
+{get_markdown_documentation(EndpointName.HISTOGRAM)}
+
+# Example
+
+```toml
+{TOML_EXAMPLE["histogram"]}
+```
   """
   output_folder: str
   database_path: str
@@ -163,13 +174,13 @@ class HistogramEndpoint:
 @dataclass
 class FixTransformEndpoint:
   __doc__ = f"""Adds LIMIT to sql queries according to output size.
-  {get_markdown_documentation(EndpointName.FIX_TRANSFORM)}
+{get_markdown_documentation(EndpointName.FIX_TRANSFORM)}
 
+# Example
 
-  # Example
-  ```toml
-  {TOML_EXAMPLE["fix_transform"]}
-  ```
+```toml
+{TOML_EXAMPLE["fix_transform"]}
+```
   """
   queries_folder: str
   destination_folder: str
