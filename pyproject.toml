@@ -6,7 +6,7 @@ dependencies = ["ollama>=0.5.1,<0.6"]
 
 [project.optional-dependencies]
 test = ["pytest"]
-lint = ["ruff"]
+lint = ["ruff", "pyrefly"]
 
 [build-system]
 requires = ["hatchling"]
@@ -60,7 +60,7 @@ commit = { cmd = "fossil commit", depends-on = ["lint", "test"]}
 [tool.pixi.feature.lint.tasks]
 format = "ruff format src tests"
 check = "ruff check --fix src"
-typing = "mypy --strict src"
+typing = "pyrefly check src"
 mypy = "mypy"
 lint = {depends-on = ["format","check","typing"]}
 
