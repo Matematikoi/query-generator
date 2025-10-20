@@ -4,6 +4,7 @@ from typing import Any
 
 from pypika import OracleQuery, Table
 from pypika import functions as fn
+from pypika.queries import QueryBuilder
 
 from query_generator.database_schemas.schemas import get_schema
 
@@ -32,7 +33,7 @@ from query_generator.utils.definitions import (
 from query_generator.utils.utils import set_seed
 
 
-class QueryBuilder:
+class QueryBuilderSnowflake:
   def __init__(
     self,
     subgraph_generator: SubGraphGenerator,
@@ -61,9 +62,9 @@ class QueryBuilder:
   def generate_query_from_subgraph(
     self,
     subgraph: list[ForeignKeyGraph.Edge],
-  ):
+  ) -> QueryBuilder:
     subgraph_tables = self.get_subgraph_tables(subgraph)
-    query = OracleQuery().select(fn.Count("*"))
+    query: QueryBuilder = OracleQuery().select(fn.Count("*"))
     for table in subgraph_tables:
       query = query.from_(self.table_to_pypika_table[table])
       random_column = random.choice(
@@ -85,8 +86,8 @@ class QueryBuilder:
   def add_predicates(
     self,
     subgraph: list[ForeignKeyGraph.Edge],
-    query: OracleQuery,
-  ) -> tuple[OracleQuery, GeneratedPredicateTypes]:
+    query: QueryBuilder,
+  ) -> tuple[QueryBuilder, GeneratedPredicateTypes]:
     subgraph_tables = self.get_subgraph_tables(subgraph)
     predicate_types = GeneratedPredicateTypes()
     for predicate in self.predicate_gen.get_random_predicates(
@@ -112,8 +113,8 @@ class QueryBuilder:
     return value
 
   def _add_range(
-    self, query: OracleQuery, predicate: PredicateRange
-  ) -> OracleQuery:
+    self, query: QueryBuilder, predicate: PredicateRange
+  ) -> QueryBuilder:
     return query.where(  # type: ignore
       self.table_to_pypika_table[predicate.table][predicate.column]
       >= self._cast_if_needed(predicate.min_value, predicate.dtype),
@@ -123,14 +124,16 @@ class QueryBuilder:
     )
 
   def _add_equality(
-    self, query: OracleQuery, predicate: PredicateEquality
-  ) -> OracleQuery:
+    self, query: QueryBuilder, predicate: PredicateEquality
+  ) -> QueryBuilder:
     return query.where(  # type: ignore
       self.table_to_pypika_table[predicate.table][predicate.column]
       == predicate.equality_value
     )
 
-  def _add_in(self, query: OracleQuery, predicate: PredicateIn) -> OracleQuery:
+  def _add_in(
+    self, query: QueryBuilder, predicate: PredicateIn
+  ) -> QueryBuilder:
     return query.where(  # type: ignore
       self.table_to_pypika_table[predicate.table][predicate.column].isin(
         [self._cast_if_needed(i, predicate.dtype) for i in predicate.in_values]
@@ -150,7 +153,7 @@ class QueryGenerator:
       params.max_hops,
       params.seen_subgraphs,
     )
-    self.query_builder = QueryBuilder(
+    self.query_builder = QueryBuilderSnowflake(
       self.subgraph_generator,
       self.tables_schema,
       params.predicate_parameters,

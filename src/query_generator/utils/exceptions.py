@@ -12,6 +12,11 @@ class InvalidHistogramError(Exception):
     )
 
 
+class InvalidHistogramTypeError(Exception):
+  def __init__(self, histogram_type: str) -> None:
+    super().__init__(f"Invalid histogram type: {histogram_type}.")
+
+
 class GraphExploredError(Exception):
   def __init__(self, attempts: int) -> None:
     super().__init__(f"Graph has been explored {attempts} times.")

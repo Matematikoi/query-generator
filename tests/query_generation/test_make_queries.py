@@ -2,7 +2,7 @@ from unittest import mock
 
 from query_generator.database_schemas.schemas import get_schema
 from query_generator.synthetic_queries.query_builder import (
-  QueryBuilder,
+  QueryBuilderSnowflake,
 )
 from query_generator.synthetic_queries.predicate_generator import (
   HistogramDataType,
@@ -21,7 +21,7 @@ from tests.utils import get_precomputed_histograms
 
 def test_add_range_supports_all_histogram_types():
   tables_schema, _ = get_schema(Dataset.TPCH)
-  query_builder = QueryBuilder(
+  query_builder = QueryBuilderSnowflake(
     None,
     tables_schema,
     PredicateParameters(
