@@ -7,7 +7,7 @@ import typer
 from query_generator.duckdb_connection.setup import generate_db
 from query_generator.extensions.fix_transform import fix_transform
 from query_generator.extensions.ollama_extension import llm_extension
-from query_generator.extensions.union_queries import union_queries
+from query_generator.extensions.union_queries import union_extension
 from query_generator.filter.filter import filter_synthetic_queries
 from query_generator.synthetic_queries.synthetic_query_generator import (
   SyntheticQueriesParams,
@@ -164,7 +164,7 @@ def extensions_and_ollama_endpoint(
   params = read_and_parse_toml(Path(config_file), ExtensionAndOllamaEndpoint)
   if params.union_extension:
     assert params.union_params is not None
-    union_queries(
+    union_extension(
       Path(params.queries_parquet),
       Path(params.destination_folder),
       params.union_params.max_queries,
@@ -183,7 +183,7 @@ def extensions_and_ollama_endpoint(
 @app.command(
   "fix-transform", help=build_help_from_dataclass(FixTransformEndpoint)
 )
-def add_limit_endpoint(
+def fix_transform_endpoint(
   config_file: Annotated[
     str,
     typer.Option(

@@ -58,7 +58,7 @@ SELECT {get_count_select_list(len(columns))} FROM union_queries
 """
 
 
-def union_queries(
+def union_extension(
   parquet_path: Path,
   destination_path: Path,
   max_queries: int,
