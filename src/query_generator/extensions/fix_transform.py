@@ -109,7 +109,7 @@ def get_only_columns_in_select(tree: Expression):
   return cols
 
 
-def get_group_by_attributes(tree: exp.Expression):
+def get_group_by_attributes(tree: exp.Expression) -> list[str]:
   group_by_clause = tree.find(exp.Group)
   assert group_by_clause is not None
   return [i.sql() for i in group_by_clause.find_all(exp.Column)]
