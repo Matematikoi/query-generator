@@ -51,17 +51,24 @@ We provide a small example for explaining the main steps of database and query g
 
 We invite the user to run `pixi run main --help` to get documentation of all of the existing endpoints. 
 
-The user can then run `pixi run main {endpoint} --help` to get documentation of each endpoint.
+The user can then run `pixi run main {endpoint} --help` to get documentation 
+of each endpoint.
+
+## Commands for small working example
+In case that you just want the commands to run the examples, you only need to 
+install pixi, and ollama to run all of these commands. For ollama we use the 
+model `llama3:latest` ollama model, which means that you should run
+`ollama pull llama3:latest` before running the `extensions-with-ollama` endpoint.
 
 ## Summary
 In case that you just want the commands to run the examples:
 
 ```bash
 pixi run main generate-db -c params_config/generate_db/tpcds_dev.toml
-pixi run main make-histograms -c params_config/make_histograms/tpcds_dev.toml
-pixi run main synthetic-queries -c params_config/synthetic_queries/tpcds_dev.toml
-pixi run main filter-synthetic -c params_config/filter_synthetic/filter_tpcds_dev.toml
-pixi run main extensions-and-ollama -c params_config/extensions_and_ollama/tpcds_dev.toml
+pixi run main make-histograms -c params_config/histogram/tpcds_dev.toml
+pixi run main synthetic-queries -c params_config/synthetic_generation/tpcds_dev.toml
+pixi run main filter-synthetic -c params_config/filter/filter_tpcds_dev.toml
+pixi run main extensions-with-ollama -c params_config/extension_and_ollama/tpcds_dev.toml
 pixi run main fix-transform -c params_config/fix_transform/tpcds_dev.toml
 ```
 
@@ -129,7 +136,7 @@ This extension takes as input the filtered queries.
 check the full documentation here](./docs/endpoints/extension_and_ollama.md)
 
 ```bash
-pixi run main extensions-and-ollama -c params_config/extensions_and_ollama/tpcds_dev.toml
+pixi run main extensions-with-ollama -c params_config/extension_and_ollama/tpcds_dev.toml
 ```
 This will generate the union and ollama extension.
 
@@ -138,7 +145,7 @@ uses the `llama3:latest` ollama model, which means that you should run
 `ollama pull llama3:latest` before running this command, otherwise the endpoint
 will fail since it won't find the model in your machine.
 
-For more details please run `pixi run main extensions-and-ollama --help`
+For more details please run `pixi run main extensions-with-ollama --help`
 ## **Fix Transform**
 We also provide a post-processing with sqlglot to adjust queries created
 with the LLMs. In the example run:
@@ -158,6 +165,25 @@ group by clause.
     1. `COUNT`
 1. Add a limit to the query if the output of it is over the user defined 
 threshold.
+
+# Full TPCDS run
+
+```bash
+# generate the tpcds 100 dataset
+pixi run main generate-db -c params_config/generate_db/tpcds.toml
+# make histograms for TPCDS 100
+pixi run main make-histograms -c params_config/histogram/tpcds.toml
+# make synthetic queries
+pixi run main synthetic-queries -c params_config/synthetic_generation/tpcds.toml
+# filter the synthetic queries
+pixi run main filter-synthetic -c params_config/filter/filter_tpcds.toml
+# generate an empty dataset for the LLM
+pixi run main generate-db -c params_config/generate_db/tpcds_empty.toml
+# ollama augmentation and union
+pixi run main extensions-with-ollama -c params_config/extension_and_ollama/tpcds_llama4.toml
+# final transformation to the queries
+pixi run main fix-transform -c params_config/fix_transform/tpcds.toml
+```
 
 # Authors and contact
 This project was made by Gabriel Lozano under the supervision of Yanlei Diao
