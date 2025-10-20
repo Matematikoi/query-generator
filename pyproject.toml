@@ -5,8 +5,7 @@ requires-python = ">= 3.11"
 dependencies = ["ollama>=0.5.1,<0.6"]
 
 [project.optional-dependencies]
-test = ["pytest"]
-lint = ["ruff", "pyrefly"]
+dev = ["pytest", "ruff", "pyrefly"]
 
 [build-system]
 requires = ["hatchling"]
@@ -36,35 +35,27 @@ types-toml = ">=0.10.8.20240310,<0.11"
 sqlglot = ">=27.20.0,<28"
 
 
-[tool.pixi.feature.test.dependencies]
+[tool.pixi.feature.dev.dependencies]
 pytest = ">=8.3.5,<9"
-
-[tool.pixi.feature.lint.dependencies]
 ruff = ">=0.11.7,<0.12"
 mypy = ">=1.15.0,<2"
-
-[tool.pixi.feature.dev.dependencies]
 ipython = ">=9.1.0,<10"
 
 [tool.pixi.environments]
 default = { features = [], solve-group = "default" }
-test    = { features = ["test"], solve-group = "default" }
-lint    = { features = ["lint"], solve-group = "default" }
-dev    = { features = ["lint", "test", "dev"], solve-group = "default" }
+dev    = { features = ["dev"], solve-group = "default" }
 
 [tool.pixi.tasks]
 #lint = "ruff format src/"
 main = "python src/query_generator/main.py"
 commit = { cmd = "fossil commit", depends-on = ["lint", "test"]}
 
-[tool.pixi.feature.lint.tasks]
+[tool.pixi.feature.dev.tasks]
 format = "ruff format src tests"
 check = "ruff check --fix src"
 typing = "pyrefly check src"
 mypy = "mypy"
 lint = {depends-on = ["format","check","typing"]}
-
-[tool.pixi.feature.test.tasks]
 test = "pytest"
 
 [tool.ruff]

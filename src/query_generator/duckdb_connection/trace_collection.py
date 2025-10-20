@@ -129,6 +129,14 @@ def _profile_worker(
       con.close()
 
 
+def get_trace_from_path(
+  json_path: Path | None, *, trace_was_collected: bool
+) -> str:
+  if json_path is None or not trace_was_collected:
+    return ""
+  return json_path.read_text()
+
+
 def duckdb_collect_one_trace(
   sql: str, sql_file: Path, params: DuckDBTraceParams
 ) -> DuckDBTraceOuputDataFrameRow:
@@ -165,7 +173,7 @@ def duckdb_collect_one_trace(
     relative_path=str(sql_file.relative_to(queries_path)),
     query_folder=sql_file.parent.name,
     query_name=sql_file.stem,
-    duckdb_trace=json_path.read_text() if ok and json_path.is_file() else "",
+    duckdb_trace=get_trace_from_path(json_path, trace_was_collected=ok),
     duckdb_output=result if ok else [],
     error="" if ok else result,
     trace_success=ok,
