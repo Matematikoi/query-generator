@@ -123,16 +123,16 @@ def llm_extension(
   schema_context: str = get_schema_from_statistics(llm_params)
   rows: list[dict[str, str]] = []
   log_rows: list[dict[str, str | bool]] = []
-  for query, original_path in tqdm(get_random_queries(params)):
+  for query, original_path in tqdm(get_random_queries(params)):  # type: ignore
     retries = 0
     valid_query = False
     duckdb_exception = Exception("no query was found")
+    extension_type, messages = get_random_prompt(
+      llm_params, query, schema_context
+    )
+    llm_extracted_query = ""
     while retries <= llm_params.retry and not valid_query:
-      if retries == 0:
-        extension_type, messages = get_random_prompt(
-          llm_params, query, schema_context
-        )
-      else:
+      if retries > 0:
         add_retry_query_to_messages(messages, duckdb_exception)
       query_llm(llm_client, messages, llm_params.llm_model)
       llm_extracted_query = extract_sql(messages[-1]["content"])
@@ -140,7 +140,7 @@ def llm_extension(
         con, llm_extracted_query
       )
       retries += 1
-    # Save query
+    # Save query if it is valid
     if valid_query:
       new_path = (
         destination_path / extension_type / f"{original_path.replace('/', '_')}"
@@ -157,19 +157,18 @@ def llm_extension(
       )
 
     # Adds logs even if the query is not valid
-    if valid_query or retries == llm_params.retry + 1:
-      log_rows.append(
-        {
-          "extension_type": extension_type,
-          "retries": str(retries),
-          "original_path": (original_path),
-          "valid_query": valid_query,
-          "last_duckdb_exception": str(duckdb_exception)
-          if not valid_query
-          else "",
-          "messages": json.dumps(messages),
-        }
-      )
+    log_rows.append(
+      {
+        "extension_type": extension_type,
+        "retries": str(retries),
+        "original_path": (original_path),
+        "valid_query": valid_query,
+        "last_duckdb_exception": str(duckdb_exception)
+        if not valid_query
+        else "",
+        "messages": json.dumps(messages),
+      }
+    )
   destination_path.mkdir(parents=True, exist_ok=True)
   new_queries_df = pl.DataFrame(rows)
   new_queries_df.write_parquet(destination_path / "llm_extension.parquet")

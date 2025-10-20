@@ -72,7 +72,7 @@ def _profile_worker(
   query: str,
   query_path: Path,
   params: DuckDBTraceParams,
-  out_q: Queue[tuple[bool, str | list[str], Path | None]],
+  out_q: Queue[tuple[bool, list[str], Path | None, str]],
 ) -> None:
   """Execute one SQL with DuckDB JSON profiling.
 
@@ -115,11 +115,10 @@ def _profile_worker(
     # Execute the original text and force materialization/printing
     cur = con.execute(query)
     rows = cur.fetchmany(params.fetch_limit + 10)
-    result = [str(r) for r in rows]
-
-    out_q.put((True, result, trace_file))
+    result: list[str] = [str(r) for r in rows]
+    out_q.put((True, result, trace_file, ""))
   except Exception as e:
-    out_q.put((False, str(e), None))
+    out_q.put((False, [], None, str(e)))
   finally:
     with contextlib.suppress(Exception):
       assert timer is not None
@@ -148,8 +147,9 @@ def duckdb_collect_one_trace(
   queries_path = Path(params.queries_path)
 
   ok = False
-  result = []
+  result: list[str] = []
   json_path = None
+  error = ""
   q: Queue = Queue()
   p = Process(
     target=_profile_worker,
@@ -167,14 +167,14 @@ def duckdb_collect_one_trace(
     p.terminate()
     p.join()
   elif not q.empty():
-    ok, result, json_path = q.get()
+    ok, result, json_path, error = q.get()
 
   return DuckDBTraceOuputDataFrameRow(
     relative_path=str(sql_file.relative_to(queries_path)),
     query_folder=sql_file.parent.name,
     query_name=sql_file.stem,
     duckdb_trace=get_trace_from_path(json_path, trace_was_collected=ok),
-    duckdb_output=result if ok else [],
-    error="" if ok else result,
+    duckdb_output=result if ok else [],  # type: ignore
+    error="" if ok else error,
     trace_success=ok,
   )
