@@ -75,9 +75,9 @@ class ExtensionAndOllamaEndpoint:
   llm_extension: bool
   union_extension: bool
   destination_folder: str
+  ollama_model: str | None = None
   llm_params: LLMParams | None = None
   union_params: UnionParams | None = None
-  ollama_model: str | None = None
 
 
 @dataclass
