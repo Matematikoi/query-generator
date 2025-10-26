@@ -2,7 +2,7 @@ from enum import StrEnum
 
 
 class EndpointName(StrEnum):
-  EXTENSION_AND_OLLAMA = "extension_and_ollama"
+  EXTENSIONS_WITH_OLLAMA = "extensions_with_ollama"
   SYNTHETIC_GENERATION = "synthetic_generation"
   FILTER = "filter"
   GENERATE_DB = "generate_db"
@@ -11,7 +11,7 @@ class EndpointName(StrEnum):
 
 
 TOML_EXAMPLE: dict[EndpointName, str] = {
-  EndpointName.EXTENSION_AND_OLLAMA: '''\
+  EndpointName.EXTENSIONS_WITH_OLLAMA: '''\
 llm_extension = true
 union_extension = true
 queries_parquet = "tmp/filtered_queries/filtered.parquet"

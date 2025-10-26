@@ -146,10 +146,10 @@ def filter_synthetic_endpoint(
 
 
 @app.command(
-  "extensions-and-ollama",
+  "extensions-with-ollama",
   help=build_help_from_dataclass(ExtensionAndOllamaEndpoint),
 )
-def extension_and_ollama_endpoint(
+def extensions_with_ollama_endpoint(
   config_file: Annotated[
     str,
     typer.Option(

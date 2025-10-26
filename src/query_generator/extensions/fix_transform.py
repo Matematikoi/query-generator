@@ -141,12 +141,12 @@ def get_subquery(tree: exp.Expression, column: str) -> str:
   raise ColumnNotFoundError(column)
 
 
-def get_table_from_column(col: str, schema: dict[str, dict[str, str]]) -> str:
+def get_table_from_column(col: str, schema: dict[str, dict[str, str]]) -> str|None:
   search_col = col.split(".")[1] if "." in col else col
   for table_name in schema:  # noqa: PLC0206
     if search_col.lower() in schema[table_name]:
       return table_name
-  raise ValueError(col)
+  return None
 
 
 def change_select_attribute(
@@ -192,6 +192,8 @@ def make_select_group_by_clause_disjoint(
     if tree.find(exp.Group) is not None:
       for repeated_column in get_repeated_columns(tree):
         table = get_table_from_column(repeated_column, schema)
+        if table is None:
+          continue
         new_column = get_different_column(
           table,
           get_select_attributes(tree),

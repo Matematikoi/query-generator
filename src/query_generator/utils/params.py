@@ -63,12 +63,12 @@ class LLMParams:
 @dataclass
 class ExtensionAndOllamaEndpoint:
   __doc__ = f"""Makes complex queries from synthetic ones, mainly using ollama.
-{get_markdown_documentation(EndpointName.EXTENSION_AND_OLLAMA)}
+{get_markdown_documentation(EndpointName.EXTENSIONS_WITH_OLLAMA)}
 
 # Example
 
 ```toml
-{TOML_EXAMPLE[EndpointName.EXTENSION_AND_OLLAMA]}
+{TOML_EXAMPLE[EndpointName.EXTENSIONS_WITH_OLLAMA]}
 ```
   """
   queries_parquet: str

@@ -61,7 +61,7 @@ of each endpoint.
 In case that you just want the commands to run the examples, you only need to 
 install pixi, and ollama to run all of these commands. For ollama we use the 
 model `llama3:latest` ollama model, which means that you should run
-`ollama pull llama3:latest` before running the `extensions-and-ollama` endpoint.
+`ollama pull llama3:latest` before running the `extensions-with-ollama` endpoint.
 
 
 ```bash
@@ -69,7 +69,7 @@ pixi run main generate-db -c params_config/generate_db/tpcds_dev.toml
 pixi run main make-histograms -c params_config/histogram/tpcds_dev.toml
 pixi run main synthetic-queries -c params_config/synthetic_generation/tpcds_dev.toml
 pixi run main filter-synthetic -c params_config/filter/filter_tpcds_dev.toml
-pixi run main extensions-and-ollama -c params_config/extension_and_ollama/tpcds_dev.toml
+pixi run main extensions-with-ollama -c params_config/extensions_with_ollama/tpcds_dev.toml
 pixi run main fix-transform -c params_config/fix_transform/tpcds_dev.toml
 ```
 
@@ -134,10 +134,10 @@ For more details please run `pixi run main filter-synthetic --help`
 We can do extensions for extra relational algebra operators.
 This extension takes as input the filtered queries. 
 [For more details
-check the full documentation here](./docs/endpoints/extension_and_ollama.md)
+check the full documentation here](./docs/endpoints/extensions_with_ollama.md)
 
 ```bash
-pixi run main extensions-and-ollama -c params_config/extension_and_ollama/tpcds_dev.toml
+pixi run main extensions-with-ollama -c params_config/extensions_with_ollama/tpcds_dev.toml
 ```
 This will generate the union and ollama extension.
 
@@ -146,7 +146,7 @@ uses the `llama3:latest` ollama model, which means that you should run
 `ollama pull llama3:latest` before running this command, otherwise the endpoint
 will fail since it won't find the model in your machine.
 
-For more details please run `pixi run main extensions-and-ollama --help`
+For more details please run `pixi run main extensions-with-ollama --help`
 ## **Fix Transform**
 We also provide a post-processing with sqlglot to adjust queries created
 with the LLMs. In the example run:
@@ -181,7 +181,7 @@ pixi run main filter-synthetic -c params_config/filter/filter_tpcds.toml
 # generate an empty dataset for the LLM
 pixi run main generate-db -c params_config/generate_db/tpcds_empty.toml
 # ollama augmentation and union
-pixi run main extensions-and-ollama -c params_config/extension_and_ollama/tpcds_llama4.toml
+pixi run main extensions-with-ollama -c params_config/extensions_with_ollama/tpcds_llama4.toml
 # final transformation to the queries
 pixi run main fix-transform -c params_config/fix_transform/tpcds.toml
 ```
