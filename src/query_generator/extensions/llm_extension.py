@@ -107,12 +107,13 @@ def llm_extension(
   schema_context: str = get_schema_from_statistics(llm_params)
   rows: list[dict[str, str]] = []
   log_rows: list[dict[str, str | bool]] = []
-  for query, original_path in tqdm(
+  for query, original_path in tqdm(  # type:ignore
     get_random_queries(input_queries_base_path, llm_params)
   ):
     retries = 0
     valid_query = False
     duckdb_exception = Exception("no query was found")
+    llm_extracted_query = ""
     extension_type, messages = get_random_prompt(
       llm_params, query, schema_context
     )

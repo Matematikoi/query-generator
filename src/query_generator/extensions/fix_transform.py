@@ -110,11 +110,17 @@ def get_only_columns_in_select(tree: Expression):
 
 
 def get_group_by_attributes(tree: exp.Expression):
-  return [i.sql() for i in tree.find(exp.Group).find_all(exp.Column)]
+  group_clause = tree.find(exp.Group)
+  assert group_clause is not None
+  columns = group_clause.find_all(exp.Column)
+  assert columns is not None
+  return [i.sql() for i in columns]
 
 
 def get_select_attributes(tree: exp.Expression):
-  return [i.sql() for i in tree.find(exp.Select) if "*" not in i.sql()]
+  select_clause = tree.find(exp.Select)
+  assert select_clause is not None
+  return [i.sql() for i in select_clause if "*" not in i.sql()]
 
 
 def retrieve_column_name(table_dot_columns: list[str]) -> list[str]:
@@ -135,12 +141,12 @@ def get_subquery(tree: exp.Expression, column: str) -> str:
   raise ColumnNotFoundError(column)
 
 
-def get_table_from_column(col: str, schema: dict[str : dict[str, str]]) -> str:
+def get_table_from_column(col: str, schema: dict[str, dict[str, str]]) -> str:
   search_col = col.split(".")[1] if "." in col else col
   for table_name in schema:  # noqa: PLC0206
     if search_col.lower() in schema[table_name]:
       return table_name
-  return None
+  raise ValueError(col)
 
 
 def change_select_attribute(
@@ -169,7 +175,7 @@ def get_different_column(
   table: str,
   select_columns: list[str],
   group_by_columns: list[str],
-  schema: dict[str : dict[str, str]] = None,
+  schema: dict[str, dict[str, str]],
 ) -> str:
   for col in list(schema[table].keys())[::-1]:
     if not any(col in s for s in (select_columns + group_by_columns)):
@@ -178,8 +184,8 @@ def get_different_column(
 
 
 def make_select_group_by_clause_disjoint(
-  query: str, schema: dict[str : dict[str, str]]
-) -> tuple[str, Exception]:
+  query: str, schema: dict[str, dict[str, str]]
+) -> tuple[str, Exception | None]:
   """Disjoint the select and group by clause."""
   try:
     tree = parse_one(query)
@@ -209,7 +215,7 @@ def get_transformation(*, is_numeric: bool) -> TransformationCount:
   return random.choice(possibilites)
 
 
-def replace_min_max(sql: str, schema: dict[str, dict[str, str]] = None) -> str:
+def replace_min_max(sql: str, schema: dict[str, dict[str, str]]) -> str:
   root = parse_one(sql)
 
   select = root.find(exp.Select)
@@ -289,7 +295,7 @@ def fix_transform(params: FixTransformEndpoint) -> None:
 
   schema = get_duckdb_schema(params.duckdb_database)
   traces = []
-  for query_path in tqdm(queries_paths, total=len(queries_paths)):
+  for query_path in tqdm(queries_paths, total=len(queries_paths)):  # type: ignore
     query = query_path.read_text()
     query, exception_group_by = make_select_group_by_clause_disjoint(
       query, schema
