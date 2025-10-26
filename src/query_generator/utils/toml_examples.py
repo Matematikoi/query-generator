@@ -10,7 +10,7 @@ class EndpointName(StrEnum):
   FIX_TRANSFORM = "fix_transform"
 
 
-TOML_EXAMPLE = {
+TOML_EXAMPLE: dict[EndpointName, str] = {
   EndpointName.EXTENSION_AND_OLLAMA: '''\
 llm_extension = true
 union_extension = true

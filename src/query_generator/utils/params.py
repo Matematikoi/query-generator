@@ -88,7 +88,7 @@ class SyntheticQueriesEndpoint:
 # Example
 
 ```toml
-{TOML_EXAMPLE["synthetic_generation"]}
+{TOML_EXAMPLE[EndpointName.SYNTHETIC_GENERATION]}
 ```
   """
 
@@ -120,7 +120,7 @@ class GenerateDBEndpoint:
 # Example
 
 ```toml
-{TOML_EXAMPLE["generate_db"]}
+{TOML_EXAMPLE[EndpointName.GENERATE_DB]}
 ```
   """
 
@@ -146,7 +146,7 @@ class FilterEndpoint:
 # Example
 
 ```toml
-{TOML_EXAMPLE["filter"]}
+{TOML_EXAMPLE[EndpointName.FILTER]}
 ```
   """
   input_parquet: str
@@ -164,7 +164,7 @@ class HistogramEndpoint:
 # Example
 
 ```toml
-{TOML_EXAMPLE["histogram"]}
+{TOML_EXAMPLE[EndpointName.HISTOGRAM]}
 ```
   """
   output_folder: str
@@ -182,7 +182,7 @@ class FixTransformEndpoint:
 # Example
 
 ```toml
-{TOML_EXAMPLE["fix_transform"]}
+{TOML_EXAMPLE[EndpointName.FIX_TRANSFORM]}
 ```
   """
   queries_folder: str
