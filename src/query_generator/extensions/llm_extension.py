@@ -113,12 +113,11 @@ def llm_extension(
     retries = 0
     valid_query = False
     duckdb_exception = Exception("no query was found")
+    extension_type, messages = get_random_prompt(
+      llm_params, query, schema_context
+    )
     while retries <= llm_params.retry and not valid_query:
-      if retries == 0:
-        extension_type, messages = get_random_prompt(
-          llm_params, query, schema_context
-        )
-      else:
+      if retries > 0:
         add_retry_query_to_messages(messages, duckdb_exception)
       llm_client.query(messages, llm_config_params)
       llm_extracted_query = extract_sql(messages[-1]["content"])
