@@ -114,7 +114,7 @@ class SyntheticQueriesEndpoint:
 
 @dataclass
 class GenerateDBEndpoint:
-  __doc__ = f"""Gnerate a DuckDB database with TPCDS or TPCH datasets.
+  __doc__ = f"""Generate a DuckDB database with TPCDS or TPCH datasets.
 {get_markdown_documentation(EndpointName.GENERATE_DB)}
 
 # Example
