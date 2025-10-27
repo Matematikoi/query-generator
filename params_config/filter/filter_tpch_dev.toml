@@ -1,0 +1,5 @@
+input_parquet = "generated_data/TPCH/synthetic_data/output.parquet"
+destination_folder = "generated_data/TPCH/filtered_queries/"
+filter_null  = true
+cherry_pick = false
+
