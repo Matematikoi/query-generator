@@ -146,10 +146,10 @@ def filter_synthetic_endpoint(
 
 
 @app.command(
-  "extensions-and-ollama",
+  "extensions-with-ollama",
   help=build_help_from_dataclass(ExtensionAndOllamaEndpoint),
 )
-def extension_and_ollama_endpoint(
+def extensions_with_ollama_endpoint(
   config_file: Annotated[
     str,
     typer.Option(
@@ -174,6 +174,8 @@ def extension_and_ollama_endpoint(
     print("Union extension done")
 
   if params.llm_extension:
+    assert params.ollama_model is not None
+    assert params.llm_params is not None
     llm_extension(
       llm_params=params.llm_params,
       llm_client=OllamaLLMClient(),

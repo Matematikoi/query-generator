@@ -1,0 +1,21 @@
+dataset = "TPCH"
+duckdb_database = "generated_data/TPCH/database/TPCH_0.1.duckdb"
+output_folder = "generated_data/TPCH/synthetic_data/"
+histogram_path = "generated_data/TPCH/histograms/histogram.parquet"
+
+unique_joins = true
+max_signatures_per_fact_table = 1
+max_queries_per_signature = 2
+
+max_hops = [1]
+keep_edge_probability = [0.2,0.3]
+
+extra_predicates = [5]
+row_retention_probability = [0.2, 0.9]
+equality_lower_bound_probability = [0,0.1]
+extra_values_for_in = 3
+
+[operator_weights]
+operator_in = 1
+operator_range = 3
+operator_equal = 3

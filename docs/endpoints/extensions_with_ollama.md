@@ -60,3 +60,17 @@ a wrong column name, or syntax errors.
     - `weight` (float): The weight of the prompt. It assigns a probability to
     select this prompt over the others. The values don't have to add up
     to 1 since they will be normalized. 
+
+
+# Output
+
+The queries for union will be saved under the `./union/` folder.
+The rest of the queries will be saved according to the names
+given to each `llm_prompt`. 
+
+We also output some additional files for debugging, including the 
+`logs.parquet` which includes all the dialog with the LLM that 
+occured during the query generation process. A summarized
+version for the queries that were valid is included in 
+`llm_extension.parquet`. A log of the union queries is also generated
+if the endpoint is used under the `union_description.parquet`.

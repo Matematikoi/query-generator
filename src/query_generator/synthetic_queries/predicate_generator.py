@@ -116,7 +116,7 @@ class PredicateGenerator:
       return HistogramDataType.DATE
     if dtype == "VARCHAR":
       return HistogramDataType.STRING
-    raise InvalidHistogramError(dtype)
+    raise ValueError(dtype)
 
   def _choose_predicate_type(
     self, operator_weights: PredicateOperatorProbability

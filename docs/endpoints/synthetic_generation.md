@@ -51,3 +51,14 @@ operator will be used.
 - operator_in : Weight for the `IN` operator.
 - operator_equals : Weight for the `=` operator.
 - operator_range : Weight for the `<` , `>` operator.
+
+# Output
+
+
+For each batch processed we store the generated queries under 
+`./batch_{batch#}`. We also output the `parameters.toml` which are
+the parameters that were used to run generate that set of queries for
+reproducibility purposes. 
+
+Finally we also add an `output.parquet` with additional information
+of the generated queries.

@@ -7,10 +7,7 @@ Two filtering methods are available, though they are not mutually exclusive:
     `count_star` values and samples up to a specified number of queries 
     from each bin.
 
-Additionally to filtering this filter will group the queries by their
-join signature. Meaning that queries that have the exact same join structure
-will be under the same folder. The name of the folder will be the integer
-representation of the bitmap that identifies the join signature.
+
 # Attributes
 
 - filter_null (bool): Whether to filter out null values from the results.
@@ -24,3 +21,11 @@ representation of the bitmap that identifies the join signature.
     above this threshold will be grouped into the last bin.
 - total_bins (int): The total number of equi-width bins to create
     between 0 and the `upper_bound`.
+
+
+# Output
+
+Additionally to filtering this filter will group the queries by their
+join signature. Meaning that queries that have the exact same join structure
+will be under the same folder. The name of the folder will be the integer
+representation of the bitmap that identifies the join signature.

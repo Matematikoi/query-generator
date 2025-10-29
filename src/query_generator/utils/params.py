@@ -63,21 +63,21 @@ class LLMParams:
 @dataclass
 class ExtensionAndOllamaEndpoint:
   __doc__ = f"""Makes complex queries from synthetic ones, mainly using ollama.
-{get_markdown_documentation(EndpointName.EXTENSION_AND_OLLAMA)}
+{get_markdown_documentation(EndpointName.EXTENSIONS_WITH_OLLAMA)}
 
 # Example
 
 ```toml
-{TOML_EXAMPLE[EndpointName.EXTENSION_AND_OLLAMA]}
+{TOML_EXAMPLE[EndpointName.EXTENSIONS_WITH_OLLAMA]}
 ```
   """
   queries_parquet: str
   llm_extension: bool
   union_extension: bool
   destination_folder: str
+  ollama_model: str | None = None
   llm_params: LLMParams | None = None
   union_params: UnionParams | None = None
-  ollama_model: str | None = None
 
 
 @dataclass
@@ -88,7 +88,7 @@ class SyntheticQueriesEndpoint:
 # Example
 
 ```toml
-{TOML_EXAMPLE["synthetic_generation"]}
+{TOML_EXAMPLE[EndpointName.SYNTHETIC_GENERATION]}
 ```
   """
 
@@ -114,13 +114,13 @@ class SyntheticQueriesEndpoint:
 
 @dataclass
 class GenerateDBEndpoint:
-  __doc__ = f"""Gnerate a DuckDB database with TPCDS or TPCH datasets.
+  __doc__ = f"""Generate a DuckDB database with TPCDS or TPCH datasets.
 {get_markdown_documentation(EndpointName.GENERATE_DB)}
 
 # Example
 
 ```toml
-{TOML_EXAMPLE["generate_db"]}
+{TOML_EXAMPLE[EndpointName.GENERATE_DB]}
 ```
   """
 
@@ -146,7 +146,7 @@ class FilterEndpoint:
 # Example
 
 ```toml
-{TOML_EXAMPLE["filter"]}
+{TOML_EXAMPLE[EndpointName.FILTER]}
 ```
   """
   input_parquet: str
@@ -164,7 +164,7 @@ class HistogramEndpoint:
 # Example
 
 ```toml
-{TOML_EXAMPLE["histogram"]}
+{TOML_EXAMPLE[EndpointName.HISTOGRAM]}
 ```
   """
   output_folder: str
@@ -182,7 +182,7 @@ class FixTransformEndpoint:
 # Example
 
 ```toml
-{TOML_EXAMPLE["fix_transform"]}
+{TOML_EXAMPLE[EndpointName.FIX_TRANSFORM]}
 ```
   """
   queries_folder: str

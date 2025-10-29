@@ -14,7 +14,7 @@ from query_generator.utils.params import (
 from query_generator.utils.toml_examples import TOML_EXAMPLE, EndpointName
 
 mapping = {
-  EndpointName.EXTENSION_AND_OLLAMA: ExtensionAndOllamaEndpoint,
+  EndpointName.EXTENSIONS_WITH_OLLAMA: ExtensionAndOllamaEndpoint,
   EndpointName.SYNTHETIC_GENERATION: SyntheticQueriesEndpoint,
   EndpointName.FILTER: FilterEndpoint,
   EndpointName.GENERATE_DB: GenerateDBEndpoint,
