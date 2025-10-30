@@ -8,6 +8,7 @@ from query_generator.utils.params import (
   HistogramEndpoint,
   ExtensionAndOllamaEndpoint,
   FilterEndpoint,
+  LLMPrompts,
   SyntheticQueriesEndpoint,
   read_and_parse_toml,
 )
@@ -20,6 +21,7 @@ mapping = {
   EndpointName.GENERATE_DB: GenerateDBEndpoint,
   EndpointName.HISTOGRAM: HistogramEndpoint,
   EndpointName.FIX_TRANSFORM: FixTransformEndpoint,
+  EndpointName.PROMPTS: LLMPrompts,
 }
 
 

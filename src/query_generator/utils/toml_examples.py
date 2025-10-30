@@ -8,6 +8,7 @@ class EndpointName(StrEnum):
   GENERATE_DB = "generate_db"
   HISTOGRAM = "histogram"
   FIX_TRANSFORM = "fix_transform"
+  PROMPTS = "prompts"
 
 # TODO add a params endpoint name just to test.
 TOML_EXAMPLE: dict[EndpointName, str] = {
@@ -28,6 +29,18 @@ retry = 1
 total_queries = 5
 prompts_path = "params_config/prompts/basic_prompt.toml"
 schema_path = "params_config/schemas/dev.txt"
+""",
+  EndpointName.PROMPTS:"""
+base_prompt = "use the {{schema}} keyword to append the schema"
+
+[weighted_prompts.prompt_1]
+prompt = "some instruction"
+weight = 30
+
+[weighted_prompts.outer_join]
+prompt = "Another instruction"
+weight = 2
+
 """,
   EndpointName.SYNTHETIC_GENERATION: """\
 dataset = "JOB"
