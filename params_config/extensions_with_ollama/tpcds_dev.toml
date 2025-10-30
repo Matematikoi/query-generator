@@ -13,4 +13,4 @@ database_path = "tmp/database_TPCDS_0.1.duckdb"
 retry = 0
 total_queries = 7
 prompts_path = "params_config/prompts/basic_prompt.toml"
-schema_path = "params_config/schemas/tpcds.txt"
+schema_path = "params_config/schemas/dev.txt"
