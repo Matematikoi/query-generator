@@ -73,7 +73,7 @@ class LLMParams:
     return read_and_parse_toml(self.prompts_path, LLMPrompts)
 
 
-@define
+@dataclass
 class ExtensionAndOllamaEndpoint:
   __doc__ = f"""Makes complex queries from synthetic ones, mainly using ollama.
 {get_markdown_documentation(EndpointName.EXTENSIONS_WITH_OLLAMA)}
