@@ -65,10 +65,10 @@ class LLMParams:
   total_queries: int
   retry: int
   prompts_path: Path = field(converter=Path)
-  llm_prompts: LLMPrompts = field(init=False)
+  prompts: LLMPrompts = field(init=False)
   statistics_parquet: str | None = None
 
-  @llm_prompts.default
+  @prompts.default  # type: ignore
   def _make_llm_prompts(self) -> LLMPrompts:
     return read_and_parse_toml(self.prompts_path, LLMPrompts)
 

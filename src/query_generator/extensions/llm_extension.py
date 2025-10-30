@@ -33,16 +33,16 @@ def get_random_queries(
 def get_random_prompt(
   params: LLMParams, query: str, context: str
 ) -> tuple[str, LLM_Message]:
-  extension_types = list(params.llm_prompts.keys())
-  weights = [params.llm_prompts[e].weight for e in extension_types]
+  extension_types = list(params.prompts.weighted_prompts.keys())
+  weights = [params.prompts.weighted_prompts[e].weight for e in extension_types]
   extension_type = random.choices(extension_types, weights=weights)[0]
 
   return extension_type, [
-    {"role": "system", "content": params.llm_base_prompt},
+    {"role": "system", "content": params.prompts.base_prompt},
     {
       "role": "user",
       "content": f"""
-{params.llm_prompts[extension_type].prompt}
+{params.prompts.weighted_prompts[extension_type]}
 ```sql
 {query}
 ```
