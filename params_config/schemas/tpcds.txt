@@ -1,4 +1,2 @@
-Make sure that the first line you output is a comment saying:
-```sql
---this is intended for testing purposes only
-```
+your only task is to write the given sql query again but 
+    surrounding it with ```sql Select from....```
