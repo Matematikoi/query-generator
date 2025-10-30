@@ -12,18 +12,5 @@ probability = 0.7
 database_path = "tmp/database_TPCDS_0.1.duckdb"
 retry = 0
 total_queries = 7
-llm_base_prompt = """
-    You are writing queries for a markdown text using \
-    the format:```sql for correct formatting in markdown
-
-    your only task is to write the given sql query again but 
-    surrounding it with ```sql Select from....```
-    """
-
-[llm_params.llm_prompts.self_join]
-prompt = "write the exact same query, change nothing, don't overthink it, no change is required only adding the ```sql Select ...``` for markdown:"
-weight = 30
-
-[llm_params.llm_prompts.outer_join]
-prompt = "write this query again but remove the COUNT from the select clause"
-weight = 30
+prompts_path = "params_config/prompts/basic_prompt.toml"
+schema_path = "params_config/schemas/dev.txt"

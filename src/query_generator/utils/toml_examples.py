@@ -8,10 +8,11 @@ class EndpointName(StrEnum):
   GENERATE_DB = "generate_db"
   HISTOGRAM = "histogram"
   FIX_TRANSFORM = "fix_transform"
+  PROMPTS = "prompts"
 
-
+# TODO add a params endpoint name just to test.
 TOML_EXAMPLE: dict[EndpointName, str] = {
-  EndpointName.EXTENSIONS_WITH_OLLAMA: '''\
+  EndpointName.EXTENSIONS_WITH_OLLAMA: """\
 llm_extension = true
 union_extension = true
 queries_parquet = "tmp/filtered_queries/filtered.parquet"
@@ -26,22 +27,21 @@ probability = 0.7
 database_path = "data/duckdb/TPCDS/0.db"
 retry = 1
 total_queries = 5
-llm_base_prompt = """
-    You are writing queries for a markdown text using \
-    the format:```sql for correct formatting in markdown
+prompts_path = "params_config/prompts/basic_prompt.toml"
+schema_path = "params_config/schemas/dev.txt"
+""",
+  EndpointName.PROMPTS:"""
+base_prompt = "use the {{schema}} keyword to append the schema"
 
-    your task is to write the given sql query again but with modificiation
-    surrounding it with ```sql Select from....```
-    """
-
-[llm_params.llm_prompts.self_join]
-prompt = "Add a self join to the query"
+[weighted_prompts.prompt_1]
+prompt = "some instruction"
 weight = 30
 
-[llm_params.llm_prompts.outer_join]
-prompt = "Add an outer join to the query"
-weight = 30
-''',
+[weighted_prompts.outer_join]
+prompt = "Another instruction"
+weight = 2
+
+""",
   EndpointName.SYNTHETIC_GENERATION: """\
 dataset = "JOB"
 duckdb_database = "path/to/duckdb.db"

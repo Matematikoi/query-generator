@@ -1,0 +1,14 @@
+base_prompt = """
+    You are writing queries for a markdown text using \
+    the format:```sql for correct formatting in markdown
+
+    {schema}
+"""
+
+[weighted_prompts.self_join]
+prompt = "write the exact same query, change nothing, don't overthink it, no change is required only adding the ```sql Select ...``` for markdown:"
+weight = 30
+
+[weighted_prompts.outer_join]
+prompt = "write this query again but remove the COUNT from the select clause"
+weight = 2

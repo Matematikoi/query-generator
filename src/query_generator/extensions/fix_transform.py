@@ -141,7 +141,9 @@ def get_subquery(tree: exp.Expression, column: str) -> str:
   raise ColumnNotFoundError(column)
 
 
-def get_table_from_column(col: str, schema: dict[str, dict[str, str]]) -> str|None:
+def get_table_from_column(
+  col: str, schema: dict[str, dict[str, str]]
+) -> str | None:
   search_col = col.split(".")[1] if "." in col else col
   for table_name in schema:  # noqa: PLC0206
     if search_col.lower() in schema[table_name]:

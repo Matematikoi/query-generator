@@ -553,7 +553,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/attrs?source=compressed-mapping
+  - pkg:pypi/attrs?source=hash-mapping
   size: 60101
   timestamp: 1759762331492
 - conda: https://conda.anaconda.org/conda-forge/linux-64/bzip2-1.0.8-hda65f42_8.conda
@@ -1960,7 +1960,7 @@ packages:
 - pypi: .
   name: query-generator
   version: 0.2.0
-  sha256: 50c07308861e159e4ad3912b7d29b713fa8fba8aa7b00eb8a3eb9bf277b41639
+  sha256: 778e5a8a40e023add79817e89531fa32b29fdf2776ffb2ff0dda9f3b99c25ee2
   requires_dist:
   - ollama>=0.5.1,<0.6
   - pytest ; extra == 'dev'

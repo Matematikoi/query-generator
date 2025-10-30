@@ -33,6 +33,7 @@ cattrs = ">=24.1.2,<25"
 toml = ">=0.10.2,<0.11"
 types-toml = ">=0.10.8.20240310,<0.11"
 sqlglot = ">=27.20.0,<28"
+attrs = ">=25.4.0,<26"
 
 
 [tool.pixi.feature.dev.dependencies]

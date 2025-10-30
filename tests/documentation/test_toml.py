@@ -8,6 +8,7 @@ from query_generator.utils.params import (
   HistogramEndpoint,
   ExtensionAndOllamaEndpoint,
   FilterEndpoint,
+  LLMPrompts,
   SyntheticQueriesEndpoint,
   read_and_parse_toml,
 )
@@ -20,6 +21,7 @@ mapping = {
   EndpointName.GENERATE_DB: GenerateDBEndpoint,
   EndpointName.HISTOGRAM: HistogramEndpoint,
   EndpointName.FIX_TRANSFORM: FixTransformEndpoint,
+  EndpointName.PROMPTS: LLMPrompts,
 }
 
 
@@ -42,3 +44,15 @@ def test_toml_files():
     for doc in docs_path:
       params = read_and_parse_toml(doc.read_text(), mapping[endpoint_name])
       assert params is not None
+
+def test_llm_params():
+  """test llm params are being correctly parsed"""
+  tpcds_dev = Path('params_config/extensions_with_ollama/tpcds_dev.toml')
+  params = read_and_parse_toml(tpcds_dev, ExtensionAndOllamaEndpoint)
+  base_prompt_expected:str = """
+    You are writing queries for a markdown text using the format:```sql for correct formatting in markdown
+
+    your only task is to write the given sql query again but 
+    surrounding it with ```sql Select from....```
+"""
+  assert params.llm_params.prompts.base_prompt.strip() == base_prompt_expected.strip()

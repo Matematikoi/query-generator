@@ -5,6 +5,7 @@ from typing import Any, TypeVar
 
 import cattrs
 import toml
+from attrs import define, field
 from cattrs import structure
 
 from query_generator.utils.definitions import (
@@ -48,16 +49,32 @@ class UnionParams:
   probability: float = 0.5
 
 
-@dataclass
+@define
+class LLMPrompts:
+  """Base class for the prompts used in an LLM"""
+
+  base_prompt: str
+  weighted_prompts: dict[str, ComplexQueryLLMPrompt]
+
+
+@define
 class LLMParams:
   """Params used for the LLM endpoint"""
 
-  llm_base_prompt: str
   database_path: str
   total_queries: int
   retry: int
-  llm_prompts: dict[str, ComplexQueryLLMPrompt]
+  prompts_path: Path = field(converter=Path)
+  schema_path: Path = field(converter=Path)
+  prompts: LLMPrompts = field(init=False)
   statistics_parquet: str | None = None
+
+  @prompts.default  # type: ignore
+  def _make_llm_prompts(self) -> LLMPrompts:
+    raw_prompts = read_and_parse_toml(self.prompts_path, LLMPrompts)
+    raw_prompts.base_prompt = raw_prompts.base_prompt.format(
+      schema = self.schema_path.read_text())
+    return raw_prompts
 
 
 @dataclass
