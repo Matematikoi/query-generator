@@ -5,6 +5,7 @@ from typing import Any, TypeVar
 
 import cattrs
 import toml
+from attrs import define, field
 from cattrs import structure
 
 from query_generator.utils.definitions import (
@@ -48,19 +49,31 @@ class UnionParams:
   probability: float = 0.5
 
 
-@dataclass
+@define
+class LLMPrompts:
+  """Base class for the prompts used in an LLM"""
+
+  base_prompt: str
+  weighted_prompts: dict[str, ComplexQueryLLMPrompt]
+
+
+@define
 class LLMParams:
   """Params used for the LLM endpoint"""
 
-  llm_base_prompt: str
   database_path: str
   total_queries: int
   retry: int
-  llm_prompts: dict[str, ComplexQueryLLMPrompt]
+  prompts_path: Path = field(converter=Path)
+  llm_prompts: LLMPrompts = field(init=False)
   statistics_parquet: str | None = None
 
+  @llm_prompts.default
+  def _make_llm_prompts(self) -> LLMPrompts:
+    return read_and_parse_toml(self.prompts_path, LLMPrompts)
 
-@dataclass
+
+@define
 class ExtensionAndOllamaEndpoint:
   __doc__ = f"""Makes complex queries from synthetic ones, mainly using ollama.
 {get_markdown_documentation(EndpointName.EXTENSIONS_WITH_OLLAMA)}
