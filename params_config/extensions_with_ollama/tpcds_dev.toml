@@ -1,7 +1,7 @@
 llm_extension = true
 union_extension = true
 queries_parquet = "tmp/filtered_queries/filtered.parquet"
-destination_folder = "tmp/extended_queries"
+destination_folder = "tmp/extended_queries_ollama"
 ollama_model = "llama3:latest"
 
 [union_params]

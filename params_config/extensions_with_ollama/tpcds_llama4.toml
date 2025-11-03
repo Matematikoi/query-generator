@@ -1,6 +1,6 @@
 llm_extension = true
 union_extension = true
-destination_folder = "generated_data/TPCDS_100/ollama_queries/"
+destination_folder = "generated_data/TPCDS_100/extended_queries_ollama/"
 queries_parquet = "generated_data/TPCDS_100/filtered_queries/filtered.parquet"
 ollama_model = "llama4:16x17b"
 
