@@ -84,7 +84,12 @@ given to each `llm_prompt`.
 
 We also output some additional files for debugging, including the 
 `logs.parquet` which includes all the dialog with the LLM that 
-occured during the query generation process. A summarized
-version for the queries that were valid is included in 
+occurred during the query generation process. There is an `error`
+columns in this `logs.parquet` destined to show the last error found when
+trying to run the query; a `None` object will most likely mean that 
+the parser didn't found a SQL query in the LLM output. This is common
+in small LLM that don't understand they need to surround the text with 
+triple quotes.
+A summarized version for the queries that were valid is included in 
 `llm_extension.parquet`. A log of the union queries is also generated
 if the endpoint is used under the `union_description.parquet`.

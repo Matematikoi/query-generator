@@ -87,7 +87,13 @@ class ExtensionAndOllamaEndpoint:
 ```toml
 {TOML_EXAMPLE[EndpointName.EXTENSIONS_WITH_OLLAMA]}
 ```
-  """
+## Example prompts.toml
+
+```toml
+{TOML_EXAMPLE[EndpointName.PROMPTS]}
+```
+
+"""
   queries_parquet: str
   llm_extension: bool
   union_extension: bool
