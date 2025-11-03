@@ -1,4 +1,4 @@
-destination_folder = "generated_data/TPCH/transformed_queries/"
+destination_folder = "generated_data/TPCH/transformed_queries_ollama/"
 max_output_size = 100
 timeout_seconds = 15
 queries_folder = "generated_data/TPCH/extended_queries_ollama/"
