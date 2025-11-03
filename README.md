@@ -83,7 +83,7 @@ Or by accessing the repective doc:
 - [`make-histograms`](./docs/endpoints/histogram.md)
 - [`synthetic-queries`](./docs/endpoints/synthetic_generation.md)
 - [`filter-synthetic`](./docs/endpoints/filter.md)
-- [`extensions-with`](./docs/endpoints/extensions_with_ollama.md)
+- [`extensions-with-ollama`](./docs/endpoints/extensions_with_ollama.md)
 - [`fix-transform`](./docs/endpoints/fix_transform.md)
 
 # Full TPCDS run
