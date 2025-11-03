@@ -1,5 +1,5 @@
 destination_folder = "generated_data/TPCH/transformed_queries/"
 max_output_size = 100
 timeout_seconds = 15
-queries_folder = "generated_data/TPCH/ollama_queries/"
+queries_folder = "generated_data/TPCH/extended_queries_ollama/"
 duckdb_database = "generated_data/TPCH/database/TPCH_0.1.duckdb"
