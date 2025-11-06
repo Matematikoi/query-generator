@@ -1,5 +1,8 @@
-destination_folder = "tmp/transformed_queries_ollama/"
-max_output_size = 1
-timeout_seconds = 2
+# Inputs
 queries_folder = "tmp/extended_queries_ollama"
 duckdb_database = "tmp/database_TPCDS_0.1.duckdb"
+# Outputs
+destination_folder = "tmp/transformed_queries_ollama/"
+# Parameters
+max_output_size = 1
+timeout_seconds = 2

@@ -3,12 +3,12 @@
 - `queries_folder` (str): The folder containing the sql queries to
     which the LIMIT will be added.
 - `destination_folder` (str): The folder to save the formatted queries.
+- `duckdb_database` (str): Path to the duckdb database to validate queries.
+It will also do a trace collection.
 - `max_output_size` (int): The maximum output size for the queries. Queries
     with an output tuple size greater than this value will have a LIMIT added.
 - `timeout_seconds` (float): The maximum amount of seconds the query is 
 allowed to run. Queries beyond this threshold will not be "valid" queries.
-- `duckdb_database` (str): Path to the duckdb database to make the validation.
-and extract tables, and attributes names.
 
 Since the limit on queries will be imposed based on the output of the queries,
 the queries need to be run. Additionally to collecting the queries 

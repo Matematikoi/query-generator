@@ -1,4 +1,7 @@
-histogram_size = 51
-output_folder = "generated_data/TPCDS_100/histograms/"
+# Input
 database_path = "generated_data/TPCDS_100/database/TPCDS_100.duckdb"
+# Output
+output_folder = "generated_data/TPCDS_100/histograms/"
+# Parameters
+histogram_size = 51
 common_values_size = 10
