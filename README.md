@@ -99,9 +99,8 @@ pixi run main make-histograms -c params_config/histogram/tpcds.toml
 pixi run main synthetic-queries -c params_config/synthetic_generation/tpcds.toml
 # filter the synthetic queries
 pixi run main filter-synthetic -c params_config/filter/filter_tpcds.toml
-# Generate an empty dataset to perform a syntax check for LLM-generated queries.
-# For a more thorough validation, consider using a scale factor of 1.
-pixi run main generate-db -c params_config/generate_db/tpcds_empty.toml
+# Generate a test dataset with scale factor 0.1 to check LLM-generated queries.
+pixi run main generate-db -c params_config/generate_db/tpcds_test.toml
 # ollama augmentation and union
 pixi run main extensions-with-ollama -c params_config/extensions_with_ollama/tpcds_llama4.toml
 # final transformation to the queries
