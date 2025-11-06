@@ -10,7 +10,7 @@ probability = 0.7
 
 
 [llm_params]
-database_path = "generated_data/TPCDS_100/database_empty/TPCDS_0.duckdb"
+database_path = "generated_data/TPCDS_100/database_test/TPCDS_0.1.duckdb"
 retry = 1
 total_queries = 10000
 prompts_path = "params_config/prompts/standard_prompt.toml"
