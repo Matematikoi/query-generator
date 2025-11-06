@@ -24,7 +24,9 @@ each signature up to `max_queries_per_signature` queries.
 - `dataset` (str): The dataset to be used (TPCDS, TPCH). This information
 is needed to load the correct foreign-key/primary-key information.
 - `duckdb_database` (str): The path to the DuckDB database file.
-- output_folder (str): The folder to save the generated queries.
+- `output_folder` (str): The folder to save the generated queries.
+- `histogram_path` (str): The path to the histogram parquet file generated
+using the `make-histograms` endpoint.
 
 - `unique_joins` (bool): Whether to enforce unique joins in the subgraph.
 - `max_signatures_per_fact_table` (int): Maximum number of signatures per
@@ -46,6 +48,8 @@ using the `=` and the `IN` operators
 - `extra_values_for_in`: Extra values to add when using the `IN` operator. For
 IN we take a value of the most common values and add a number of extra
 values to it. This parameter defines how many extra values to add.
+- `operator_weights`: dictionary for the weights used to sample the predicate
+types. More information below.
 
 
 ## Operator weights
