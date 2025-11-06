@@ -154,7 +154,7 @@ class GenerateDBEndpoint:
 
 
 @dataclass
-class CherryPickBase:
+class StratifiedSamplingBase:
   queries_per_bin: int
   upper_bound: int
   total_bins: int
@@ -174,9 +174,9 @@ class FilterEndpoint:
   """
   input_parquet: str
   destination_folder: str
-  filter_null: bool
-  cherry_pick: bool
-  cherry_pick_config: CherryPickBase | None = None
+  empty_set: bool
+  stratified_sampling: bool
+  stratified_sampling_config: StratifiedSamplingBase | None = None
 
 
 @dataclass

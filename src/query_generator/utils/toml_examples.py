@@ -67,9 +67,9 @@ operator_equal = 3
   EndpointName.FILTER: """\
 input_parquet = "/path/to/file.parquet"
 destination_folder = "/path/to/destination/"
-filter_null = true
-cherry_pick = true
-[cherry_pick_config]
+empty_set = true
+stratified_sampling = true
+[stratified_sampling_config]
 queries_per_bin = 100
 upper_bound = 1000000
 total_bins = 100

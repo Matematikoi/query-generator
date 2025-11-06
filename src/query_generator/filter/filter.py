@@ -3,7 +3,7 @@ from pathlib import Path
 import polars as pl
 
 from query_generator.utils.params import (
-  CherryPickBase,
+  StratifiedSamplingBase,
   FilterEndpoint,
   get_toml_from_params,
 )
@@ -26,7 +26,7 @@ def make_bins(
 
 
 def cherry_pick_filter(
-  df_input: pl.DataFrame, params: CherryPickBase | None, *, apply_filter: bool
+  df_input: pl.DataFrame, params: StratifiedSamplingBase | None, *, apply_filter: bool
 ) -> pl.DataFrame:
   if not apply_filter:
     return df_input
@@ -54,10 +54,10 @@ def null_filter(df_input: pl.DataFrame, *, apply_filter: bool) -> pl.DataFrame:
 def filter_dataframe(
   df_input: pl.DataFrame, params: FilterEndpoint
 ) -> pl.DataFrame:
-  return df_input.pipe(null_filter, apply_filter=params.filter_null).pipe(
+  return df_input.pipe(null_filter, apply_filter=params.empty_set).pipe(
     cherry_pick_filter,
-    params=params.cherry_pick_config,
-    apply_filter=params.cherry_pick,
+    params=params.stratified_sampling_config,
+    apply_filter=params.stratified_sampling,
   )
 
 
