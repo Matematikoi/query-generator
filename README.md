@@ -72,7 +72,7 @@ pixi run main make-histograms -c params_config/histogram/tpcds_dev.toml
 pixi run main synthetic-queries -c params_config/synthetic_generation/tpcds_dev.toml
 pixi run main filter-synthetic -c params_config/filter/filter_tpcds_dev.toml
 pixi run main extensions-with-ollama -c params_config/extensions_with_ollama/tpcds_dev.toml
-pixi run main fix-transform -c params_config/fix_transform/tpcds_dev.toml
+pixi run main fix-transform -c params_config/fix_transform/tpcds_ollama_dev.toml
 ```
 
 You can access the documentation of each endpoint by running
@@ -104,7 +104,7 @@ pixi run main generate-db -c params_config/generate_db/tpcds_empty.toml
 # ollama augmentation and union
 pixi run main extensions-with-ollama -c params_config/extensions_with_ollama/tpcds_llama4.toml
 # final transformation to the queries
-pixi run main fix-transform -c params_config/fix_transform/tpcds.toml
+pixi run main fix-transform -c params_config/fix_transform/tpcds_ollama.toml
 ```
 # TPCH toy example
 
@@ -113,7 +113,7 @@ pixi run main generate-db -c params_config/generate_db/tpch_dev.toml
 pixi run main make-histograms -c params_config/histogram/tpch_dev.toml
 pixi run main filter-synthetic -c params_config/filter/filter_tpch_dev.toml
 pixi run main extensions-with-ollama -c params_config/extensions_with_ollama/tpch_dev.toml
-pixi run main fix-transform -c params_config/fix_transform/tpch_dev.toml
+pixi run main fix-transform -c params_config/fix_transform/tpch_ollama_dev.toml
 ```
 
 
