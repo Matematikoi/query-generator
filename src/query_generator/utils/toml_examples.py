@@ -43,7 +43,7 @@ weight = 2
 
 """,
   EndpointName.SYNTHETIC_GENERATION: """\
-dataset = "JOB"
+dataset = "TPCDS"
 duckdb_database = "path/to/duckdb.db"
 output_folder = "path/to/destination/"
 max_hops = [1]
