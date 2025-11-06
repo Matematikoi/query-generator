@@ -16,6 +16,7 @@ Two filtering methods are available, though they are not mutually exclusive:
     queries. This is required if `cherry_pick` is set to True.
 
 ## Stratified sampling 
+
 - queries_per_bin (int): total queries to sample from each bin.
 - upper_bound (int): The upper bound for the `count_star` values to
     consider when creating bins. Any queries with `count_star` values
@@ -30,3 +31,11 @@ Additionally to filtering this filter will group the queries by their
 join signature. Meaning that queries that have the exact same join structure
 will be under the same folder. The name of the folder will be the integer
 representation of the bitmap that identifies the join signature.
+
+The name of the queries will change from 
+`batch_{#batch}/{fact_table}_{#id_per_fact_table}_{#id_predicates}.sql`
+to
+`{join_signature}/{fact_table}_{#id_per_fact_table}_{#id_predicates}_{#batch}.sql`
+
+The output with the `bin` information for stratified sampling is located
+in the `filtered.parquet`.
