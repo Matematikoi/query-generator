@@ -1,5 +1,4 @@
 input_parquet = "tmp/synthetic_queries/output.parquet"
 destination_folder = "tmp/filtered_queries"
-filter_null  = true
-cherry_pick = false
-
+empty_set = true
+stratified_sampling = false
