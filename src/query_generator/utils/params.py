@@ -32,7 +32,7 @@ def get_markdown_documentation(name: EndpointName) -> str:
     ).read_text()
   }
   
-  You can find example toml files in `./params_config/{name}/*toml`
+  You can find example toml files in `./params_config/{name}/*.toml`
   """
 
 
