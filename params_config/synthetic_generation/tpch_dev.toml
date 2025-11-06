@@ -1,7 +1,7 @@
 dataset = "TPCH"
 duckdb_database = "generated_data/TPCH/database/TPCH_0.1.duckdb"
-output_folder = "generated_data/TPCH/synthetic_data/"
 histogram_path = "generated_data/TPCH/histograms/histogram.parquet"
+output_folder = "generated_data/TPCH/synthetic_data/"
 
 unique_joins = true
 max_signatures_per_fact_table = 1

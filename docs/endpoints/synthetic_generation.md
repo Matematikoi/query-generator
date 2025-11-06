@@ -11,9 +11,14 @@ the endpoint will generate 4 batches, corresponding to the combinations
 
 This endpoint performs two primary tasks: generating join structures and adding predicates.
 
-The endpoint leverages the foreign key/primary key relationships within the schema to construct various join structures. By traversing the graph representation of these relationships, it explores all possible join configurations.
+The endpoint leverages the foreign key/primary key relationships within the 
+schema to construct various join structures. By traversing the graph 
+representation of these relationships, it explores all possible join 
+configurations.
 
-For predicate generation, the endpoint supports the `IN`, `<`, and `=` operators. It uses statistical information to ensure that each predicate is meaningful and does not result in an empty result set. This guarantees that the generated queries are both valid and useful for testing or benchmarking purposes.
+For predicate generation, the endpoint supports the `IN`, `<`, and `=` operators. 
+It uses statistical information to ensure that each individual predicate 
+is meaningful and does not result in an empty result set.
 
 Termination conditions: We ran all possible batches, generating for each batch
 up to `max_signatures_per_fact_table` signatures per fact table, and for
@@ -24,9 +29,9 @@ each signature up to `max_queries_per_signature` queries.
 - `dataset` (str): The dataset to be used (TPCDS, TPCH). This information
 is needed to load the correct foreign-key/primary-key information.
 - `duckdb_database` (str): The path to the DuckDB database file.
-- `output_folder` (str): The folder to save the generated queries.
 - `histogram_path` (str): The path to the histogram parquet file generated
 using the `make-histograms` endpoint.
+- `output_folder` (str): The folder to save the generated queries.
 
 - `unique_joins` (bool): Whether to enforce unique joins in the subgraph.
 - `max_signatures_per_fact_table` (int): Maximum number of signatures per
@@ -64,8 +69,7 @@ operator will be used.
 
 # Output
 
-
-For each batch processed we store the generated queries under 
+For each batch processed we store the generated queries under
 `./batch_{batch#}`. We also output the `parameters.toml` which are
 the parameters that were used to run generate that set of queries for
 reproducibility purposes. 
