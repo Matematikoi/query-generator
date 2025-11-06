@@ -1,16 +1,17 @@
 # Index
 1. [Installation](#installation-of-requirements)
-1. [Commands for small working example](#pipeline)
+1. [Commands for a small working example](#commands-for-a-small-working-example)
 1. [Full TPCDS query generation](#full-tpcds-run)
 1. [Authors](#authors-and-contact)
 
 
-# Installation of requirements
+# Installation of required tools
 
 We use [pixi](https://pixi.sh/latest/) for managing the python environment.
-For running the LLM augmentation we use [ollama](https://ollama.com/)
+For running the LLM augmentation we use 
+[Ollama](https://ollama.com/) as a self-managed service
 
-You can install pixi in Linux and Mac by running:
+**Install pixi.** You can install pixi in Linux and Mac by running:
 
 ```bash
 curl -fsSL https://pixi.sh/install.sh | sh
@@ -24,8 +25,7 @@ pixi run main --help
 
 which will give you a list of our endpoints along with some documentation
 
-
-To install ollama you can run 
+**Install Ollama.**  To install ollama you can run 
 
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
@@ -41,16 +41,16 @@ For Mac you can use [the installer](https://ollama.com/download/mac).
 
 We provide a small example for explaining the main steps of database and 
 query generation: 
-1. Generate Database (only TPCDS and TPCH are currently supported)
-1. Make histograms (column statistics) of the generated database in step 1
+1. Generate Database (only TPCDS and TPCH are currently supported).
+1. Make histograms (column statistics) of the generated database in step 1.
 1. Generate join queries using the database and the histograms of the previous steps.
 1. Filter the generated join queries to  
-	1. remove queries with empty results;
-	1. optionally, bin the queries based on the output cardinality and subsample in each bin.  
+	- remove queries with empty results;
+	- optionally, bin the queries based on the output cardinality and subsample in each bin.  
 1. Augment the join queries using LLMs and unions.
 1. OPTIONAL. Post-process the queries by 
-	1. fixing LLM issues (e.g., for Group By-Aggregation)
-	1. adding LIMIT 100 if the query returns too many rows 
+	- fixing LLM issues (e.g., the attributes used in Group By-Aggregation);
+	- adding LIMIT 100 if the query returns too many rows. 
 
 We invite the user to run `pixi run main --help` to get documentation of 
 all of the existing endpoints. 
@@ -58,9 +58,10 @@ all of the existing endpoints.
 The user can then run `pixi run main {endpoint} --help` to get documentation 
 of each endpoint.
 
-## Commands for small working example
-In case that you just want the commands to run the examples, you only need to 
-install pixi, and ollama to run all of these commands. For ollama we use the 
+## Commands for a small working example
+We next illustrate the commands to run a small example pipeline.
+
+For Ollama we use the 
 model `llama3:latest` ollama model, which means that you should run
 `ollama pull llama3:latest` before running the `extensions-with-ollama` endpoint.
 
@@ -84,6 +85,7 @@ Or by accessing the repective doc:
 - [`synthetic-queries`](./docs/endpoints/synthetic_generation.md)
 - [`filter-synthetic`](./docs/endpoints/filter.md)
 - [`extensions-with-ollama`](./docs/endpoints/extensions_with_ollama.md)
+- [`extensions-with-bedrock`](./docs/endpoints/extensions_with_bedrock.md)
 - [`fix-transform`](./docs/endpoints/fix_transform.md)
 
 # Full TPCDS run
