@@ -73,7 +73,8 @@ class LLMParams:
   def _make_llm_prompts(self) -> LLMPrompts:
     raw_prompts = read_and_parse_toml(self.prompts_path, LLMPrompts)
     raw_prompts.base_prompt = raw_prompts.base_prompt.format(
-      schema = self.schema_path.read_text())
+      schema=self.schema_path.read_text()
+    )
     return raw_prompts
 
 

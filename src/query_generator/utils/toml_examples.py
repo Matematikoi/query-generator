@@ -10,6 +10,7 @@ class EndpointName(StrEnum):
   FIX_TRANSFORM = "fix_transform"
   PROMPTS = "prompts"
 
+
 TOML_EXAMPLE: dict[EndpointName, str] = {
   EndpointName.EXTENSIONS_WITH_OLLAMA: """\
 llm_extension = true
@@ -29,7 +30,7 @@ total_queries = 5
 prompts_path = "params_config/prompts/basic_prompt.toml"
 schema_path = "params_config/schemas/dev.txt"
 """,
-  EndpointName.PROMPTS:"""
+  EndpointName.PROMPTS: """
 base_prompt = "use the {{schema}} keyword to append the schema"
 
 [weighted_prompts.prompt_1]

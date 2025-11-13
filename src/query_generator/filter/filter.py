@@ -3,8 +3,8 @@ from pathlib import Path
 import polars as pl
 
 from query_generator.utils.params import (
-  StratifiedSamplingBase,
   FilterEndpoint,
+  StratifiedSamplingBase,
   get_toml_from_params,
 )
 
@@ -26,7 +26,10 @@ def make_bins(
 
 
 def cherry_pick_filter(
-  df_input: pl.DataFrame, params: StratifiedSamplingBase | None, *, apply_filter: bool
+  df_input: pl.DataFrame,
+  params: StratifiedSamplingBase | None,
+  *,
+  apply_filter: bool,
 ) -> pl.DataFrame:
   if not apply_filter:
     return df_input
@@ -80,6 +83,7 @@ def filter_synthetic_queries(params: FilterEndpoint) -> None:
     new_paths.append(str(new_path.relative_to(params.destination_folder)))
 
   # Write parquet and params
+  print(f"Filtered queries from {len(df_input)} to {len(df_filtered)}.")
   df_filtered = df_filtered.with_columns(pl.Series("relative_path", new_paths))
   df_filtered_output = Path(params.destination_folder) / "filtered.parquet"
   df_filtered.write_parquet(df_filtered_output)

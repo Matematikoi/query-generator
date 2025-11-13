@@ -101,14 +101,20 @@ def llm_extension(
   llm_config_params: str,
   input_queries_base_path: Path,
   destination_path: Path,
-) -> None:
+) -> int:
+  """Generate new queries using LLM prompts.
+
+  Returns:
+    The number of generated queries.
+  """
   random.seed(42)
   con = duckdb.connect(database=llm_params.database_path, read_only=True)
   schema_context: str = get_schema_from_statistics(llm_params)
   rows: list[dict[str, str]] = []
   log_rows: list[dict[str, str | bool]] = []
   for query, original_path in tqdm(  # type:ignore
-    get_random_queries(input_queries_base_path, llm_params)
+    get_random_queries(input_queries_base_path, llm_params),
+    desc="LLM-Extension",
   ):
     retries = 0
     valid_query = False
@@ -161,3 +167,5 @@ def llm_extension(
   new_queries_df.write_parquet(destination_path / "llm_extension.parquet")
   logs_df = pl.DataFrame(log_rows)
   logs_df.write_parquet(destination_path / "logs.parquet")
+  print(f"Total LLM queries generated: {new_queries_df.height}.")
+  return new_queries_df.height

@@ -163,9 +163,11 @@ def extensions_with_ollama_endpoint(
   The configuration file should be a TOML file with the
   ComplexQueryGenerationParametersEndpoint structure."""
   params = read_and_parse_toml(Path(config_file), ExtensionAndOllamaEndpoint)
+  cnt = 0
   if params.union_extension:
     assert params.union_params is not None
-    union_queries(
+    print("Starting Union extension")
+    cnt += union_queries(
       Path(params.queries_parquet),
       Path(params.destination_folder),
       params.union_params.max_queries,
@@ -176,13 +178,17 @@ def extensions_with_ollama_endpoint(
   if params.llm_extension:
     assert params.ollama_model is not None
     assert params.llm_params is not None
-    llm_extension(
+    print("Starting LLM extension")
+    cnt += llm_extension(
       llm_params=params.llm_params,
       llm_client=OllamaLLMClient(),
       llm_config_params=params.ollama_model,
       input_queries_base_path=Path(params.queries_parquet).parent,
       destination_path=Path(params.destination_folder),
     )
+    print("LLM extension done")
+
+  print(f"Total extension queries generated: {cnt}.")
   toml_params = get_toml_from_params(params)
   (Path(params.destination_folder) / "extension_config.toml").write_text(
     toml_params

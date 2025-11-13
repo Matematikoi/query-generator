@@ -102,7 +102,7 @@ def generate_synthetic_queries(
       params.user_input.keep_edge_probability,
     ),
     total=total_iterations,
-    desc="Progress",
+    desc="Batch",
   ):
     batch_number += 1
     query_generator = QueryGenerator(
@@ -164,6 +164,7 @@ def generate_synthetic_queries(
       seen_subgraphs = query_generator.subgraph_generator.seen_subgraphs
     checkpoint_queries_parquet(rows, writer)
   checkpoint_queries_parquet(rows, writer)
+  print(f"Total queries generated: {len(rows)}.")
   toml_params = get_toml_from_params(params.user_input)
   writer.write_toml(toml_params)
 

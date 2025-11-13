@@ -337,3 +337,10 @@ def fix_transform(params: FixTransformEndpoint) -> None:
   df_transformation.write_parquet(
     destination_folder / "transformation_log.parquet"
   )
+  print(f"Total queries processed: {len(queries_paths)}.")
+  print(
+    f"Total queries succesfully transformed: {
+      df_transformation.filter(pl.col(TransformEnum.was_transformed)).height
+    }."
+  )
+  print(f"Total traces collected: {df_traces.height}.")

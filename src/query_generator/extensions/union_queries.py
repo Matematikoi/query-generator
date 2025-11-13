@@ -3,6 +3,7 @@ import re
 from pathlib import Path
 
 import polars as pl
+from tqdm import tqdm
 
 from query_generator.utils.exceptions import InvalidQueryError
 from query_generator.utils.utils import set_seed
@@ -63,7 +64,7 @@ def union_queries(
   destination_path: Path,
   max_queries: int,
   probability: float,
-) -> None:
+) -> int:
   """Generate union queries from a parquet file of queries.
 
   Args:
@@ -77,8 +78,10 @@ def union_queries(
   df_input = pl.read_parquet(parquet_path)
   cnt = 0
   rows = []
-  for join_signature, df_signature in df_input.group_by(
-    "subgraph_signature", maintain_order=True
+  for join_signature, df_signature in tqdm(
+    df_input.group_by("subgraph_signature", maintain_order=True),
+    desc="Subgraph Signatures for Union Queries",
+    total=df_input.select("subgraph_signature").n_unique(),  # type: ignore
   ):
     queries_relative_paths = df_signature.get_column("relative_path").to_list()
     queries_paths = [
@@ -119,3 +122,5 @@ def union_queries(
   )
   df_output_path = destination_path / "union_description.parquet"
   df_output.write_parquet(df_output_path)
+  print(f"Total Union queries generated: {cnt}.")
+  return cnt

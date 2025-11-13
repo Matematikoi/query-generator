@@ -45,14 +45,18 @@ def test_toml_files():
       params = read_and_parse_toml(doc.read_text(), mapping[endpoint_name])
       assert params is not None
 
+
 def test_llm_params():
   """test llm params are being correctly parsed"""
-  tpcds_dev = Path('params_config/extensions_with_ollama/tpcds_dev.toml')
+  tpcds_dev = Path("params_config/extensions_with_ollama/tpcds_dev.toml")
   params = read_and_parse_toml(tpcds_dev, ExtensionAndOllamaEndpoint)
-  base_prompt_expected:str = """
-    You are writing queries for a markdown text using the format:```sql for correct formatting in markdown
+  base_prompt_expected: str = """
+    You are writing queries for a markdown text using the format:```sql SELECT... ``` for correct formatting in markdown
 
     your only task is to write the given sql query again but 
     surrounding it with ```sql Select from....```
 """
-  assert params.llm_params.prompts.base_prompt.strip() == base_prompt_expected.strip()
+  assert (
+    params.llm_params.prompts.base_prompt.strip()
+    == base_prompt_expected.strip()
+  )
