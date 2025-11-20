@@ -2,6 +2,7 @@ import json
 import random
 import re
 from pathlib import Path
+from typing import Any
 
 import duckdb
 import polars as pl
@@ -23,7 +24,7 @@ def get_random_queries(
   Returns:
     A list of tuples containing the query and its original path."""
   sql_files = list(queries_base_path.rglob("*.sql"))
-  random_query_paths = random.sample(sql_files, llm_params.total_queries)
+  random_query_paths = random.choices(sql_files, k=llm_params.total_queries)
   return [
     (p.read_text(), str(p.relative_to(queries_base_path)))
     for p in random_query_paths
@@ -84,6 +85,31 @@ def add_retry_query_to_messages(
     }
   )
 
+def get_new_query_name(cnt: int, original_path:str):
+  return f"{cnt}_{original_path.replace('/', '_')}"
+def write_query_llm_and_get_row(
+  destination_path: Path,
+  extension_type: str,
+  cnt: int,
+  original_path: str,
+  query: str,
+):
+  new_path = (
+    destination_path
+    / extension_type
+    / get_new_query_name(cnt, original_path)
+  )
+  new_path.parent.mkdir(parents=True, exist_ok=True)
+  new_path.write_text(query)
+  return {
+    "extension_type": extension_type,
+    "original_path": (original_path),
+    "new_path": str(new_path.relative_to(destination_path)),
+  }
+
+def save_parquet(destination_path:Path, rows:list[Any]):
+  destination_path.parent.mkdir(parents=True, exist_ok=True)
+  pl.DataFrame(rows).write_parquet(destination_path)
 
 def get_schema_from_statistics(
   params: LLMParams,
@@ -112,9 +138,11 @@ def llm_extension(
   schema_context: str = get_schema_from_statistics(llm_params)
   rows: list[dict[str, str]] = []
   log_rows: list[dict[str, str | bool]] = []
-  for query, original_path in tqdm(  # type:ignore
-    get_random_queries(input_queries_base_path, llm_params),
+  sampled_queries = get_random_queries(input_queries_base_path, llm_params)
+  for cnt, (query, original_path) in tqdm(  # type:ignore
+    enumerate(sampled_queries),
     desc="LLM-Extension",
+    total=len(sampled_queries)
   ):
     retries = 0
     valid_query = False
@@ -134,17 +162,16 @@ def llm_extension(
       retries += 1
     # Save query
     if valid_query:
-      new_path = (
-        destination_path / extension_type / f"{original_path.replace('/', '_')}"
-      )
-      new_path.parent.mkdir(parents=True, exist_ok=True)
-      new_path.write_text(llm_extracted_query)
       rows.append(
         {
-          "extension_type": extension_type,
+          **write_query_llm_and_get_row(
+            destination_path,
+            extension_type,
+            cnt,
+            original_path,
+            llm_extracted_query,
+          ),
           "retries": str(retries),
-          "original_path": (original_path),
-          "new_path": str(new_path.relative_to(destination_path)),
         }
       )
 
@@ -160,12 +187,11 @@ def llm_extension(
           if not valid_query
           else "",
           "messages": json.dumps(messages),
+          "new_path": get_new_query_name(cnt, original_path),
         }
       )
-  destination_path.mkdir(parents=True, exist_ok=True)
-  new_queries_df = pl.DataFrame(rows)
-  new_queries_df.write_parquet(destination_path / "llm_extension.parquet")
-  logs_df = pl.DataFrame(log_rows)
-  logs_df.write_parquet(destination_path / "logs.parquet")
-  print(f"Total LLM queries generated: {new_queries_df.height}.")
-  return new_queries_df.height
+      save_parquet(destination_path/"llm_extension.parquet", rows)
+      save_parquet(destination_path/"logs.parquet", log_rows)
+
+  print(f"Total LLM queries generated: {len(rows)}.")
+  return len(rows)
