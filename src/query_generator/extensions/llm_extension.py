@@ -9,7 +9,10 @@ import polars as pl
 from duckdb import DuckDBPyConnection
 from tqdm import tqdm
 
-from query_generator.extensions.llm_clients import LLM_Message, LLMClient
+from query_generator.extensions.llm_clients import (
+  LLM_Message,
+  LLMClientFactory,
+)
 from query_generator.tools.format_histogram import get_histogram_as_str
 from query_generator.utils.params import (
   LLMParams,
@@ -85,8 +88,11 @@ def add_retry_query_to_messages(
     }
   )
 
-def get_new_query_name(cnt: int, original_path:str):
+
+def get_new_query_name(cnt: int, original_path: str):
   return f"{cnt}_{original_path.replace('/', '_')}"
+
+
 def write_query_llm_and_get_row(
   destination_path: Path,
   extension_type: str,
@@ -95,9 +101,7 @@ def write_query_llm_and_get_row(
   query: str,
 ):
   new_path = (
-    destination_path
-    / extension_type
-    / get_new_query_name(cnt, original_path)
+    destination_path / extension_type / get_new_query_name(cnt, original_path)
   )
   new_path.parent.mkdir(parents=True, exist_ok=True)
   new_path.write_text(query)
@@ -107,9 +111,11 @@ def write_query_llm_and_get_row(
     "new_path": str(new_path.relative_to(destination_path)),
   }
 
-def save_parquet(destination_path:Path, rows:list[Any]):
+
+def save_parquet(destination_path: Path, rows: list[Any]):
   destination_path.parent.mkdir(parents=True, exist_ok=True)
   pl.DataFrame(rows).write_parquet(destination_path)
+
 
 def get_schema_from_statistics(
   params: LLMParams,
@@ -123,7 +129,7 @@ def get_schema_from_statistics(
 
 def llm_extension(
   llm_params: LLMParams,
-  llm_client: LLMClient,
+  llm_client_factory: LLMClientFactory,
   llm_config_params: str,
   input_queries_base_path: Path,
   destination_path: Path,
@@ -140,10 +146,9 @@ def llm_extension(
   log_rows: list[dict[str, str | bool]] = []
   sampled_queries = get_random_queries(input_queries_base_path, llm_params)
   for cnt, (query, original_path) in tqdm(  # type:ignore
-    enumerate(sampled_queries),
-    desc="LLM-Extension",
-    total=len(sampled_queries)
+    enumerate(sampled_queries), desc="LLM-Extension", total=len(sampled_queries)
   ):
+    llm_client = llm_client_factory.build()
     retries = 0
     valid_query = False
     duckdb_exception = Exception("no query was found")
@@ -186,12 +191,13 @@ def llm_extension(
           "last_duckdb_exception": str(duckdb_exception)
           if not valid_query
           else "",
-          "messages": json.dumps(messages),
+          "messages": messages,
           "new_path": get_new_query_name(cnt, original_path),
+          "client_logs": llm_client.get_logs(),
         }
       )
-      save_parquet(destination_path/"llm_extension.parquet", rows)
-      save_parquet(destination_path/"logs.parquet", log_rows)
+      save_parquet(destination_path / "llm_extension.parquet", rows)
+      save_parquet(destination_path / "logs.parquet", log_rows)
 
   print(f"Total LLM queries generated: {len(rows)}.")
   return len(rows)

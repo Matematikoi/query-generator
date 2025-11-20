@@ -6,7 +6,10 @@ import typer
 
 from query_generator.duckdb_connection.setup import generate_db
 from query_generator.extensions.fix_transform import fix_transform
-from query_generator.extensions.llm_clients import OllamaLLMClient
+from query_generator.extensions.llm_clients import (
+  LLMClientFactory,
+  OllamaLLMClient,
+)
 from query_generator.extensions.llm_extension import llm_extension
 from query_generator.extensions.union_queries import union_queries
 from query_generator.filter.filter import filter_synthetic_queries
@@ -181,7 +184,9 @@ def extensions_with_ollama_endpoint(
     print("Starting LLM extension")
     cnt += llm_extension(
       llm_params=params.llm_params,
-      llm_client=OllamaLLMClient(),
+      llm_client_factory=LLMClientFactory(
+        factory=OllamaLLMClient, init_kwargs={}
+      ),
       llm_config_params=params.ollama_model,
       input_queries_base_path=Path(params.queries_parquet).parent,
       destination_path=Path(params.destination_folder),
