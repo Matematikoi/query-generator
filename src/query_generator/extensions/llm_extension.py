@@ -1,4 +1,3 @@
-import json
 import random
 import re
 from pathlib import Path
@@ -61,7 +60,10 @@ def extract_sql(llm_text: str) -> str:
   else:
     text = llm_text
   matches = re.findall(r"```sql\s*(.*?)\s*```", text, re.DOTALL)
-  return matches[-1].strip() if matches else ""
+  if matches:
+    return matches[-1].strip()
+  tqdm.write("Error: Unable to find query in LLM response")
+  return ""
 
 
 def validate_query_duckdb(
@@ -70,6 +72,7 @@ def validate_query_duckdb(
   try:
     con.sql(query).fetchone()
   except Exception as e:
+    tqdm.write(f"Error from DuckDB: {e}")
     return False, e
   else:
     return True, Exception("no exception found")
@@ -157,6 +160,7 @@ def llm_extension(
       llm_params, query, schema_context
     )
     while retries <= llm_params.retry and not valid_query:
+      tqdm.write(f"Starting query #{cnt}, attempt #{retries + 1}")
       if retries > 0:
         add_retry_query_to_messages(messages, duckdb_exception)
       llm_client.query(messages, llm_config_params)
