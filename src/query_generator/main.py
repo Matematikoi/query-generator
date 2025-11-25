@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import Annotated
 
@@ -13,6 +14,9 @@ from query_generator.extensions.llm_clients import (
 from query_generator.extensions.llm_extension import llm_extension
 from query_generator.extensions.union_queries import union_queries
 from query_generator.filter.filter import filter_synthetic_queries
+from query_generator.logger import (
+  default_logger,
+)
 from query_generator.synthetic_queries.synthetic_query_generator import (
   SyntheticQueriesParams,
   generate_synthetic_queries,
@@ -39,6 +43,7 @@ from query_generator.utils.utils import (
 )
 
 app = typer.Typer(name="Query Generation", rich_markup_mode="markdown")
+logger = logging.getLogger(__name__)
 
 
 @app.command("generate-db", help=build_help_from_dataclass(GenerateDBEndpoint))
@@ -161,27 +166,39 @@ def extensions_with_ollama_endpoint(
       help="The path to the configuration file with complex queries",
     ),
   ],
+  *,
+  debug: Annotated[
+    bool,
+    typer.Option(
+      "-d",
+      "--debug",
+      help="Enable debug logging to file",
+      is_flag=True,
+      flag_value=True,
+    ),
+  ] = False,
 ) -> None:
   """Add complex queries using LLM prompts.
   The configuration file should be a TOML file with the
   ComplexQueryGenerationParametersEndpoint structure."""
   params = read_and_parse_toml(Path(config_file), ExtensionAndOllamaEndpoint)
+  default_logger(params.destination_folder, debug_file=debug)
   cnt = 0
   if params.union_extension:
     assert params.union_params is not None
-    print("Starting Union extension")
+    logger.info("Starting Union extension")
     cnt += union_queries(
       Path(params.queries_parquet),
       Path(params.destination_folder),
       params.union_params.max_queries,
       params.union_params.probability,
     )
-    print("Union extension done")
+    logger.info("Union extension done")
 
   if params.llm_extension:
     assert params.ollama_model is not None
     assert params.llm_params is not None
-    print("Starting LLM extension")
+    logger.info("Starting LLM extension")
     cnt += llm_extension(
       llm_params=params.llm_params,
       llm_client_factory=LLMClientFactory(
@@ -191,9 +208,9 @@ def extensions_with_ollama_endpoint(
       input_queries_base_path=Path(params.queries_parquet).parent,
       destination_path=Path(params.destination_folder),
     )
-    print("LLM extension done")
+    logger.info("LLM extension done")
 
-  print(f"Total extension queries generated: {cnt}.")
+  logger.info(f"Total extension queries generated: {cnt}.")
   toml_params = get_toml_from_params(params)
   (Path(params.destination_folder) / "extension_config.toml").write_text(
     toml_params

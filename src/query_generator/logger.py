@@ -1,0 +1,123 @@
+"""
+Logging configuration for mid-size projects with tqdm support.
+Usage:
+    from myapp.logging_config import setup_logging
+    setup_logging(log_file='app.log', log_level='INFO')
+"""
+
+import logging
+from dataclasses import dataclass
+from enum import Enum
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
+
+
+class LogLevel(Enum):
+  NOTSET = logging.NOTSET  # 0
+  DEBUG = logging.DEBUG  # 10
+  INFO = logging.INFO  # 20
+  WARNING = logging.WARNING  # 30
+  ERROR = logging.ERROR  # 40
+  CRITICAL = logging.CRITICAL  # 50
+
+  def to_int(self) -> int:
+    return self.value
+
+  def to_name(self) -> str:
+    return self.name
+
+
+@dataclass
+class LoggingConfig:
+  log_file: Path
+  log_level: LogLevel = LogLevel.INFO
+  console_level: LogLevel = LogLevel.INFO
+  file_level: LogLevel = LogLevel.INFO
+  max_bytes: int = 10 * 1024 * 1024  # 10MB
+  backup_count: int = 5
+
+
+class TqdmLoggingHandler(logging.Handler):
+  """
+  Logging handler that writes to tqdm.write() to avoid breaking progress bars.
+  """
+
+  def emit(self, record):
+    try:
+      from tqdm import tqdm
+
+      msg = self.format(record)
+      tqdm.write(msg)
+    except Exception:
+      self.handleError(record)
+
+
+def silent_spamming_libraries():
+  logging.getLogger("markdown_it").setLevel(logging.INFO)
+  logging.getLogger("httpx").setLevel(logging.INFO)
+  logging.getLogger("httpcore").setLevel(logging.INFO)
+
+
+def setup_logging(params: LoggingConfig):
+  """
+  Configure logging for the application.
+  """
+  # Get Formatters
+  file_formatter = logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+  )
+  console_formatter = logging.Formatter(
+    "%(asctime)s - %(levelname)s - %(message)s", datefmt="%H:%M:%S"
+  )
+
+  # Get root logger
+  root_logger = logging.getLogger()
+  root_logger.setLevel(params.log_level.to_int())
+
+  # Remove existing handlers to avoid duplicates
+  root_logger.handlers.clear()
+
+  # Console handler with tqdm support
+  console_handler = TqdmLoggingHandler()
+  console_handler.setLevel(params.console_level.to_int())
+  console_handler.setFormatter(console_formatter)
+  root_logger.addHandler(console_handler)
+
+  # File handler (rotating)
+  file_handler = RotatingFileHandler(
+    params.log_file,
+    maxBytes=params.max_bytes,
+    backupCount=params.backup_count,
+    encoding="utf-8",
+  )
+  file_handler.setLevel(params.file_level.to_int())
+  file_handler.setFormatter(file_formatter)
+  root_logger.addHandler(file_handler)
+
+  silent_spamming_libraries()
+
+  logger = logging.getLogger(__name__)
+  logger.info(
+    f"Logging initialized - Level: {params.log_level.to_name()},"
+    f" File: {params.log_file}"
+  )
+
+
+def default_logger(
+  destination_folder: str,
+  *,
+  debug_file=False,
+  file_name: str = "query_generator.log",
+):
+  destination_path = Path(destination_folder)
+  destination_path.mkdir(parents=True, exist_ok=True)
+  log_file = destination_path / file_name
+  setup_logging(
+    LoggingConfig(
+      log_file=log_file,
+      log_level=LogLevel.DEBUG if debug_file else LogLevel.INFO,
+      console_level=LogLevel.INFO,
+      file_level=LogLevel.DEBUG if debug_file else LogLevel.INFO,
+    )
+  )

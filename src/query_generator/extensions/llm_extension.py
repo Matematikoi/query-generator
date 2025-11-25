@@ -1,3 +1,4 @@
+import logging
 import random
 import re
 from pathlib import Path
@@ -16,6 +17,8 @@ from query_generator.tools.format_histogram import get_histogram_as_str
 from query_generator.utils.params import (
   LLMParams,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def get_random_queries(
@@ -62,7 +65,7 @@ def extract_sql(llm_text: str) -> str:
   matches = re.findall(r"```sql\s*(.*?)\s*```", text, re.DOTALL)
   if matches:
     return matches[-1].strip()
-  tqdm.write("Error: Unable to find query in LLM response")
+  logger.exception("Error: Unable to find query in LLM response")
   return ""
 
 
@@ -72,7 +75,8 @@ def validate_query_duckdb(
   try:
     con.sql(query).fetchone()
   except Exception as e:
-    tqdm.write(f"Error from DuckDB: {e}")
+    logger.exception("DuckDB failed to run the provided query")
+    logger.debug(f"Query that fail to run: \n```sql\n{query}\n```")
     return False, e
   else:
     return True, Exception("no exception found")
@@ -146,7 +150,7 @@ def llm_extension(
   con = duckdb.connect(database=llm_params.database_path, read_only=True)
   schema_context: str = get_schema_from_statistics(llm_params)
   rows: list[dict[str, str]] = []
-  log_rows: list[dict[str, str | bool]] = []
+  log_rows: list[dict[str, str | bool | LLM_Message]] = []
   sampled_queries = get_random_queries(input_queries_base_path, llm_params)
   for cnt, (query, original_path) in tqdm(  # type:ignore
     enumerate(sampled_queries), desc="LLM-Extension", total=len(sampled_queries)
@@ -160,7 +164,7 @@ def llm_extension(
       llm_params, query, schema_context
     )
     while retries <= llm_params.retry and not valid_query:
-      tqdm.write(f"Starting query #{cnt}, attempt #{retries + 1}")
+      logger.info(f"Starting query #{cnt}, attempt #{retries + 1}")
       if retries > 0:
         add_retry_query_to_messages(messages, duckdb_exception)
       llm_client.query(messages, llm_config_params)
@@ -203,5 +207,5 @@ def llm_extension(
       save_parquet(destination_path / "llm_extension.parquet", rows)
       save_parquet(destination_path / "logs.parquet", log_rows)
 
-  print(f"Total LLM queries generated: {len(rows)}.")
+  logger.info(f"Total LLM queries generated: {len(rows)}.")
   return len(rows)
