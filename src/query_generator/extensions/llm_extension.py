@@ -9,6 +9,9 @@ import polars as pl
 from duckdb import DuckDBPyConnection
 from tqdm import tqdm
 
+from query_generator.duckdb_connection.query_validation import (
+  DuckDBQueryValidator,
+)
 from query_generator.extensions.llm_clients import (
   LLM_Message,
   LLMClientFactory,
@@ -67,19 +70,6 @@ def extract_sql(llm_text: str) -> str:
     return matches[-1].strip()
   logger.exception("Error: Unable to find query in LLM response")
   return ""
-
-
-def validate_query_duckdb(
-  con: DuckDBPyConnection, query: str
-) -> tuple[bool, Exception]:
-  try:
-    con.sql(query).fetchone()
-  except Exception as e:
-    logger.exception("DuckDB failed to run the provided query")
-    logger.debug(f"Query that fail to run: \n```sql\n{query}\n```")
-    return False, e
-  else:
-    return True, Exception("no exception found")
 
 
 def add_retry_query_to_messages(
@@ -147,7 +137,7 @@ def llm_extension(
     The number of generated queries.
   """
   random.seed(42)
-  con = duckdb.connect(database=llm_params.database_path, read_only=True)
+  con = DuckDBQueryValidator(llm_params.database_path)
   schema_context: str = get_schema_from_statistics(llm_params)
   rows: list[dict[str, str]] = []
   log_rows: list[dict[str, str | bool | LLM_Message]] = []
@@ -169,9 +159,7 @@ def llm_extension(
         add_retry_query_to_messages(messages, duckdb_exception)
       llm_client.query(messages, llm_config_params)
       llm_extracted_query = extract_sql(messages[-1]["content"])
-      valid_query, duckdb_exception = validate_query_duckdb(
-        con, llm_extracted_query
-      )
+      valid_query, duckdb_exception = con.is_query_valid(llm_extracted_query)
       retries += 1
     # Save query
     if valid_query:
