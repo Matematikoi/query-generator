@@ -31,7 +31,7 @@ def get_markdown_documentation(name: EndpointName) -> str:
       / f"{name}.md"
     ).read_text()
   }
-  
+
   You can find example toml files in `./params_config/{name}/*.toml`
   """
 
@@ -106,7 +106,7 @@ class ExtensionAndOllamaEndpoint:
 
 @dataclass
 class SyntheticQueriesEndpoint:
-  __doc__ = f"""Generates Synthetic queries based on column statistics.
+  __doc__ = f"""Generate synthetic queries based on the schema and column statistics.
 {get_markdown_documentation(EndpointName.SYNTHETIC_GENERATION)}
 
 # Example

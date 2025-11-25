@@ -1,6 +1,6 @@
 base_prompt = """
-    You are writing queries for a markdown text using \
-    the format:```sql SELECT... ``` for correct formatting in markdown
+    You are writing queries in markdown notation.
+    Use the format ```sql SELECT... ``` to ensure proper markdown formatting.
 
     {schema}
 """

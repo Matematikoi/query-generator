@@ -60,5 +60,5 @@ class OllamaLLMClient:
   def get_logs(self) -> dict[str, Any]:
     return {
       "client_creation_timestamp": self.initialization_timestamp,
-      "messages_tiemstamps": self.messages_timestamps,
+      "messages_timestamps": self.messages_timestamps,
     }

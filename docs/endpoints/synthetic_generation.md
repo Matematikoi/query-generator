@@ -1,7 +1,8 @@
 # Explanation
 
-This endpoint generates batches of queries by sampling one value for each 
-attribute per batch. If an attribute is defined as a list, the endpoint will 
+This endpoint generates queries by sampling the join structure from the schema and predicates from the column stats. 
+It organizes queries in batches, where each batch of queries corresponds to a unique setting of the sampling parameters.
+If a parameter is defined as a list, the endpoint will 
 exhaustively iterate through all possible combinations of values across such 
 lists to generate batches. 
 
@@ -24,7 +25,7 @@ Termination conditions: We ran all possible batches, generating for each batch
 up to `max_signatures_per_fact_table` signatures per fact table, and for
 each signature up to `max_queries_per_signature` queries.
 
-# Attributes
+# Parameters
 
 - `dataset` (str): The dataset to be used (TPCDS, TPCH). This information
 is needed to load the correct foreign-key/primary-key information.
