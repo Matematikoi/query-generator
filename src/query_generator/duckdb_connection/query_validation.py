@@ -51,7 +51,7 @@ class DuckDBQueryValidator:
     try:
       self.conn.sql(query).fetchone()
     except Exception as exc:
-      logger.debug(f"Query that fail to run: \n```sql\n{query}\n```")
+      logger.debug(f"Query that fail to run:\n{query}")
       if interrupted.is_set():
         logger.warning(
           "Query validation exceeded %s seconds; connection interrupted.",

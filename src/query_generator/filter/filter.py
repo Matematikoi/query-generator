@@ -34,7 +34,7 @@ def cherry_pick_filter(
   *,
   apply_filter: bool,
 ) -> pl.DataFrame:
-  logger.debug("Applying Cherry PickFilter")
+  logger.debug("Applying Cherry Pick Filter")
   if not apply_filter:
     return df_input
   assert params is not None, "params must be provided if apply_filter is True"
@@ -55,7 +55,7 @@ def cherry_pick_filter(
 def emtpy_set_filter(
   df_input: pl.DataFrame, *, apply_filter: bool
 ) -> pl.DataFrame:
-  logger.debug("Applying empty set filter.")
+  logger.debug("Applying Empty Set Filter.")
   if not apply_filter:
     return df_input
   return df_input.filter(pl.col("count_star") > 0)

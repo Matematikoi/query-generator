@@ -107,6 +107,7 @@ def generate_synthetic_queries(
     total=total_iterations,
     desc="Batch",
   ):
+    logger.debug(f"Processing batch {batch_number}")
     batch_number += 1
     query_generator = QueryGenerator(
       SyntheticQueryGenerationParameters(
@@ -129,6 +130,8 @@ def generate_synthetic_queries(
     for query in query_generator.generate_queries():
       selected_rows = get_result_from_duckdb(query.query, params.con)
       if selected_rows == -1:
+        logger.error("Query generated was not valid.")
+        logger.debug(f"Query generated:\n{query.query}")
         continue  # invalid query
 
       relative_path = writer.write_query_to_batch(
