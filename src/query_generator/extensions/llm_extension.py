@@ -4,9 +4,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-import duckdb
 import polars as pl
-from duckdb import DuckDBPyConnection
 from tqdm import tqdm
 
 from query_generator.duckdb_connection.query_validation import (

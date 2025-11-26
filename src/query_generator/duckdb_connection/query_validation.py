@@ -4,6 +4,7 @@ import threading
 import duckdb
 
 from query_generator.duckdb_connection.utils import get_tables
+from query_generator.utils.exceptions import DuckDBTimeoutError
 
 TIMEOUT_FOR_QUERY_VALIDATION_SECONDS = 5
 logger = logging.getLogger(__name__)
@@ -55,8 +56,9 @@ class DuckDBQueryValidator:
           "Query validation exceeded %s seconds; connection interrupted.",
           TIMEOUT_FOR_QUERY_VALIDATION_SECONDS,
         )
-      else:
-        logger.exception("DuckDB failed to run the provided query")
+        return False, DuckDBTimeoutError(TIMEOUT_FOR_QUERY_VALIDATION_SECONDS)
+
+      logger.exception("DuckDB failed to run the provided query")
       logger.debug(f"Query that fail to run: \n```sql\n{query}\n```")
       return False, exc
     finally:
