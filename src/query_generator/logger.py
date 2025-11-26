@@ -6,10 +6,14 @@ Usage:
 """
 
 import logging
+import sys
+import time
 from dataclasses import dataclass
 from enum import Enum
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
+
+from tqdm import tqdm
 
 
 class LogLevel(Enum):
@@ -44,10 +48,9 @@ class TqdmLoggingHandler(logging.Handler):
 
   def emit(self, record):
     try:
-      from tqdm import tqdm
-
       msg = self.format(record)
-      tqdm.write(msg)
+      tqdm.write(msg, file=sys.stderr)  # Explicitly write to stderr
+      self.flush()
     except Exception:
       self.handleError(record)
 
@@ -58,15 +61,25 @@ def silent_spamming_libraries():
   logging.getLogger("httpcore").setLevel(logging.INFO)
 
 
+class JupyterFormatter(logging.Formatter):
+  def format(self, record):
+    ct = self.converter(record.created)
+    asctime = time.strftime("%Y-%m-%d %H:%M:%S", ct)
+    msecs = int(record.msecs)
+    level_char = record.levelname[0]  # First letter: I, W, E, C, D
+
+    return (
+      f"[{level_char} {asctime}.{msecs:03d} "
+      f"{record.name}] {record.getMessage()}"
+    )
+
+
 def setup_logging(params: LoggingConfig):
   """
   Configure logging for the application.
   """
   # Get Formatters
-  file_formatter = logging.Formatter(
-    "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-  )
+  file_formatter = JupyterFormatter()
   console_formatter = logging.Formatter(
     "%(asctime)s - %(levelname)s - %(message)s", datefmt="%H:%M:%S"
   )
