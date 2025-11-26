@@ -80,7 +80,7 @@ def test_duckdb_timeout(setup_and_teardown_db):
   """Test validation actually timeouts"""
   con = generate_db(GenerateDBEndpoint(Dataset.TPCDS, TEMP_DB_PATH, 0.0))
   con.close()
-  validator = DuckDBQueryValidator(TEMP_DB_PATH)
+  validator = DuckDBQueryValidator(TEMP_DB_PATH, 1)
   long_running_query = """
   SELECT COUNT(*)
   FROM range(0, 100000000) t1(i)

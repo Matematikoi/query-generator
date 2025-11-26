@@ -135,7 +135,9 @@ def llm_extension(
     The number of generated queries.
   """
   random.seed(42)
-  con = DuckDBQueryValidator(llm_params.database_path)
+  query_validator = DuckDBQueryValidator(
+    llm_params.database_path, llm_params.duckdb_timeout_seconds
+  )
   schema_context: str = get_schema_from_statistics(llm_params)
   rows: list[dict[str, str]] = []
   log_rows: list[dict[str, str | bool | LLM_Message]] = []
@@ -157,7 +159,9 @@ def llm_extension(
         add_retry_query_to_messages(messages, duckdb_exception)
       llm_client.query(messages, llm_config_params)
       llm_extracted_query = extract_sql(messages[-1]["content"])
-      valid_query, duckdb_exception = con.is_query_valid(llm_extracted_query)
+      valid_query, duckdb_exception = query_validator.is_query_valid(
+        llm_extracted_query
+      )
       retries += 1
     # Save query
     if valid_query:

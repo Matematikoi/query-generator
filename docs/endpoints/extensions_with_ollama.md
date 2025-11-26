@@ -44,6 +44,8 @@ the basic prompts mention in the `prompts_path`. The file can be any
 plain file, like a txt.
 - `prompts_path` (str): The path to the toml file that contains the prompts.
 the details on the toml file are below.
+- `duckdb_timeout_seconds` (float): The timeout time for a query that 
+is being run by duckdb to validate. By default is 5 seconds.
 
 ## Attributes prompts
 The file selected in the `prompts_path` is also a toml file that has
