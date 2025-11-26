@@ -31,41 +31,36 @@ class DuckDBQueryValidator:
     else:
       logger.debug("Database tested, no connection problem found.")
 
-  def _execute_query_for_validation(
-    self, query: str, exceptions: list[Exception]
-  ) -> None:
+  def _interrupt_connection(self, interrupted: threading.Event) -> None:
+    interrupted.set()
     try:
-      self.conn.sql(query).fetchone()
-    except Exception as exc:
-      exceptions.append(exc)
+      self.conn.interrupt()
+    except Exception:
+      logger.exception("Failed to interrupt DuckDB connection.")
 
   def is_query_valid(self, query: str) -> tuple[bool, Exception]:
     self.test_and_fix_connection()
-    exceptions: list[Exception] = []
-
-    query_thread = threading.Thread(
-      target=self._execute_query_for_validation,
-      args=(query, exceptions),
-      daemon=True,
+    interrupted = threading.Event()
+    timer = threading.Timer(
+      TIMEOUT_FOR_QUERY_VALIDATION_SECONDS,
+      self._interrupt_connection,
+      args=(interrupted,),
     )
-    query_thread.start()
-    query_thread.join(timeout=TIMEOUT_FOR_QUERY_VALIDATION_SECONDS)
-
-    if query_thread.is_alive():
-      logger.warning(
-        "Query validation exceeded %s seconds; interrupting.",
-        TIMEOUT_FOR_QUERY_VALIDATION_SECONDS,
-      )
-      try:
-        self.conn.interrupt()
-      except Exception:
-        logger.exception("Failed to interrupt DuckDB connection.")
-      query_thread.join()
-
-    if exceptions:
-      logger.warning("DuckDB failed to run the provided query.")
+    timer.start()
+    try:
+      self.conn.sql(query).fetchone()
+    except Exception as exc:
+      if interrupted.is_set():
+        logger.warning(
+          "Query validation exceeded %s seconds; connection interrupted.",
+          TIMEOUT_FOR_QUERY_VALIDATION_SECONDS,
+        )
+      else:
+        logger.exception("DuckDB failed to run the provided query")
       logger.debug(f"Query that fail to run: \n```sql\n{query}\n```")
-      return False, exceptions[0]
+      return False, exc
+    finally:
+      timer.cancel()
 
     return True, Exception("No exception found while running the query")
 
