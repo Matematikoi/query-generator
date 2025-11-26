@@ -88,6 +88,11 @@ Or by accessing the repective doc:
 - [`extensions-with-bedrock`](./docs/endpoints/extensions_with_bedrock.md)
 - [`fix-transform`](./docs/endpoints/fix_transform.md)
 
+For debugging, every command also accepts a `--debug` flag that raises the
+log file level to debug. For example, after running `generate-db`, you can run
+the histogram task with debug logging enabled:
+`pixi run main make-histograms -c params_config/histogram/tpcds_dev.toml --debug`
+
 # Full TPCDS run
 
 ```bash
