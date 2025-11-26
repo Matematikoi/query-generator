@@ -52,6 +52,17 @@ def generate_db_endpoint(
     str,
     typer.Option("-c", "--config", help="The path to the configuration file"),
   ],
+  *,
+  debug: Annotated[
+    bool,
+    typer.Option(
+      "-d",
+      "--debug",
+      help="Enable debug logging to file",
+      is_flag=True,
+      flag_value=True,
+    ),
+  ] = False,
 ) -> None:
   """Generates a DuckDB database with TPCDS or TPCH datasets.
 
@@ -61,6 +72,11 @@ def generate_db_endpoint(
   params = read_and_parse_toml(
     Path(config_path),
     GenerateDBEndpoint,
+  )
+  default_logger(
+    str(Path(params.db_path).parent),
+    debug_file=debug,
+    file_name="database_generation.log",
   )
   generate_db(params)
 
@@ -78,9 +94,23 @@ def make_histograms(
       "They can be found in the params_config/histograms/ folder",
     ),
   ],
+  *,
+  debug: Annotated[
+    bool,
+    typer.Option(
+      "-d",
+      "--debug",
+      help="Enable debug logging to file",
+      is_flag=True,
+      flag_value=True,
+    ),
+  ] = False,
 ) -> None:
   """This function is used to create histograms in parquet format."""
   params = read_and_parse_toml(Path(config_path), HistogramEndpoint)
+  default_logger(
+    params.output_folder, debug_file=debug, file_name="make_histograms.log"
+  )
   destination_path = Path(params.output_folder) / "histogram.parquet"
 
   con = duckdb.connect(params.database_path, read_only=True)
@@ -90,10 +120,12 @@ def make_histograms(
     con=con,
     include_mcv=params.common_values_size > 0,
   )
+  logger.info("Finished querying the database.")
   redundant_histogram_df = make_redundant_histograms(
     histograms_df, params.redundant_histogram_size
   )
   write_parquet(redundant_histogram_df, destination_path)
+  logger.info("Parquet file saved.")
 
 
 @app.command(help=build_help_from_dataclass(SyntheticQueriesEndpoint))
@@ -107,6 +139,17 @@ def synthetic_queries(
       "They can be found in the params_config/search_params/ folder",
     ),
   ],
+  *,
+  debug: Annotated[
+    bool,
+    typer.Option(
+      "-d",
+      "--debug",
+      help="Enable debug logging to file",
+      is_flag=True,
+      flag_value=True,
+    ),
+  ] = False,
 ) -> None:
   """This is an extension of the Snowflake algorithm.
 
@@ -117,6 +160,7 @@ def synthetic_queries(
     Path(config_path),
     SyntheticQueriesEndpoint,
   )
+  default_logger(params.output_folder, debug_file=debug)
   con = duckdb.connect(database=params.duckdb_database, read_only=True)
   generate_synthetic_queries(
     SyntheticQueriesParams(
@@ -137,6 +181,17 @@ def filter_synthetic_endpoint(
       "They can be found in the params_config/filter/ folder",
     ),
   ],
+  *,
+  debug: Annotated[
+    bool,
+    typer.Option(
+      "-d",
+      "--debug",
+      help="Enable debug logging to file",
+      is_flag=True,
+      flag_value=True,
+    ),
+  ] = False,
 ) -> None:
   """Filters queries based on the Count Star
 
@@ -149,6 +204,11 @@ def filter_synthetic_endpoint(
   params = read_and_parse_toml(
     Path(config_path),
     FilterEndpoint,
+  )
+  default_logger(
+    params.destination_folder,
+    debug_file=debug,
+    file_name="filter_synthetic.log",
   )
   filter_synthetic_queries(params)
 
@@ -229,8 +289,22 @@ def add_limit_endpoint(
       help="The path to the configuration file with complex queries",
     ),
   ],
+  *,
+  debug: Annotated[
+    bool,
+    typer.Option(
+      "-d",
+      "--debug",
+      help="Enable debug logging to file",
+      is_flag=True,
+      flag_value=True,
+    ),
+  ] = False,
 ) -> None:
   params = read_and_parse_toml(Path(config_file), FixTransformEndpoint)
+  default_logger(
+    params.destination_folder, debug_file=debug, file_name="fix_transform.log"
+  )
   fix_transform(params)
 
 

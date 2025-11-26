@@ -76,7 +76,6 @@ def test_most_common_values_datetime(duckdb_connection):
   )
   assert len(most_common_values) == 2
   for value in most_common_values:
-    print(type(value.value))
     assert isinstance(value.value, datetime.date)
     assert isinstance(value.count, int)
     assert value.count == 300

@@ -122,4 +122,3 @@ This project was made by Gabriel Lozano under the supervision of Yanlei Diao
 and Guillaum Lachaud at École Polytechnique.
 You may contact the main collaborator via email 
 [gabriel.lozano@lix.polytechnique.fr](mailto:gabriel.lozano@lix.polytechnique.fr)
-

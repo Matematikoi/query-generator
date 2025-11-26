@@ -1,3 +1,4 @@
+import logging
 import threading
 from dataclasses import dataclass
 from itertools import product
@@ -21,6 +22,8 @@ from query_generator.utils.params import (
   SyntheticQueriesEndpoint,
   get_toml_from_params,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -164,7 +167,7 @@ def generate_synthetic_queries(
       seen_subgraphs = query_generator.subgraph_generator.seen_subgraphs
     checkpoint_queries_parquet(rows, writer)
   checkpoint_queries_parquet(rows, writer)
-  print(f"Total queries generated: {len(rows)}.")
+  logger.info(f"Total queries generated: {len(rows)}.")
   toml_params = get_toml_from_params(params.user_input)
   writer.write_toml(toml_params)
 

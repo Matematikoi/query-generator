@@ -10,11 +10,14 @@
 from __future__ import annotations
 
 import contextlib
+import logging
 import threading
 from dataclasses import dataclass
 from enum import StrEnum
 from multiprocessing import Process, Queue
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 import duckdb
 
@@ -157,6 +160,7 @@ def duckdb_collect_one_trace(
   p.join(params.timeout_seconds)
 
   if p.is_alive():
+    logger.error("Trace collection timeout. Query execution interrupted.")
     p.terminate()
     p.join()
   elif not q.empty():

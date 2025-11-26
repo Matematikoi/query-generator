@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import duckdb
@@ -9,6 +10,8 @@ from query_generator.utils.exceptions import (
   UnkownDatasetError,
 )
 from query_generator.utils.params import GenerateDBEndpoint
+
+logger = logging.getLogger(__name__)
 
 
 def load_and_install_libraries() -> None:
@@ -59,6 +62,7 @@ def generate_db(params: GenerateDBEndpoint) -> duckdb.DuckDBPyConnection:
   db_path = Path(params.db_path)
 
   if params.dataset not in [Dataset.TPCDS, Dataset.TPCH]:
+    logger.critical(f"Dataset {params.dataset} not supported")
     raise UnkownDatasetError(params.dataset.value)
 
   if params.scale_factor is None:
@@ -69,5 +73,5 @@ def generate_db(params: GenerateDBEndpoint) -> duckdb.DuckDBPyConnection:
   db_path.parent.mkdir(parents=True, exist_ok=True)
   con = duckdb.connect(db_path)
   generate_data(params.scale_factor, params.dataset, con)
-  print(f"Database {db_path} created.")
+  logger.info(f"Database {db_path} created.")
   return con
