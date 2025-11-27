@@ -165,8 +165,8 @@ def llm_extension(
       if not valid_query:
         logger.warning(
           f"Generated query is not valid. Exception:\n{duckdb_exception}"
-          f"\nQuery:\n{llm_extracted_query}"
         )
+        logger.debug(f"Query that failed:\n{llm_extracted_query}")
       retries += 1
     # Save query
     if valid_query:
