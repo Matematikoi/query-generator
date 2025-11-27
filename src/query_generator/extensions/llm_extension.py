@@ -66,7 +66,7 @@ def extract_sql(llm_text: str) -> str:
   matches = re.findall(r"```sql\s*(.*?)\s*```", text, re.DOTALL)
   if matches:
     return matches[-1].strip()
-  logger.exception("Error: Unable to find query in LLM response")
+  logger.warning("Error: Unable to find query in LLM response")
   return ""
 
 
@@ -162,6 +162,11 @@ def llm_extension(
       valid_query, duckdb_exception = query_validator.is_query_valid(
         llm_extracted_query
       )
+      if not valid_query:
+        logger.warning(
+          f"Generated query is not valid. Exception:\n{duckdb_exception}"
+          f"\nQuery:\n{llm_extracted_query}"
+        )
       retries += 1
     # Save query
     if valid_query:
@@ -176,6 +181,10 @@ def llm_extension(
           ),
           "retries": str(retries),
         }
+      )
+    else:
+      logger.error(
+        f"Failed to generate a valid query after {llm_params.retry} retries."
       )
 
     # Adds logs even if the query is not valid

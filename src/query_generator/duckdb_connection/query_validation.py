@@ -25,8 +25,7 @@ class DuckDBQueryValidator:
       # Simple query to verify the connection responds correctly
       self.conn.execute(f"SELECT (*) FROM {self.tables[0]};").fetchall()
     except Exception as e:
-      logger.exception("Error in basic SQL query, restarting connection")
-      logger.debug(f"Error produced: {e}")
+      logger.exception(f"Error in basic SQL query, restarting connection:\n{e}")
       self.conn.close()
       self.connect_to_database()
     else:
@@ -51,15 +50,12 @@ class DuckDBQueryValidator:
     try:
       self.conn.sql(query).fetchone()
     except Exception as exc:
-      logger.debug(f"Query that fail to run:\n{query}")
       if interrupted.is_set():
         logger.warning(
           "Query validation exceeded %s seconds; connection interrupted.",
           self.timeout_seconds,
         )
         return False, DuckDBTimeoutError(self.timeout_seconds)
-
-      logger.exception("DuckDB failed to run the provided query")
       return False, exc
     finally:
       timer.cancel()

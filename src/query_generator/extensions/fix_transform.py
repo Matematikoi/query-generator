@@ -209,7 +209,7 @@ def make_select_group_by_clause_disjoint(
           query, sub_sql, new_column, repeated_column
         )
   except Exception as e:
-    logger.exception("Failed to make select and group by disjoint")
+    logger.warning("Failed to make select and group by disjoint")
     logger.debug(f"Query that failed:\n{query}")
     return query, e
   return query, None
