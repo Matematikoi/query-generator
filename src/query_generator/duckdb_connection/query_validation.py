@@ -48,6 +48,7 @@ class DuckDBQueryValidator:
     )
     timer.start()
     try:
+      logger.debug("Start DuckDB query validation.")
       self.conn.sql(query).fetchone()
     except Exception as exc:
       if interrupted.is_set():
@@ -59,6 +60,7 @@ class DuckDBQueryValidator:
       return False, exc
     finally:
       timer.cancel()
+      logger.debug("DuckDB query validation finished.")
 
     return True, Exception("No exception found while running the query")
 

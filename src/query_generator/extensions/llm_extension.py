@@ -121,6 +121,11 @@ def get_schema_from_statistics(
   df_stats = pl.read_parquet(params.statistics_parquet)
   return get_histogram_as_str(df_stats)
 
+def log_not_valid_query(duckdb_exception:Exception, query:str)-> None:
+  logger.warning(
+    f"Generated query is not valid. Exception:\n{duckdb_exception}"
+  )
+  logger.debug(f"Query that failed:\n{query}")
 
 def llm_extension(
   llm_params: LLMParams,
@@ -154,22 +159,21 @@ def llm_extension(
       llm_params, query, schema_context
     )
     while retries <= llm_params.retry and not valid_query:
-      logger.info(f"Starting query #{cnt}, attempt #{retries + 1}")
       if retries > 0:
         add_retry_query_to_messages(messages, duckdb_exception)
+      logger.info(f"Starting query #{cnt}, attempt #{retries + 1}")
       llm_client.query(messages, llm_config_params)
+      logger.debug("LLM response received.")
       llm_extracted_query = extract_sql(messages[-1]["content"])
       valid_query, duckdb_exception = query_validator.is_query_valid(
         llm_extracted_query
       )
       if not valid_query:
-        logger.warning(
-          f"Generated query is not valid. Exception:\n{duckdb_exception}"
-        )
-        logger.debug(f"Query that failed:\n{llm_extracted_query}")
+        log_not_valid_query(duckdb_exception, llm_extracted_query)
       retries += 1
     # Save query
     if valid_query:
+      logger.debug("Generated a valid query.")
       rows.append(
         {
           **write_query_llm_and_get_row(
