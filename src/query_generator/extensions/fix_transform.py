@@ -1,3 +1,4 @@
+import logging
 import random
 from enum import StrEnum
 from pathlib import Path
@@ -20,6 +21,7 @@ from query_generator.utils.exceptions import (
 )
 from query_generator.utils.params import FixTransformEndpoint
 
+logger = logging.getLogger(__name__)
 CTE_NAME = "cte_for_limit"
 
 
@@ -207,6 +209,8 @@ def make_select_group_by_clause_disjoint(
           query, sub_sql, new_column, repeated_column
         )
   except Exception as e:
+    logger.warning("Failed to make select and group by disjoint")
+    logger.debug(f"Query that failed:\n{query}")
     return query, e
   return query, None
 
@@ -337,10 +341,10 @@ def fix_transform(params: FixTransformEndpoint) -> None:
   df_transformation.write_parquet(
     destination_folder / "transformation_log.parquet"
   )
-  print(f"Total queries processed: {len(queries_paths)}.")
-  print(
+  logger.info(f"Total queries processed: {len(queries_paths)}.")
+  logger.info(
     f"Total queries succesfully transformed: {
       df_transformation.filter(pl.col(TransformEnum.was_transformed)).height
     }."
   )
-  print(f"Total traces collected: {df_traces.height}.")
+  logger.info(f"Total traces collected: {df_traces.height}.")

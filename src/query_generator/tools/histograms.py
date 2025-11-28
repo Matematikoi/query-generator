@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
@@ -20,6 +21,8 @@ from query_generator.duckdb_connection.utils import (
 from query_generator.utils.exceptions import (
   NoBasicHistogramElementError,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class MostCommonValuesColumns(StrEnum):
@@ -153,12 +156,14 @@ def query_histograms(
   tables: list[str] = get_tables(con)
   table_iter = tqdm(tables, position=0)
   for table in table_iter:  # type: ignore
+    logger.debug(f"Processing table {table}")
     columns: list[RawDuckDBTableDescription] = get_columns(con, table)
     pbar = tqdm(columns, desc="Starting…", position=1, leave=False)
 
     # Get table size
     table_size = get_size_of_table(con, table)
     for column in pbar:  # type: ignore
+      logger.debug(f"Processing column {column} of table {table}")
       pbar.set_description(  # type: ignore
         f"Processing table {table} column {column.column_name}"
       )

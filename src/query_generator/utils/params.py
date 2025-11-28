@@ -67,6 +67,7 @@ class LLMParams:
   prompts_path: Path = field(converter=Path)
   schema_path: Path = field(converter=Path)
   prompts: LLMPrompts = field(init=False)
+  duckdb_timeout_seconds: float = 5.0
   statistics_parquet: str | None = None
 
   @prompts.default  # type: ignore

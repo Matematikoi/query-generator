@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import polars as pl
@@ -7,6 +8,8 @@ from query_generator.utils.params import (
   StratifiedSamplingBase,
   get_toml_from_params,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def make_bins(
@@ -31,6 +34,7 @@ def cherry_pick_filter(
   *,
   apply_filter: bool,
 ) -> pl.DataFrame:
+  logger.debug("Applying Cherry Pick Filter")
   if not apply_filter:
     return df_input
   assert params is not None, "params must be provided if apply_filter is True"
@@ -48,7 +52,10 @@ def cherry_pick_filter(
   return pl.concat(dfs_sampled_array)
 
 
-def null_filter(df_input: pl.DataFrame, *, apply_filter: bool) -> pl.DataFrame:
+def emtpy_set_filter(
+  df_input: pl.DataFrame, *, apply_filter: bool
+) -> pl.DataFrame:
+  logger.debug("Applying Empty Set Filter.")
   if not apply_filter:
     return df_input
   return df_input.filter(pl.col("count_star") > 0)
@@ -57,7 +64,7 @@ def null_filter(df_input: pl.DataFrame, *, apply_filter: bool) -> pl.DataFrame:
 def filter_dataframe(
   df_input: pl.DataFrame, params: FilterEndpoint
 ) -> pl.DataFrame:
-  return df_input.pipe(null_filter, apply_filter=params.empty_set).pipe(
+  return df_input.pipe(emtpy_set_filter, apply_filter=params.empty_set).pipe(
     cherry_pick_filter,
     params=params.stratified_sampling_config,
     apply_filter=params.stratified_sampling,
@@ -83,7 +90,7 @@ def filter_synthetic_queries(params: FilterEndpoint) -> None:
     new_paths.append(str(new_path.relative_to(params.destination_folder)))
 
   # Write parquet and params
-  print(f"Filtered queries from {len(df_input)} to {len(df_filtered)}.")
+  logger.info(f"Filtered queries from {len(df_input)} to {len(df_filtered)}.")
   df_filtered = df_filtered.with_columns(pl.Series("relative_path", new_paths))
   df_filtered_output = Path(params.destination_folder) / "filtered.parquet"
   df_filtered.write_parquet(df_filtered_output)

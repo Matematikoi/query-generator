@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import polars as pl
@@ -7,6 +8,8 @@ from query_generator.utils.definitions import (
   GeneratedQueryFeatures,
 )
 from query_generator.utils.exceptions import OverwriteFileError
+
+logger = logging.getLogger(__name__)
 
 
 def write_parquet(df_to_write: pl.DataFrame, path: Path) -> None:
@@ -36,7 +39,7 @@ class Writer:
     )
     file.parent.mkdir(parents=True, exist_ok=True)
     file.write_text(query.query, encoding="utf-8")
-    print("Query written to:", file)
+    logger.info("Query written to:", file)
 
   def write_query_to_batch(self, query: BatchGeneratedQueryToWrite) -> str:
     """Returns relative path of the file to the final CSV"""

@@ -1,13 +1,14 @@
-from pathlib import Path
 import tomllib
+from pathlib import Path
 
 from cattrs import structure
+
 from query_generator.utils.params import (
+  ExtensionAndOllamaEndpoint,
+  FilterEndpoint,
   FixTransformEndpoint,
   GenerateDBEndpoint,
   HistogramEndpoint,
-  ExtensionAndOllamaEndpoint,
-  FilterEndpoint,
   LLMPrompts,
   SyntheticQueriesEndpoint,
   read_and_parse_toml,
@@ -36,9 +37,7 @@ def test_toml_files():
   """Test the example toml files provided"""
   base_path = Path(__file__).parent.parent.parent
   for endpoint_name in EndpointName:
-    print(endpoint_name)
     docs_path = (base_path / "params_config" / endpoint_name).glob("*toml")
-    print(base_path / "params_config" / endpoint_name)
     assert len(list(docs_path)) > 0
     # parse the docs and throw no errors in the process
     for doc in docs_path:
@@ -53,7 +52,7 @@ def test_llm_params():
   base_prompt_expected: str = """
     You are writing queries for a markdown text using the format:```sql SELECT... ``` for correct formatting in markdown
 
-    your only task is to write the given sql query again but 
+    your only task is to write the given sql query again but
     surrounding it with ```sql Select from....```
 """
   assert (

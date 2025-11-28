@@ -1,3 +1,4 @@
+import logging
 import math
 import random
 from abc import ABC
@@ -20,6 +21,7 @@ from query_generator.utils.exceptions import (
   InvalidHistogramError,
 )
 
+logger = logging.getLogger(__name__)
 SupportedHistogramType = float | int | str
 SuportedHistogramArrayType = list[float] | list[int] | list[str]
 
@@ -176,6 +178,12 @@ class PredicateGenerator:
         )
         if array is not None:
           yield self._get_in_predicate(array, table, column, dtype)
+        else:
+          logger.debug(
+            f"Unable to generate predicate IN.\ntable={table}"
+            f"\ncolumn={column}\ndata_type={dtype}"
+            f"\nlower_bound_probability={self.predicate_params.equality_lower_bound_probability}"
+          )
       elif predicate_type == PredicateTypes.EQUALITY:
         value = self._get_equality_value(
           row[HistogramColumns.MOST_COMMON_VALUES],
@@ -183,6 +191,12 @@ class PredicateGenerator:
         )
         if value is not None:
           yield self._get_equality_predicate(value, table, column, dtype)
+        else:
+          logger.debug(
+            f"Unable to generate predicate equality.\ntable={table}"
+            f"\ncolumn={column}\ndata_type={dtype}"
+            f"\nlower_bound_probability={self.predicate_params.equality_lower_bound_probability}"
+          )
 
   def _get_in_predicate(
     self, array: list[str], table: str, column: str, dtype: HistogramDataType

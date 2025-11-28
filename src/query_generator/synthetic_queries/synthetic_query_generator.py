@@ -1,3 +1,4 @@
+import logging
 import threading
 from dataclasses import dataclass
 from itertools import product
@@ -21,6 +22,8 @@ from query_generator.utils.params import (
   SyntheticQueriesEndpoint,
   get_toml_from_params,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -104,6 +107,7 @@ def generate_synthetic_queries(
     total=total_iterations,
     desc="Batch",
   ):
+    logger.debug(f"Processing batch {batch_number}")
     batch_number += 1
     query_generator = QueryGenerator(
       SyntheticQueryGenerationParameters(
@@ -126,6 +130,8 @@ def generate_synthetic_queries(
     for query in query_generator.generate_queries():
       selected_rows = get_result_from_duckdb(query.query, params.con)
       if selected_rows == -1:
+        logger.error("Query generated was not valid.")
+        logger.debug(f"Query generated:\n{query.query}")
         continue  # invalid query
 
       relative_path = writer.write_query_to_batch(
@@ -164,7 +170,7 @@ def generate_synthetic_queries(
       seen_subgraphs = query_generator.subgraph_generator.seen_subgraphs
     checkpoint_queries_parquet(rows, writer)
   checkpoint_queries_parquet(rows, writer)
-  print(f"Total queries generated: {len(rows)}.")
+  logger.info(f"Total queries generated: {len(rows)}.")
   toml_params = get_toml_from_params(params.user_input)
   writer.write_toml(toml_params)
 

@@ -1,13 +1,15 @@
+import logging
 import random
 import re
 from pathlib import Path
 from typing import Any
 
-import duckdb
 import polars as pl
-from duckdb import DuckDBPyConnection
 from tqdm import tqdm
 
+from query_generator.duckdb_connection.query_validation import (
+  DuckDBQueryValidator,
+)
 from query_generator.extensions.llm_clients import (
   LLM_Message,
   LLMClientFactory,
@@ -16,6 +18,8 @@ from query_generator.tools.format_histogram import get_histogram_as_str
 from query_generator.utils.params import (
   LLMParams,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def get_random_queries(
@@ -62,20 +66,8 @@ def extract_sql(llm_text: str) -> str:
   matches = re.findall(r"```sql\s*(.*?)\s*```", text, re.DOTALL)
   if matches:
     return matches[-1].strip()
-  tqdm.write("Error: Unable to find query in LLM response")
+  logger.warning("Error: Unable to find query in LLM response")
   return ""
-
-
-def validate_query_duckdb(
-  con: DuckDBPyConnection, query: str
-) -> tuple[bool, Exception]:
-  try:
-    con.sql(query).fetchone()
-  except Exception as e:
-    tqdm.write(f"Error from DuckDB: {e}")
-    return False, e
-  else:
-    return True, Exception("no exception found")
 
 
 def add_retry_query_to_messages(
@@ -129,6 +121,11 @@ def get_schema_from_statistics(
   df_stats = pl.read_parquet(params.statistics_parquet)
   return get_histogram_as_str(df_stats)
 
+def log_not_valid_query(duckdb_exception:Exception, query:str)-> None:
+  logger.warning(
+    f"Generated query is not valid. Exception:\n{duckdb_exception}"
+  )
+  logger.debug(f"Query that failed:\n{query}")
 
 def llm_extension(
   llm_params: LLMParams,
@@ -143,10 +140,12 @@ def llm_extension(
     The number of generated queries.
   """
   random.seed(42)
-  con = duckdb.connect(database=llm_params.database_path, read_only=True)
+  query_validator = DuckDBQueryValidator(
+    llm_params.database_path, llm_params.duckdb_timeout_seconds
+  )
   schema_context: str = get_schema_from_statistics(llm_params)
   rows: list[dict[str, str]] = []
-  log_rows: list[dict[str, str | bool]] = []
+  log_rows: list[dict[str, str | bool | LLM_Message]] = []
   sampled_queries = get_random_queries(input_queries_base_path, llm_params)
   for cnt, (query, original_path) in tqdm(  # type:ignore
     enumerate(sampled_queries), desc="LLM-Extension", total=len(sampled_queries)
@@ -160,17 +159,21 @@ def llm_extension(
       llm_params, query, schema_context
     )
     while retries <= llm_params.retry and not valid_query:
-      tqdm.write(f"Starting query #{cnt}, attempt #{retries + 1}")
       if retries > 0:
         add_retry_query_to_messages(messages, duckdb_exception)
+      logger.info(f"Starting query #{cnt}, attempt #{retries + 1}")
       llm_client.query(messages, llm_config_params)
+      logger.debug("LLM response received.")
       llm_extracted_query = extract_sql(messages[-1]["content"])
-      valid_query, duckdb_exception = validate_query_duckdb(
-        con, llm_extracted_query
+      valid_query, duckdb_exception = query_validator.is_query_valid(
+        llm_extracted_query
       )
+      if not valid_query:
+        log_not_valid_query(duckdb_exception, llm_extracted_query)
       retries += 1
     # Save query
     if valid_query:
+      logger.debug("Generated a valid query.")
       rows.append(
         {
           **write_query_llm_and_get_row(
@@ -182,6 +185,10 @@ def llm_extension(
           ),
           "retries": str(retries),
         }
+      )
+    else:
+      logger.error(
+        f"Failed to generate a valid query after {llm_params.retry} retries."
       )
 
     # Adds logs even if the query is not valid
@@ -203,5 +210,5 @@ def llm_extension(
       save_parquet(destination_path / "llm_extension.parquet", rows)
       save_parquet(destination_path / "logs.parquet", log_rows)
 
-  print(f"Total LLM queries generated: {len(rows)}.")
+  logger.info(f"Total LLM queries generated: {len(rows)}.")
   return len(rows)

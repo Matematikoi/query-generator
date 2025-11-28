@@ -19,7 +19,6 @@ def test_get_select_list():
     "COUNT(*),COUNT(t.t_minute),COUNT(wp.wp_link_count),"
     "COUNT(c.c_birth_day),COUNT(wr.wr_net_loss)"
   )
-  print(query)
   assert get_select_list(query) == expected
 
 
@@ -48,6 +47,4 @@ def test_rename_select_list():
     "t.t_minute AS column_0,wp.wp_link_count AS column_1,"
     "c.c_birth_day AS column_2,wr.wr_net_loss AS column_3"
   )
-  print(expected)
-  print(rename_select_list(columns))
   assert rename_select_list(columns) == expected

@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import Annotated
 
@@ -13,6 +14,9 @@ from query_generator.extensions.llm_clients import (
 from query_generator.extensions.llm_extension import llm_extension
 from query_generator.extensions.union_queries import union_queries
 from query_generator.filter.filter import filter_synthetic_queries
+from query_generator.logger import (
+  default_logger,
+)
 from query_generator.synthetic_queries.synthetic_query_generator import (
   SyntheticQueriesParams,
   generate_synthetic_queries,
@@ -39,6 +43,7 @@ from query_generator.utils.utils import (
 )
 
 app = typer.Typer(name="Query Generation", rich_markup_mode="markdown")
+logger = logging.getLogger(__name__)
 
 
 @app.command("generate-db", help=build_help_from_dataclass(GenerateDBEndpoint))
@@ -47,6 +52,17 @@ def generate_db_endpoint(
     str,
     typer.Option("-c", "--config", help="The path to the configuration file"),
   ],
+  *,
+  debug: Annotated[
+    bool,
+    typer.Option(
+      "-d",
+      "--debug",
+      help="Enable debug logging to file",
+      is_flag=True,
+      flag_value=True,
+    ),
+  ] = False,
 ) -> None:
   """Generates a DuckDB database with TPCDS or TPCH datasets.
 
@@ -56,6 +72,11 @@ def generate_db_endpoint(
   params = read_and_parse_toml(
     Path(config_path),
     GenerateDBEndpoint,
+  )
+  default_logger(
+    str(Path(params.db_path).parent),
+    debug_file=debug,
+    file_name="database_generation.log",
   )
   generate_db(params)
 
@@ -73,9 +94,23 @@ def make_histograms(
       "They can be found in the params_config/histograms/ folder",
     ),
   ],
+  *,
+  debug: Annotated[
+    bool,
+    typer.Option(
+      "-d",
+      "--debug",
+      help="Enable debug logging to file",
+      is_flag=True,
+      flag_value=True,
+    ),
+  ] = False,
 ) -> None:
   """This function is used to create histograms in parquet format."""
   params = read_and_parse_toml(Path(config_path), HistogramEndpoint)
+  default_logger(
+    params.output_folder, debug_file=debug, file_name="make_histograms.log"
+  )
   destination_path = Path(params.output_folder) / "histogram.parquet"
 
   con = duckdb.connect(params.database_path, read_only=True)
@@ -85,10 +120,12 @@ def make_histograms(
     con=con,
     include_mcv=params.common_values_size > 0,
   )
+  logger.info("Finished querying the database.")
   redundant_histogram_df = make_redundant_histograms(
     histograms_df, params.redundant_histogram_size
   )
   write_parquet(redundant_histogram_df, destination_path)
+  logger.info("Parquet file saved.")
 
 
 @app.command(help=build_help_from_dataclass(SyntheticQueriesEndpoint))
@@ -102,6 +139,17 @@ def synthetic_queries(
       "They can be found in the params_config/search_params/ folder",
     ),
   ],
+  *,
+  debug: Annotated[
+    bool,
+    typer.Option(
+      "-d",
+      "--debug",
+      help="Enable debug logging to file",
+      is_flag=True,
+      flag_value=True,
+    ),
+  ] = False,
 ) -> None:
   """This is an extension of the Snowflake algorithm.
 
@@ -112,6 +160,7 @@ def synthetic_queries(
     Path(config_path),
     SyntheticQueriesEndpoint,
   )
+  default_logger(params.output_folder, debug_file=debug)
   con = duckdb.connect(database=params.duckdb_database, read_only=True)
   generate_synthetic_queries(
     SyntheticQueriesParams(
@@ -132,6 +181,17 @@ def filter_synthetic_endpoint(
       "They can be found in the params_config/filter/ folder",
     ),
   ],
+  *,
+  debug: Annotated[
+    bool,
+    typer.Option(
+      "-d",
+      "--debug",
+      help="Enable debug logging to file",
+      is_flag=True,
+      flag_value=True,
+    ),
+  ] = False,
 ) -> None:
   """Filters queries based on the Count Star
 
@@ -144,6 +204,11 @@ def filter_synthetic_endpoint(
   params = read_and_parse_toml(
     Path(config_path),
     FilterEndpoint,
+  )
+  default_logger(
+    params.destination_folder,
+    debug_file=debug,
+    file_name="filter_synthetic.log",
   )
   filter_synthetic_queries(params)
 
@@ -161,27 +226,39 @@ def extensions_with_ollama_endpoint(
       help="The path to the configuration file with complex queries",
     ),
   ],
+  *,
+  debug: Annotated[
+    bool,
+    typer.Option(
+      "-d",
+      "--debug",
+      help="Enable debug logging to file",
+      is_flag=True,
+      flag_value=True,
+    ),
+  ] = False,
 ) -> None:
   """Add complex queries using LLM prompts.
   The configuration file should be a TOML file with the
   ComplexQueryGenerationParametersEndpoint structure."""
   params = read_and_parse_toml(Path(config_file), ExtensionAndOllamaEndpoint)
+  default_logger(params.destination_folder, debug_file=debug)
   cnt = 0
   if params.union_extension:
     assert params.union_params is not None
-    print("Starting Union extension")
+    logger.info("Starting Union extension")
     cnt += union_queries(
       Path(params.queries_parquet),
       Path(params.destination_folder),
       params.union_params.max_queries,
       params.union_params.probability,
     )
-    print("Union extension done")
+    logger.info("Union extension done")
 
   if params.llm_extension:
     assert params.ollama_model is not None
     assert params.llm_params is not None
-    print("Starting LLM extension")
+    logger.info("Starting LLM extension")
     cnt += llm_extension(
       llm_params=params.llm_params,
       llm_client_factory=LLMClientFactory(
@@ -191,9 +268,9 @@ def extensions_with_ollama_endpoint(
       input_queries_base_path=Path(params.queries_parquet).parent,
       destination_path=Path(params.destination_folder),
     )
-    print("LLM extension done")
+    logger.info("LLM extension done")
 
-  print(f"Total extension queries generated: {cnt}.")
+  logger.info(f"Total extension queries generated: {cnt}.")
   toml_params = get_toml_from_params(params)
   (Path(params.destination_folder) / "extension_config.toml").write_text(
     toml_params
@@ -212,8 +289,22 @@ def add_limit_endpoint(
       help="The path to the configuration file with complex queries",
     ),
   ],
+  *,
+  debug: Annotated[
+    bool,
+    typer.Option(
+      "-d",
+      "--debug",
+      help="Enable debug logging to file",
+      is_flag=True,
+      flag_value=True,
+    ),
+  ] = False,
 ) -> None:
   params = read_and_parse_toml(Path(config_file), FixTransformEndpoint)
+  default_logger(
+    params.destination_folder, debug_file=debug, file_name="fix_transform.log"
+  )
   fix_transform(params)
 
 

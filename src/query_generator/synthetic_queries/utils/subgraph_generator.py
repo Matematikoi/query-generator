@@ -1,3 +1,4 @@
+import logging
 import random
 from collections import deque
 from collections.abc import Iterator
@@ -6,6 +7,7 @@ from dataclasses import dataclass
 from query_generator.synthetic_queries.foreign_key_graph import ForeignKeyGraph
 from query_generator.utils.exceptions import GraphExploredError
 
+logger = logging.getLogger(__name__)
 MAX_ATTEMPTS_FOR_NEW_SUBGRAPH = 1000
 
 
@@ -74,6 +76,7 @@ class SubGraphGenerator:
     while True:
       attempts += 1
       if attempts > MAX_ATTEMPTS_FOR_NEW_SUBGRAPH:
+        logger.debug("Max attempts reached while creating a new subgraph.")
         raise GraphExploredError(attempts)
       edges = self.get_random_subgraph(fact_table)
       edges_signature = self.graph.get_subgraph_signature(edges)
@@ -88,11 +91,11 @@ class SubGraphGenerator:
     fact_table: str,
     max_signatures_per_fact_table: int,
   ) -> Iterator[list[ForeignKeyGraph.Edge]]:
-    # TODO(GABRIEL): http://localhost:8080/tktview/5cfb15b1aa88be40c2d1ae7f5bb521c478d0dad0
-    # Add logger
-    #  communicate with the user the total number of signatures
-    # or add a debug mode
-    for _ in range(max_signatures_per_fact_table):
+    for current_signature in range(max_signatures_per_fact_table):
+      logger.debug(
+        f"Processing fact table {fact_table}"
+        f", generating signature #{current_signature}"
+      )
       try:
         yield self.get_unseen_random_subgraph(fact_table)
       except GraphExploredError:

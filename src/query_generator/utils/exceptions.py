@@ -17,6 +17,13 @@ class GraphExploredError(Exception):
     super().__init__(f"Graph has been explored {attempts} times.")
 
 
+class DuckDBTimeoutError(Exception):
+  def __init__(self, timeout_seconds: float | int) -> None:
+    super().__init__(
+      f"DuckDB query interrupted after {timeout_seconds} seconds."
+    )
+
+
 class TableNotFoundError(Exception):
   def __init__(self, table_name: str) -> None:
     super().__init__(f"Table {table_name} not found in schema.")

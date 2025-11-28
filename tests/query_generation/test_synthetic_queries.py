@@ -1,15 +1,15 @@
 import tomllib
 from unittest import mock
 
-from cattrs import structure
 import polars as pl
 import pytest
+from cattrs import structure
 
+from query_generator.filter.filter import make_bins
 from query_generator.synthetic_queries.synthetic_query_generator import (
   SyntheticQueriesParams,
   generate_synthetic_queries,
 )
-from query_generator.filter.filter import make_bins
 from query_generator.utils.definitions import Dataset
 from query_generator.utils.params import SyntheticQueriesEndpoint
 from tests.utils import get_precomputed_histograms
@@ -92,7 +92,6 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       operator_range = 3
       operator_equal = 3
       """
-    print(data_toml)
     user_input = structure(tomllib.loads(data_toml), SyntheticQueriesEndpoint)
     generate_synthetic_queries(
       params=SyntheticQueriesParams(

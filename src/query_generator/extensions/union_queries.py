@@ -1,3 +1,4 @@
+import logging
 import random
 import re
 from pathlib import Path
@@ -8,6 +9,7 @@ from tqdm import tqdm
 from query_generator.utils.exceptions import InvalidQueryError
 from query_generator.utils.utils import set_seed
 
+logger = logging.getLogger(__name__)
 MINIMUM_QUERIES_TO_UNION = 2
 
 
@@ -122,5 +124,5 @@ def union_queries(
   )
   df_output_path = destination_path / "union_description.parquet"
   df_output.write_parquet(df_output_path)
-  print(f"Total Union queries generated: {cnt}.")
+  logger.info(f"Total Union queries generated: {cnt}.")
   return cnt
