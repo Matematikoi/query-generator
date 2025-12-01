@@ -6,3 +6,6 @@ destination_folder = "tmp/transformed_queries_ollama/"
 # Parameters
 max_output_size = 1
 timeout_seconds = 2
+filter_empty_set = true
+make_select_group_by_disjoint = true
+make_count_statement_diverse = true

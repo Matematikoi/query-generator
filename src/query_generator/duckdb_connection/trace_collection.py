@@ -17,9 +17,10 @@ from enum import StrEnum
 from multiprocessing import Process, Queue
 from pathlib import Path
 
+import duckdb
+
 logger = logging.getLogger(__name__)
 
-import duckdb
 
 CHECKPOINT_FREQUENCY = 100  # Save Parquet every N queries
 
@@ -71,11 +72,46 @@ class DuckDBTraceOuputDataFrameRow:
   duckdb_output: list[str]
 
 
+@dataclass
+class ExecutionQueueResult:
+  """Result of executing one query in a separate process.
+
+  Attributes:
+      ok (bool): Whether the execution was successful.
+      result (list[str]): The output rows from the query execution.
+      json_path (Path | None): The path to the JSON trace file, if successful.
+      error (str): The error message, if any.
+  """
+
+  ok: bool
+  result: list[str]
+  json_path: Path | None
+  error: str
+
+  def get_trace(self) -> str:
+    """Get the trace content as a string, if available."""
+    if self.ok and self.json_path is not None and self.json_path.is_file():
+      return self.json_path.read_text()
+    return ""
+
+  def get_result(self) -> list[str]:
+    """Get the result rows."""
+    if self.ok:
+      return self.result
+    return []
+
+  def get_error(self) -> str:
+    """Get the error message, if any."""
+    if not self.ok:
+      return self.error
+    return ""
+
+
 def _profile_worker(
   query: str,
   query_path: Path,
   params: DuckDBTraceParams,
-  out_q: Queue[tuple[bool, list[str], Path | None, str]],
+  out_q: Queue[ExecutionQueueResult],
 ) -> None:
   """Execute one SQL with DuckDB JSON profiling.
 
@@ -120,9 +156,15 @@ def _profile_worker(
     rows = cur.fetchmany(params.fetch_limit + 10)
     result = [str(r) for r in rows]
 
-    out_q.put((True, result, trace_file, ""))
+    out_q.put(
+      ExecutionQueueResult(
+        ok=True, result=result, json_path=trace_file, error=""
+      )
+    )
   except Exception as e:
-    out_q.put((False, [], None, str(e)))
+    out_q.put(
+      ExecutionQueueResult(ok=False, result=[], json_path=None, error=str(e))
+    )
   finally:
     with contextlib.suppress(Exception):
       assert timer is not None
@@ -142,11 +184,10 @@ def duckdb_collect_one_trace(
   """
   queries_path = Path(params.queries_path)
 
-  ok = False
-  result = []
-  json_path = None
-  error = ""
-  q: Queue = Queue()
+  execution_output = ExecutionQueueResult(
+    ok=False, result=[], json_path=None, error=""
+  )
+  q: Queue[ExecutionQueueResult] = Queue()
   p = Process(
     target=_profile_worker,
     args=(
@@ -164,16 +205,13 @@ def duckdb_collect_one_trace(
     p.terminate()
     p.join()
   elif not q.empty():
-    ok, result, json_path, error = q.get()
-
+    execution_output: ExecutionQueueResult = q.get()
   return DuckDBTraceOuputDataFrameRow(
     relative_path=str(sql_file.relative_to(queries_path)),
     query_folder=sql_file.parent.name,
     query_name=sql_file.stem,
-    duckdb_trace=json_path.read_text()
-    if ok and json_path is not None and json_path.is_file()
-    else "",
-    duckdb_output=result if ok else [],
-    error=error if not ok else "",
-    trace_success=ok,
+    duckdb_trace=execution_output.get_trace(),
+    duckdb_output=execution_output.get_result(),
+    error=execution_output.get_error(),
+    trace_success=execution_output.ok,
   )
