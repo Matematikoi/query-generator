@@ -11,14 +11,17 @@ If the value is 0, no limit will be imposed.
 - `timeout_seconds` (float): The maximum amount of seconds the query is 
 allowed to run. Queries beyond this threshold will not be "valid" queries.
 - `filter_empty_set` (bool): Whether to filter out queries that return
-an empty set.
+an empty set. If set to true, only queries that return at least one
+tuple will be kept.
 - `make_select_group_by_disjoint` (bool): Whether to make the select clause
 attributes disjoint from the group by clause attributes.
 - `make_count_statement_diverse` (bool): Whether to change the COUNT statements
 to other aggregate functions or COUNT variants.
 
 Since the limit on queries will be imposed based on the output of the queries,
-the queries need to be run. Additionally to collecting the queries 
+the queries need to be run to collect their output sizes.
+We do another pass of query running to collect the final traces and leave them
+in the DUCKDB_TRACES folder.
 
 # Transformations
 
