@@ -3,6 +3,7 @@ import threading
 from dataclasses import dataclass
 
 import duckdb
+from sqlglot import exp, parse_one
 
 from query_generator.duckdb_connection.utils import get_tables
 from query_generator.utils.exceptions import DuckDBTimeoutError
@@ -14,6 +15,9 @@ class QueryExecution:
   result: tuple | None
   exception: Exception | None
   timed_out: bool
+
+
+COUNT_CTE_NAME = "cte_for_count"
 
 
 class DuckDBQueryExecutor:
@@ -102,6 +106,21 @@ class DuckDBQueryExecutor:
   def connect_to_database(self) -> None:
     self.conn = duckdb.connect(database=self.database_path, read_only=True)
 
+  def _wrap_query_with_count(self, sql: str) -> str:
+    """Wrap a query inside a CTE and count its rows to avoid syntax issues."""
+    original: exp.Expression = parse_one(sql)
+
+    cte_alias = exp.TableAlias(this=exp.to_identifier(COUNT_CTE_NAME))
+    cte = exp.CTE(this=original.copy(), alias=cte_alias)
+    with_clause = exp.With(expressions=[cte])
+
+    outer_select = (
+      exp.select(exp.func("COUNT", exp.Star()))
+      .from_(exp.to_table(COUNT_CTE_NAME))
+    )
+    outer_select.set("with", with_clause)
+
+    return outer_select.sql(pretty=True)
 
   def get_query_output_size(self, query: str) -> int:
     """Returns the output size of a query.
@@ -109,7 +128,7 @@ class DuckDBQueryExecutor:
     If the query fails, it returns -1."""
     self.test_and_fix_connection()
     execution = self._execute_with_timeout(
-      f"SELECT COUNT(*) FROM ({query}) AS subquery;",
+      self._wrap_query_with_count(query),
       "DuckDB output size calculation",
     )
     result = -1

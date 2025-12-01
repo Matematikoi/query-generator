@@ -100,6 +100,10 @@ def test_duckdb_timeout(setup_and_teardown_db):
     ("select 1 where 1 = 0;", 0),
     ("select 1;", 1),
     ("select 1 union all select 2;", 2),
+    # Test the ; will not break it
+    ("select 1 where 1 = 0;", 0),
+    ("select 1;", 1),
+    ("select 1 union all select 2;", 2),
   ],
 )
 def test_duckdb_count_output(
