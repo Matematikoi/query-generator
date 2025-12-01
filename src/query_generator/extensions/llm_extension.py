@@ -8,7 +8,7 @@ import polars as pl
 from tqdm import tqdm
 
 from query_generator.duckdb_connection.query_validation import (
-  DuckDBQueryValidator,
+  DuckDBQueryExecutor,
 )
 from query_generator.extensions.llm_clients import (
   LLM_Message,
@@ -140,7 +140,7 @@ def llm_extension(
     The number of generated queries.
   """
   random.seed(42)
-  query_validator = DuckDBQueryValidator(
+  query_validator = DuckDBQueryExecutor(
     llm_params.database_path, llm_params.duckdb_timeout_seconds
   )
   schema_context: str = get_schema_from_statistics(llm_params)

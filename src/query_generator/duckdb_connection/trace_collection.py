@@ -165,7 +165,7 @@ def duckdb_collect_one_trace(
     p.join()
   elif not q.empty():
     ok, result, json_path, error = q.get()
-
+  # TODO: Better this queue types
   return DuckDBTraceOuputDataFrameRow(
     relative_path=str(sql_file.relative_to(queries_path)),
     query_folder=sql_file.parent.name,

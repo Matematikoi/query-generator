@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from query_generator.duckdb_connection.query_validation import (
-  DuckDBQueryValidator,
+  DuckDBQueryExecutor,
 )
 from query_generator.duckdb_connection.setup import generate_db
 from query_generator.utils.definitions import Dataset
@@ -80,7 +80,7 @@ def test_duckdb_timeout(setup_and_teardown_db):
   """Test validation actually timeouts"""
   con = generate_db(GenerateDBEndpoint(Dataset.TPCDS, TEMP_DB_PATH, 0.0))
   con.close()
-  validator = DuckDBQueryValidator(TEMP_DB_PATH, 1)
+  validator = DuckDBQueryExecutor(TEMP_DB_PATH, 1)
   long_running_query = """
   SELECT COUNT(*)
   FROM range(0, 100000000) t1(i)

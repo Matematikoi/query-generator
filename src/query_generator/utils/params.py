@@ -212,9 +212,12 @@ class FixTransformEndpoint:
   """
   queries_folder: str
   destination_folder: str
-  max_output_size: int
   duckdb_database: str
   timeout_seconds: float
+  filter_empty_set : bool = False
+  max_output_size: int  = 1000
+  make_select_group_by_disjoint : bool = False
+  make_count_statement_diverse : bool = False
 
 
 T = TypeVar("T")
