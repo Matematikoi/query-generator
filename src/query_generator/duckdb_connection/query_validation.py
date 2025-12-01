@@ -113,9 +113,11 @@ class DuckDBQueryExecutor:
       "DuckDB output size calculation",
     )
     result = -1
-    if execution.exception is not None and execution.result is not None:
+    if execution.exception is None and execution.result is not None:
       result = execution.result[0]
     assert result is not None
     # TODO: delete debug log
     logger.debug(f"Output size for query is {result}, with type {type(result)}")
+    logger.debug(f"query result was : {execution.result}")
+    logger.debug(f"query exception was : {execution.exception}")
     return int(result)
