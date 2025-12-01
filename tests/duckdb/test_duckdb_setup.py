@@ -40,6 +40,7 @@ def test_dev_duckdb_setup_tpch(setup_and_teardown_db):
     ("region",),
     ("supplier",),
   ], "DuckDB should have the TPCH tables"
+  con.close()
 
 
 def test_dev_duckdb_setup_tpcds(setup_and_teardown_db):
@@ -74,6 +75,7 @@ def test_dev_duckdb_setup_tpcds(setup_and_teardown_db):
     ("web_sales",),
     ("web_site",),
   ], "DuckDB should have the TPCDS tables"
+  con.close()
 
 
 def test_duckdb_timeout(setup_and_teardown_db):
@@ -89,3 +91,26 @@ def test_duckdb_timeout(setup_and_teardown_db):
   valid, db_exeception = validator.is_query_valid(long_running_query)
   assert not valid
   assert isinstance(db_exeception, DuckDBTimeoutError)
+  validator.conn.close()
+
+
+@pytest.mark.parametrize(
+  "query,expected_output_size",
+  [
+    ("select 1 where 1 = 0;", 0),
+    ("select 1;", 1),
+    ("select 1 union all select 2;", 2),
+  ],
+)
+def test_duckdb_count_output(
+  setup_and_teardown_db, query: str, expected_output_size: int
+):
+  """Ensure output size calculation matches row counts for simple queries."""
+  con = generate_db(GenerateDBEndpoint(Dataset.TPCDS, TEMP_DB_PATH, 0.0))
+  con.close()
+  validator = DuckDBQueryExecutor(TEMP_DB_PATH, 1)
+
+  output_size = validator.get_query_output_size(query)
+
+  assert output_size == expected_output_size
+  validator.conn.close()
