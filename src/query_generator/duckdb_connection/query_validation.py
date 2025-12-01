@@ -67,7 +67,7 @@ class DuckDBQueryExecutor:
       args=(interrupted,),
     )
     timer.start()
-    result: object | None = None
+    result: tuple | None = None
     exception: Exception | None = None
     timed_out = False
     try:
@@ -136,8 +136,9 @@ class DuckDBQueryExecutor:
     if execution.exception is None and execution.result is not None:
       result = execution.result[0]
     assert result is not None
-    # TODO: delete debug log
-    logger.debug(f"Output size for query is {result}, with type {type(result)}")
-    logger.debug(f"query result was : {execution.result}")
-    logger.debug(f"query exception was : {execution.exception}")
+    logger.debug(
+      "Query result was: %s\nwith exception %s",
+      execution.result,
+      execution.exception,
+    )
     return int(result)

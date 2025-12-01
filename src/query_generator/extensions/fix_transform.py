@@ -327,31 +327,15 @@ def apply_output_size_transformation(
   When the output size exceeds the limit, it wraps the query with a limit.
   When the output size is within the limit, it returns the original query.
   """
-  # TODO: remove this logs after testing
   upper_limit = params.max_output_size
   if upper_limit <= 0 and not params.filter_empty_set:
-    logger.debug(
-      "upper_limit is non-positive, skipping wrapping with LIMIT. "
-      "Skipping executing query to get output size."
-    )
     return query
 
   output_size = query_executor.get_query_output_size(query)
   if output_size <= 0 and params.filter_empty_set:
-    logger.debug(
-      "Query output size %s is non-positive and filter_empty_set is True. "
-      "Skipping query.",
-      output_size,
-    )
     return None
   if output_size > upper_limit:
-    logger.debug(
-      "Query output size %s exceeds upper_limit %s. Wrapping with LIMIT.",
-      output_size,
-      upper_limit,
-    )
     return wrap_query_with_limit(query, upper_limit)
-  logger.debug("Skipping wrapping with limit")
   return query
 
 
@@ -383,6 +367,7 @@ def fix_transform(params: FixTransformEndpoint) -> None:
       logger.info(f"Skipping query {query_path} due to empty result set.")
       continue
 
+    logger.debug("Starting trace collection.")
     trace, transformation_success = get_trace_from_transform(
       query, query_path, params
     )
