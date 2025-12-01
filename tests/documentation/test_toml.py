@@ -50,10 +50,11 @@ def test_llm_params():
   tpcds_dev = Path("params_config/extensions_with_ollama/tpcds_dev.toml")
   params = read_and_parse_toml(tpcds_dev, ExtensionAndOllamaEndpoint)
   base_prompt_expected: str = """
-    You are writing queries for a markdown text using the format:```sql SELECT... ``` for correct formatting in markdown
+    You are writing queries in markdown notation.
+    Use the format ```sql SELECT... ``` to ensure proper markdown formatting.
 
     your only task is to write the given sql query again but
-    surrounding it with ```sql Select from....```
+surrounding it with ```sql Select from....```
 """
   assert (
     params.llm_params.prompts.base_prompt.strip()

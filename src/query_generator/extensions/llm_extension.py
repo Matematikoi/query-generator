@@ -121,11 +121,13 @@ def get_schema_from_statistics(
   df_stats = pl.read_parquet(params.statistics_parquet)
   return get_histogram_as_str(df_stats)
 
-def log_not_valid_query(duckdb_exception:Exception, query:str)-> None:
+
+def log_not_valid_query(duckdb_exception: Exception, query: str) -> None:
   logger.warning(
     f"Generated query is not valid. Exception:\n{duckdb_exception}"
   )
   logger.debug(f"Query that failed:\n{query}")
+
 
 def llm_extension(
   llm_params: LLMParams,

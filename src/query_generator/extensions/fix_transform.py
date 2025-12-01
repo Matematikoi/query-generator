@@ -10,7 +10,9 @@ from sqlglot import exp, parse_one
 from sqlglot.expressions import Expression
 from tqdm import tqdm
 
-from query_generator.duckdb_connection.query_validation import DuckDBQueryExecutor
+from query_generator.duckdb_connection.query_validation import (
+  DuckDBQueryExecutor,
+)
 from query_generator.duckdb_connection.trace_collection import (
   DuckDBTraceOuputDataFrameRow,
   DuckDBTraceParams,
@@ -293,23 +295,29 @@ def get_trace_from_transform(
     query_path.read_text(), query_path, trace_params
   ), False
 
+
 def apply_transformation_make_group_by_disjoint(
-  query: str, schema: dict[str, dict[str, str]], apply_transformation: bool) -> tuple[str, Exception | None]:
+  query: str, schema: dict[str, dict[str, str]], *, apply_transformation: bool
+) -> tuple[str, Exception | None]:
   if not apply_transformation:
     logger.debug("Skipping make group by disjoint transformation.")
     return query, None
-  query, exception = make_select_group_by_clause_disjoint(
-    query, schema
-  )
+  query, exception = make_select_group_by_clause_disjoint(query, schema)
   return query, exception
 
-def apply_replace_min_max(sql: str, schema: dict[str, dict[str, str]], apply_transformation: bool) -> str:
+
+def apply_replace_min_max(
+  sql: str, schema: dict[str, dict[str, str]], *, apply_transformation: bool
+) -> str:
   if not apply_transformation:
     logger.debug("Skipping replace min/max transformation.")
     return sql
   return replace_min_max(sql, schema)
 
-def apply_output_size_transformation(query: str, query_executor: DuckDBQueryExecutor, params: FixTransformEndpoint )-> str|None:
+
+def apply_output_size_transformation(
+  query: str, query_executor: DuckDBQueryExecutor, params: FixTransformEndpoint
+) -> str | None:
   """Wrap query with limit if output size exceeds limit
 
   When queries give empty result set as answer, if the filter
@@ -322,8 +330,10 @@ def apply_output_size_transformation(query: str, query_executor: DuckDBQueryExec
   # TODO: remove this logs after testing
   upper_limit = params.max_output_size
   if upper_limit <= 0 and not params.filter_empty_set:
-    logger.debug("upper_limit is non-positive, skipping wrapping with LIMIT. "
-      "Skipping executing query to get output size.")
+    logger.debug(
+      "upper_limit is non-positive, skipping wrapping with LIMIT. "
+      "Skipping executing query to get output size."
+    )
     return query
 
   output_size = query_executor.get_query_output_size(query)
@@ -363,9 +373,11 @@ def fix_transform(params: FixTransformEndpoint) -> None:
     query = query_path.read_text()
     # Apply transformations
     query, exception_group_by = apply_transformation_make_group_by_disjoint(
-      query, schema, params.make_select_group_by_disjoint
+      query, schema, apply_transformation=params.make_select_group_by_disjoint
     )
-    query = apply_replace_min_max(query, schema, params.make_count_statement_diverse)
+    query = apply_replace_min_max(
+      query, schema, apply_transformation=params.make_count_statement_diverse
+    )
     query = apply_output_size_transformation(query, query_executor, params)
     if query is None:
       logger.info(f"Skipping query {query_path} due to empty result set.")
@@ -375,7 +387,6 @@ def fix_transform(params: FixTransformEndpoint) -> None:
       query, query_path, params
     )
     traces.append(trace)
-
 
     new_query_path = destination_folder / query_path.relative_to(queries_folder)
     new_query_path.parent.mkdir(parents=True, exist_ok=True)

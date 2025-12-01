@@ -17,9 +17,10 @@ from enum import StrEnum
 from multiprocessing import Process, Queue
 from pathlib import Path
 
+import duckdb
+
 logger = logging.getLogger(__name__)
 
-import duckdb
 
 CHECKPOINT_FREQUENCY = 100  # Save Parquet every N queries
 

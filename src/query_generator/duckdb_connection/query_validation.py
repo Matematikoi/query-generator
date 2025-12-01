@@ -10,6 +10,7 @@ from query_generator.utils.exceptions import DuckDBTimeoutError
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class QueryExecution:
   result: tuple | None
@@ -26,6 +27,7 @@ class DuckDBQueryExecutor:
   It works with a DuckDB database in read-only mode. It will test the
   connection before each query and will reconnect if any problem arise.
   Works for fetch-one queries only for now."""
+
   def __init__(self, database_path: str, timeout_seconds: float) -> None:
     self.database_path = database_path
     self.timeout_seconds = timeout_seconds
@@ -40,8 +42,8 @@ class DuckDBQueryExecutor:
     try:
       # Simple query to verify the connection responds correctly
       self.conn.execute(f"SELECT (*) FROM {self.tables[0]};").fetchall()
-    except Exception as e:
-      logger.exception(f"Error in basic SQL query, restarting connection:\n{e}")
+    except Exception:
+      logger.exception("Error in basic SQL query, restarting connection")
       self.conn.close()
       self.connect_to_database()
     else:
@@ -91,13 +93,13 @@ class DuckDBQueryExecutor:
         exception,
       )
 
-    return QueryExecution(result=result, exception=exception, timed_out=timed_out)
+    return QueryExecution(
+      result=result, exception=exception, timed_out=timed_out
+    )
 
   def is_query_valid(self, query: str) -> tuple[bool, Exception]:
     self.test_and_fix_connection()
-    execution = self._execute_with_timeout(
-      query, "DuckDB query validation"
-    )
+    execution = self._execute_with_timeout(query, "DuckDB query validation")
     if execution.exception:
       return False, execution.exception
 
@@ -114,9 +116,8 @@ class DuckDBQueryExecutor:
     cte = exp.CTE(this=original.copy(), alias=cte_alias)
     with_clause = exp.With(expressions=[cte])
 
-    outer_select = (
-      exp.select(exp.func("COUNT", exp.Star()))
-      .from_(exp.to_table(COUNT_CTE_NAME))
+    outer_select = exp.select(exp.func("COUNT", exp.Star())).from_(
+      exp.to_table(COUNT_CTE_NAME)
     )
     outer_select.set("with", with_clause)
 

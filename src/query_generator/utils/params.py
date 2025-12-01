@@ -107,7 +107,7 @@ class ExtensionAndOllamaEndpoint:
 
 @dataclass
 class SyntheticQueriesEndpoint:
-  __doc__ = f"""Generate synthetic queries based on the schema and column statistics.
+  __doc__ = f"""Generate synthetic queries based on schema & column-statistics.
 {get_markdown_documentation(EndpointName.SYNTHETIC_GENERATION)}
 
 # Example
@@ -214,10 +214,10 @@ class FixTransformEndpoint:
   destination_folder: str
   duckdb_database: str
   timeout_seconds: float
-  filter_empty_set : bool = False
-  max_output_size: int  = 1000
-  make_select_group_by_disjoint : bool = False
-  make_count_statement_diverse : bool = False
+  filter_empty_set: bool = False
+  max_output_size: int = 1000
+  make_select_group_by_disjoint: bool = False
+  make_count_statement_diverse: bool = False
 
 
 T = TypeVar("T")
