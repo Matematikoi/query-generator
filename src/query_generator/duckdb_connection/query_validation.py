@@ -28,17 +28,21 @@ class DuckDBQueryExecutor:
   connection before each query and will reconnect if any problem arise.
   Works for fetch-one queries only for now."""
 
-  def __init__(self, database_path: str, timeout_seconds: float) -> None:
+  def __init__(
+    self, database_path: str, timeout_seconds: float, memory_gb: int = 5
+  ) -> None:
     self.database_path = database_path
     self.timeout_seconds = timeout_seconds
+    self.memory_gb = memory_gb
     self.connect_to_database()
     self.get_tables()
 
   def get_tables(self) -> None:
     self.tables = get_tables(self.conn)
 
-  def test_and_fix_connection(self) -> None:
-    """Test connection and reconnects if any problem arise."""
+  def reconnect_database_and_test(self) -> None:
+    """Restart connection and reconnects if any problem arise."""
+    self.connect_to_database()
     try:
       # Simple query to verify the connection responds correctly
       self.conn.execute(f"SELECT (*) FROM {self.tables[0]};").fetchall()
@@ -86,6 +90,7 @@ class DuckDBQueryExecutor:
         exception = exc
     finally:
       timer.cancel()
+      self.conn.close()
       logger.debug(
         "%s finished with timed_out=%s ,exception=%s",
         description,
@@ -98,7 +103,7 @@ class DuckDBQueryExecutor:
     )
 
   def is_query_valid(self, query: str) -> tuple[bool, Exception]:
-    self.test_and_fix_connection()
+    self.reconnect_database_and_test()
     execution = self._execute_with_timeout(query, "DuckDB query validation")
     if execution.exception:
       return False, execution.exception
@@ -107,29 +112,39 @@ class DuckDBQueryExecutor:
 
   def connect_to_database(self) -> None:
     self.conn = duckdb.connect(database=self.database_path, read_only=True)
+    self.conn.execute(f"SET memory_limit = '{self.memory_gb}GB';")
+    self.conn.execute("SET enable_progress_bar = false;")
+    self.conn.execute("SET enable_progress_bar_print = false;")
 
-  def _wrap_query_with_count(self, sql: str) -> str:
+  def _wrap_query_with_count(self, sql: str) -> str | None:
     """Wrap a query inside a CTE and count its rows to avoid syntax issues."""
-    original: exp.Expression = parse_one(sql)
+    with contextlib.suppress(Exception):
+      original: exp.Expression = parse_one(sql)
 
-    cte_alias = exp.TableAlias(this=exp.to_identifier(COUNT_CTE_NAME))
-    cte = exp.CTE(this=original.copy(), alias=cte_alias)
-    with_clause = exp.With(expressions=[cte])
+      cte_alias = exp.TableAlias(this=exp.to_identifier(COUNT_CTE_NAME))
+      cte = exp.CTE(this=original.copy(), alias=cte_alias)
+      with_clause = exp.With(expressions=[cte])
 
-    outer_select = exp.select(exp.func("COUNT", exp.Star())).from_(
-      exp.to_table(COUNT_CTE_NAME)
-    )
-    outer_select.set("with", with_clause)
+      outer_select = exp.select(exp.func("COUNT", exp.Star())).from_(
+        exp.to_table(COUNT_CTE_NAME)
+      )
+      outer_select.set("with", with_clause)
 
-    return outer_select.sql(pretty=True)
+      return outer_select.sql(pretty=True)
+
+    return None
 
   def get_query_output_size(self, query: str) -> int:
     """Returns the output size of a query.
 
     If the query fails, it returns -1."""
-    self.test_and_fix_connection()
+    self.reconnect_database_and_test()
+    count_query = self._wrap_query_with_count(query)
+    if count_query is None:
+      logger.error("Failed to wrap query for counting. Skipping.")
+      return -1
     execution = self._execute_with_timeout(
-      self._wrap_query_with_count(query),
+      count_query,
       "DuckDB output size calculation",
     )
     result = -1

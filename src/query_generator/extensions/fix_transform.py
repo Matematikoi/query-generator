@@ -285,6 +285,7 @@ def get_trace_from_transform(
     timeout_seconds=params.timeout_seconds,
     fetch_limit=params.max_output_size,
     output_folder=params.destination_folder,
+    max_memory_gb=params.max_memory_gb,
   )
 
   trace = duckdb_collect_one_trace(query, query_path, trace_params)
@@ -346,7 +347,7 @@ def fix_transform(params: FixTransformEndpoint) -> None:
   destination_folder = Path(params.destination_folder)
   queries_paths = list(queries_folder.glob("**/*.sql"))
   query_executor = DuckDBQueryExecutor(
-    params.duckdb_database, params.timeout_seconds
+    params.duckdb_database, params.timeout_seconds, params.max_memory_gb
   )
   rows = []
 
