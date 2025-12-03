@@ -91,7 +91,6 @@ def test_duckdb_timeout(setup_and_teardown_db):
   valid, db_exeception = validator.is_query_valid(long_running_query)
   assert not valid
   assert isinstance(db_exeception, DuckDBTimeoutError)
-  validator.conn.close()
 
 
 @pytest.mark.parametrize(
@@ -114,7 +113,6 @@ def test_duckdb_count_output(
   con.close()
   validator = DuckDBQueryExecutor(TEMP_DB_PATH, 1)
 
-  output_size = validator.get_query_output_size(query)
-
+  output_size, timeout = validator.get_query_output_size(query)
+  assert not timeout
   assert output_size == expected_output_size
-  validator.conn.close()

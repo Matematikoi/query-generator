@@ -1,11 +1,11 @@
+import contextlib
 import logging
 import threading
 from dataclasses import dataclass
+from multiprocessing import Process, Queue
 
 import duckdb
-from sqlglot import exp, parse_one
 
-from query_generator.duckdb_connection.utils import get_tables
 from query_generator.utils.exceptions import DuckDBTimeoutError
 
 logger = logging.getLogger(__name__)
@@ -13,147 +13,158 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class QueryExecution:
-  result: tuple | None
+  result: list[tuple] | None
   exception: Exception | None
   timed_out: bool
+
+
+@dataclass
+class QueryWorkerInput:
+  database_path: str
+  memory_gb: int
+  timeout_seconds: float
+  limit_output_size: int
 
 
 COUNT_CTE_NAME = "cte_for_count"
 
 
+def _run_query_worker(
+  query: str,
+  q: Queue,
+  params: QueryWorkerInput,
+) -> None:
+  """Execute a query in an isolated process and return results via queue."""
+  conn = None
+  timer: threading.Timer | None = None
+  timed_out = False
+
+  def _interrupt() -> None:
+    nonlocal timed_out
+    timed_out = True
+    with contextlib.suppress(Exception):
+      assert conn is not None
+      conn.interrupt()
+
+  try:
+    conn = duckdb.connect(database=params.database_path, read_only=True)
+    conn.execute(f"SET memory_limit = '{params.memory_gb}GB';")
+    conn.execute("SET enable_progress_bar = false;")
+    conn.execute("SET enable_progress_bar_print = false;")
+
+    if params.timeout_seconds and params.timeout_seconds > 0:
+      timer = threading.Timer(params.timeout_seconds, _interrupt)
+      timer.daemon = True
+      timer.start()
+
+    cur = conn.execute(query)
+    rows = cur.fetchmany(params.limit_output_size)
+    q.put(QueryExecution(result=rows, exception=None, timed_out=timed_out))
+  except Exception as exc:  # pragma: no cover - defensive
+    q.put(QueryExecution(result=None, exception=exc, timed_out=timed_out))
+  finally:
+    with contextlib.suppress(Exception):
+      if timer is not None:
+        timer.cancel()
+    with contextlib.suppress(Exception):
+      if conn is not None:
+        conn.close()
+
+
 class DuckDBQueryExecutor:
   """Simple class for executing queries under timout constraints.
 
-  It works with a DuckDB database in read-only mode. It will test the
-  connection before each query and will reconnect if any problem arise.
-  Works for fetch-one queries only for now."""
+  It works with a DuckDB database in read-only mode. Each query is executed in
+  a separate process to isolate potential crashes."""
 
   def __init__(
-    self, database_path: str, timeout_seconds: float, memory_gb: int = 5
+    self,
+    database_path: str,
+    timeout_seconds: float,
+    memory_gb: int = 5,
+    limit_output_size: int = 1_000,
   ) -> None:
+    output_size_buffer = 100
     self.database_path = database_path
     self.timeout_seconds = timeout_seconds
     self.memory_gb = memory_gb
-    self.connect_to_database()
-    self.get_tables()
-
-  def get_tables(self) -> None:
-    self.tables = get_tables(self.conn)
-
-  def reconnect_database_and_test(self) -> None:
-    """Restart connection and reconnects if any problem arise."""
-    self.connect_to_database()
-    try:
-      # Simple query to verify the connection responds correctly
-      self.conn.execute(f"SELECT (*) FROM {self.tables[0]};").fetchall()
-    except Exception:
-      logger.exception("Error in basic SQL query, restarting connection")
-      self.conn.close()
-      self.connect_to_database()
-    else:
-      logger.debug("Database tested, no connection problem found.")
-
-  def _interrupt_connection(self, interrupted: threading.Event) -> None:
-    interrupted.set()
-    try:
-      self.conn.interrupt()
-    except Exception:
-      logger.exception("Failed to interrupt DuckDB connection.")
+    self.limit_output_size = limit_output_size + output_size_buffer
+    self.query_worker_input = QueryWorkerInput(
+      database_path=database_path,
+      memory_gb=memory_gb,
+      timeout_seconds=timeout_seconds,
+      limit_output_size=self.limit_output_size,
+    )
 
   def _execute_with_timeout(
     self, query: str, description: str
   ) -> QueryExecution:
     logger.debug("Start %s.", description)
-    interrupted = threading.Event()
-    timer = threading.Timer(
-      self.timeout_seconds,
-      self._interrupt_connection,
-      args=(interrupted,),
+    q: Queue = Queue()
+
+    p = Process(
+      target=_run_query_worker,
+      args=(
+        query,
+        q,
+        self.query_worker_input,
+      ),
     )
-    timer.start()
-    result: tuple | None = None
-    exception: Exception | None = None
-    timed_out = False
-    try:
-      row = self.conn.execute(query).fetchone()
-      result = row
-    except Exception as exc:
-      timed_out = interrupted.is_set()
-      if timed_out:
-        exception = DuckDBTimeoutError(self.timeout_seconds)
-        logger.warning(
-          "%s exceeded %s seconds; connection interrupted.",
-          description,
-          self.timeout_seconds,
-        )
-      else:
-        exception = exc
-    finally:
-      timer.cancel()
-      self.conn.close()
-      logger.debug(
-        "%s finished with timed_out=%s ,exception=%s",
+    p.start()
+    p.join(self.timeout_seconds)
+
+    if p.is_alive():
+      logger.warning(
+        "%s exceeded %s seconds; process terminated.",
         description,
-        timed_out,
-        exception,
+        self.timeout_seconds,
+      )
+      p.terminate()
+      p.join()
+      return QueryExecution(
+        result=None,
+        exception=DuckDBTimeoutError(self.timeout_seconds),
+        timed_out=True,
       )
 
-    return QueryExecution(
-      result=result, exception=exception, timed_out=timed_out
+    execution = (
+      q.get()
+      if not q.empty()
+      else QueryExecution(
+        result=None,
+        exception=Exception("No result returned from worker process."),
+        timed_out=False,
+      )
     )
 
+    logger.debug(
+      "%s finished with timed_out=%s ,exception=%s",
+      description,
+      execution.timed_out,
+      execution.exception,
+    )
+
+    return execution
+
   def is_query_valid(self, query: str) -> tuple[bool, Exception]:
-    self.reconnect_database_and_test()
     execution = self._execute_with_timeout(query, "DuckDB query validation")
     if execution.exception:
       return False, execution.exception
-
     return True, Exception("No exception found while running the query")
 
-  def connect_to_database(self) -> None:
-    self.conn = duckdb.connect(database=self.database_path, read_only=True)
-    self.conn.execute(f"SET memory_limit = '{self.memory_gb}GB';")
-    self.conn.execute("SET enable_progress_bar = false;")
-    self.conn.execute("SET enable_progress_bar_print = false;")
+  def get_query_output_size(self, query: str) -> tuple[int | None, bool]:
+    """Get the output size of a query.
 
-  def _wrap_query_with_count(self, sql: str) -> str | None:
-    """Wrap a query inside a CTE and count its rows to avoid syntax issues."""
-    with contextlib.suppress(Exception):
-      original: exp.Expression = parse_one(sql)
-
-      cte_alias = exp.TableAlias(this=exp.to_identifier(COUNT_CTE_NAME))
-      cte = exp.CTE(this=original.copy(), alias=cte_alias)
-      with_clause = exp.With(expressions=[cte])
-
-      outer_select = exp.select(exp.func("COUNT", exp.Star())).from_(
-        exp.to_table(COUNT_CTE_NAME)
-      )
-      outer_select.set("with", with_clause)
-
-      return outer_select.sql(pretty=True)
-
-    return None
-
-  def get_query_output_size(self, query: str) -> int:
-    """Returns the output size of a query.
-
-    If the query fails, it returns -1."""
-    self.reconnect_database_and_test()
-    count_query = self._wrap_query_with_count(query)
-    if count_query is None:
-      logger.error("Failed to wrap query for counting. Skipping.")
-      return -1
+    It returns a tuple of (output_size, timed_out). If the query fails
+    to execute, output_size is None
+    """
     execution = self._execute_with_timeout(
-      count_query,
+      query,
       "DuckDB output size calculation",
     )
-    result = -1
-    if execution.exception is None and execution.result is not None:
-      result = execution.result[0]
-    assert result is not None
+    result = len(execution.result) if execution.result is not None else None
     logger.debug(
-      "Query result was: %s\nwith exception %s",
-      execution.result,
+      "Query exception: %s",
       execution.exception,
     )
-    return int(result)
+    return result, execution.timed_out
