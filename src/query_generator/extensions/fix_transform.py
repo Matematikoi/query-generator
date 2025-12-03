@@ -394,6 +394,7 @@ def fix_transform(params: FixTransformEndpoint) -> None:
       query, query_path, params
     )
     traces.append(trace)
+    logger.debug("Trace collection finished.")
 
     new_query_path = destination_folder / query_path.relative_to(queries_folder)
     new_query_path.parent.mkdir(parents=True, exist_ok=True)
