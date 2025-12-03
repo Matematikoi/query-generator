@@ -93,6 +93,19 @@ def test_duckdb_timeout(setup_and_teardown_db):
   assert isinstance(db_exeception, DuckDBTimeoutError)
 
 
+def test_duckdb_normal_validation(setup_and_teardown_db):
+  """Test validation when there is not timeout"""
+  con = generate_db(GenerateDBEndpoint(Dataset.TPCDS, TEMP_DB_PATH, 0.0))
+  con.close()
+  validator = DuckDBQueryExecutor(TEMP_DB_PATH, 1)
+  normal_query = """
+  SELECT 1;
+  """
+  valid, db_exception = validator.is_query_valid(normal_query)
+  assert valid
+  assert db_exception is None
+
+
 @pytest.mark.parametrize(
   "query,expected_output_size",
   [

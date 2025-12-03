@@ -146,11 +146,11 @@ class DuckDBQueryExecutor:
 
     return execution
 
-  def is_query_valid(self, query: str) -> tuple[bool, Exception]:
+  def is_query_valid(self, query: str) -> tuple[bool, Exception | None]:
     execution = self._execute_with_timeout(query, "DuckDB query validation")
     if execution.exception:
       return False, execution.exception
-    return True, Exception("No exception found while running the query")
+    return True, None
 
   def get_query_output_size(self, query: str) -> tuple[int | None, bool]:
     """Get the output size of a query.
