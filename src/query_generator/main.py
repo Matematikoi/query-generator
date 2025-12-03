@@ -46,6 +46,14 @@ app = typer.Typer(name="Query Generation", rich_markup_mode="markdown")
 logger = logging.getLogger(__name__)
 
 
+def main() -> None:
+  try:
+    app(standalone_mode=False)
+  except Exception:
+    logger.exception("Unhandled exception during CLI execution.")
+    raise
+
+
 @app.command("generate-db", help=build_help_from_dataclass(GenerateDBEndpoint))
 def generate_db_endpoint(
   config_path: Annotated[
@@ -309,4 +317,4 @@ def add_limit_endpoint(
 
 
 if __name__ == "__main__":
-  app()
+  main()

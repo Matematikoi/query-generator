@@ -67,11 +67,10 @@ class JupyterFormatter(logging.Formatter):
     asctime = time.strftime("%Y-%m-%d %H:%M:%S", ct)
     msecs = int(record.msecs)
     level_char = record.levelname[0]  # First letter: I, W, E, C, D
-
-    return (
-      f"[{level_char} {asctime}.{msecs:03d} "
-      f"{record.name}] {record.getMessage()}"
-    )
+    msg = record.getMessage()
+    if record.exc_info:
+      msg = f"{msg}\n{self.formatException(record.exc_info)}"
+    return f"[{level_char} {asctime}.{msecs:03d} {record.name}] {msg}"
 
 
 def setup_logging(params: LoggingConfig):

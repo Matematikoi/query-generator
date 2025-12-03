@@ -213,7 +213,7 @@ def make_select_group_by_clause_disjoint(
         )
   except Exception as e:
     logger.warning("Failed to make select and group by disjoint")
-    logger.debug(f"Query that failed:\n{query}")
+    logger.debug(f"Query that failed:\n{query}", exc_info=True)
     return query, e
   return query, None
 
@@ -310,10 +310,19 @@ def apply_transformation_make_group_by_disjoint(
 def apply_replace_min_max(
   sql: str, schema: dict[str, dict[str, str]], *, apply_transformation: bool
 ) -> str:
+  """Replace COUNT with MIN/MAX/DISTINCT/COUNT randomly.
+
+  If apply_transformation is False, it returns the original sql.
+  If the transformation fails, it returns the original sql."""
   if not apply_transformation:
     logger.debug("Skipping replace min/max transformation.")
     return sql
-  return replace_min_max(sql, schema)
+  try:
+    return replace_min_max(sql, schema)
+  except Exception:
+    logger.info("Failed to replace min/max transformation.")
+    logger.debug("Query that failed:\n%s", sql, exc_info=True)
+    return sql
 
 
 def apply_output_size_transformation(
@@ -353,6 +362,7 @@ def apply_output_size_transformation(
       logger.exception(
         f"Failed to wrap query {query_path} with limit {upper_limit}"
       )
+      logger.debug(f"Original query:\n{query}", exc_info=True)
       return None
   return query
 
