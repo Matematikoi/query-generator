@@ -218,6 +218,7 @@ class FixTransformEndpoint:
   max_output_size: int = 1000
   make_select_group_by_disjoint: bool = False
   make_count_statement_diverse: bool = False
+  max_memory_gb: int = 5
 
 
 T = TypeVar("T")

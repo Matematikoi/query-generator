@@ -71,14 +71,18 @@ def extract_sql(llm_text: str) -> str:
 
 
 def add_retry_query_to_messages(
-  messages: LLM_Message, exception: Exception
+  messages: LLM_Message, exception: Exception | None
 ) -> None:
   messages.append(
     {
       "role": "user",
       "content": f"""
       Fix this error with the query you provided:
-      {str(exception)}
+      {
+        str(exception)
+        if exception is not None
+        else "No exception provided. Please ensure your query is valid."
+      }
     """,
     }
   )
@@ -122,9 +126,13 @@ def get_schema_from_statistics(
   return get_histogram_as_str(df_stats)
 
 
-def log_not_valid_query(duckdb_exception: Exception, query: str) -> None:
+def log_not_valid_query(duckdb_exception: Exception | None, query: str) -> None:
   logger.warning(
-    f"Generated query is not valid. Exception:\n{duckdb_exception}"
+    f"Generated query is not valid. Exception:\n{
+      duckdb_exception
+      if duckdb_exception is not None
+      else 'No exception provided.'
+    }"
   )
   logger.debug(f"Query that failed:\n{query}")
 

@@ -34,6 +34,7 @@ class DuckDBTraceParams:
   timeout_seconds: float
   fetch_limit: int
   output_folder: str
+  max_memory_gb: int
 
   def get_queries_path(self) -> Path:
     """Get the queries path as a Path object."""
@@ -139,7 +140,9 @@ def _profile_worker(
     con.execute("PRAGMA profiling_mode='detailed';")
     con.execute("PRAGMA enable_profiling=json;")
     con.execute(f"PRAGMA profiling_output='{trace_file.as_posix()}';")
-
+    con.execute(f"SET memory_limit = '{params.max_memory_gb}GB';")
+    con.execute("SET enable_progress_bar = false;")
+    con.execute("SET enable_progress_bar_print = false;")
     if timeout_seconds and timeout_seconds > 0:
 
       def _interrupt() -> None:

@@ -285,6 +285,7 @@ def get_trace_from_transform(
     timeout_seconds=params.timeout_seconds,
     fetch_limit=params.max_output_size,
     output_folder=params.destination_folder,
+    max_memory_gb=params.max_memory_gb,
   )
 
   trace = duckdb_collect_one_trace(query, query_path, trace_params)
@@ -316,7 +317,10 @@ def apply_replace_min_max(
 
 
 def apply_output_size_transformation(
-  query: str, query_executor: DuckDBQueryExecutor, params: FixTransformEndpoint
+  query: str,
+  query_executor: DuckDBQueryExecutor,
+  params: FixTransformEndpoint,
+  query_path: Path,
 ) -> str | None:
   """Wrap query with limit if output size exceeds limit
 
@@ -331,11 +335,25 @@ def apply_output_size_transformation(
   if upper_limit <= 0 and not params.filter_empty_set:
     return query
 
-  output_size = query_executor.get_query_output_size(query)
-  if output_size <= 0 and params.filter_empty_set:
+  output_size, timeout = query_executor.get_query_output_size(query)
+  if output_size is None:
+    if not timeout:
+      logger.error(f"Failed to get output size for query {query_path}.")
+    else:
+      logger.info(f"Timeout while getting output size for query {query_path}.")
+    return None
+
+  if output_size == 0 and params.filter_empty_set:
+    logger.info(f"Skipping query {query_path} due to empty result set.")
     return None
   if output_size > upper_limit:
-    return wrap_query_with_limit(query, upper_limit)
+    try:
+      return wrap_query_with_limit(query, upper_limit)
+    except Exception:
+      logger.exception(
+        f"Failed to wrap query {query_path} with limit {upper_limit}"
+      )
+      return None
   return query
 
 
@@ -346,7 +364,10 @@ def fix_transform(params: FixTransformEndpoint) -> None:
   destination_folder = Path(params.destination_folder)
   queries_paths = list(queries_folder.glob("**/*.sql"))
   query_executor = DuckDBQueryExecutor(
-    params.duckdb_database, params.timeout_seconds
+    params.duckdb_database,
+    params.timeout_seconds,
+    params.max_memory_gb,
+    params.max_output_size,
   )
   rows = []
 
@@ -362,9 +383,10 @@ def fix_transform(params: FixTransformEndpoint) -> None:
     query = apply_replace_min_max(
       query, schema, apply_transformation=params.make_count_statement_diverse
     )
-    query = apply_output_size_transformation(query, query_executor, params)
+    query = apply_output_size_transformation(
+      query, query_executor, params, query_path
+    )
     if query is None:
-      logger.info(f"Skipping query {query_path} due to empty result set.")
       continue
 
     logger.debug("Starting trace collection.")
@@ -372,6 +394,7 @@ def fix_transform(params: FixTransformEndpoint) -> None:
       query, query_path, params
     )
     traces.append(trace)
+    logger.debug("Trace collection finished.")
 
     new_query_path = destination_folder / query_path.relative_to(queries_folder)
     new_query_path.parent.mkdir(parents=True, exist_ok=True)

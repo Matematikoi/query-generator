@@ -12,11 +12,14 @@ If the value is 0, no limit will be imposed.
 allowed to run. Queries beyond this threshold will not be "valid" queries.
 - `filter_empty_set` (bool): Whether to filter out queries that return
 an empty set. If set to true, only queries that return at least one
-tuple will be kept.
+tuple will be kept. By default is set to False.
 - `make_select_group_by_disjoint` (bool): Whether to make the select clause
-attributes disjoint from the group by clause attributes.
+attributes disjoint from the group by clause attributes. By default
+is set to False.
 - `make_count_statement_diverse` (bool): Whether to change the COUNT statements
-to other aggregate functions or COUNT variants.
+to other aggregate functions or COUNT variants. By default is set to False.
+- `max_memory_gb` (int): The maximum amount of memory in gigabytes that
+duckdb is allowed to use while running the queries. By default is set to 5.
 
 Since the limit on queries will be imposed based on the output of the queries,
 the queries need to be run to collect their output sizes.
