@@ -94,9 +94,8 @@ destination_folder = "path/to/destination/"
 max_output_size = 1000
 timeout_seconds = 10
 """,
-# TODO(mat): Fill example.
-    EndpointName.GET_METRICS: """\
+  EndpointName.GET_METRICS: """\
 input_parquet = "path/to/traces_duckdb.parquet"
 output_folder = "path/to/output_folder/
-    """
+    """,
 }

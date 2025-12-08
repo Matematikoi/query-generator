@@ -232,7 +232,7 @@ class GetMetricsEndpoint:
 {TOML_EXAMPLE[EndpointName.GET_METRICS]}
 ```
   """
-  input_parquet : Path = field(converter=Path)
+  input_parquet: Path = field(converter=Path)
   output_folder: Path = field(converter=Path)
 
 

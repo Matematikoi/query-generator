@@ -1,4 +1,3 @@
-from query_generator.metrics.get_metrics import get_metrics
 import logging
 from pathlib import Path
 from typing import Annotated
@@ -18,6 +17,7 @@ from query_generator.filter.filter import filter_synthetic_queries
 from query_generator.logger import (
   default_logger,
 )
+from query_generator.metrics.get_metrics import get_metrics
 from query_generator.synthetic_queries.synthetic_query_generator import (
   SyntheticQueriesParams,
   generate_synthetic_queries,
@@ -34,10 +34,11 @@ from query_generator.utils.params import (
   FilterEndpoint,
   FixTransformEndpoint,
   GenerateDBEndpoint,
+  GetMetricsEndpoint,
   HistogramEndpoint,
   SyntheticQueriesEndpoint,
   get_toml_from_params,
-  read_and_parse_toml, GetMetricsEndpoint,
+  read_and_parse_toml,
 )
 from query_generator.utils.utils import (
   build_help_from_dataclass,
@@ -317,10 +318,8 @@ def add_limit_endpoint(
   fix_transform(params)
 
 
-@app.command(
-  "get-metrics", help=build_help_from_dataclass(GetMetricsEndpoint)
-)
-def add_limit_endpoint(
+@app.command("get-metrics", help=build_help_from_dataclass(GetMetricsEndpoint))
+def get_metrics_endpoint(
   config_file: Annotated[
     str,
     typer.Option(
@@ -343,9 +342,10 @@ def add_limit_endpoint(
 ) -> None:
   params = read_and_parse_toml(Path(config_file), GetMetricsEndpoint)
   default_logger(
-      str(params.output_folder), debug_file=debug, file_name="fix_transform.log"
+    str(params.output_folder), debug_file=debug, file_name="fix_transform.log"
   )
   get_metrics(params)
+
 
 if __name__ == "__main__":
   main()
