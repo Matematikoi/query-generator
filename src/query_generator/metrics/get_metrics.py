@@ -1,3 +1,4 @@
+from query_generator.metrics.plot_histograms import plot_metrics
 from multiprocessing.pool import Pool
 from query_generator.synthetic_queries.utils.query_writer import (
   write_parquet,
@@ -51,3 +52,4 @@ def get_metrics(params: GetMetricsEndpoint) -> None:
     result_df = pl.concat([filtered_df, metrics_df], how="horizontal")
     write_parquet(result_df, params.output_folder/ "metrics.parquet")
     logger.info("Metrics collected")
+    plot_metrics(params, metrics_df)

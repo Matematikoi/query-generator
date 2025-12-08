@@ -187,6 +187,19 @@ class DuckDBMetrics(TypedDict):
     query_keywords: list[str]
     operator_distribution: dict[DuckDBPhysicalOperators, int]
 
+class DuckDBMetricsName(StrEnum):
+    """Collect the individual metrics from duckdb."""
+
+    latency_duckdb="latency_duckdb"
+    cumulative_cardinality_duckdb="cumulative_cardinality_duckdb"
+    cumulative_rows_scanned_duckdb="cumulative_rows_scanned_duckdb"
+    query_plan_size="query_plan_size"
+    query_plan_length="query_plan_length"
+    query_size_bytes="query_size_bytes"
+    query_size_tokens="query_size_tokens"
+    output_cardinality="output_cardinality"
+    query_keywords="query_keywords"
+    operator_distribution="operator_distribution"
 
 def get_attributes_root_node(trace: ParsedDuckDBTraceRoot) -> DuckDBTraceNode:
     """Get the attributes for the root node."""
