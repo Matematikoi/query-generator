@@ -34,6 +34,8 @@ toml = ">=0.10.2,<0.11"
 types-toml = ">=0.10.8.20240310,<0.11"
 sqlglot = ">=27.20.0,<28"
 attrs = ">=25.4.0,<26"
+sqlparse = ">=0.5.4,<0.6"
+networkx = ">=3.6.1,<4"
 
 
 [tool.pixi.feature.dev.dependencies]

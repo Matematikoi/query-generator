@@ -1,3 +1,4 @@
+from query_generator.metrics.get_metrics import get_metrics
 import logging
 from pathlib import Path
 from typing import Annotated
@@ -36,7 +37,7 @@ from query_generator.utils.params import (
   HistogramEndpoint,
   SyntheticQueriesEndpoint,
   get_toml_from_params,
-  read_and_parse_toml,
+  read_and_parse_toml, GetMetricsEndpoint,
 )
 from query_generator.utils.utils import (
   build_help_from_dataclass,
@@ -315,6 +316,36 @@ def add_limit_endpoint(
   )
   fix_transform(params)
 
+
+@app.command(
+  "get-metrics", help=build_help_from_dataclass(GetMetricsEndpoint)
+)
+def add_limit_endpoint(
+  config_file: Annotated[
+    str,
+    typer.Option(
+      "--config",
+      "-c",
+      help="The path to the configuration file with complex queries",
+    ),
+  ],
+  *,
+  debug: Annotated[
+    bool,
+    typer.Option(
+      "-d",
+      "--debug",
+      help="Enable debug logging to file",
+      is_flag=True,
+      flag_value=True,
+    ),
+  ] = False,
+) -> None:
+  params = read_and_parse_toml(Path(config_file), GetMetricsEndpoint)
+  default_logger(
+      str(params.output_folder), debug_file=debug, file_name="fix_transform.log"
+  )
+  get_metrics(params)
 
 if __name__ == "__main__":
   main()

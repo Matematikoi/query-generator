@@ -21,8 +21,6 @@ class Writer:
   def __init__(self, destination_folder: str) -> None:
     self.destination_folder = Path(destination_folder)
 
-  # TODO(Gabriel): https://chiselapp.com/user/matematikoi/repository/query-generation/tktview/8dd46fc66a
-  # this should be a pathlib
   def write_query(self, query: GeneratedQueryFeatures) -> None:
     """Write the generated queries to a file.
 
@@ -31,7 +29,6 @@ class Writer:
         file_name (str): Name of the output file.
 
     """
-
     file = (
       self.destination_folder
       / f"{query.fact_table}_{query.template_number}"
