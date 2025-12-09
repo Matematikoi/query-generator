@@ -177,6 +177,7 @@ class DuckDBMetrics(TypedDict):
   latency_duckdb: float
   cumulative_cardinality_duckdb: int
   cumulative_rows_scanned_duckdb: int
+  rows_scanned_over_cardinality: float | None
   query_plan_size: int
   query_plan_length: int
   query_size_bytes: int
@@ -192,6 +193,7 @@ class DuckDBMetricsName(StrEnum):
   latency_duckdb = "latency_duckdb"
   cumulative_cardinality_duckdb = "cumulative_cardinality_duckdb"
   cumulative_rows_scanned_duckdb = "cumulative_rows_scanned_duckdb"
+  rows_scanned_over_cardinality = "rows_scanned_over_cardinality"
   query_plan_size = "query_plan_size"
   query_plan_length = "query_plan_length"
   query_size_bytes = "query_size_bytes"
@@ -331,12 +333,18 @@ class DuckDBTraceParser:
     """Get the output cardinality from the trace."""
     return self.trace["rows_returned"]
 
+  def get_rows_scanned_over_cardinality(self) -> float | None:
+    if self.get_cumulative_cardinality() == 0:
+      return None
+    return self.get_rows_scanned() / float(self.get_cumulative_cardinality())
+
   def get_metrics(self) -> DuckDBMetrics:
     """Get the metrics from the trace."""
     return {
       "latency_duckdb": self.get_latency(),
       "cumulative_cardinality_duckdb": self.get_cumulative_cardinality(),
       "cumulative_rows_scanned_duckdb": self.get_rows_scanned(),
+      "rows_scanned_over_cardinality": self.get_rows_scanned_over_cardinality(),
       "query_plan_size": self.get_number_of_nodes(),
       "query_plan_length": self.get_longest_path_length(),
       "query_size_bytes": self.get_query_size_bytes(),
