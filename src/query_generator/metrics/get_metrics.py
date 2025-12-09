@@ -1,10 +1,10 @@
 import logging
 import multiprocessing as mp
-from enum import StrEnum
 from multiprocessing.pool import Pool
 
 import polars as pl
 
+from query_generator.duckdb_connection.trace_collection import DuckDBTraceEnum
 from query_generator.metrics.duckdb_parser import DuckDBTraceParser
 from query_generator.metrics.plot_histograms import plot_metrics
 from query_generator.synthetic_queries.utils.query_writer import (
@@ -13,18 +13,6 @@ from query_generator.synthetic_queries.utils.query_writer import (
 from query_generator.utils.params import GetMetricsEndpoint
 
 logger = logging.getLogger(__name__)
-
-
-class DuckDBTraceEnum(StrEnum):
-  """Rows for DuckDBTraceOuputDataFrameRow."""
-
-  relative_path = "relative_path"
-  query_folder = "query_folder"
-  query_name = "query_name"
-  duckdb_trace = "duckdb_trace"
-  error = "error"
-  trace_success = "trace_success"
-  duckdb_output = "duckdb_output"
 
 
 def _get_pool() -> Pool:
@@ -54,4 +42,4 @@ def get_metrics(params: GetMetricsEndpoint) -> None:
   result_df = pl.concat([filtered_df, metrics_df], how="horizontal")
   write_parquet(result_df, params.output_folder / "metrics.parquet")
   logger.info("Metrics collected")
-  plot_metrics(params, metrics_df)
+  plot_metrics(params, result_df)

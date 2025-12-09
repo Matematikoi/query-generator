@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import polars as pl
 import seaborn as sns
 
+from query_generator.duckdb_connection.trace_collection import DuckDBTraceEnum
 from query_generator.metrics.duckdb_parser import DuckDBMetricsName
 from query_generator.utils.params import GetMetricsEndpoint
 
@@ -19,19 +20,28 @@ def plot_numerical_histograms(
   output_dir.mkdir(parents=True, exist_ok=True)
 
   sns.set_theme(style="whitegrid")
+  hue_column = DuckDBTraceEnum.query_folder.value
   for col in columns:
     col_name = str(col)
     if col_name not in metrics_df.columns:
       logger.warning("Column %s not found in metrics_df; skipping.", col_name)
       continue
 
-    series = metrics_df[col_name].drop_nulls()
-    if series.len() == 0:
+    filtered_df = metrics_df.filter(
+      pl.col(col_name).is_not_null() & pl.col(hue_column).is_not_null()
+    )
+    if filtered_df.height == 0:
       logger.warning("Column %s is empty; skipping histogram.", col_name)
       continue
 
     plt.figure(figsize=(8, 6))
-    sns.histplot(series, bins=50)
+    sns.histplot(
+      data=filtered_df.select([col_name, hue_column]).to_pandas(),
+      x=col_name,
+      hue=hue_column,
+      bins=50,
+      multiple="stack",
+    )
     plt.title(f"{col_name} distribution")
     plt.xlabel(col_name)
     plt.ylabel("Count")
