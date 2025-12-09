@@ -34,6 +34,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 For Mac you can use [the installer](https://ollama.com/download/mac).
 
 # Pipeline
+(outdated)
 ![image](https://matematikoi.github.io/org/images/pipeline_query_generation.png)
 
 
