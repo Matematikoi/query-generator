@@ -221,6 +221,21 @@ class FixTransformEndpoint:
   max_memory_gb: int = 5
 
 
+@dataclass
+class GetMetricsEndpoint:
+  __doc__ = f"""Gets metrics from the trace collection.
+{get_markdown_documentation(EndpointName.GET_METRICS)}
+
+# Example
+
+```toml
+{TOML_EXAMPLE[EndpointName.GET_METRICS]}
+```
+  """
+  input_parquet: Path = field(converter=Path)
+  output_folder: Path = field(converter=Path)
+
+
 T = TypeVar("T")
 
 

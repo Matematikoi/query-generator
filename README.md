@@ -48,9 +48,11 @@ query generation:
 	- remove queries with empty results;
 	- optionally, bin the queries based on the output cardinality and subsample in each bin.  
 1. Augment the join queries using LLMs and unions.
-1. OPTIONAL. Post-process the queries by 
+1. Post-process the queries and collect the traces:
 	- fixing LLM issues (e.g., the attributes used in Group By-Aggregation);
 	- adding LIMIT 100 if the query returns too many rows. 
+	- collect traces using DuckDB.
+1. Get metrics about the generated queries.
 
 We invite the user to run `pixi run main --help` to get documentation of 
 all of the existing endpoints. 
@@ -73,6 +75,7 @@ pixi run main synthetic-queries -c params_config/synthetic_generation/tpcds_dev.
 pixi run main filter-synthetic -c params_config/filter/filter_tpcds_dev.toml
 pixi run main extensions-with-ollama -c params_config/extensions_with_ollama/tpcds_dev.toml
 pixi run main fix-transform -c params_config/fix_transform/tpcds_ollama_dev.toml
+pixi run main get-metrics -c params_config/get_metrics/ollama_tpcds_dev.toml
 ```
 
 You can access the documentation of each endpoint by running
@@ -87,6 +90,7 @@ Or by accessing the repective doc:
 - [`extensions-with-ollama`](./docs/endpoints/extensions_with_ollama.md)
 - [`extensions-with-bedrock`](./docs/endpoints/extensions_with_bedrock.md)
 - [`fix-transform`](./docs/endpoints/fix_transform.md)
+- [`get-metrics`](./docs/endpoints/get_metrics.md)
 
 For debugging, every command also accepts a `--debug` flag that raises the
 log file level to debug. For example, after running `generate-db`, you can run
@@ -108,8 +112,10 @@ pixi run main filter-synthetic -c params_config/filter/filter_tpcds.toml
 pixi run main generate-db -c params_config/generate_db/tpcds_test.toml
 # ollama augmentation and union
 pixi run main extensions-with-ollama -c params_config/extensions_with_ollama/tpcds_llama4.toml
-# final transformation to the queries
+# Transformation to the queries
 pixi run main fix-transform -c params_config/fix_transform/tpcds_ollama.toml
+# Get metrics about the generated queries
+pixi run main get-metrics -c params_config/get_metrics/ollama_tpcds.toml
 ```
 # TPCH toy example
 

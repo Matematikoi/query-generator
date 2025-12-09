@@ -9,6 +9,7 @@ class EndpointName(StrEnum):
   HISTOGRAM = "histogram"
   FIX_TRANSFORM = "fix_transform"
   PROMPTS = "prompts"
+  GET_METRICS = "get_metrics"
 
 
 TOML_EXAMPLE: dict[EndpointName, str] = {
@@ -93,4 +94,8 @@ destination_folder = "path/to/destination/"
 max_output_size = 1000
 timeout_seconds = 10
 """,
+  EndpointName.GET_METRICS: """\
+input_parquet = "path/to/traces_duckdb.parquet"
+output_folder = "path/to/output_folder/
+    """,
 }
