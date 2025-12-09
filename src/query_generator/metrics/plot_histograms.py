@@ -21,14 +21,23 @@ def plot_numerical_histograms(
 
   sns.set_theme(style="whitegrid")
   hue_column = DuckDBTraceEnum.query_folder.value
+  collapsed_hue_column = "hue_collapsed"
+  collapsed_df = metrics_df.with_columns(
+    pl.when(
+      pl.col(hue_column).str.contains("group_by", literal=False)
+    )
+    .then(pl.lit("group_by"))
+    .otherwise(pl.col(hue_column))
+    .alias(collapsed_hue_column)
+  )
   for col in columns:
     col_name = str(col)
-    if col_name not in metrics_df.columns:
+    if col_name not in collapsed_df.columns:
       logger.warning("Column %s not found in metrics_df; skipping.", col_name)
       continue
 
-    filtered_df = metrics_df.filter(
-      pl.col(col_name).is_not_null() & pl.col(hue_column).is_not_null()
+    filtered_df = collapsed_df.filter(
+      pl.col(col_name).is_not_null() & pl.col(collapsed_hue_column).is_not_null()
     )
     if filtered_df.height == 0:
       logger.warning("Column %s is empty; skipping histogram.", col_name)
@@ -36,9 +45,9 @@ def plot_numerical_histograms(
 
     plt.figure(figsize=(8, 6))
     sns.histplot(
-      data=filtered_df.select([col_name, hue_column]).to_pandas(),
+      data=filtered_df.select([col_name, collapsed_hue_column]).to_pandas(),
       x=col_name,
-      hue=hue_column,
+      hue=collapsed_hue_column,
       bins=50,
       multiple="stack",
     )
