@@ -112,8 +112,10 @@ pixi run main filter-synthetic -c params_config/filter/filter_tpcds.toml
 pixi run main generate-db -c params_config/generate_db/tpcds_test.toml
 # ollama augmentation and union
 pixi run main extensions-with-ollama -c params_config/extensions_with_ollama/tpcds_llama4.toml
-# final transformation to the queries
+# Transformation to the queries
 pixi run main fix-transform -c params_config/fix_transform/tpcds_ollama.toml
+# Get metrics about the generated queries
+pixi run main get-metrics -c params_config/get_metrics/ollama_tpcds.toml
 ```
 # TPCH toy example
 

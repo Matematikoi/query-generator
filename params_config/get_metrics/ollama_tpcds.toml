@@ -1,0 +1,2 @@
+input_parquet = "generated_data/TPCDS_100/transformed_queries_ollama/traces_duckdb.parquet"
+output_folder = "generated_data/TPCDS_100/metrics_ollama/"
