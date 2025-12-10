@@ -6,6 +6,9 @@ traces are collected with the `fix-transform` endpoint
 - `input_parquet` (str): The path to the input Parquet file which
 was output by the `fix-transform` endpoint. Called duckdb_traces.parquet
 - `output_folder` (str): The folder where the metrics will be saved.
+- `template_occurrence_limit` (dict[str, int]): Optional cap on how many
+  queries to process per template key; e.g., if a template appears 500
+  times and the limit is 100, only 100 instances are processed.
 
 # Metrics
 
