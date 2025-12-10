@@ -96,6 +96,8 @@ timeout_seconds = 10
 """,
   EndpointName.GET_METRICS: """\
 input_parquet = "path/to/traces_duckdb.parquet"
-output_folder = "path/to/output_folder/
-    """,
+output_folder = "path/to/output_folder/"
+[template_occurrence_limit]
+template_1 = 100
+""",
 }

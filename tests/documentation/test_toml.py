@@ -12,6 +12,7 @@ from query_generator.utils.params import (
   LLMPrompts,
   SyntheticQueriesEndpoint,
   read_and_parse_toml,
+  GetMetricsEndpoint,
 )
 from query_generator.utils.toml_examples import TOML_EXAMPLE, EndpointName
 
@@ -23,6 +24,7 @@ mapping = {
   EndpointName.HISTOGRAM: HistogramEndpoint,
   EndpointName.FIX_TRANSFORM: FixTransformEndpoint,
   EndpointName.PROMPTS: LLMPrompts,
+  EndpointName.GET_METRICS: GetMetricsEndpoint,
 }
 
 
