@@ -1,2 +1,4 @@
 input_parquet = "tmp/transformed_queries_ollama/traces_duckdb.parquet"
 output_folder = "tmp/metrics_ollama/"
+[template_occurrence_limit]
+union = 2

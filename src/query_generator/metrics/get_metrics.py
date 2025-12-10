@@ -23,6 +23,25 @@ def _get_pool() -> Pool:
   return ctx.Pool(processes=workers)
 
 
+def apply_template_occurrence_limit(
+  params: GetMetricsEndpoint, traces_df: pl.DataFrame
+) -> pl.DataFrame:
+  """Apply template occurrence limits to the traces DataFrame."""
+  if not params.template_occurrence_limit:
+    return traces_df
+  template_keys = list(params.template_occurrence_limit.keys())
+  template_col = pl.col(DuckDBTraceEnum.query_folder)
+  restricted_df = traces_df.filter(template_col.is_in(template_keys)).sort(
+    pl.col(DuckDBTraceEnum.relative_path)
+  )
+  unrestricted_df = traces_df.filter(~template_col.is_in(template_keys))
+  restricted_dfs = []
+  for template, limit in params.template_occurrence_limit.items():
+    template_df = restricted_df.filter(template_col == template).head(limit)
+    restricted_dfs.append(template_df)
+  return pl.concat([unrestricted_df] + restricted_dfs, how="vertical")
+
+
 def get_metrics(params: GetMetricsEndpoint) -> None:
   """Get metrics according to given queries."""
   traces_df = pl.read_parquet(params.input_parquet)
@@ -34,7 +53,9 @@ def get_metrics(params: GetMetricsEndpoint) -> None:
     & success_expr
     & (trace_expr.str.len_chars() > min_trace_length)
   )
-  filtered_df = traces_df.filter(valid_trace_expr)
+  filtered_df = apply_template_occurrence_limit(
+    params, traces_df.filter(valid_trace_expr)
+  )
   traces = filtered_df[DuckDBTraceEnum.duckdb_trace].to_list()
   with _get_pool() as pool:
     metrics = pool.map(DuckDBTraceParser.get_metrics_from_raw_trace, traces)

@@ -1,5 +1,6 @@
 import tomllib
 from dataclasses import dataclass
+from dataclasses import field as dc_field
 from pathlib import Path
 from typing import Any, TypeVar
 
@@ -232,8 +233,9 @@ class GetMetricsEndpoint:
 {TOML_EXAMPLE[EndpointName.GET_METRICS]}
 ```
   """
-  input_parquet: Path = field(converter=Path)
-  output_folder: Path = field(converter=Path)
+  input_parquet: Path
+  output_folder: Path
+  template_occurrence_limit: dict[str, int] = dc_field(default_factory=dict)
 
 
 T = TypeVar("T")

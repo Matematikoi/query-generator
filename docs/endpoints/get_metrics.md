@@ -6,6 +6,9 @@ traces are collected with the `fix-transform` endpoint
 - `input_parquet` (str): The path to the input Parquet file which
 was output by the `fix-transform` endpoint. Called duckdb_traces.parquet
 - `output_folder` (str): The folder where the metrics will be saved.
+- `template_occurrence_limit` (dict[str, int]): Optional cap on how many
+  queries to process per template key; e.g., if a template appears 500
+  times and the limit is 100, only 100 instances are processed.
 
 # Metrics
 
@@ -18,8 +21,8 @@ operators.
 - `cumulative_rows_scanned_duckdb`: how many rows were read by physical
 operators.
 
-- `rows_scanned_over_cardinality`: ratio defined as,
-`cumulative_rows_scanned`/`cumulative_cardinality`
+- `cardinality_over_rows_scanned`: ratio defined as,
+`cumulative_cardinality`/`cumulative_rows_scanned`
 
 - `query_plan_size`: the total number of nodes in the **physical
 query operator plan graph**, i.e., the number of physical operators in
