@@ -18,8 +18,8 @@ operators.
 - `cumulative_rows_scanned_duckdb`: how many rows were read by physical
 operators.
 
-- `rows_scanned_over_cardinality`: ratio defined as,
-`cumulative_rows_scanned`/`cumulative_cardinality`
+- `cardinality_over_rows_scanned`: ratio defined as,
+`cumulative_cardinality`/`cumulative_rows_scanned`
 
 - `query_plan_size`: the total number of nodes in the **physical
 query operator plan graph**, i.e., the number of physical operators in
