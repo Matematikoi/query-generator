@@ -60,6 +60,9 @@ def plot_numerical_histogram(
         col_name,
       )
       return
+    if col_min == col_max:
+      col_min *= 0.9
+      col_max *= 1.1
     bins = np.logspace(np.log10(col_min), np.log10(col_max), num=51)
 
   plt.figure(figsize=(8, 6))
@@ -92,6 +95,7 @@ def plot_metrics(params: GetMetricsEndpoint, metrics_df: pl.DataFrame):
     (DuckDBMetricsName.cumulative_cardinality_duckdb.value, True),
     (DuckDBMetricsName.cumulative_rows_scanned_duckdb.value, True),
     (DuckDBMetricsName.cardinality_over_rows_scanned, True),
+    (DuckDBMetricsName.output_cardinality, True)
   ]
   for column, log_axis in columns_for_histograms_with_log:
     plot_numerical_histogram(params, metrics_df, column, log_axis=log_axis)
