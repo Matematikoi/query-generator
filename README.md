@@ -4,7 +4,6 @@
 1. [Full TPCDS query generation](#full-tpcds-run)
 1. [Authors](#authors-and-contact)
 
-
 # Installation of required tools
 
 We use [pixi](https://pixi.sh/latest/) for managing the python environment.
@@ -34,8 +33,8 @@ curl -fsSL https://ollama.com/install.sh | sh
 For Mac you can use [the installer](https://ollama.com/download/mac).
 
 # Pipeline
-(outdated).
-![image](https://matematikoi.github.io/org/images/pipeline_query_generation.png)
+
+![image](https://github.com/user-attachments/assets/6b12e17e-1fdf-4c00-9ac0-0407ebcffa87)
 
 
 # Small working example
