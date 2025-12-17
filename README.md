@@ -4,6 +4,15 @@
 1. [Full TPCDS query generation](#full-tpcds-run)
 1. [Authors](#authors-and-contact)
 
+```mermaid
+flowchart TD
+    A[Generate Database] --> B[Make Histograms]
+    B --> C[Synthetic Query Generation]
+    C --> D[Filter Synthetic Queries]
+    D --> E[LLM Augmentation with Unions]
+    E --> F[Fix Transform and Post-process]
+    F --> G[Get Metrics]
+```
 
 # Installation of required tools
 
