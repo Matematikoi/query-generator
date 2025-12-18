@@ -30,6 +30,8 @@ def plot_numerical_histogram(
   collapsed_df = metrics_df.with_columns(
     pl.when(pl.col(hue_column).str.contains("group_by", literal=False))
     .then(pl.lit("group_by"))
+    .when(pl.col(hue_column).str.contains("recursive", literal=False))
+    .then(pl.lit("recursive"))
     .otherwise(pl.col(hue_column))
     .alias(collapsed_hue_column)
   )
