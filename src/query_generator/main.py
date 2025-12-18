@@ -316,11 +316,9 @@ def add_limit_endpoint(
     params.destination_folder, debug_file=debug, file_name="fix_transform.log"
   )
   fix_transform(params)
-  get_metrics(params)
   toml_params = get_toml_from_params(params)
-  (Path(params.destination_folder) / "fix_config.toml").write_text(
-    toml_params
-  )
+  (Path(params.destination_folder) / "fix_config.toml").write_text(toml_params)
+
 
 @app.command("get-metrics", help=build_help_from_dataclass(GetMetricsEndpoint))
 def get_metrics_endpoint(
@@ -350,9 +348,8 @@ def get_metrics_endpoint(
   )
   get_metrics(params)
   toml_params = get_toml_from_params(params)
-  (Path(params.output_folder) / "metrics_config.toml").write_text(
-    toml_params
-  )
+  (Path(params.output_folder) / "metrics_config.toml").write_text(toml_params)
+
 
 if __name__ == "__main__":
   main()

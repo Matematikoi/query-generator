@@ -95,7 +95,7 @@ def plot_metrics(params: GetMetricsEndpoint, metrics_df: pl.DataFrame):
     (DuckDBMetricsName.cumulative_cardinality_duckdb.value, True),
     (DuckDBMetricsName.cumulative_rows_scanned_duckdb.value, True),
     (DuckDBMetricsName.cardinality_over_rows_scanned, True),
-    (DuckDBMetricsName.output_cardinality, True)
+    (DuckDBMetricsName.output_cardinality, True),
   ]
   for column, log_axis in columns_for_histograms_with_log:
     plot_numerical_histogram(params, metrics_df, column, log_axis=log_axis)
