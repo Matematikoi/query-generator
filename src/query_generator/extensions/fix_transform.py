@@ -279,6 +279,10 @@ def replace_min_max(sql: str, schema: dict[str, dict[str, str]]) -> str:
 def get_trace_from_transform(
   query: str, query_path: Path, params: FixTransformEndpoint
 ) -> tuple[DuckDBTraceOuputDataFrameRow, bool]:
+  """Try to get trace from transformed query, if fails, fall back to original.
+
+  Returns the trace and whether the transformed query was successful.
+  """
   trace_params = DuckDBTraceParams(
     queries_path=params.queries_folder,
     duckdb_path=params.duckdb_database,
@@ -292,6 +296,7 @@ def get_trace_from_transform(
   if trace.trace_success:
     return trace, True
   # Transformation failed, fall back to previous query
+  logger.info("Transformation failed, falling back to original query trace.")
   return duckdb_collect_one_trace(
     query_path.read_text(), query_path, trace_params
   ), False
@@ -403,9 +408,18 @@ def fix_transform(params: FixTransformEndpoint) -> None:
     trace, transformation_success = get_trace_from_transform(
       query, query_path, params
     )
-    traces.append(trace)
     logger.debug("Trace collection finished.")
 
+    if not transformation_success:
+      # If transformation failed, we revert to original query
+      query = query_path.read_text()
+    if not trace.trace_success:
+      logger.warning(
+        f"Trace collection failed for query: {query_path}. Skipping."
+      )
+      continue
+
+    traces.append(trace)
     new_query_path = destination_folder / query_path.relative_to(queries_folder)
     new_query_path.parent.mkdir(parents=True, exist_ok=True)
     new_query_path.write_text(query)
