@@ -40,12 +40,14 @@ where we select oracle. This can easily turn into a knob.
 ```
 
 # DuckDB usage
-DuckDB is used in three main parts:
+DuckDB is used in four main parts:
 1. Generate the Database.
 1. To calculate the stats.
-1. To filter the synthetic queries.
 2. When generating the LLM queries to validate they can run in a small sample database.
 3. When collecting the traces that are later on plotted.
+
+Which are shown in the diagram:
+![image](https://github.com/user-attachments/assets/d6f57d44-2ad8-41f3-a74d-58c51a3409e2)
 
 ## Generating the data 
 We currently only generate data for TPC-DS and TPC-H. The generation method 
