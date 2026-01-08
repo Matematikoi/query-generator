@@ -349,7 +349,9 @@ def apply_output_size_transformation(
   if upper_limit <= 0 and not params.filter_empty_set:
     return query
 
+  logger.debug(f"Getting output size for query {query_path}.")
   output_size, timeout = query_executor.get_query_output_size(query)
+  logger.debug(f"Output size for query {query_path}: {output_size} ")
   if output_size is None:
     if not timeout:
       logger.error(f"Failed to get output size for query {query_path}.")
