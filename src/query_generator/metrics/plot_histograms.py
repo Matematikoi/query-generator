@@ -1,4 +1,6 @@
 import logging
+import re
+from collections.abc import Mapping
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -11,6 +13,32 @@ from query_generator.metrics.duckdb_parser import DuckDBMetricsName
 from query_generator.utils.params import GetMetricsEndpoint
 
 logger = logging.getLogger(__name__)
+
+
+def _glob_to_rust_regex(glob_pattern: str) -> str:
+  # `fnmatch.translate` generates Python-regex constructs (e.g. `(?>...)`, `\Z`)
+  # that are rejected by Rust's regex engine (used by Polars). Implement a small
+  # subset of glob semantics that is compatible with Rust regex:
+  # - `*` => `.*`
+  # - `?` => `.`
+  # Everything else is escaped literally.
+  escaped = re.escape(glob_pattern)
+  escaped = escaped.replace(r"\*", ".*").replace(r"\?", ".")
+  return f"^{escaped}$"
+
+
+def _build_collapsed_hue_expr(
+  hue_column: str, rules: Mapping[str, str]
+) -> pl.Expr:
+  collapse_expr: pl.Expr = pl.col(hue_column)
+  for new_name, glob_pattern in reversed(list(rules.items())):
+    regex_pattern = _glob_to_rust_regex(glob_pattern)
+    collapse_expr = (
+      pl.when(pl.col(hue_column).str.contains(regex_pattern, literal=False))
+      .then(pl.lit(new_name))
+      .otherwise(collapse_expr)
+    )
+  return collapse_expr
 
 
 def plot_numerical_histogram(
@@ -27,13 +55,11 @@ def plot_numerical_histogram(
   sns.set_theme(style="whitegrid")
   hue_column = DuckDBTraceEnum.query_folder.value
   collapsed_hue_column = "hue_collapsed"
+  collapse_expr = _build_collapsed_hue_expr(
+    hue_column, params.group_by_templates
+  )
   collapsed_df = metrics_df.with_columns(
-    pl.when(pl.col(hue_column).str.contains("group_by", literal=False))
-    .then(pl.lit("group_by"))
-    .when(pl.col(hue_column).str.contains("recursive", literal=False))
-    .then(pl.lit("recursive"))
-    .otherwise(pl.col(hue_column))
-    .alias(collapsed_hue_column)
+    collapse_expr.alias(collapsed_hue_column)
   )
   col_name = str(column)
   if col_name not in collapsed_df.columns:

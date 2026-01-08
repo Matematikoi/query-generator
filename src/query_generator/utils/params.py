@@ -236,6 +236,7 @@ class GetMetricsEndpoint:
   input_parquet: Path
   output_folder: Path
   template_occurrence_limit: dict[str, int] = dc_field(default_factory=dict)
+  group_by_templates: dict[str, str] = dc_field(default_factory=dict)
 
 
 T = TypeVar("T")
