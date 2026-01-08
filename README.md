@@ -34,7 +34,7 @@ For Mac you can use [the installer](https://ollama.com/download/mac).
 
 # Pipeline
 
-![image](https://github.com/user-attachments/assets/6b12e17e-1fdf-4c00-9ac0-0407ebcffa87)
+![image](https://github.com/user-attachments/assets/d6f57d44-2ad8-41f3-a74d-58c51a3409e2)
 
 
 # Small working example
