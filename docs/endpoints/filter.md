@@ -13,7 +13,7 @@ Two filtering methods are available, though they are not mutually exclusive:
 - stratified_sampling (bool): Whether to cherry-pick queries based on specific
     criteria.
 - stratified_sampling_config: Configuration for cherry-picking
-    queries. This is required if `cherry_pick` is set to True.
+    queries. This is required if `stratified_sampling` is set to True.
 
 ## Stratified sampling 
 
