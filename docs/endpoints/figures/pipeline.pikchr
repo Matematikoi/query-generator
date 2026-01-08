@@ -1,3 +1,4 @@
+
 S: circle "start" fit
 arrow
 MDB: box "generate-db" fit
@@ -6,7 +7,7 @@ P: box "synthetic-queries" fit
 arrow
 F1: box "filter-synthetic" fit
 arrow
-LLM: box "extensions-with-llm" fit
+LLM: box "extensions-with-ollama" fit
 arrow
 FT: box "fix-transform" fit
 arrow
@@ -31,6 +32,7 @@ arrow from P.s to DB.n "run" aligned "queries" aligned
 arrow from MDB.s to DB.nw "generates" aligned "DuckDB database" aligned
 arrow from H.n to DB.s  "queries" aligned ""
 spline <- from DB.ne right 0.5 then to LLM.sw dashed "Syntax Check" aligned
+spline <- from DB.ne right 0.5 then to FT.sw dashed "Trace Collect" aligned ""
 
 
 PARQUET: file "cardinalities" fit at (P + (0.5,1.3))
