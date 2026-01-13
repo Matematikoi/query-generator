@@ -42,6 +42,8 @@ class OllamaLLMClient:
     self.initialization_timestamp = datetime.now()
     self.messages_timestamps = []
     self.client = Client()
+    self.eval_count = []
+    self.prompt_eval_count = []
 
   def query(self, messages: LLM_Message, llm_config_params: str) -> None:
     """Send a single request to the LLM and return its response."""
@@ -49,6 +51,8 @@ class OllamaLLMClient:
     response = self.client.chat(
       model=llm_config_params, messages=messages, stream=False
     )
+    self.eval_count.append(response.eval_count)
+    self.prompt_eval_count.append(response.prompt_eval_count)
     response_str = response.message.content
     if not response_str:
       messages.append(
@@ -61,4 +65,7 @@ class OllamaLLMClient:
     return {
       "client_creation_timestamp": self.initialization_timestamp,
       "messages_timestamps": self.messages_timestamps,
+      "eval_count": self.eval_count,
+      "prompt_eval_count": self.prompt_eval_count,
+      "total_tokens": sum(self.eval_count) + sum(self.prompt_eval_count),
     }
