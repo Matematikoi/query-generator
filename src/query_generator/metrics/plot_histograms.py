@@ -14,6 +14,17 @@ from query_generator.utils.params import GetMetricsEndpoint
 
 logger = logging.getLogger(__name__)
 
+HISTOGRAMS_WITH_LOG: dict[DuckDBMetricsName, bool] = {
+  DuckDBMetricsName.latency_duckdb: True,
+  DuckDBMetricsName.query_plan_size: False,
+  DuckDBMetricsName.query_plan_length: False,
+  DuckDBMetricsName.query_size_tokens: False,
+  DuckDBMetricsName.cumulative_cardinality_duckdb: True,
+  DuckDBMetricsName.cumulative_rows_scanned_duckdb: True,
+  DuckDBMetricsName.cardinality_over_rows_scanned: True,
+  DuckDBMetricsName.output_cardinality: True,
+}
+
 
 def _glob_to_rust_regex(glob_pattern: str) -> str:
   # `fnmatch.translate` generates Python-regex constructs (e.g. `(?>...)`, `\Z`)
@@ -44,9 +55,7 @@ def _build_collapsed_hue_expr(
 def plot_numerical_histogram(
   params: GetMetricsEndpoint,
   metrics_df: pl.DataFrame,
-  column: str,
-  *,
-  log_axis: bool = False,
+  column: DuckDBMetricsName,
 ):
   """Plot and save a histogram for the selected numeric column."""
   output_dir = Path(params.output_folder) / "histograms"
@@ -61,7 +70,7 @@ def plot_numerical_histogram(
   collapsed_df = metrics_df.with_columns(
     collapse_expr.alias(collapsed_hue_column)
   )
-  col_name = str(column)
+  col_name = str(column.value)
   if col_name not in collapsed_df.columns:
     logger.warning("Column %s not found in metrics_df; skipping.", col_name)
     return
@@ -69,6 +78,7 @@ def plot_numerical_histogram(
   filtered_df = collapsed_df.filter(
     pl.col(col_name).is_not_null() & pl.col(collapsed_hue_column).is_not_null()
   )
+  log_axis = HISTOGRAMS_WITH_LOG[column]
   if log_axis:
     filtered_df = filtered_df.filter(pl.col(col_name) > 0)
 
@@ -115,15 +125,5 @@ def plot_numerical_histogram(
 
 
 def plot_metrics(params: GetMetricsEndpoint, metrics_df: pl.DataFrame):
-  columns_for_histograms_with_log = [
-    (DuckDBMetricsName.latency_duckdb.value, True),
-    (DuckDBMetricsName.query_plan_size.value, False),
-    (DuckDBMetricsName.query_plan_length.value, False),
-    (DuckDBMetricsName.query_size_tokens.value, False),
-    (DuckDBMetricsName.cumulative_cardinality_duckdb.value, True),
-    (DuckDBMetricsName.cumulative_rows_scanned_duckdb.value, True),
-    (DuckDBMetricsName.cardinality_over_rows_scanned, True),
-    (DuckDBMetricsName.output_cardinality, True),
-  ]
-  for column, log_axis in columns_for_histograms_with_log:
-    plot_numerical_histogram(params, metrics_df, column, log_axis=log_axis)
+  for column in HISTOGRAMS_WITH_LOG.keys():
+    plot_numerical_histogram(params, metrics_df, column)
