@@ -117,6 +117,10 @@ def plot_numerical_histogram(
     plt.xscale("log")
   plt.ylabel("Count")
   plt.tight_layout()
+  if col_name in params.x_axis_limits:
+    plt.xlim(*params.x_axis_limits[col_name])
+  if col_name in params.y_axis_limits:
+    plt.ylim(*params.y_axis_limits[col_name])
 
   output_path = output_dir / f"{col_name}.png"
   plt.savefig(output_path)
@@ -125,5 +129,5 @@ def plot_numerical_histogram(
 
 
 def plot_metrics(params: GetMetricsEndpoint, metrics_df: pl.DataFrame):
-  for column in HISTOGRAMS_WITH_LOG.keys():
+  for column in HISTOGRAMS_WITH_LOG:
     plot_numerical_histogram(params, metrics_df, column)
