@@ -99,5 +99,9 @@ input_parquet = "path/to/traces_duckdb.parquet"
 output_folder = "path/to/output_folder/"
 [template_occurrence_limit]
 template_1 = 100
+[x_axis_limits]
+cumulative_cardinality_duckdb = [1, 5e6]
+[y_axis_limits]
+cumulative_cardinality_duckdb = [0, 200]
 """,
 }
