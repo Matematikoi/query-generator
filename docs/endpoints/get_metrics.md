@@ -9,6 +9,8 @@ was output by the `fix-transform` endpoint. Called duckdb_traces.parquet
 - `template_occurrence_limit` (dict[str, int]): Optional cap on how many
   queries to process per template key; e.g., if a template appears 500
   times and the limit is 100, only 100 instances are processed.
+- `group_by_templates` (dict[str, str]): Optional mapping of template
+  group names to glob patterns for grouping templates in the metrics.
 - `x_axis_limits` (dict[str, list[float]]): Optional histogram x-axis
   limits per metric name. Each value must be `[min, max]` and is applied
   when plotting the histogram for that metric.

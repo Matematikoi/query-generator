@@ -1,2 +1,9 @@
 input_parquet = "generated_data/TPCDS_100/transformed_queries_ollama/traces_duckdb.parquet"
 output_folder = "generated_data/TPCDS_100/metrics_ollama/"
+
+[template_occurrence_limit]
+union = 50
+[group_by_templates]
+group_by = "group_by*"
+nested_join = "nested_join*"
+recursive = "recursive*"

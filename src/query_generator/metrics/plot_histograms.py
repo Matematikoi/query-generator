@@ -52,6 +52,37 @@ def _build_collapsed_hue_expr(
   return collapse_expr
 
 
+def plot_operators(params: GetMetricsEndpoint, metrics_df: pl.DataFrame):
+  output_path = params.output_folder / "histograms" / "operators_histogram.png"
+  operator_count = (
+    metrics_df.select(pl.col("operator_distribution").struct.unnest())
+    .select(pl.all().sum())
+    .transpose(include_header=True)
+    .rename({"column": "operator", "column_0": "count"})
+    .sort("count", descending=True)
+    .filter(pl.col("count") > 0)
+    .filter(pl.col("operator") != "ROOT")
+  )
+
+  # 2) Fix Matplotlib barh ordering (largest on top)
+  reverse_operator_count = operator_count.reverse()
+
+  # 3) Extract data from Polars (no pandas)
+  operators = reverse_operator_count["operator"].to_list()
+  counts = reverse_operator_count["count"].to_list()
+
+  # 4) Plot
+  plt.figure(figsize=(6, 7))
+  plt.barh(operators, counts)
+  plt.xscale("log")
+  plt.xlabel("Total occurrences (log scale)")
+  plt.ylabel("Operator")
+  plt.tight_layout()
+  plt.savefig(output_path)
+  plt.close()
+  logger.info("Saved histogram for operators to %s", output_path)
+
+
 def plot_numerical_histogram(
   params: GetMetricsEndpoint,
   metrics_df: pl.DataFrame,
@@ -131,3 +162,5 @@ def plot_numerical_histogram(
 def plot_metrics(params: GetMetricsEndpoint, metrics_df: pl.DataFrame):
   for column in HISTOGRAMS_WITH_LOG:
     plot_numerical_histogram(params, metrics_df, column)
+
+  plot_operators(params, metrics_df)
