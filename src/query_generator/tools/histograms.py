@@ -16,6 +16,7 @@ from query_generator.duckdb_connection.utils import (
   get_equi_height_histogram,
   get_frequent_non_null_values,
   get_histogram_excluding_common_values,
+  get_null_count,
   get_tables,
 )
 from query_generator.utils.exceptions import (
@@ -52,6 +53,7 @@ class HistogramColumns(StrEnum):
   MOST_COMMON_VALUES = "most_common_values"
   HISTOGRAM_MCV = "histogram-mcv"  # histogram excluding most common values
   TABLE_SIZE = "table_size"
+  NULL_COUNT = "null_count"
 
 
 @dataclass
@@ -174,6 +176,9 @@ def query_histograms(
       # Get distinct count
       distinct_count = get_distinct_count(con, table, column.column_name)
 
+      # Get null Count
+      null_count = get_null_count(con, table, column.column_name)
+
       row_dict: dict[str, Any] = {
         HistogramColumns.TABLE: table,
         HistogramColumns.COLUMN: column.column_name,
@@ -181,6 +186,7 @@ def query_histograms(
         HistogramColumns.DISTINCT_COUNT: distinct_count,
         HistogramColumns.DTYPE: column.column_type,
         HistogramColumns.TABLE_SIZE: table_size,
+        HistogramColumns.NULL_COUNT: null_count,
       }
       if include_mcv:
         # Get most common values
