@@ -39,7 +39,7 @@ class RawDuckDBHistograms:
   """Class to represent a histogram bin in DuckDB.
   Attributes:
       bin (str): The bin value, which is a string representation
-      of the range of values in the bin. The format is 
+      of the range of values in the bin. The format is
       "x <= value" for the first bin and "lower_bound < x <= upper_bound"
       for subsequent bins.
       count (int): The count of occurrences in the bin.
@@ -120,6 +120,15 @@ def get_distinct_count(
 ) -> int:
   data: int = con.execute(f"""
     SELECT COUNT(DISTINCT {column}) FROM {table};
+  """).fetchall()[0][0]
+  return data
+
+
+def get_null_count(
+  con: duckdb.DuckDBPyConnection, table: str, column: str
+) -> int:
+  data: int = con.execute(f"""
+    SELECT COUNT_IF({column} IS NULL) FROM {table};
   """).fetchall()[0][0]
   return data
 
