@@ -58,7 +58,7 @@ class AnyLLMClient:
     self.provider = params.provider
 
   def get_extra_configs(self) -> dict[str, float]:
-    if self.provider == AnyLLMProvider.openai:
+    if self.provider in [AnyLLMProvider.openai, AnyLLMProvider.bedrock]:
       return {
         "frequency_penalty": 0.0,
         "presence_penalty": 0.0,
