@@ -2,11 +2,11 @@ base_prompt = """
     You are a database expert. Now you are writing \
     queries to test your SQL engine on the TPCDS \
     dataset with challenging and diverse queries. You are \
-    asked to extend each given query with new features, without \ 
-    modifying the existing join structure or predicates, unless 
+    asked to extend each given query with new features, without \
+    modifying the existing join structure or predicates, unless
     explicitly asked in future instructions. The resulting query \
     should not be trivial or equivalent to the input query.\
-    When answering, return the query only in the markdown \ 
+    When answering, return the query only in the markdown \
     format, for example:\
     ```sql select * from table```
 The schema you will be using is the following:
@@ -45,168 +45,41 @@ weight = 10
 
 [weighted_prompts.inequality_join]
 prompt = """Your task is to modify one join to make it an inequality join \
-    while keeping all other predicates of the given query."""
+    while keeping all other predicates of the given query.
+
+    Make it obvious to the optimizer by using the JOIN ... ON ... structure.\
+    This way the optimizer can better tell that it should use an IE_JOIN \
+    operator"""
 weight = 10
 
 
 [weighted_prompts.recursive_query_simple]
 prompt = """For the given guery, choose a table and write a recursive query \
-    on that table. In this case, you can ignore the join structure and predicates \ 
+    on that table. In this case, you can ignore the join structure and predicates \
     in the input query. """
 weight = 5
 
 [weighted_prompts.recursive_query_complex]
-prompt = """Extend the given query with a new table that is computed from a  \ 
-    recursive construct. Try to keep existing join structure and predicates, while 
+prompt = """Extend the given query with a new table that is computed from a  \
+    recursive construct. Try to keep existing join structure and predicates, while
     adding the table computed from recursion. """
 weight = 5
 
 [weighted_prompts.edge_case]
-prompt = """Modify this query to make it interesting and elaborate. 
-Incorporate obscure semantical corner cases and unusual or 
+prompt = """Modify this query to make it interesting and elaborate.
+Incorporate obscure semantical corner cases and unusual or
 even bizarre SQL semantics. Don't include recursion. """
+weight = 25
+
+[weighted_prompts.asof_join]
+prompt = """Modify this query to add an ASOF join while trying to keep the \
+    predicates as intact as possible."""
 weight = 10
 
-
-
-[weighted_prompts.group_by_1]
-prompt = """
-Your task is to add a group by clause to the query.
-Make sure that the attributes in the group by clause are included in
-the select clause as the group by key, but the aggregates in the
-select clause should be posed on other attributes.
-
-The group by clause size should be 1.
-"""
-weight = 7
-
-
-[weighted_prompts.group_by_order_by_1]
-prompt = """
-Your task is to add a group by clause and an order by clause to the query.
-Make sure that the attributes in the group by clause are included in
-the select clause as the group by key, but the aggregates in the
-select clause should be posed on other attributes.
-
-The group by clause size should be 1.
-"""
-weight = 3
-
-[weighted_prompts.group_by_rollup_1]
-prompt = """
-Your task is to add a group by clause with rollup to the query.
-Make sure that the attributes in the group by clause are included in
-the select clause as the group by key, but the aggregates in the
-select clause should be posed on other attributes.
-
-The group by clause size should be 1.
-"""
-weight = 1
-
-
-[weighted_prompts.group_by_2]
-prompt = """
-Your task is to add a group by clause to the query.
-Make sure that the attributes in the group by clause are included in
-the select clause as the group by key, but the aggregates in the
-select clause should be posed on other attributes.
-
-The group by clause size should be 2.
-"""
-weight = 7
-
-
-[weighted_prompts.group_by_order_by_2]
-prompt = """
-Your task is to add a group by clause and an order by clause to the query.
-Make sure that the attributes in the group by clause are included in
-the select clause as the group by key, but the aggregates in the
-select clause should be posed on other attributes.
-
-The group by clause size should be 2.
-"""
-weight = 3
-
-[weighted_prompts.group_by_rollup_2]
-prompt = """
-Your task is to add a group by clause with rollup to the query.
-Make sure that the attributes in the group by clause are included in
-the select clause as the group by key, but the aggregates in the
-select clause should be posed on other attributes.
-
-The group by clause size should be 2.
-"""
-weight = 1
-
-
-[weighted_prompts.group_by_3]
-prompt = """
-Your task is to add a group by clause to the query.
-Make sure that the attributes in the group by clause are included in
-the select clause as the group by key, but the aggregates in the
-select clause should be posed on other attributes.
-
-The group by clause size should be 3.
-"""
-weight = 7
-
-
-[weighted_prompts.group_by_order_by_3]
-prompt = """
-Your task is to add a group by clause and an order by clause to the query.
-Make sure that the attributes in the group by clause are included in
-the select clause as the group by key, but the aggregates in the
-select clause should be posed on other attributes.
-
-The group by clause size should be 3.
-"""
-weight = 3
-
-[weighted_prompts.group_by_rollup_3]
-prompt = """
-Your task is to add a group by clause with rollup to the query.
-Make sure that the attributes in the group by clause are included in
-the select clause as the group by key, but the aggregates in the
-select clause should be posed on other attributes.
-
-The group by clause size should be 3.
-"""
-weight = 1
-
-
-[weighted_prompts.group_by_4]
-prompt = """
-Your task is to add a group by clause to the query.
-Make sure that the attributes in the group by clause are included in
-the select clause as the group by key, but the aggregates in the
-select clause should be posed on other attributes.
-
-The group by clause size should be 4.
-"""
-weight = 4
-
-
-[weighted_prompts.group_by_order_by_4]
-prompt = """
-Your task is to add a group by clause and an order by clause to the query.
-Make sure that the attributes in the group by clause are included in
-the select clause as the group by key, but the aggregates in the
-select clause should be posed on other attributes.
-
-The group by clause size should be 4.
-"""
-weight = 2
-
-[weighted_prompts.group_by_rollup_4]
-prompt = """
-Your task is to add a group by clause with rollup to the query.
-Make sure that the attributes in the group by clause are included in
-the select clause as the group by key, but the aggregates in the
-select clause should be posed on other attributes.
-
-The group by clause size should be 4.
-"""
-weight = 1
+[weighted_prompts.cte]
+prompt = """Transform this query to add a CTE query to it. Make it a
+challenging CTE. Try to preserve the predicates."""
+weight = 10
 
 
 [weighted_prompts.group_by_6]
