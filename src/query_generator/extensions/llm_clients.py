@@ -66,8 +66,8 @@ class AnyLLMClient:
     return {
       "frequency_penalty": 0.0,
       "presence_penalty": 0.0,
-      "top_p": 0.9,
-      "temperature": 0.7,
+      "top_p": 1,
+      "temperature": 1,
     }
 
   def query(self, messages: LLM_Message, llm_config_params: str) -> None:
