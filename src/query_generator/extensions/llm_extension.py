@@ -29,8 +29,10 @@ def get_random_queries(
 
   Returns:
     A list of tuples containing the query and its original path."""
-  sql_files = list(queries_base_path.rglob("*.sql"))
-  random_query_paths = random.choices(sql_files, k=llm_params.total_queries)
+  sql_files = sorted(queries_base_path.rglob("*.sql"))
+  random_query_paths = random.Random(42).choices(
+    sql_files, k=llm_params.total_queries
+  )
   return [
     (p.read_text(), str(p.relative_to(queries_base_path)))
     for p in random_query_paths
