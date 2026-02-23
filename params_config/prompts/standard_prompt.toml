@@ -72,8 +72,17 @@ even bizarre SQL semantics. Don't include recursion. """
 weight = 25
 
 [weighted_prompts.asof_join]
-prompt = """Modify this query to add an ASOF join while trying to keep the \
-    predicates as intact as possible."""
+prompt = """Here is an example of an ASOF join:
+```sql
+SELECT h.ticker, h.when, price * shares AS value
+FROM holdings h
+ASOF JOIN prices p
+       ON h.ticker = p.ticker
+      AND h.when >= p.when;
+```
+
+Modify this query to add an ASOF join while trying to keep the \
+predicates as intact as possible."""
 weight = 10
 
 [weighted_prompts.cte]
