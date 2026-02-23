@@ -57,6 +57,19 @@ class AnyLLMClient:
     self.usage = []
     self.provider = params.provider
 
+  def get_extra_configs(self) -> dict[str, float]:
+    if self.provider == AnyLLMProvider.openai:
+      return {
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+      }
+    return {
+      "frequency_penalty": 0.0,
+      "presence_penalty": 0.0,
+      "top_p": 0.9,
+      "temperature": 0.7,
+    }
+
   def query(self, messages: LLM_Message, llm_config_params: str) -> None:
     """Send a single request to the LLM and return its response."""
     self.messages_timestamps.append(datetime.now())
@@ -66,6 +79,7 @@ class AnyLLMClient:
         messages=messages,
         stream=False,
         n=1,
+        **self.get_extra_configs(),
       )
     )
     usage = response.usage.to_dict()
