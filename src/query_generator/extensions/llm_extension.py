@@ -140,7 +140,7 @@ def log_not_valid_query(duckdb_exception: Exception | None, query: str) -> None:
 def llm_extension(
   llm_params: LLMParams,
   llm_client_factory: LLMClientFactory,
-  llm_config_params: str,
+  llm_config_params: Any,
   input_queries_base_path: Path,
   destination_path: Path,
 ) -> int:
@@ -215,6 +215,8 @@ def llm_extension(
           "messages": messages,
           "new_path": get_new_query_name(cnt, original_path),
           "client_logs": llm_client.get_logs(),
+          "original_query": query,
+          "augmented_query": llm_extracted_query if valid_query else "",
         }
       )
       save_parquet(destination_path / "llm_extension.parquet", rows)

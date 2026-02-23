@@ -1,6 +1,8 @@
+import os
 import tomllib
 from dataclasses import dataclass
 from dataclasses import field as dc_field
+from enum import StrEnum
 from pathlib import Path
 from typing import Any, TypeVar
 
@@ -13,6 +15,10 @@ from query_generator.utils.definitions import (
   ComplexQueryLLMPrompt,
   Dataset,
   PredicateOperatorProbability,
+)
+from query_generator.utils.exceptions import (
+  MissingAuthTokenForLLMProviderError,
+  MissingRegionForBedrockError,
 )
 from query_generator.utils.toml_examples import TOML_EXAMPLE, EndpointName
 
@@ -102,6 +108,64 @@ class ExtensionAndOllamaEndpoint:
   union_extension: bool
   destination_folder: str
   ollama_model: str | None = None
+  llm_params: LLMParams | None = None
+  union_params: UnionParams | None = None
+
+
+class AnyLLMProvider(StrEnum):
+  gemini = "gemini"
+  openai = "openai"
+  bedrock = "bedrock"
+  ollama = "ollama"
+
+
+@dataclass
+class AnyLLMConfig:
+  model_name: str
+  provider: AnyLLMProvider
+  bedrock_region: str | None = None
+
+  def __post_init__(self) -> None:
+    if self.provider == AnyLLMProvider.bedrock and self.bedrock_region is None:
+      raise MissingRegionForBedrockError()
+    for env_variable in self.get_required_environment_variables():
+      if env_variable not in os.environ:
+        raise MissingAuthTokenForLLMProviderError(env_variable)
+
+  def get_required_environment_variables(self) -> list[str]:
+    match self.provider:
+      case AnyLLMProvider.bedrock:
+        return ["AWS_BEARER_TOKEN_BEDROCK"]
+      case AnyLLMProvider.gemini:
+        return ["GEMINI_API_KEY"]
+      case AnyLLMProvider.openai:
+        return ["OPENAI_API_KEY"]
+      case _:
+        return []
+
+
+@dataclass
+class ExtensionWithAnyLLMEndpoint:
+  __doc__ = f"""Makes complex queries from synthetic ones, mainly using ollama.
+{get_markdown_documentation(EndpointName.EXTENSIONS_WITH_OLLAMA)}
+
+# Example
+
+```toml
+{TOML_EXAMPLE[EndpointName.EXTENSIONS_WITH_OLLAMA]}
+```
+## Example prompts.toml
+
+```toml
+{TOML_EXAMPLE[EndpointName.PROMPTS]}
+```
+
+"""
+  queries_parquet: str
+  llm_extension: bool
+  union_extension: bool
+  destination_folder: str
+  anyllm_config: AnyLLMConfig | None = None
   llm_params: LLMParams | None = None
   union_params: UnionParams | None = None
 

@@ -102,3 +102,13 @@ class NoBasicHistogramElementError(Exception):
 class ColumnNotFoundError(Exception):
   def __init__(self, column: str) -> None:
     super().__init__(f"Column {column} not found in schema.")
+
+
+class MissingRegionForBedrockError(Exception):
+  def __init__(self) -> None:
+    super().__init__("Can't start bedrock without region. i.e. eu-north-1")
+
+
+class MissingAuthTokenForLLMProviderError(Exception):
+  def __init__(self, env_variable: str) -> None:
+    super().__init__(f"Missing environment variable {env_variable}")
