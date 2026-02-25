@@ -24,27 +24,31 @@ logger = logging.getLogger(__name__)
 
 def get_random_queries(
   queries_base_path: Path, llm_params: LLMParams
-) -> list[tuple[str, str]]:
+) -> list[tuple[str, str, str]]:
   """Get random queries from the synthetic queries parquet file.
 
   Returns:
     A list of tuples containing the query and its original path."""
   sql_files = sorted(queries_base_path.rglob("*.sql"))
   random_query_paths = random.choices(sql_files, k=llm_params.total_queries)
+
+  extension_types = list(llm_params.prompts.weighted_prompts.keys())
+  weights = [
+    llm_params.prompts.weighted_prompts[e].weight for e in extension_types
+  ]
+  random_extension_types = random.choices(
+    extension_types, weights=weights, k=llm_params.total_queries
+  )
   return [
-    (p.read_text(), str(p.relative_to(queries_base_path)))
-    for p in random_query_paths
+    (p.read_text(), str(p.relative_to(queries_base_path)), r)
+    for p, r in zip(random_query_paths, random_extension_types, strict=False)
   ]
 
 
 def get_random_prompt(
-  params: LLMParams, query: str, context: str
-) -> tuple[str, LLM_Message]:
-  extension_types = list(params.prompts.weighted_prompts.keys())
-  weights = [params.prompts.weighted_prompts[e].weight for e in extension_types]
-  extension_type = random.choices(extension_types, weights=weights)[0]
-
-  return extension_type, [
+  params: LLMParams, query: str, extension_type: str, context: str
+) -> LLM_Message:
+  return [
     {"role": "system", "content": params.prompts.base_prompt},
     {
       "role": "user",
@@ -157,7 +161,7 @@ def llm_extension(
   rows: list[dict[str, str]] = []
   log_rows: list[dict[str, str | bool | LLM_Message]] = []
   sampled_queries = get_random_queries(input_queries_base_path, llm_params)
-  for cnt, (query, original_path) in tqdm(  # type:ignore
+  for cnt, (query, original_path, extension_type) in tqdm(  # type:ignore
     enumerate(sampled_queries), desc="LLM-Extension", total=len(sampled_queries)
   ):
     llm_client = llm_client_factory.build()
@@ -165,8 +169,8 @@ def llm_extension(
     valid_query = False
     duckdb_exception = Exception("no query was found")
     llm_extracted_query = ""
-    extension_type, messages = get_random_prompt(
-      llm_params, query, schema_context
+    messages = get_random_prompt(
+      llm_params, query,extension_type, schema_context,
     )
     while retries <= llm_params.retry and not valid_query:
       if retries > 0:

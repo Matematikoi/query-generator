@@ -76,16 +76,16 @@ class AnyLLMClient:
     response = asyncio.run(
       self.llm_client.acompletion(
         model=llm_config_params,
-        messages=messages,
+        messages=messages,  # type: ignore
         stream=False,
         n=1,
-        **self.get_extra_configs(),
+        **self.get_extra_configs(),  # type: ignore
       )
     )
-    usage = response.usage.to_dict()
+    usage = response.usage.to_dict()  # type: ignore
     logger.info(f"Usage: {usage}")
     self.usage.append(usage)
-    response_str = response.choices[0].message.content
+    response_str = response.choices[0].message.content  # type: ignore
     if not response_str:
       messages.append(
         {"role": "assistant", "content": "I can't help you with that"}
