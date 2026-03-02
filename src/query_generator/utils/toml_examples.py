@@ -86,6 +86,7 @@ database_path = "path/to/duckdb.db"
 output_folder = "path/to/destination/"
 histogram_size = 51
 common_values_size = 10
+histogram_sample_rows = 10000
 """,
   EndpointName.FIX_TRANSFORM: """\
 queries_folder = "path/to/queries/"

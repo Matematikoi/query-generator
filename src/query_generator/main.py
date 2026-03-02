@@ -127,6 +127,7 @@ def make_histograms(
   histograms_df = query_histograms(
     histogram_size=params.histogram_size,
     common_values_size=params.common_values_size,
+    histogram_sample_rows=params.histogram_sample_rows,
     con=con,
     include_mcv=params.common_values_size > 0,
   )

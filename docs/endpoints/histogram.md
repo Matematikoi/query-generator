@@ -8,6 +8,9 @@ Default is 51.
 - common_values_size (int): The number of common values to include. 
 Default is 10. If the value of the `common_values_size` is 0 then, no
 MCV will be calculated. 
+- histogram_sample_rows (int): Maximum sampled rows per table used by
+histogram-related queries. Effective sample size is
+`min(histogram_sample_rows, table_size)`. Default is 10000.
 
 # Ouput
 

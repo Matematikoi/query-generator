@@ -100,17 +100,37 @@ def get_columns(
 
 
 def get_equi_height_histogram(
-  con: duckdb.DuckDBPyConnection, table: str, column: str, bin_count: int
+  con: duckdb.DuckDBPyConnection,
+  table: str,
+  column: str,
+  bin_count: int,
+  sample_rows: int | None = None,
 ) -> list[RawDuckDBHistograms]:
-  query = f"""
-    SELECT bin, count
-    FROM histogram(
-    '{table}',
-    {column},
-    bin_count := {bin_count},
-    technique := 'equi-height'
-  );
-  """
+  if sample_rows is None:
+    query = f"""
+      SELECT bin, count
+      FROM histogram(
+      '{table}',
+      {column},
+      bin_count := {bin_count},
+      technique := 'equi-height'
+    );
+    """
+  else:
+    query = f"""
+      WITH sampled_values AS (
+        SELECT {column}
+        FROM {table}
+        USING SAMPLE {sample_rows} ROWS
+      )
+      SELECT bin, count
+      FROM histogram(
+      sampled_values,
+      {column},
+      bin_count := {bin_count},
+      technique := 'equi-height'
+    );
+    """
   data = con.execute(query).fetchall()
   return [RawDuckDBHistograms(bin=d[0], count=d[1]) for d in data]
 
@@ -153,7 +173,11 @@ def get_histogram_excluding_common_values(
   column: str,
   bin_count: int,
   common_values_size: int,
+  sample_rows: int | None = None,
 ) -> list[RawDuckDBHistograms]:
+  sampling_clause = (
+    f"USING SAMPLE {sample_rows} ROWS" if sample_rows is not None else ""
+  )
   query = f"""
     WITH common_values AS (
       SELECT {column}, COUNT(*) as count
@@ -168,6 +192,7 @@ def get_histogram_excluding_common_values(
       FROM {table}
       WHERE {column} NOT IN (SELECT {column} FROM common_values)
       AND {column} IS NOT NULL
+      {sampling_clause}
     )
     SELECT bin, count
     FROM histogram(
