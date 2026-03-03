@@ -347,7 +347,7 @@ class DuckDBTraceParser:
       return None
     return float(self.get_cumulative_cardinality()) / self.get_rows_scanned()
 
-  def get_qerror(self) -> float | None:
+  def get_root_node_qerror(self) -> float | None:
     node_data: DuckDBTraceNode = self.trace_graph.nodes[1]
     estimated_cardinality = node_data.get("estimated_cardinality")
     if estimated_cardinality is None:
@@ -370,7 +370,7 @@ class DuckDBTraceParser:
       "output_cardinality": self.get_output_cardinality(),
       "query_keywords": self.get_query_keywords(),
       "operator_distribution": self.get_operator_types(),
-      "root_node_qerror": self.get_qerror(),
+      "root_node_qerror": self.get_root_node_qerror(),
     }
 
   @staticmethod
