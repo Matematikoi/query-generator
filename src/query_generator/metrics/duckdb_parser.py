@@ -186,7 +186,7 @@ class DuckDBMetrics(TypedDict):
   output_cardinality: int
   query_keywords: list[str]
   operator_distribution: dict[DuckDBPhysicalOperators, int]
-  root_node_qerror: float
+  root_node_qerror: float | None
 
 
 class DuckDBMetricsName(StrEnum):
@@ -228,10 +228,15 @@ def get_attributes_children_node(
 
   Gets output cardinality and operator type.
   """
+  estimated_cardinality_raw = trace["extra_info"].get("Estimated Cardinality")
   return {
     "output_cardinality": trace["operator_cardinality"],
     "operator_type": trace["operator_type"],
-    "estimated_cardinality": trace["extra_info"]["Estimated Cardinality"],  # type: ignore[bad-typed-dict-key]
+    "estimated_cardinality": (
+      int(estimated_cardinality_raw)
+      if estimated_cardinality_raw is not None
+      else None
+    ),
   }
 
 
@@ -342,11 +347,13 @@ class DuckDBTraceParser:
       return None
     return float(self.get_cumulative_cardinality()) / self.get_rows_scanned()
 
-  def get_qerror(self) -> float:
-    estimated = (
-      int(self.trace_graph.nodes(data=True)[1]["estimated_cardinality"]) + 1  # type: ignore[unsupported-operation]
-    )
-    actual = int(self.trace_graph.nodes(data=True)[1]["output_cardinality"]) + 1  # type: ignore[unsupported-operation]
+  def get_qerror(self) -> float | None:
+    node_data: DuckDBTraceNode = self.trace_graph.nodes[1]
+    estimated_cardinality = node_data.get("estimated_cardinality")
+    if estimated_cardinality is None:
+      return None
+    estimated = float(estimated_cardinality) + 1
+    actual = float(node_data["output_cardinality"]) + 1
     return max(estimated / actual, actual, estimated)
 
   def get_metrics(self) -> DuckDBMetrics:
