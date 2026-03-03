@@ -187,6 +187,14 @@ class DuckDBMetrics(TypedDict):
   query_keywords: list[str]
   operator_distribution: dict[DuckDBPhysicalOperators, int]
   root_node_qerror: float | None
+  qerror_downstream_operators: list["QErrorDownstreamOperatorsBucket"]
+
+
+class QErrorDownstreamOperatorsBucket(TypedDict):
+  """Qerror values grouped by subtree size."""
+
+  downstream_operators: int
+  qerrors: list[float]
 
 
 class DuckDBMetricsName(StrEnum):
@@ -354,7 +362,33 @@ class DuckDBTraceParser:
       return None
     estimated = float(estimated_cardinality) + 1
     actual = float(node_data["output_cardinality"]) + 1
-    return max(estimated / actual, actual, estimated)
+    return max(estimated / actual, actual / estimated)
+
+  def get_qerror_downstream_operators(self) -> dict[int, list[float]]:
+    """Group node qerrors by subtree size (node + descendants)."""
+    qerrors_by_downstream_nodes: dict[int, list[float]] = {}
+    for node_id, node_data in self.trace_graph.nodes(data=True):
+      estimated_cardinality = node_data.get("estimated_cardinality")
+      if estimated_cardinality is None:
+        continue
+      estimated = float(estimated_cardinality) + 1
+      actual = float(node_data["output_cardinality"]) + 1
+      qerror = max(estimated / actual, actual / estimated)
+      subtree_size = len(nx.descendants(self.trace_graph, node_id)) + 1
+      qerrors_by_downstream_nodes.setdefault(subtree_size, []).append(qerror)
+    return qerrors_by_downstream_nodes
+
+  def get_qerror_downstream_operators_buckets(
+    self,
+  ) -> list[QErrorDownstreamOperatorsBucket]:
+    grouped = self.get_qerror_downstream_operators()
+    return [
+      {
+        "downstream_operators": subtree_size,
+        "qerrors": qerrors,
+      }
+      for subtree_size, qerrors in sorted(grouped.items())
+    ]
 
   def get_metrics(self) -> DuckDBMetrics:
     """Get the metrics from the trace."""
@@ -371,6 +405,9 @@ class DuckDBTraceParser:
       "query_keywords": self.get_query_keywords(),
       "operator_distribution": self.get_operator_types(),
       "root_node_qerror": self.get_root_node_qerror(),
+      "qerror_downstream_operators": (
+        self.get_qerror_downstream_operators_buckets()
+      ),
     }
 
   @staticmethod
@@ -404,10 +441,19 @@ def python_type_to_polars(
   ] = {
     int: pl.Int64,
     float: pl.Float64,
+    float | None: pl.Float64,
     str: pl.String,
     bool: pl.Boolean,
     dict[DuckDBPhysicalOperators, int]: pl.Struct(
       dict.fromkeys(DuckDBPhysicalOperators.get_all_operators(), pl.Int64)
+    ),
+    list[QErrorDownstreamOperatorsBucket]: pl.List(
+      pl.Struct(
+        {
+          "downstream_operators": pl.Int64,
+          "qerrors": pl.List(pl.Float64),
+        }
+      )
     ),
     list[str]: pl.List(pl.String),
   }
