@@ -126,6 +126,7 @@ class DuckDBTraceNode(TypedDict):
   """
 
   output_cardinality: int
+  estimated_cardinality: int | None
   operator_type: str  # Maps to physical operators.
 
 
@@ -208,6 +209,7 @@ def get_attributes_root_node(trace: ParsedDuckDBTraceRoot) -> DuckDBTraceNode:
   return {
     "output_cardinality": trace["rows_returned"],
     "operator_type": DuckDBPhysicalOperators.ROOT.value,
+    "estimated_cardinality": None
   }
 
 
@@ -228,6 +230,7 @@ def get_attributes_children_node(
   return {
     "output_cardinality": trace["operator_cardinality"],
     "operator_type": trace["operator_type"],
+    "estimated_cardinality": trace["extra_info"]["Estimated Cardinality"],
   }
 
 
