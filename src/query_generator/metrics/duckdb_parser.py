@@ -186,6 +186,7 @@ class DuckDBMetrics(TypedDict):
   output_cardinality: int
   query_keywords: list[str]
   operator_distribution: dict[DuckDBPhysicalOperators, int]
+  root_node_qerror: float
 
 
 class DuckDBMetricsName(StrEnum):
@@ -209,7 +210,7 @@ def get_attributes_root_node(trace: ParsedDuckDBTraceRoot) -> DuckDBTraceNode:
   return {
     "output_cardinality": trace["rows_returned"],
     "operator_type": DuckDBPhysicalOperators.ROOT.value,
-    "estimated_cardinality": None
+    "estimated_cardinality": None,
   }
 
 
@@ -230,7 +231,7 @@ def get_attributes_children_node(
   return {
     "output_cardinality": trace["operator_cardinality"],
     "operator_type": trace["operator_type"],
-    "estimated_cardinality": trace["extra_info"]["Estimated Cardinality"],
+    "estimated_cardinality": trace["extra_info"]["Estimated Cardinality"],  # type: ignore[bad-typed-dict-key]
   }
 
 
@@ -341,6 +342,13 @@ class DuckDBTraceParser:
       return None
     return float(self.get_cumulative_cardinality()) / self.get_rows_scanned()
 
+  def get_qerror(self) -> float:
+    estimated = (
+      int(self.trace_graph.nodes(data=True)[1]["estimated_cardinality"]) + 1  # type: ignore[unsupported-operation]
+    )
+    actual = int(self.trace_graph.nodes(data=True)[1]["output_cardinality"]) + 1  # type: ignore[unsupported-operation]
+    return max(estimated / actual, actual, estimated)
+
   def get_metrics(self) -> DuckDBMetrics:
     """Get the metrics from the trace."""
     return {
@@ -355,6 +363,7 @@ class DuckDBTraceParser:
       "output_cardinality": self.get_output_cardinality(),
       "query_keywords": self.get_query_keywords(),
       "operator_distribution": self.get_operator_types(),
+      "root_node_qerror": self.get_qerror(),
     }
 
   @staticmethod
