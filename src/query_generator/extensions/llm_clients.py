@@ -50,7 +50,9 @@ class AnyLLMClient:
         params.provider, region_name=params.bedrock_region
       )
     else:
-      self.llm_client = AnyLLM.create(params.provider)
+      self.llm_client = AnyLLM.create(
+        params.provider, **params.additional_params
+      )
 
     self.initialization_timestamp = datetime.now()
     self.messages_timestamps = []

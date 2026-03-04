@@ -123,6 +123,7 @@ class AnyLLMProvider(StrEnum):
 class AnyLLMConfig:
   model_name: str
   provider: AnyLLMProvider
+  additional_params: dict[str, str] = dc_field(default_factory=dict)
   bedrock_region: str | None = None
 
   def __post_init__(self) -> None:
