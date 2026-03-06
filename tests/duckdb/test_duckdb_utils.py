@@ -8,6 +8,7 @@ from query_generator.duckdb_connection.utils import (
   get_distinct_count,
   get_equi_height_histogram,
   get_frequent_non_null_values,
+  get_null_count,
   DuckDBColumnInfo,
 )
 from query_generator.synthetic_queries.synthetic_query_generator import (
@@ -41,6 +42,18 @@ def test_distinct_values(duckdb_connection):
   )
 
   assert get_distinct_count(column_info) == 1
+
+
+def test_null_values(duckdb_connection):
+  """Test null counting for a column."""
+  con = duckdb_connection
+  column_info = DuckDBColumnInfo(con=con, table="item", column="i_rec_end_date")
+  expected = get_result_from_duckdb(
+    f"SELECT COUNT_IF({column_info.column} IS NULL) FROM {column_info.table}",
+    con,
+  )
+
+  assert get_null_count(column_info) == expected
 
 
 @pytest.mark.parametrize(
