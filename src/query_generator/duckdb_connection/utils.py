@@ -60,6 +60,21 @@ class RawDuckDBMostCommonValues:
   """
 
 
+@dataclass
+class DuckDBColumnInfo:
+  """DuckDB connection and column coordinates for one table column.
+
+  Attributes:
+      con (duckdb.DuckDBPyConnection): Active DuckDB connection.
+      table (str): Source table name.
+      column (str): Source column name.
+  """
+
+  con: duckdb.DuckDBPyConnection
+  table: str
+  column: str
+
+
 def get_tables(con: duckdb.DuckDBPyConnection) -> list[str]:
   """Retrieve the list of tables in the database.
 
@@ -168,13 +183,14 @@ def get_frequent_non_null_values(
 
 
 def get_histogram_excluding_common_values(
-  con: duckdb.DuckDBPyConnection,
-  table: str,
-  column: str,
+  column_info: DuckDBColumnInfo,
   bin_count: int,
   common_values_size: int,
   sample_rows: int | None = None,
 ) -> list[RawDuckDBHistograms]:
+  con = column_info.con
+  table = column_info.table
+  column = column_info.column
   sampling_clause = (
     f"USING SAMPLE {sample_rows} ROWS" if sample_rows is not None else ""
   )

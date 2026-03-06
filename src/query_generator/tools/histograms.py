@@ -8,6 +8,7 @@ import polars as pl
 from tqdm import tqdm
 
 from query_generator.duckdb_connection.utils import (
+  DuckDBColumnInfo,
   RawDuckDBHistograms,
   RawDuckDBMostCommonValues,
   RawDuckDBTableDescription,
@@ -130,9 +131,11 @@ def get_histogram_array_excluding_common_values(
   histogram_array: list[RawDuckDBHistograms] = []
   if distinct_count > common_values_size:
     histogram_array = get_histogram_excluding_common_values(
-      histogram_params.con,
-      histogram_params.table,
-      histogram_params.column.column_name,
+      DuckDBColumnInfo(
+        histogram_params.con,
+        histogram_params.table,
+        histogram_params.column.column_name,
+      ),
       histogram_params.histogram_size,
       common_values_size,
       histogram_params.histogram_sample_rows,
@@ -171,15 +174,9 @@ def query_histograms(
 
     # Get table size
     table_size = get_size_of_table(con, table)
-    histogram_sample_rows_for_table: int | None = (
-      histogram_sample_rows
-      if histogram_sample_rows < table_size
-      else None
-    )
-    effective_sample_size = (
-      histogram_sample_rows_for_table
-      if histogram_sample_rows_for_table is not None
-      else table_size
+    sample_size = min(histogram_sample_rows, table_size)
+    sample_rows_for_query = (
+      sample_size if sample_size < table_size else None
     )
     for column in pbar:  # type: ignore
       logger.debug(f"Processing column {column} of table {table}")
@@ -191,7 +188,7 @@ def query_histograms(
         table,
         column,
         histogram_size,
-        histogram_sample_rows_for_table,
+        sample_rows_for_query,
       )
       # Get Histogram array
       histogram_array = get_histogram_array(histogram_params)
@@ -210,7 +207,7 @@ def query_histograms(
         HistogramColumns.DTYPE: column.column_type,
         HistogramColumns.TABLE_SIZE: table_size,
         HistogramColumns.NULL_COUNT: null_count,
-        HistogramColumns.SAMPLE_SIZE: effective_sample_size,
+        HistogramColumns.SAMPLE_SIZE: sample_size,
       }
       if include_mcv:
         # Get most common values
