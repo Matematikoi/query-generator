@@ -150,20 +150,16 @@ def get_equi_height_histogram(
   return [RawDuckDBHistograms(bin=d[0], count=d[1]) for d in data]
 
 
-def get_distinct_count(
-  con: duckdb.DuckDBPyConnection, table: str, column: str
-) -> int:
-  data: int = con.execute(f"""
-    SELECT COUNT(DISTINCT {column}) FROM {table};
+def get_distinct_count(params: DuckDBColumnInfo) -> int:
+  data: int = params.con.execute(f"""
+    SELECT COUNT(DISTINCT {params.column}) FROM {params.table};
   """).fetchall()[0][0]
   return data
 
 
-def get_null_count(
-  con: duckdb.DuckDBPyConnection, table: str, column: str
-) -> int:
-  data: int = con.execute(f"""
-    SELECT COUNT_IF({column} IS NULL) FROM {table};
+def get_null_count(params: DuckDBColumnInfo) -> int:
+  data: int = params.con.execute(f"""
+    SELECT COUNT_IF({params.column} IS NULL) FROM {params.table};
   """).fetchall()[0][0]
   return data
 

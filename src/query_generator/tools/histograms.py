@@ -150,7 +150,7 @@ def get_histogram_array_excluding_common_values(
 def query_histograms(
   histogram_size: int,
   common_values_size: int,
-  histogram_sample_rows: int,
+  sample_rows: int,
   con: duckdb.DuckDBPyConnection,
   *,
   include_mcv: bool,
@@ -174,10 +174,8 @@ def query_histograms(
 
     # Get table size
     table_size = get_size_of_table(con, table)
-    sample_size = min(histogram_sample_rows, table_size)
-    sample_rows_for_query = (
-      sample_size if sample_size < table_size else None
-    )
+    sample_size = min(sample_rows, table_size)
+    sample_rows_for_query = sample_size if sample_size < table_size else None
     for column in pbar:  # type: ignore
       logger.debug(f"Processing column {column} of table {table}")
       pbar.set_description(  # type: ignore
@@ -190,14 +188,17 @@ def query_histograms(
         histogram_size,
         sample_rows_for_query,
       )
+      column_info = DuckDBColumnInfo(
+        con=con, table=table, column=column.column_name
+      )
       # Get Histogram array
       histogram_array = get_histogram_array(histogram_params)
 
       # Get distinct count
-      distinct_count = get_distinct_count(con, table, column.column_name)
+      distinct_count = get_distinct_count(column_info)
 
       # Get null Count
-      null_count = get_null_count(con, table, column.column_name)
+      null_count = get_null_count(column_info)
 
       row_dict: dict[str, Any] = {
         HistogramColumns.TABLE: table,

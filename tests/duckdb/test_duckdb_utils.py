@@ -8,6 +8,7 @@ from query_generator.duckdb_connection.utils import (
   get_distinct_count,
   get_equi_height_histogram,
   get_frequent_non_null_values,
+  DuckDBColumnInfo,
 )
 from query_generator.synthetic_queries.synthetic_query_generator import (
   get_result_from_duckdb,
@@ -35,7 +36,11 @@ def test_distinct_values(duckdb_connection):
   """Test the setup of DuckDB."""
   # Setup DuckDB
   con = duckdb_connection
-  assert get_distinct_count(con, "call_center", "cc_call_center_sk") == 1
+  column_info = DuckDBColumnInfo(
+    con=con, table="call_center", column="cc_call_center_sk"
+  )
+
+  assert get_distinct_count(column_info) == 1
 
 
 @pytest.mark.parametrize(
