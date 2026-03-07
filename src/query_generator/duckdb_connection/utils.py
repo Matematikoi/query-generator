@@ -114,6 +114,16 @@ def get_columns(
   ]
 
 
+def get_sample_as_cte(params: DuckDBColumnInfo, sample_rows: int):
+  return f"""
+  WITH sampled_values AS (
+    SELECT {params.column}
+    FROM {params.table}
+    USING SAMPLE reservoir({sample_rows} ROWS) REPEATABLE(42)
+  )
+  """
+
+
 def get_equi_height_histogram(
   con: duckdb.DuckDBPyConnection,
   table: str,
@@ -150,17 +160,42 @@ def get_equi_height_histogram(
   return [RawDuckDBHistograms(bin=d[0], count=d[1]) for d in data]
 
 
-def get_distinct_count(params: DuckDBColumnInfo) -> int:
-  data: int = params.con.execute(f"""
-    SELECT COUNT(DISTINCT {params.column}) FROM {params.table};
-  """).fetchall()[0][0]
+def get_distinct_count(
+  params: DuckDBColumnInfo, sample_rows: int | None = None
+) -> int:
+  """Calculates the distinct count of a column.
+
+  If `sample_rows` is not None, then a sample with seed 42 is taken."""
+  if sample_rows is None:
+    query = f"""
+      SELECT COUNT(DISTINCT {params.column}) FROM {params.table};
+    """
+  else:
+    query = f"""
+      {get_sample_as_cte(params, sample_rows)}
+      SELECT COUNT(DISTINCT {params.column}) FROM sampled_values;
+    """
+  data: int = params.con.execute(query).fetchall()[0][0]
   return data
 
 
-def get_null_count(params: DuckDBColumnInfo) -> int:
-  data: int = params.con.execute(f"""
-    SELECT COUNT_IF({params.column} IS NULL) FROM {params.table};
-  """).fetchall()[0][0]
+def get_null_count(
+  params: DuckDBColumnInfo, sample_rows: int | None = None
+) -> int:
+  if sample_rows is None:
+    query = f"""
+      SELECT COUNT_IF({params.column} IS NULL) FROM {params.table};
+    """
+  else:
+    query = f"""
+      WITH sampled_values AS (
+        SELECT {params.column}
+        FROM {params.table}
+        USING SAMPLE {sample_rows} ROWS
+      )
+      SELECT COUNT_IF({params.column} IS NULL) FROM sampled_values;
+    """
+  data: int = params.con.execute(query).fetchall()[0][0]
   return data
 
 

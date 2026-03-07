@@ -44,6 +44,19 @@ def test_distinct_values(duckdb_connection):
   assert get_distinct_count(column_info) == 1
 
 
+def test_distinct_values_sample(duckdb_connection):
+  """Test the setup of DuckDB."""
+  # Setup DuckDB
+  con = duckdb_connection
+  column_info = DuckDBColumnInfo(
+    con=con, table="web_returns", column="wr_return_quantity"
+  )
+
+  value_1 = get_distinct_count(column_info, sample_rows=1000)
+  value_2 = get_distinct_count(column_info, sample_rows=1000)
+  assert value_1 == value_2
+
+
 def test_null_values(duckdb_connection):
   """Test null counting for a column."""
   con = duckdb_connection

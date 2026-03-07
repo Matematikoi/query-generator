@@ -195,10 +195,14 @@ def query_histograms(
       histogram_array = get_histogram_array(histogram_params)
 
       # Get distinct count
-      distinct_count = get_distinct_count(column_info)
+      distinct_count = get_distinct_count(
+        column_info, histogram_params.histogram_sample_rows
+      )
 
       # Get null Count
-      null_count = get_null_count(column_info)
+      null_count = get_null_count(
+        column_info, histogram_params.histogram_sample_rows
+      )
 
       row_dict: dict[str, Any] = {
         HistogramColumns.TABLE: table,
