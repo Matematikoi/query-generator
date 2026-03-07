@@ -60,9 +60,7 @@ class HistogramColumns(StrEnum):
 
 @dataclass
 class HistogramParams:
-  con: duckdb.DuckDBPyConnection
-  table: str
-  column: RawDuckDBTableDescription
+  col_info: DuckDBColumnInfo
   histogram_size: int
   histogram_sample_rows: int | None
 
@@ -101,48 +99,42 @@ class DuckDBHistogramParser:
 
 
 def get_most_common_values(
-  con: duckdb.DuckDBPyConnection,
-  table: str,
-  column: str,
+  params: DuckDBColumnInfo,
   common_value_size: int,
+  sample_rows: int|None,
 ) -> list[RawDuckDBMostCommonValues]:
-  return get_frequent_non_null_values(con, table, column, common_value_size)
+  return get_frequent_non_null_values(params, common_value_size, sample_rows)
 
 
-def get_histogram_array(histogram_params: HistogramParams) -> list[str]:
+def get_histogram_array(params: HistogramParams) -> list[str]:
   histogram_raw = get_equi_height_histogram(
-    histogram_params.con,
-    histogram_params.table,
-    histogram_params.column.column_name,
-    histogram_params.histogram_size,
-    histogram_params.histogram_sample_rows,
+    params.col_info,
+    params.histogram_size,
+    params.histogram_sample_rows,
   )
   histogram_parser = DuckDBHistogramParser(
-    histogram_raw, histogram_params.column.column_type
+    histogram_raw, params.col_info.column
   )
   return histogram_parser.get_equiwidth_histogram_array()
 
 
 def get_histogram_array_excluding_common_values(
-  histogram_params: HistogramParams,
+  params: HistogramParams,
   common_values_size: int,
   distinct_count: int,
+  column_type: str
 ) -> list[str]:
   histogram_array: list[RawDuckDBHistograms] = []
   if distinct_count > common_values_size:
     histogram_array = get_histogram_excluding_common_values(
-      DuckDBColumnInfo(
-        histogram_params.con,
-        histogram_params.table,
-        histogram_params.column.column_name,
-      ),
-      histogram_params.histogram_size,
+      params.col_info,
+      params.histogram_size,
       common_values_size,
-      histogram_params.histogram_sample_rows,
+      params.histogram_sample_rows,
     )
   histogram_parser = DuckDBHistogramParser(
     histogram_array,
-    histogram_params.column.column_type,
+    column_type,
   )
   return histogram_parser.get_equiwidth_histogram_array()
 
@@ -181,27 +173,25 @@ def query_histograms(
       pbar.set_description(  # type: ignore
         f"Processing table {table} column {column.column_name}"
       )
-      histogram_params = HistogramParams(
-        con,
-        table,
-        column,
-        histogram_size,
-        sample_rows_for_query,
-      )
       column_info = DuckDBColumnInfo(
         con=con, table=table, column=column.column_name
+      )
+      histogram_params = HistogramParams(
+        column_info,
+        histogram_size,
+        sample_rows_for_query,
       )
       # Get Histogram array
       histogram_array = get_histogram_array(histogram_params)
 
       # Get distinct count
       distinct_count = get_distinct_count(
-        column_info, histogram_params.histogram_sample_rows
+        column_info, sample_rows_for_query
       )
 
       # Get null Count
       null_count = get_null_count(
-        column_info, histogram_params.histogram_sample_rows
+        column_info, sample_rows_for_query
       )
 
       row_dict: dict[str, Any] = {
@@ -217,10 +207,9 @@ def query_histograms(
       if include_mcv:
         # Get most common values
         most_common_values = get_most_common_values(
-          con,
-          table,
-          column.column_name,
+          column_info,
           common_values_size,
+          sample_rows_for_query
         )
 
         # Get histogram array excluding common values
@@ -229,6 +218,7 @@ def query_histograms(
             histogram_params,
             common_values_size,
             distinct_count,
+            column.column_type
           )
         )
 

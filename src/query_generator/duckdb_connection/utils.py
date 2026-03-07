@@ -114,7 +114,13 @@ def get_columns(
   ]
 
 
-def get_sample_as_cte(params: DuckDBColumnInfo, sample_rows: int):
+def get_sample_as_cte(params: DuckDBColumnInfo, sample_rows: int | None):
+
+  if sample_rows is None or sample_rows ==0:
+    return f"""
+    WITH sampled_values AS (FROM {params.table})
+    """
+
   return f"""
   WITH sampled_values AS (
     SELECT {params.column}
@@ -125,38 +131,21 @@ def get_sample_as_cte(params: DuckDBColumnInfo, sample_rows: int):
 
 
 def get_equi_height_histogram(
-  con: duckdb.DuckDBPyConnection,
-  table: str,
-  column: str,
+  params: DuckDBColumnInfo,
   bin_count: int,
   sample_rows: int | None = None,
 ) -> list[RawDuckDBHistograms]:
-  if sample_rows is None:
-    query = f"""
-      SELECT bin, count
-      FROM histogram(
-      '{table}',
-      {column},
-      bin_count := {bin_count},
-      technique := 'equi-height'
-    );
-    """
-  else:
-    query = f"""
-      WITH sampled_values AS (
-        SELECT {column}
-        FROM {table}
-        USING SAMPLE {sample_rows} ROWS
-      )
-      SELECT bin, count
-      FROM histogram(
-      sampled_values,
-      {column},
-      bin_count := {bin_count},
-      technique := 'equi-height'
-    );
-    """
-  data = con.execute(query).fetchall()
+  query = f"""
+    {get_sample_as_cte(params, sample_rows)}
+    SELECT bin, count
+    FROM histogram(
+    sampled_values,
+    {params.column},
+    bin_count := {bin_count},
+    technique := 'equi-height'
+  );
+  """
+  data = params.con.execute(query).fetchall()
   return [RawDuckDBHistograms(bin=d[0], count=d[1]) for d in data]
 
 
@@ -166,15 +155,10 @@ def get_distinct_count(
   """Calculates the distinct count of a column.
 
   If `sample_rows` is not None, then a sample with seed 42 is taken."""
-  if sample_rows is None:
-    query = f"""
-      SELECT COUNT(DISTINCT {params.column}) FROM {params.table};
-    """
-  else:
-    query = f"""
-      {get_sample_as_cte(params, sample_rows)}
-      SELECT COUNT(DISTINCT {params.column}) FROM sampled_values;
-    """
+  query = f"""
+    {get_sample_as_cte(params, sample_rows)}
+    SELECT COUNT(DISTINCT {params.column}) FROM sampled_values;
+  """
   data: int = params.con.execute(query).fetchall()[0][0]
   return data
 
@@ -182,31 +166,23 @@ def get_distinct_count(
 def get_null_count(
   params: DuckDBColumnInfo, sample_rows: int | None = None
 ) -> int:
-  if sample_rows is None:
-    query = f"""
-      SELECT COUNT_IF({params.column} IS NULL) FROM {params.table};
-    """
-  else:
-    query = f"""
-      WITH sampled_values AS (
-        SELECT {params.column}
-        FROM {params.table}
-        USING SAMPLE {sample_rows} ROWS
-      )
-      SELECT COUNT_IF({params.column} IS NULL) FROM sampled_values;
-    """
+  query = f"""
+    {get_sample_as_cte(params, sample_rows)}
+    SELECT COUNT_IF({params.column} IS NULL) FROM sampled_values;
+  """
   data: int = params.con.execute(query).fetchall()[0][0]
   return data
 
 
 def get_frequent_non_null_values(
-  con: duckdb.DuckDBPyConnection, table: str, column: str, limit: int
+   params: DuckDBColumnInfo ,limit: int, sample_rows:int|None
 ) -> list[RawDuckDBMostCommonValues]:
-  data = con.execute(f"""
-    SELECT {column}, COUNT(*) as count
-    FROM {table}
-    WHERE {column} IS NOT NULL
-    GROUP BY {column}
+  data = params.con.execute(f"""
+    {get_sample_as_cte(params, sample_rows)}
+    SELECT {params.column}, COUNT(*) as count
+    FROM {params.table}
+    WHERE {params.column} IS NOT NULL
+    GROUP BY {params.column}
     ORDER BY count DESC
     LIMIT {limit};
   """).fetchall()
@@ -222,13 +198,11 @@ def get_histogram_excluding_common_values(
   con = column_info.con
   table = column_info.table
   column = column_info.column
-  sampling_clause = (
-    f"USING SAMPLE {sample_rows} ROWS" if sample_rows is not None else ""
-  )
   query = f"""
-    WITH common_values AS (
+    {get_sample_as_cte(column_info,sample_rows)}
+    , common_values AS (
       SELECT {column}, COUNT(*) as count
-      FROM {table}
+      FROM sampled_values
       WHERE {column} IS NOT NULL
       GROUP BY {column}
       ORDER BY count DESC
@@ -236,10 +210,9 @@ def get_histogram_excluding_common_values(
     ),
     exclude_values AS (
       SELECT {column}
-      FROM {table}
+      FROM sampled_values
       WHERE {column} NOT IN (SELECT {column} FROM common_values)
       AND {column} IS NOT NULL
-      {sampling_clause}
     )
     SELECT bin, count
     FROM histogram(
