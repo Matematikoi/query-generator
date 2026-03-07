@@ -197,7 +197,7 @@ class HistogramEndpoint:
   database_path: str
   histogram_size: int = 51
   common_values_size: int = 10
-  sample_rows: int = 100000
+  sample_size: int = 100000
   redundant_histogram_size = 0
 
 

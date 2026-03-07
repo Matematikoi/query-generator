@@ -52,8 +52,8 @@ def test_distinct_values_sample(duckdb_connection):
     con=con, table="web_returns", column="wr_return_quantity"
   )
 
-  value_1 = get_distinct_count(column_info, sample_rows=1000)
-  value_2 = get_distinct_count(column_info, sample_rows=1000)
+  value_1 = get_distinct_count(column_info, sample_size=1000)
+  value_2 = get_distinct_count(column_info, sample_size=1000)
   assert value_1 == value_2
 
 

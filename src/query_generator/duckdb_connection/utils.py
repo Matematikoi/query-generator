@@ -114,9 +114,9 @@ def get_columns(
   ]
 
 
-def get_sample_as_cte(params: DuckDBColumnInfo, sample_rows: int | None):
+def get_sample_as_cte(params: DuckDBColumnInfo, sample_size: int | None):
 
-  if sample_rows is None or sample_rows ==0:
+  if sample_size is None or sample_size ==0:
     return f"""
     WITH sampled_values AS (FROM {params.table})
     """
@@ -125,7 +125,7 @@ def get_sample_as_cte(params: DuckDBColumnInfo, sample_rows: int | None):
   WITH sampled_values AS (
     SELECT {params.column}
     FROM {params.table}
-    USING SAMPLE reservoir({sample_rows} ROWS) REPEATABLE(42)
+    USING SAMPLE reservoir({sample_size} ROWS) REPEATABLE(42)
   )
   """
 
@@ -133,10 +133,10 @@ def get_sample_as_cte(params: DuckDBColumnInfo, sample_rows: int | None):
 def get_equi_height_histogram(
   params: DuckDBColumnInfo,
   bin_count: int,
-  sample_rows: int | None = None,
+  sample_size: int | None = None,
 ) -> list[RawDuckDBHistograms]:
   query = f"""
-    {get_sample_as_cte(params, sample_rows)}
+    {get_sample_as_cte(params, sample_size)}
     SELECT bin, count
     FROM histogram(
     sampled_values,
@@ -150,13 +150,13 @@ def get_equi_height_histogram(
 
 
 def get_distinct_count(
-  params: DuckDBColumnInfo, sample_rows: int | None = None
+  params: DuckDBColumnInfo, sample_size: int | None = None
 ) -> int:
   """Calculates the distinct count of a column.
 
-  If `sample_rows` is not None, then a sample with seed 42 is taken."""
+  If `sample_size` is not None, then a sample with seed 42 is taken."""
   query = f"""
-    {get_sample_as_cte(params, sample_rows)}
+    {get_sample_as_cte(params, sample_size)}
     SELECT COUNT(DISTINCT {params.column}) FROM sampled_values;
   """
   data: int = params.con.execute(query).fetchall()[0][0]
@@ -164,10 +164,10 @@ def get_distinct_count(
 
 
 def get_null_count(
-  params: DuckDBColumnInfo, sample_rows: int | None = None
+  params: DuckDBColumnInfo, sample_size: int | None = None
 ) -> int:
   query = f"""
-    {get_sample_as_cte(params, sample_rows)}
+    {get_sample_as_cte(params, sample_size)}
     SELECT COUNT_IF({params.column} IS NULL) FROM sampled_values;
   """
   data: int = params.con.execute(query).fetchall()[0][0]
@@ -175,10 +175,10 @@ def get_null_count(
 
 
 def get_frequent_non_null_values(
-   params: DuckDBColumnInfo ,limit: int, sample_rows:int|None
+   params: DuckDBColumnInfo ,limit: int, sample_size:int|None
 ) -> list[RawDuckDBMostCommonValues]:
   data = params.con.execute(f"""
-    {get_sample_as_cte(params, sample_rows)}
+    {get_sample_as_cte(params, sample_size)}
     SELECT {params.column}, COUNT(*) as count
     FROM {params.table}
     WHERE {params.column} IS NOT NULL
@@ -193,13 +193,13 @@ def get_histogram_excluding_common_values(
   column_info: DuckDBColumnInfo,
   bin_count: int,
   common_values_size: int,
-  sample_rows: int | None = None,
+  sample_size: int | None = None,
 ) -> list[RawDuckDBHistograms]:
   con = column_info.con
   table = column_info.table
   column = column_info.column
   query = f"""
-    {get_sample_as_cte(column_info,sample_rows)}
+    {get_sample_as_cte(column_info,sample_size)}
     , common_values AS (
       SELECT {column}, COUNT(*) as count
       FROM sampled_values
