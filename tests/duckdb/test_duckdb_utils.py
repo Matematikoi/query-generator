@@ -86,11 +86,7 @@ def test_duck_db_execution(query, expected_result, duckdb_connection):
 
 def test_histogram(duckdb_connection):
   con = duckdb_connection
-  params = DuckDBColumnInfo(
-    con= con,
-    table = "item",
-    column = "i_current_price"
-  )
+  params = DuckDBColumnInfo(con=con, table="item", column="i_current_price")
   histogram = get_equi_height_histogram(params, 5)
   histogram_parser = DuckDBHistogramParser(histogram, "float")
   assert len(histogram) == 5

@@ -125,11 +125,8 @@ def make_histograms(
 
   con = duckdb.connect(params.database_path, read_only=True)
   histograms_df = query_histograms(
-    histogram_size=params.histogram_size,
-    common_values_size=params.common_values_size,
-    sample_size=params.sample_size,
     con=con,
-    include_mcv=params.common_values_size > 0,
+    params=params,
   )
   logger.info("Finished querying the database.")
   redundant_histogram_df = make_redundant_histograms(

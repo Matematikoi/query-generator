@@ -23,6 +23,7 @@ from query_generator.duckdb_connection.utils import (
 from query_generator.utils.exceptions import (
   NoBasicHistogramElementError,
 )
+from query_generator.utils.params import HistogramEndpoint
 
 logger = logging.getLogger(__name__)
 
@@ -98,10 +99,19 @@ class DuckDBHistogramParser:
     return self.upper_bounds
 
 
+def get_common_substrings(
+  params: DuckDBColumnInfo,
+  sample_size: int | None,
+  like_strings_per_threshold: int,
+) -> None:
+  """Calculates common substrings of a column."""
+  return
+
+
 def get_most_common_values(
   params: DuckDBColumnInfo,
   common_value_size: int,
-  sample_size: int|None,
+  sample_size: int | None,
 ) -> list[RawDuckDBMostCommonValues]:
   return get_frequent_non_null_values(params, common_value_size, sample_size)
 
@@ -122,7 +132,7 @@ def get_histogram_array_excluding_common_values(
   params: HistogramParams,
   common_values_size: int,
   distinct_count: int,
-  column_type: str
+  column_type: str,
 ) -> list[str]:
   histogram_array: list[RawDuckDBHistograms] = []
   if distinct_count > common_values_size:
@@ -140,12 +150,8 @@ def get_histogram_array_excluding_common_values(
 
 
 def query_histograms(
-  histogram_size: int,
-  common_values_size: int,
-  sample_size: int,
+  params: HistogramEndpoint,
   con: duckdb.DuckDBPyConnection,
-  *,
-  include_mcv: bool,
 ) -> pl.DataFrame:
   """Creates histograms for the given dataset.
   Args:
@@ -166,8 +172,10 @@ def query_histograms(
 
     # Get table size
     table_size = get_size_of_table(con, table)
-    actual_sample_size = min(sample_size, table_size)
-    sample_size_for_query = actual_sample_size if actual_sample_size < table_size else None
+    actual_sample_size = min(params.sample_size, table_size)
+    sample_size_for_query = (
+      actual_sample_size if actual_sample_size < table_size else None
+    )
     for column in pbar:  # type: ignore
       logger.debug(f"Processing column {column} of table {table}")
       pbar.set_description(  # type: ignore
@@ -178,20 +186,21 @@ def query_histograms(
       )
       histogram_params = HistogramParams(
         column_info,
-        histogram_size,
+        params.histogram_size,
         sample_size_for_query,
       )
       # Get Histogram array
       histogram_array = get_histogram_array(histogram_params)
 
       # Get distinct count
-      distinct_count = get_distinct_count(
-        column_info, sample_size_for_query
-      )
+      distinct_count = get_distinct_count(column_info, sample_size_for_query)
 
       # Get null Count
-      null_count = get_null_count(
-        column_info, sample_size_for_query
+      null_count = get_null_count(column_info, sample_size_for_query)
+
+      # Get common substr information
+      common_substrings = get_common_substrings(
+        column_info, sample_size_for_query, params.like_strings_per_threshold
       )
 
       row_dict: dict[str, Any] = {
@@ -204,21 +213,19 @@ def query_histograms(
         HistogramColumns.NULL_COUNT: null_count,
         HistogramColumns.SAMPLE_SIZE: actual_sample_size,
       }
-      if include_mcv:
+      if params.include_mcv:
         # Get most common values
         most_common_values = get_most_common_values(
-          column_info,
-          common_values_size,
-          sample_size_for_query
+          column_info, params.common_values_size, sample_size_for_query
         )
 
         # Get histogram array excluding common values
         histogram_array_excluding_mcv = (
           get_histogram_array_excluding_common_values(
             histogram_params,
-            common_values_size,
+            params.common_values_size,
             distinct_count,
-            column.column_type
+            column.column_type,
           )
         )
 

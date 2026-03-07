@@ -198,7 +198,12 @@ class HistogramEndpoint:
   histogram_size: int = 51
   common_values_size: int = 10
   sample_size: int = 100000
+  like_strings_per_threshold: int = 25
   redundant_histogram_size = 0
+  include_mcv: bool = dc_field(init=False)
+
+  def __post_init__(self) -> None:
+    self.include_mcv = self.common_values_size > 0
 
 
 @dataclass

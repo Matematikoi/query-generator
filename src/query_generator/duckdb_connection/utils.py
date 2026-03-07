@@ -115,8 +115,7 @@ def get_columns(
 
 
 def get_sample_as_cte(params: DuckDBColumnInfo, sample_size: int | None):
-
-  if sample_size is None or sample_size ==0:
+  if sample_size is None or sample_size == 0:
     return f"""
     WITH sampled_values AS (FROM {params.table})
     """
@@ -175,7 +174,7 @@ def get_null_count(
 
 
 def get_frequent_non_null_values(
-   params: DuckDBColumnInfo ,limit: int, sample_size:int|None
+  params: DuckDBColumnInfo, limit: int, sample_size: int | None
 ) -> list[RawDuckDBMostCommonValues]:
   data = params.con.execute(f"""
     {get_sample_as_cte(params, sample_size)}
@@ -196,10 +195,9 @@ def get_histogram_excluding_common_values(
   sample_size: int | None = None,
 ) -> list[RawDuckDBHistograms]:
   con = column_info.con
-  table = column_info.table
   column = column_info.column
   query = f"""
-    {get_sample_as_cte(column_info,sample_size)}
+    {get_sample_as_cte(column_info, sample_size)}
     , common_values AS (
       SELECT {column}, COUNT(*) as count
       FROM sampled_values
