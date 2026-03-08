@@ -35,6 +35,7 @@ class PredicateTypes(Enum):
   IN = "in"
   RANGE = "range"
   EQUALITY = "equality"
+  LIKE = "like"
 
 
 class HistogramDataType(Enum):
@@ -65,6 +66,11 @@ class PredicateEquality(Predicate):
 @dataclass
 class PredicateIn(Predicate):
   in_values: SuportedHistogramArrayType
+
+
+@dataclass
+class PredicateLike(Predicate):
+  pattern: str
 
 
 class PredicateGenerator:
@@ -127,12 +133,14 @@ class PredicateGenerator:
       operator_weights.operator_equal,
       operator_weights.operator_in,
       operator_weights.operator_range,
+      operator_weights.operator_like,
     ]
     return random.choices(
       [
         PredicateTypes.EQUALITY,
         PredicateTypes.IN,
         PredicateTypes.RANGE,
+        PredicateTypes.LIKE,
       ],
       weights=weights,
     )[0]
@@ -197,6 +205,35 @@ class PredicateGenerator:
             f"\ncolumn={column}\ndata_type={dtype}"
             f"\nlower_bound_probability={self.predicate_params.equality_lower_bound_probability}"
           )
+      elif predicate_type == PredicateTypes.LIKE:
+        if dtype != HistogramDataType.STRING:
+          continue
+        common_substrings = row[HistogramColumns.COMMON_SUBSTRINGS]
+        if not common_substrings:
+          continue
+        like = self._get_like_predicate(common_substrings, table, column, dtype)
+        if like is not None:
+          yield like
+
+  def _get_like_predicate(
+    self,
+    common_substrings: list[dict],
+    table: str,
+    column: str,
+    dtype: HistogramDataType,
+  ) -> PredicateLike | None:
+    min_prob = self.predicate_params.minimum_like_support_probability
+    candidates = [
+      s for s in common_substrings if s["support_probability"] >= min_prob
+    ]
+    if not candidates:
+      return None
+    weights = [len(s["substring"]) for s in candidates]
+    chosen = random.choices(candidates, weights=weights, k=1)[0]
+    pattern = f"%{chosen['substring']}%"
+    return PredicateLike(
+      table=table, column=column, dtype=dtype, pattern=pattern
+    )
 
   def _get_in_predicate(
     self, array: list[str], table: str, column: str, dtype: HistogramDataType

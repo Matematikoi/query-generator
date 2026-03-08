@@ -72,6 +72,7 @@ def get_total_iterations(search_params: SyntheticQueriesEndpoint) -> int:
     * len(search_params.row_retention_probability)
     * len(search_params.equality_lower_bound_probability)
     * len(search_params.keep_edge_probability)
+    * len(search_params.minimum_like_support_probability)
   )
 
 
@@ -96,6 +97,7 @@ def generate_synthetic_queries(
     row_retention_probability,
     equality_lower_bound_probability,
     keep_edge_probability,
+    minimum_like_support_probability,
   ) in tqdm(  # type: ignore
     product(
       params.user_input.max_hops,
@@ -103,6 +105,7 @@ def generate_synthetic_queries(
       params.user_input.row_retention_probability,
       params.user_input.equality_lower_bound_probability,
       params.user_input.keep_edge_probability,
+      params.user_input.minimum_like_support_probability,
     ),
     total=total_iterations,
     desc="Batch",
@@ -124,6 +127,7 @@ def generate_synthetic_queries(
           operator_weights=params.user_input.operator_weights,
           equality_lower_bound_probability=equality_lower_bound_probability,
           extra_values_for_in=params.user_input.extra_values_for_in,
+          minimum_like_support_probability=minimum_like_support_probability,
         ),
       )
     )

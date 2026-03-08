@@ -21,6 +21,7 @@ from query_generator.synthetic_queries.predicate_generator import (
   PredicateEquality,
   PredicateGenerator,
   PredicateIn,
+  PredicateLike,
   PredicateRange,
   SupportedHistogramType,
 )
@@ -102,6 +103,9 @@ class QueryBuilderPypika:
       if isinstance(predicate, PredicateIn):
         query = self._add_in(query, predicate)
         predicate_types.in_values += 1
+      if isinstance(predicate, PredicateLike):
+        query = self._add_like(query, predicate)
+        predicate_types.like += 1
     return query, predicate_types
 
   def _cast_if_needed(
@@ -137,6 +141,15 @@ class QueryBuilderPypika:
     return query.where(  # type: ignore
       self.table_to_pypika_table[predicate.table][predicate.column].isin(
         [self._cast_if_needed(i, predicate.dtype) for i in predicate.in_values]
+      )
+    )
+
+  def _add_like(
+    self, query: QueryBuilder, predicate: PredicateLike
+  ) -> QueryBuilder:
+    return query.where(  # type: ignore
+      self.table_to_pypika_table[predicate.table][predicate.column].like(
+        predicate.pattern
       )
     )
 
