@@ -94,6 +94,9 @@ select = [
 ignore = ["COM812"]
 
 
+[tool.pyrefly]
+replace_imports_with_any = ["commonstrings"]
+
 [tool.pytest.ini_options]
 pythonpath = "."
 testpaths = [ "tests" ]

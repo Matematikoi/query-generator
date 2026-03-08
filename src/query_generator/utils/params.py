@@ -198,7 +198,8 @@ class HistogramEndpoint:
   histogram_size: int = 51
   common_values_size: int = 10
   sample_size: int = 100000
-  like_strings_per_threshold: int = 25
+  support_probability_threshold_for_substrings: float = 0.05
+  max_substrings_per_length: int = 100
   redundant_histogram_size = 0
   include_mcv: bool = dc_field(init=False)
 

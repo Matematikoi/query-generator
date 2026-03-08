@@ -1,7 +1,6 @@
 import logging
 from dataclasses import dataclass
 from enum import StrEnum
-from functools import reduce
 from typing import Any, TypedDict
 
 import duckdb
@@ -43,9 +42,8 @@ class CandidateEntry:
 
 
 class CommonSubstring(TypedDict):
-  """A common substring with its probability threshold and occurrence count."""
+  """A common substring with its occurrence count and probability."""
 
-  probability: float
   substring: str
   support: int
   support_probability: float
@@ -118,30 +116,34 @@ class DuckDBHistogramParser:
     return self.upper_bounds
 
 
-def binary_search_common_str_tree(
-  tree: PyCommon_multiple_strings, support: int, minimum_candidates: int
+def get_top_substrings_per_length(
+  tree: PyCommon_multiple_strings,
+  min_support_count: int,
+  max_per_length: int,
+  max_length: int = 25,
 ) -> list[CandidateEntry]:
-  for i in range(25, 0, -1):
+  result = []
+  for length in range(1, max_length + 1):
     data: dict[int, list[str]] = tree.filter_substrings_by_length(
-      length_input=i, times=(support, None)
+      length_input=length, times=(min_support_count, None)
     )
-    data_size = reduce(lambda cum, kv: cum + len(kv), data.values(), 0)
-    if data_size >= minimum_candidates:
-      result = []
-      for support_for_candidate, candidates in data.items():
-        for candidate in candidates:
-          result.append(
-            CandidateEntry(support=support_for_candidate, substring=candidate)
-          )
-      return result
-  return []
+    if not data:
+      break
+    candidates = [
+      CandidateEntry(support=support_count, substring=s)
+      for support_count, strings in data.items()
+      for s in strings
+    ]
+    candidates.sort(key=lambda c: c.support, reverse=True)
+    result.extend(candidates[:max_per_length])
+  return result
 
 
 def get_common_substrings(
   params: DuckDBColumnInfo,
   sample_size: int | None,
-  like_strings_per_threshold: int,
-  distinct_count: int,
+  support_probability_threshold: float,
+  max_substrings_per_length: int,
 ) -> list[CommonSubstring]:
   """Calculates common substrings of a column."""
   get_list_of_str = get_sample_of_str_from_column(params, sample_size)
@@ -150,23 +152,20 @@ def get_common_substrings(
   tree = PyCommon_multiple_strings()
   tree.from_strings(get_list_of_str)
   sampled_str_count = len(get_list_of_str)
-  number_of_candidates = min(like_strings_per_threshold, distinct_count)
-  result: list[CommonSubstring] = []
-  for support in range(5, 101, 5):  # [5,10,15,...,100]
-    count_threshold = max(1, int(support / 100.0 * sampled_str_count))
-    candidates = binary_search_common_str_tree(
-      tree, count_threshold, number_of_candidates
+  min_support_count = max(
+    1, int(support_probability_threshold * sampled_str_count)
+  )
+  candidates = get_top_substrings_per_length(
+    tree, min_support_count, max_substrings_per_length
+  )
+  return [
+    CommonSubstring(
+      substring=c.substring,
+      support=c.support,
+      support_probability=c.support / sampled_str_count,
     )
-    for candidate in candidates:
-      result.append(
-        CommonSubstring(
-          probability=support / 100.0,
-          substring=candidate.substring,
-          support=candidate.support,
-          support_probability=candidate.support / sampled_str_count,
-        )
-      )
-  return result
+    for c in candidates
+  ]
 
 
 def get_most_common_values(
@@ -266,8 +265,8 @@ def query_histograms(
         common_substrings = get_common_substrings(
           column_info,
           sample_size_for_query,
-          params.like_strings_per_threshold,
-          distinct_count,
+          params.support_probability_threshold_for_substrings,
+          params.max_substrings_per_length,
         )
 
       row_dict: dict[str, Any] = {
