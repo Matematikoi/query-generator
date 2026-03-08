@@ -1,10 +1,12 @@
 import logging
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Any
+from functools import reduce
+from typing import Any, TypedDict
 
 import duckdb
 import polars as pl
+from commonstrings import PyCommon_multiple_strings
 from tqdm import tqdm
 
 from query_generator.duckdb_connection.utils import (
@@ -18,6 +20,7 @@ from query_generator.duckdb_connection.utils import (
   get_frequent_non_null_values,
   get_histogram_excluding_common_values,
   get_null_count,
+  get_sample_of_str_from_column,
   get_tables,
 )
 from query_generator.utils.exceptions import (
@@ -31,6 +34,21 @@ logger = logging.getLogger(__name__)
 class MostCommonValuesColumns(StrEnum):
   VALUE = "value"
   COUNT = "count"
+
+
+@dataclass
+class CandidateEntry:
+  support: int
+  substring: str
+
+
+class CommonSubstring(TypedDict):
+  """A common substring with its probability threshold and occurrence count."""
+
+  probability: float
+  substring: str
+  support: int
+  support_probability: float
 
 
 class RedundantHistogramsDataType(StrEnum):
@@ -57,6 +75,7 @@ class HistogramColumns(StrEnum):
   TABLE_SIZE = "table_size"
   NULL_COUNT = "null_count"
   SAMPLE_SIZE = "sample_size"
+  COMMON_SUBSTRINGS = "common_substrings"
 
 
 @dataclass
@@ -99,13 +118,55 @@ class DuckDBHistogramParser:
     return self.upper_bounds
 
 
+def binary_search_common_str_tree(
+  tree: PyCommon_multiple_strings, support: int, minimum_candidates: int
+) -> list[CandidateEntry]:
+  for i in range(25, 0, -1):
+    data: dict[int, list[str]] = tree.filter_substrings_by_length(
+      length_input=i, times=(support, None)
+    )
+    data_size = reduce(lambda cum, kv: cum + len(kv), data.values(), 0)
+    if data_size >= minimum_candidates:
+      result = []
+      for support_for_candidate, candidates in data.items():
+        for candidate in candidates:
+          result.append(
+            CandidateEntry(support=support_for_candidate, substring=candidate)
+          )
+      return result
+  return []
+
+
 def get_common_substrings(
   params: DuckDBColumnInfo,
   sample_size: int | None,
   like_strings_per_threshold: int,
-) -> None:
+  distinct_count: int,
+) -> list[CommonSubstring]:
   """Calculates common substrings of a column."""
-  return
+  get_list_of_str = get_sample_of_str_from_column(params, sample_size)
+  if not get_list_of_str:
+    return []
+  tree = PyCommon_multiple_strings()
+  tree.from_strings(get_list_of_str)
+  sampled_str_count = len(get_list_of_str)
+  number_of_candidates = min(like_strings_per_threshold, distinct_count)
+  result: list[CommonSubstring] = []
+  for support in range(5, 101, 5):  # [5,10,15,...,100]
+    count_threshold = max(1, int(support / 100.0 * sampled_str_count))
+    candidates = binary_search_common_str_tree(
+      tree, count_threshold, number_of_candidates
+    )
+    for candidate in candidates:
+      result.append(
+        CommonSubstring(
+          probability=support / 100.0,
+          substring=candidate.substring,
+          support=candidate.support,
+          support_probability=candidate.support / sampled_str_count,
+        )
+      )
+  return result
 
 
 def get_most_common_values(
@@ -176,6 +237,7 @@ def query_histograms(
     sample_size_for_query = (
       actual_sample_size if actual_sample_size < table_size else None
     )
+    column: RawDuckDBTableDescription
     for column in pbar:  # type: ignore
       logger.debug(f"Processing column {column} of table {table}")
       pbar.set_description(  # type: ignore
@@ -199,9 +261,14 @@ def query_histograms(
       null_count = get_null_count(column_info, sample_size_for_query)
 
       # Get common substr information
-      common_substrings = get_common_substrings(
-        column_info, sample_size_for_query, params.like_strings_per_threshold
-      )
+      common_substrings = None
+      if column.column_type in ["TEXT", "VARCHAR", "BPCHAR", "CHAR", "STRING"]:
+        common_substrings = get_common_substrings(
+          column_info,
+          sample_size_for_query,
+          params.like_strings_per_threshold,
+          distinct_count,
+        )
 
       row_dict: dict[str, Any] = {
         HistogramColumns.TABLE: table,
@@ -212,6 +279,7 @@ def query_histograms(
         HistogramColumns.TABLE_SIZE: table_size,
         HistogramColumns.NULL_COUNT: null_count,
         HistogramColumns.SAMPLE_SIZE: actual_sample_size,
+        HistogramColumns.COMMON_SUBSTRINGS: common_substrings,
       }
       if params.include_mcv:
         # Get most common values

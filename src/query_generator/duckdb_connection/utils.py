@@ -222,3 +222,16 @@ def get_histogram_excluding_common_values(
   """
   data = con.execute(query).fetchall()
   return [RawDuckDBHistograms(bin=d[0], count=d[1]) for d in data]
+
+
+def get_sample_of_str_from_column(
+  params: DuckDBColumnInfo, sample_size: int | None
+) -> list[str]:
+  """Gets a list of str from a column."""
+  query = f"""
+    {get_sample_as_cte(params, sample_size)}
+    SELECT {params.column} FROM sampled_values
+    WHERE {params.column} IS NOT NULL;
+  """
+  data = params.con.execute(query).fetchall()
+  return [d[0] for d in data]
