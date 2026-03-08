@@ -31,6 +31,7 @@ def test_add_range_supports_all_histogram_types():
       operator_weights=None,
       equality_lower_bound_probability=None,
       extra_values_for_in=None,
+      minimum_like_support_probability=None,
     ),
   )
   for dtype in HistogramDataType:

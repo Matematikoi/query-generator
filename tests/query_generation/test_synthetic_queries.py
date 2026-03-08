@@ -85,12 +85,14 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       keep_edge_probability = [0.2]
       equality_lower_bound_probability = [0]
       extra_values_for_in = 3
+      minimum_like_support_probability = [0.05]
       histogram_path = "{str(get_precomputed_histograms(Dataset.TPCDS))}"
 
       [operator_weights]
       operator_in = 1
       operator_range = 3
       operator_equal = 3
+      operator_like = 1
       """
     user_input = structure(tomllib.loads(data_toml), SyntheticQueriesEndpoint)
     generate_synthetic_queries(

@@ -208,7 +208,7 @@ class PredicateGenerator:
       elif predicate_type == PredicateTypes.LIKE:
         if dtype != HistogramDataType.STRING:
           continue
-        common_substrings = row[HistogramColumns.COMMON_SUBSTRINGS]
+        common_substrings = row.get(HistogramColumns.COMMON_SUBSTRINGS)
         if not common_substrings:
           continue
         like = self._get_like_predicate(common_substrings, table, column, dtype)

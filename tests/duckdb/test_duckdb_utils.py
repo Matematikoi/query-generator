@@ -104,7 +104,7 @@ def test_histogram(duckdb_connection):
 def test_most_common_values_datetime(duckdb_connection):
   con = duckdb_connection
   most_common_values = get_frequent_non_null_values(
-    con, "item", "i_rec_end_date", 2
+    DuckDBColumnInfo(con=con, table="item", column="i_rec_end_date"), 2, None
   )
   assert len(most_common_values) == 2
   for value in most_common_values:
@@ -115,7 +115,9 @@ def test_most_common_values_datetime(duckdb_connection):
 
 def test_most_common_values_string(duckdb_connection):
   con = duckdb_connection
-  most_common_values = get_frequent_non_null_values(con, "item", "i_item_id", 2)
+  most_common_values = get_frequent_non_null_values(
+    DuckDBColumnInfo(con=con, table="item", column="i_item_id"), 2, None
+  )
   assert len(most_common_values) == 2
   for value in most_common_values:
     assert isinstance(value.value, str)
@@ -125,7 +127,7 @@ def test_most_common_values_string(duckdb_connection):
 def test_most_common_values_float(duckdb_connection):
   con = duckdb_connection
   most_common_values = get_frequent_non_null_values(
-    con, "item", "i_current_price", 2
+    DuckDBColumnInfo(con=con, table="item", column="i_current_price"), 2, None
   )
   assert len(most_common_values) == 2
   for value in most_common_values:
@@ -135,7 +137,9 @@ def test_most_common_values_float(duckdb_connection):
 
 def test_most_common_values_int(duckdb_connection):
   con = duckdb_connection
-  most_common_values = get_frequent_non_null_values(con, "item", "i_item_sk", 2)
+  most_common_values = get_frequent_non_null_values(
+    DuckDBColumnInfo(con=con, table="item", column="i_item_sk"), 2, None
+  )
   assert len(most_common_values) == 2
   for value in most_common_values:
     assert is_float(value.value)
