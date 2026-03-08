@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass
 from enum import StrEnum
+from itertools import groupby
 from typing import Any, TypedDict
 
 import duckdb
@@ -124,9 +125,12 @@ def get_top_substrings_per_length(
 ) -> list[CandidateEntry]:
   result = []
   for length in range(1, max_length + 1):
-    data: dict[int, list[str]] = tree.filter_substrings_by_length(
-      length_input=length, times=(min_support_count, None)
-    )
+    try:
+      data: dict[int, list[str]] = tree.filter_substrings_by_length(
+        length_input=length, times=(min_support_count, None)
+      )
+    except AssertionError:
+      break
     if not data:
       break
     candidates = [
@@ -136,6 +140,27 @@ def get_top_substrings_per_length(
     ]
     candidates.sort(key=lambda c: c.support, reverse=True)
     result.extend(candidates[:max_per_length])
+  return result
+
+
+def filter_substrings_by_length_support_monotonicity(
+  candidates: list[CandidateEntry],
+) -> list[CandidateEntry]:
+  """Filters candidates so that no longer string has strictly higher support.
+
+  A candidate s is kept if all strings longer than s have support <= s.support.
+  Equivalently, s is filtered if there exists a strictly longer string with
+  strictly higher support.
+  """
+  sorted_candidates = sorted(
+    candidates, key=lambda c: len(c.substring), reverse=True
+  )
+  result: list[CandidateEntry] = []
+  max_support_seen = 0
+  for _, group in groupby(sorted_candidates, key=lambda c: len(c.substring)):
+    group_list = list(group)
+    result.extend(c for c in group_list if c.support >= max_support_seen)
+    max_support_seen = max(max_support_seen, *(c.support for c in group_list))
   return result
 
 
@@ -158,6 +183,7 @@ def get_common_substrings(
   candidates = get_top_substrings_per_length(
     tree, min_support_count, max_substrings_per_length
   )
+  candidates = filter_substrings_by_length_support_monotonicity(candidates)
   return [
     CommonSubstring(
       substring=c.substring,
