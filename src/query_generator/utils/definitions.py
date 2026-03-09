@@ -32,6 +32,7 @@ class PredicateParameters:
   equality_lower_bound_probability: float
   extra_values_for_in: int
   minimum_like_support_probability: float
+  max_predicate_attempts: int = 10
 
 
 # TODO(Gabriel): http://localhost:8080/tktview/205e90a1fa

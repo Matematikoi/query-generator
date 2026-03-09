@@ -14,8 +14,11 @@ extra_predicates = [1,3,5]
 row_retention_probability = [0.2, 0.85,1.0]
 equality_lower_bound_probability = [0,0.1]
 extra_values_for_in = 3
+minimum_like_support_probability = [0.05]
 
 [operator_weights]
 operator_in = 1
 operator_range = 3
 operator_equal = 3
+operator_like = 1
+operator_not_like = 1
