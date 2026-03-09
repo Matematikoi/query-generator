@@ -36,6 +36,7 @@ class PredicateTypes(Enum):
   RANGE = "range"
   EQUALITY = "equality"
   LIKE = "like"
+  NOT_LIKE = "not_like"
 
 
 class HistogramDataType(Enum):
@@ -70,6 +71,11 @@ class PredicateIn(Predicate):
 
 @dataclass
 class PredicateLike(Predicate):
+  pattern: str
+
+
+@dataclass
+class PredicateNotLike(Predicate):
   pattern: str
 
 
@@ -134,6 +140,7 @@ class PredicateGenerator:
       operator_weights.operator_in,
       operator_weights.operator_range,
       operator_weights.operator_like,
+      operator_weights.operator_not_like,
     ]
     return random.choices(
       [
@@ -141,6 +148,7 @@ class PredicateGenerator:
         PredicateTypes.IN,
         PredicateTypes.RANGE,
         PredicateTypes.LIKE,
+        PredicateTypes.NOT_LIKE,
       ],
       weights=weights,
     )[0]
@@ -214,6 +222,15 @@ class PredicateGenerator:
         like = self._get_like_predicate(common_substrings, table, column, dtype)
         if like is not None:
           yield like
+      elif predicate_type == PredicateTypes.NOT_LIKE:
+        if dtype != HistogramDataType.STRING:
+          continue
+        common_substrings = row.get(HistogramColumns.COMMON_SUBSTRINGS)
+        if not common_substrings:
+          continue
+        not_like = self._get_not_like_predicate(common_substrings, table, column, dtype)
+        if not_like is not None:
+          yield not_like
 
   def _get_like_predicate(
     self,
@@ -232,6 +249,28 @@ class PredicateGenerator:
     chosen = random.choices(candidates, weights=weights, k=1)[0]
     pattern = f"%{chosen['substring']}%"
     return PredicateLike(
+      table=table, column=column, dtype=dtype, pattern=pattern
+    )
+
+  def _get_not_like_predicate(
+    self,
+    common_substrings: list[dict],
+    table: str,
+    column: str,
+    dtype: HistogramDataType,
+  ) -> PredicateNotLike | None:
+    min_prob = self.predicate_params.minimum_like_support_probability
+    # Flipped filter: NOT LIKE '%x%' matches (1 - support_probability) fraction of rows.
+    # Require that fraction >= min_prob, i.e., support_probability <= 1 - min_prob.
+    candidates = [
+      s for s in common_substrings if s["support_probability"] <= 1 - min_prob
+    ]
+    if not candidates:
+      return None
+    weights = [len(s["substring"]) for s in candidates]
+    chosen = random.choices(candidates, weights=weights, k=1)[0]
+    pattern = f"%{chosen['substring']}%"
+    return PredicateNotLike(
       table=table, column=column, dtype=dtype, pattern=pattern
     )
 

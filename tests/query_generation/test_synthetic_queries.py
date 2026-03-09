@@ -93,6 +93,7 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       operator_range = 3
       operator_equal = 3
       operator_like = 1
+      operator_not_like = 1
       """
     user_input = structure(tomllib.loads(data_toml), SyntheticQueriesEndpoint)
     generate_synthetic_queries(

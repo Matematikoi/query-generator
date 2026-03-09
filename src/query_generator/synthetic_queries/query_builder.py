@@ -22,6 +22,7 @@ from query_generator.synthetic_queries.predicate_generator import (
   PredicateGenerator,
   PredicateIn,
   PredicateLike,
+  PredicateNotLike,
   PredicateRange,
   SupportedHistogramType,
 )
@@ -106,6 +107,9 @@ class QueryBuilderPypika:
       if isinstance(predicate, PredicateLike):
         query = self._add_like(query, predicate)
         predicate_types.like += 1
+      if isinstance(predicate, PredicateNotLike):
+        query = self._add_not_like(query, predicate)
+        predicate_types.not_like += 1
     return query, predicate_types
 
   def _cast_if_needed(
@@ -149,6 +153,15 @@ class QueryBuilderPypika:
   ) -> QueryBuilder:
     return query.where(  # type: ignore
       self.table_to_pypika_table[predicate.table][predicate.column].like(
+        predicate.pattern
+      )
+    )
+
+  def _add_not_like(
+    self, query: QueryBuilder, predicate: PredicateNotLike
+  ) -> QueryBuilder:
+    return query.where(  # type: ignore
+      self.table_to_pypika_table[predicate.table][predicate.column].not_like(
         predicate.pattern
       )
     )

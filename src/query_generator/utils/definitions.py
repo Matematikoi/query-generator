@@ -20,6 +20,7 @@ class PredicateOperatorProbability:
   operator_equal: float
   operator_range: float
   operator_like: float
+  operator_not_like: float
 
 
 @dataclass
@@ -53,6 +54,7 @@ class GeneratedPredicateTypes:
   range: int = 0
   in_values: int = 0
   like: int = 0
+  not_like: int = 0
 
 
 @dataclass

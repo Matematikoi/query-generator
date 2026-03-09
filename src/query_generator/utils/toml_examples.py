@@ -67,6 +67,7 @@ operator_in = 1
 operator_range = 3
 operator_equal = 3
 operator_like = 1
+operator_not_like = 1
 """,
   EndpointName.FILTER: """\
 input_parquet = "/path/to/file.parquet"
