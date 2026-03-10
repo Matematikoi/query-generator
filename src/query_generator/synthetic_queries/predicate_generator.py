@@ -195,61 +195,84 @@ class PredicateGenerator:
       column = row[HistogramColumns.COLUMN]
       dtype = self._get_histogram_type(row[HistogramColumns.DTYPE])
 
-      match predicate_type:
-        case PredicateTypes.RANGE:
-          yield self._get_range_predicate(
-            table, column, row[HistogramColumns.HISTOGRAM], dtype
+      predicate = self._try_generate_predicate(
+        predicate_type, row, table, column, dtype
+      )
+      if predicate is not None:
+        yield predicate
+        predicates_generated += 1
+
+  def _try_generate_predicate(
+    self,
+    predicate_type: PredicateTypes,
+    row: dict,
+    table: str,
+    column: str,
+    dtype: HistogramDataType,
+  ) -> Predicate | None:
+    match predicate_type:
+      case PredicateTypes.RANGE:
+        return self._get_range_predicate(
+          table, column, row[HistogramColumns.HISTOGRAM], dtype
+        )
+      case PredicateTypes.IN:
+        return self._try_in_predicate(row, table, column, dtype)
+      case PredicateTypes.EQUALITY:
+        return self._try_equality_predicate(row, table, column, dtype)
+      case PredicateTypes.LIKE | PredicateTypes.NOT_LIKE:
+        common_substrings = row.get(HistogramColumns.COMMON_SUBSTRINGS)
+        if not common_substrings:
+          return None
+        if predicate_type is PredicateTypes.LIKE:
+          return self._get_like_predicate(
+            common_substrings, table, column, dtype
           )
-          predicates_generated += 1
+        return self._get_not_like_predicate(
+          common_substrings, table, column, dtype
+        )
 
-        case PredicateTypes.IN:
-          array = self._get_in_array(
-            row[HistogramColumns.MOST_COMMON_VALUES],
-            row[HistogramColumns.TABLE_SIZE],
-            row[HistogramColumns.HISTOGRAM_MCV],
-          )
-          if array is not None:
-            yield self._get_in_predicate(array, table, column, dtype)
-            predicates_generated += 1
-          else:
-            logger.debug(
-              f"Unable to generate predicate IN.\ntable={table}"
-              f"\ncolumn={column}\ndata_type={dtype}"
-              f"\nlower_bound_probability={self.predicate_params.equality_lower_bound_probability}"
-            )
+  def _try_in_predicate(
+    self,
+    row: dict,
+    table: str,
+    column: str,
+    dtype: HistogramDataType,
+  ) -> Predicate | None:
+    array = self._get_in_array(
+      row[HistogramColumns.MOST_COMMON_VALUES],
+      row[HistogramColumns.SAMPLE_SIZE],
+      row[HistogramColumns.HISTOGRAM_MCV],
+    )
+    if array is None:
+      logger.debug(
+        f"Unable to generate predicate IN.\ntable={table}"
+        f"\ncolumn={column}\ndata_type={dtype}"
+        f"\nlower_bound_probability="
+        f"{self.predicate_params.equality_lower_bound_probability}"
+      )
+      return None
+    return self._get_in_predicate(array, table, column, dtype)
 
-        case PredicateTypes.EQUALITY:
-          value = self._get_equality_value(
-            row[HistogramColumns.MOST_COMMON_VALUES],
-            row[HistogramColumns.TABLE_SIZE],
-          )
-          if value is not None:
-            yield self._get_equality_predicate(value, table, column, dtype)
-            predicates_generated += 1
-          else:
-            logger.debug(
-              f"Unable to generate predicate equality.\ntable={table}"
-              f"\ncolumn={column}\ndata_type={dtype}"
-              f"\nlower_bound_probability={self.predicate_params.equality_lower_bound_probability}"
-            )
-
-        case PredicateTypes.LIKE:
-          common_substrings = row.get(HistogramColumns.COMMON_SUBSTRINGS)
-          if common_substrings:
-            like = self._get_like_predicate(common_substrings, table, column, dtype)
-            if like is not None:
-              yield like
-              predicates_generated += 1
-
-        case PredicateTypes.NOT_LIKE:
-          common_substrings = row.get(HistogramColumns.COMMON_SUBSTRINGS)
-          if common_substrings:
-            not_like = self._get_not_like_predicate(
-              common_substrings, table, column, dtype
-            )
-            if not_like is not None:
-              yield not_like
-              predicates_generated += 1
+  def _try_equality_predicate(
+    self,
+    row: dict,
+    table: str,
+    column: str,
+    dtype: HistogramDataType,
+  ) -> Predicate | None:
+    value = self._get_equality_value(
+      row[HistogramColumns.MOST_COMMON_VALUES],
+      row[HistogramColumns.SAMPLE_SIZE],
+    )
+    if value is None:
+      logger.debug(
+        f"Unable to generate predicate equality.\ntable={table}"
+        f"\ncolumn={column}\ndata_type={dtype}"
+        f"\nlower_bound_probability="
+        f"{self.predicate_params.equality_lower_bound_probability}"
+      )
+      return None
+    return self._get_equality_predicate(value, table, column, dtype)
 
   def _get_like_predicate(
     self,
@@ -279,8 +302,9 @@ class PredicateGenerator:
     dtype: HistogramDataType,
   ) -> PredicateNotLike | None:
     min_prob = self.predicate_params.minimum_like_support_probability
-    # Flipped filter: NOT LIKE '%x%' matches (1 - support_probability) fraction of rows.
-    # Require that fraction >= min_prob, i.e., support_probability <= 1 - min_prob.
+    # Flipped filter: NOT LIKE '%x%' matches (1 - support_probability)
+    # fraction of rows. Require fraction >= min_prob, i.e.,
+    # support_probability <= 1 - min_prob.
     candidates = [
       s for s in common_substrings if s["support_probability"] <= 1 - min_prob
     ]
@@ -302,13 +326,13 @@ class PredicateGenerator:
   def _get_in_array(
     self,
     most_common_values: list[dict[str, int | str]],
-    table_size: int,
+    sample_size: int,
     histogram: list[str],
   ) -> list[str] | None:
     """
     Gets the array for the IN operator
     """
-    value = self._get_equality_value(most_common_values, table_size)
+    value = self._get_equality_value(most_common_values, sample_size)
     if value is None:
       return None
     noise_values = random.sample(
@@ -328,10 +352,10 @@ class PredicateGenerator:
   def _get_equality_value(
     self,
     most_common_values: list[dict[str, int | str]],
-    table_size: int,
+    sample_size: int,
   ) -> str | None:
     mcv_probabilities: list[float] = [
-      float(table_size) / float(v[MostCommonValuesColumns.COUNT])
+      float(sample_size) / float(v[MostCommonValuesColumns.COUNT])
       for v in most_common_values
     ]
     mcv_probabilities_np = np.array(mcv_probabilities)
