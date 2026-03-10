@@ -8,6 +8,8 @@ from query_generator.duckdb_connection.utils import (
   get_distinct_count,
   get_equi_height_histogram,
   get_frequent_non_null_values,
+  get_null_count,
+  DuckDBColumnInfo,
 )
 from query_generator.synthetic_queries.synthetic_query_generator import (
   get_result_from_duckdb,
@@ -35,7 +37,36 @@ def test_distinct_values(duckdb_connection):
   """Test the setup of DuckDB."""
   # Setup DuckDB
   con = duckdb_connection
-  assert get_distinct_count(con, "call_center", "cc_call_center_sk") == 1
+  column_info = DuckDBColumnInfo(
+    con=con, table="call_center", column="cc_call_center_sk"
+  )
+
+  assert get_distinct_count(column_info) == 1
+
+
+def test_distinct_values_sample(duckdb_connection):
+  """Test the setup of DuckDB."""
+  # Setup DuckDB
+  con = duckdb_connection
+  column_info = DuckDBColumnInfo(
+    con=con, table="web_returns", column="wr_return_quantity"
+  )
+
+  value_1 = get_distinct_count(column_info, sample_size=1000)
+  value_2 = get_distinct_count(column_info, sample_size=1000)
+  assert value_1 == value_2
+
+
+def test_null_values(duckdb_connection):
+  """Test null counting for a column."""
+  con = duckdb_connection
+  column_info = DuckDBColumnInfo(con=con, table="item", column="i_rec_end_date")
+  expected = get_result_from_duckdb(
+    f"SELECT COUNT_IF({column_info.column} IS NULL) FROM {column_info.table}",
+    con,
+  )
+
+  assert get_null_count(column_info) == expected
 
 
 @pytest.mark.parametrize(
@@ -55,7 +86,8 @@ def test_duck_db_execution(query, expected_result, duckdb_connection):
 
 def test_histogram(duckdb_connection):
   con = duckdb_connection
-  histogram = get_equi_height_histogram(con, "item", "i_current_price", 5)
+  params = DuckDBColumnInfo(con=con, table="item", column="i_current_price")
+  histogram = get_equi_height_histogram(params, 5)
   histogram_parser = DuckDBHistogramParser(histogram, "float")
   assert len(histogram) == 5
   assert len(histogram_parser.bins) == 5
@@ -72,7 +104,7 @@ def test_histogram(duckdb_connection):
 def test_most_common_values_datetime(duckdb_connection):
   con = duckdb_connection
   most_common_values = get_frequent_non_null_values(
-    con, "item", "i_rec_end_date", 2
+    DuckDBColumnInfo(con=con, table="item", column="i_rec_end_date"), 2, None
   )
   assert len(most_common_values) == 2
   for value in most_common_values:
@@ -83,7 +115,9 @@ def test_most_common_values_datetime(duckdb_connection):
 
 def test_most_common_values_string(duckdb_connection):
   con = duckdb_connection
-  most_common_values = get_frequent_non_null_values(con, "item", "i_item_id", 2)
+  most_common_values = get_frequent_non_null_values(
+    DuckDBColumnInfo(con=con, table="item", column="i_item_id"), 2, None
+  )
   assert len(most_common_values) == 2
   for value in most_common_values:
     assert isinstance(value.value, str)
@@ -93,7 +127,7 @@ def test_most_common_values_string(duckdb_connection):
 def test_most_common_values_float(duckdb_connection):
   con = duckdb_connection
   most_common_values = get_frequent_non_null_values(
-    con, "item", "i_current_price", 2
+    DuckDBColumnInfo(con=con, table="item", column="i_current_price"), 2, None
   )
   assert len(most_common_values) == 2
   for value in most_common_values:
@@ -103,7 +137,9 @@ def test_most_common_values_float(duckdb_connection):
 
 def test_most_common_values_int(duckdb_connection):
   con = duckdb_connection
-  most_common_values = get_frequent_non_null_values(con, "item", "i_item_sk", 2)
+  most_common_values = get_frequent_non_null_values(
+    DuckDBColumnInfo(con=con, table="item", column="i_item_sk"), 2, None
+  )
   assert len(most_common_values) == 2
   for value in most_common_values:
     assert is_float(value.value)

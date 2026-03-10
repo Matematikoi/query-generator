@@ -60,11 +60,15 @@ extra_predicates = [5]
 row_retention_probability = [0.2, 0.9]
 equality_lower_bound_probability = [0,0.1]
 extra_values_for_in = 3
+minimum_like_support_probability = [0.05]
+or_probability = [0.2]
 
 [operator_weights]
 operator_in = 1
 operator_range = 3
 operator_equal = 3
+operator_like = 1
+operator_not_like = 1
 """,
   EndpointName.FILTER: """\
 input_parquet = "/path/to/file.parquet"
@@ -86,6 +90,7 @@ database_path = "path/to/duckdb.db"
 output_folder = "path/to/destination/"
 histogram_size = 51
 common_values_size = 10
+histogram_sample_size = 10000
 """,
   EndpointName.FIX_TRANSFORM: """\
 queries_folder = "path/to/queries/"

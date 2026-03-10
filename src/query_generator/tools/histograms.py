@@ -1,13 +1,16 @@
 import logging
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Any
+from itertools import groupby
+from typing import Any, TypedDict
 
 import duckdb
 import polars as pl
+from commonstrings import PyCommon_multiple_strings
 from tqdm import tqdm
 
 from query_generator.duckdb_connection.utils import (
+  DuckDBColumnInfo,
   RawDuckDBHistograms,
   RawDuckDBMostCommonValues,
   RawDuckDBTableDescription,
@@ -17,11 +20,13 @@ from query_generator.duckdb_connection.utils import (
   get_frequent_non_null_values,
   get_histogram_excluding_common_values,
   get_null_count,
+  get_sample_of_str_from_column,
   get_tables,
 )
 from query_generator.utils.exceptions import (
   NoBasicHistogramElementError,
 )
+from query_generator.utils.params import HistogramEndpoint
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +34,20 @@ logger = logging.getLogger(__name__)
 class MostCommonValuesColumns(StrEnum):
   VALUE = "value"
   COUNT = "count"
+
+
+@dataclass
+class CandidateEntry:
+  support: int
+  substring: str
+
+
+class CommonSubstring(TypedDict):
+  """A common substring with its occurrence count and probability."""
+
+  substring: str
+  support: int
+  support_probability: float
 
 
 class RedundantHistogramsDataType(StrEnum):
@@ -54,14 +73,15 @@ class HistogramColumns(StrEnum):
   HISTOGRAM_MCV = "histogram-mcv"  # histogram excluding most common values
   TABLE_SIZE = "table_size"
   NULL_COUNT = "null_count"
+  SAMPLE_SIZE = "sample_size"
+  COMMON_SUBSTRINGS = "common_substrings"
 
 
 @dataclass
 class HistogramParams:
-  con: duckdb.DuckDBPyConnection
-  table: str
-  column: RawDuckDBTableDescription
+  col_info: DuckDBColumnInfo
   histogram_size: int
+  histogram_sample_size: int | None
 
 
 class DuckDBHistogramParser:
@@ -97,60 +117,134 @@ class DuckDBHistogramParser:
     return self.upper_bounds
 
 
+def get_top_substrings_per_length(
+  tree: PyCommon_multiple_strings,
+  min_support_count: int,
+  max_per_length: int,
+  max_length: int = 25,
+) -> list[CandidateEntry]:
+  result = []
+  for length in range(1, max_length + 1):
+    try:
+      data: dict[int, list[str]] = tree.filter_substrings_by_length(
+        length_input=length, times=(min_support_count, None)
+      )
+    except AssertionError:
+      break
+    if not data:
+      break
+    candidates = [
+      CandidateEntry(support=support_count, substring=s)
+      for support_count, strings in data.items()
+      for s in strings
+    ]
+    candidates.sort(key=lambda c: c.support, reverse=True)
+    result.extend(candidates[:max_per_length])
+  return result
+
+
+def filter_substrings_by_length_support_monotonicity(
+  candidates: list[CandidateEntry],
+) -> list[CandidateEntry]:
+  """Filters candidates so that no longer string has strictly higher support.
+
+  A candidate s is kept if all strings longer than s have support <= s.support.
+  Equivalently, s is filtered if there exists a strictly longer string with
+  strictly higher support.
+  """
+  sorted_candidates = sorted(
+    candidates, key=lambda c: len(c.substring), reverse=True
+  )
+  result: list[CandidateEntry] = []
+  max_support_seen = 0
+  for _, group in groupby(sorted_candidates, key=lambda c: len(c.substring)):
+    group_list = list(group)
+    result.extend(c for c in group_list if c.support >= max_support_seen)
+    max_support_seen = max(max_support_seen, *(c.support for c in group_list))
+  return result
+
+
+def get_common_substrings(
+  params: DuckDBColumnInfo,
+  sample_size: int | None,
+  support_probability_threshold: float,
+  max_substrings_per_length: int,
+) -> list[CommonSubstring]:
+  """Calculates common substrings of a column."""
+  get_list_of_str = get_sample_of_str_from_column(params, sample_size)
+  if not get_list_of_str:
+    return []
+  tree = PyCommon_multiple_strings()
+  tree.from_strings(get_list_of_str)
+  sampled_str_count = len(get_list_of_str)
+  min_support_count = max(
+    1, int(support_probability_threshold * sampled_str_count)
+  )
+  candidates = get_top_substrings_per_length(
+    tree, min_support_count, max_substrings_per_length
+  )
+  candidates = filter_substrings_by_length_support_monotonicity(candidates)
+  return [
+    CommonSubstring(
+      substring=c.substring,
+      support=c.support,
+      support_probability=c.support / sampled_str_count,
+    )
+    for c in candidates
+  ]
+
+
 def get_most_common_values(
-  con: duckdb.DuckDBPyConnection,
-  table: str,
-  column: str,
+  params: DuckDBColumnInfo,
   common_value_size: int,
+  sample_size: int | None,
 ) -> list[RawDuckDBMostCommonValues]:
-  return get_frequent_non_null_values(con, table, column, common_value_size)
+  return get_frequent_non_null_values(params, common_value_size, sample_size)
 
 
-def get_histogram_array(histogram_params: HistogramParams) -> list[str]:
+def get_histogram_array(params: HistogramParams) -> list[str]:
   histogram_raw = get_equi_height_histogram(
-    histogram_params.con,
-    histogram_params.table,
-    histogram_params.column.column_name,
-    histogram_params.histogram_size,
+    params.col_info,
+    params.histogram_size,
+    params.histogram_sample_size,
   )
   histogram_parser = DuckDBHistogramParser(
-    histogram_raw, histogram_params.column.column_type
+    histogram_raw, params.col_info.column
   )
   return histogram_parser.get_equiwidth_histogram_array()
 
 
 def get_histogram_array_excluding_common_values(
-  histogram_params: HistogramParams,
+  params: HistogramParams,
   common_values_size: int,
   distinct_count: int,
+  column_type: str,
 ) -> list[str]:
   histogram_array: list[RawDuckDBHistograms] = []
   if distinct_count > common_values_size:
     histogram_array = get_histogram_excluding_common_values(
-      histogram_params.con,
-      histogram_params.table,
-      histogram_params.column.column_name,
-      histogram_params.histogram_size,
+      params.col_info,
+      params.histogram_size,
       common_values_size,
+      params.histogram_sample_size,
     )
   histogram_parser = DuckDBHistogramParser(
     histogram_array,
-    histogram_params.column.column_type,
+    column_type,
   )
   return histogram_parser.get_equiwidth_histogram_array()
 
 
 def query_histograms(
-  histogram_size: int,
-  common_values_size: int,
+  params: HistogramEndpoint,
   con: duckdb.DuckDBPyConnection,
-  *,
-  include_mcv: bool,
 ) -> pl.DataFrame:
   """Creates histograms for the given dataset.
   Args:
     histogram_size (int): Size of the histogram.
     common_values_size (int): Size of the most common values.
+    histogram_sample_size (int): Max sampled rows per table used for
+      histogram-related queries.
     con (duckdb.DuckDBPyConnection): DuckDB connection object.
     include_mvc (bool): Whether to include most common values in the histogram
   """
@@ -164,20 +258,42 @@ def query_histograms(
 
     # Get table size
     table_size = get_size_of_table(con, table)
+    actual_sample_size = min(params.sample_size, table_size)
+    sample_size_for_query = (
+      actual_sample_size if actual_sample_size < table_size else None
+    )
+    column: RawDuckDBTableDescription
     for column in pbar:  # type: ignore
       logger.debug(f"Processing column {column} of table {table}")
       pbar.set_description(  # type: ignore
         f"Processing table {table} column {column.column_name}"
       )
-      histogram_params = HistogramParams(con, table, column, histogram_size)
+      column_info = DuckDBColumnInfo(
+        con=con, table=table, column=column.column_name
+      )
+      histogram_params = HistogramParams(
+        column_info,
+        params.histogram_size,
+        sample_size_for_query,
+      )
       # Get Histogram array
       histogram_array = get_histogram_array(histogram_params)
 
       # Get distinct count
-      distinct_count = get_distinct_count(con, table, column.column_name)
+      distinct_count = get_distinct_count(column_info, sample_size_for_query)
 
       # Get null Count
-      null_count = get_null_count(con, table, column.column_name)
+      null_count = get_null_count(column_info, sample_size_for_query)
+
+      # Get common substr information
+      common_substrings = None
+      if column.column_type in ["TEXT", "VARCHAR", "BPCHAR", "CHAR", "STRING"]:
+        common_substrings = get_common_substrings(
+          column_info,
+          sample_size_for_query,
+          params.support_probability_threshold_for_substrings,
+          params.max_substrings_per_length,
+        )
 
       row_dict: dict[str, Any] = {
         HistogramColumns.TABLE: table,
@@ -187,22 +303,22 @@ def query_histograms(
         HistogramColumns.DTYPE: column.column_type,
         HistogramColumns.TABLE_SIZE: table_size,
         HistogramColumns.NULL_COUNT: null_count,
+        HistogramColumns.SAMPLE_SIZE: actual_sample_size,
+        HistogramColumns.COMMON_SUBSTRINGS: common_substrings,
       }
-      if include_mcv:
+      if params.include_mcv:
         # Get most common values
         most_common_values = get_most_common_values(
-          con,
-          table,
-          column.column_name,
-          common_values_size,
+          column_info, params.common_values_size, sample_size_for_query
         )
 
         # Get histogram array excluding common values
         histogram_array_excluding_mcv = (
           get_histogram_array_excluding_common_values(
             histogram_params,
-            common_values_size,
+            params.common_values_size,
             distinct_count,
+            column.column_type,
           )
         )
 

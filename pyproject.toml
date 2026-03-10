@@ -4,6 +4,9 @@ version = "0.2.0"
 requires-python = ">= 3.11"
 dependencies = ["ollama>=0.5.1,<0.6"]
 
+[project.scripts]
+main = "query_generator.main:main"
+
 [project.optional-dependencies]
 dev = ["pytest", "ruff", "pyrefly"]
 
@@ -20,6 +23,7 @@ where = ["src"]
 
 [tool.pixi.pypi-dependencies]
 query_generator = { path = ".", editable = true }
+commonstrings = { git = "https://github.com/Matematikoi/commonstrings.git", rev = "87b1e54ccc282a504e55582a248a7e21d2f2b599" }
 
 [tool.pixi.dependencies]
 typer = ">=0.15.2,<0.16"
@@ -93,6 +97,9 @@ select = [
 ]
 ignore = ["COM812"]
 
+
+[tool.pyrefly]
+replace_imports_with_any = ["commonstrings"]
 
 [tool.pytest.ini_options]
 pythonpath = "."
