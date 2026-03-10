@@ -63,6 +63,10 @@ support probability `p` means it appears in fraction `p` of the sampled rows.
     so the predicate matches at least `threshold` fraction of rows.
   - In both cases, eligible substrings are sampled with weight proportional to
     `len(substring)`, so longer (more specific) substrings are preferred.
+- `or_probability` (list[float]): Probability that each merge in the predicate
+tree uses OR instead of AND. Valid range: 0.0–1.0. Default: `[0.0]` (pure AND,
+backwards-compatible). For example, `[0.5]` produces a random mix of AND and OR
+connectors between predicates.
 - `operator_weights`: dictionary for the weights used to sample the predicate
 types. More information below.
 

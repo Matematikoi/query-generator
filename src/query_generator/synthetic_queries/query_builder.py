@@ -5,6 +5,7 @@ from typing import Any
 from pypika import OracleQuery, Table
 from pypika import functions as fn
 from pypika.queries import QueryBuilder
+from pypika.terms import Criterion
 
 from query_generator.database_schemas.schemas import get_schema
 
@@ -33,6 +34,33 @@ from query_generator.utils.definitions import (
   SyntheticQueryGenerationParameters,
 )
 from query_generator.utils.utils import set_seed
+
+
+def _build_predicate_tree(
+  criteria: list[Criterion], or_probability: float
+) -> Criterion | None:
+  """Combine a list of criteria into a random binary tree of AND/OR nodes.
+
+  Args:
+    criteria: Leaf criteria to combine.
+    or_probability: Probability [0.0, 1.0] that each merge uses OR
+      instead of AND.
+
+  Returns:
+    A single combined Criterion, or None if criteria is empty.
+  """
+  if not criteria:
+    return None
+  remaining = list(criteria)
+  while len(remaining) > 1:
+    i, j = random.sample(range(len(remaining)), 2)
+    a, b = remaining[i], remaining[j]
+    combined = (a | b) if random.random() < or_probability else (a & b)
+    # Remove higher index first to avoid shifting
+    for idx in sorted([i, j], reverse=True):
+      remaining.pop(idx)
+    remaining.append(combined)
+  return remaining[0]
 
 
 class QueryBuilderPypika:
@@ -92,24 +120,30 @@ class QueryBuilderPypika:
   ) -> tuple[QueryBuilder, GeneratedPredicateTypes]:
     subgraph_tables = self.get_subgraph_tables(subgraph)
     predicate_types = GeneratedPredicateTypes()
+    criteria: list[Criterion] = []
     for predicate in self.predicate_gen.get_random_predicates(
       subgraph_tables,
     ):
       if isinstance(predicate, PredicateRange):
-        query = self._add_range(query, predicate)
+        criteria.append(self._build_criterion_range(predicate))
         predicate_types.range += 1
       if isinstance(predicate, PredicateEquality):
-        query = self._add_equality(query, predicate)
+        criteria.append(self._build_criterion_equality(predicate))
         predicate_types.equality += 1
       if isinstance(predicate, PredicateIn):
-        query = self._add_in(query, predicate)
+        criteria.append(self._build_criterion_in(predicate))
         predicate_types.in_values += 1
       if isinstance(predicate, PredicateLike):
-        query = self._add_like(query, predicate)
+        criteria.append(self._build_criterion_like(predicate))
         predicate_types.like += 1
       if isinstance(predicate, PredicateNotLike):
-        query = self._add_not_like(query, predicate)
+        criteria.append(self._build_criterion_not_like(predicate))
         predicate_types.not_like += 1
+    tree = _build_predicate_tree(
+      criteria, self.predicate_gen.predicate_params.or_probability
+    )
+    if tree is not None:
+      query = query.where(tree)  # type: ignore
     return query, predicate_types
 
   def _cast_if_needed(
@@ -120,50 +154,43 @@ class QueryBuilderPypika:
       return fn.Cast(value, "date")
     return value
 
-  def _add_range(
-    self, query: QueryBuilder, predicate: PredicateRange
-  ) -> QueryBuilder:
-    return query.where(  # type: ignore
+  def _build_criterion_range(self, predicate: PredicateRange) -> Criterion:
+    """Build a range criterion: col >= min AND col <= max."""
+    return (  # type: ignore
       self.table_to_pypika_table[predicate.table][predicate.column]
-      >= self._cast_if_needed(predicate.min_value, predicate.dtype),
-    ).where(
+      >= self._cast_if_needed(predicate.min_value, predicate.dtype)
+    ) & (
       self.table_to_pypika_table[predicate.table][predicate.column]
       <= self._cast_if_needed(predicate.max_value, predicate.dtype)
     )
 
-  def _add_equality(
-    self, query: QueryBuilder, predicate: PredicateEquality
-  ) -> QueryBuilder:
-    return query.where(  # type: ignore
+  def _build_criterion_equality(
+    self, predicate: PredicateEquality
+  ) -> Criterion:
+    """Build an equality criterion: col = value."""
+    return (  # type: ignore
       self.table_to_pypika_table[predicate.table][predicate.column]
       == predicate.equality_value
     )
 
-  def _add_in(
-    self, query: QueryBuilder, predicate: PredicateIn
-  ) -> QueryBuilder:
-    return query.where(  # type: ignore
-      self.table_to_pypika_table[predicate.table][predicate.column].isin(
-        [self._cast_if_needed(i, predicate.dtype) for i in predicate.in_values]
-      )
+  def _build_criterion_in(self, predicate: PredicateIn) -> Criterion:
+    """Build an IN criterion: col IN (v1, v2, ...)."""
+    return self.table_to_pypika_table[predicate.table][predicate.column].isin(  # type: ignore
+      [self._cast_if_needed(i, predicate.dtype) for i in predicate.in_values]
     )
 
-  def _add_like(
-    self, query: QueryBuilder, predicate: PredicateLike
-  ) -> QueryBuilder:
-    return query.where(  # type: ignore
-      self.table_to_pypika_table[predicate.table][predicate.column].like(
-        predicate.pattern
-      )
+  def _build_criterion_like(self, predicate: PredicateLike) -> Criterion:
+    """Build a LIKE criterion: col LIKE pattern."""
+    return self.table_to_pypika_table[predicate.table][predicate.column].like(  # type: ignore
+      predicate.pattern
     )
 
-  def _add_not_like(
-    self, query: QueryBuilder, predicate: PredicateNotLike
-  ) -> QueryBuilder:
-    return query.where(  # type: ignore
-      self.table_to_pypika_table[predicate.table][predicate.column].not_like(
-        predicate.pattern
-      )
+  def _build_criterion_not_like(self, predicate: PredicateNotLike) -> Criterion:
+    """Build a NOT LIKE criterion: col NOT LIKE pattern."""
+    return self.table_to_pypika_table[predicate.table][
+      predicate.column
+    ].not_like(  # type: ignore
+      predicate.pattern
     )
 
 

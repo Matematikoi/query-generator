@@ -133,6 +133,7 @@ class SyntheticQueriesEndpoint:
   equality_lower_bound_probability: list[float]
   extra_values_for_in: int
   minimum_like_support_probability: list[float]
+  or_probability: list[float]
   # Paths
   duckdb_database: str
   output_folder: str

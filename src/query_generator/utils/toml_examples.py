@@ -61,6 +61,7 @@ row_retention_probability = [0.2, 0.9]
 equality_lower_bound_probability = [0,0.1]
 extra_values_for_in = 3
 minimum_like_support_probability = [0.05]
+or_probability = [0.2]
 
 [operator_weights]
 operator_in = 1

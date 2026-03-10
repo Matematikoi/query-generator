@@ -86,6 +86,7 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       equality_lower_bound_probability = [0]
       extra_values_for_in = 3
       minimum_like_support_probability = [0.05]
+      or_probability = [0.0]
       histogram_path = "{str(get_precomputed_histograms(Dataset.TPCDS))}"
 
       [operator_weights]

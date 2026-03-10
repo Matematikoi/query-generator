@@ -32,6 +32,7 @@ class PredicateParameters:
   equality_lower_bound_probability: float
   extra_values_for_in: int
   minimum_like_support_probability: float
+  or_probability: float = 0.2
   max_predicate_attempts: int = 10
 
 
