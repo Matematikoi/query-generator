@@ -19,6 +19,8 @@ class PredicateOperatorProbability:
   operator_in: float
   operator_equal: float
   operator_range: float
+  operator_like: float
+  operator_not_like: float
 
 
 @dataclass
@@ -29,6 +31,9 @@ class PredicateParameters:
   operator_weights: PredicateOperatorProbability
   equality_lower_bound_probability: float
   extra_values_for_in: int
+  minimum_like_support_probability: float
+  or_probability: float = 0.2
+  max_predicate_attempts: int = 10
 
 
 # TODO(Gabriel): http://localhost:8080/tktview/205e90a1fa
@@ -50,6 +55,8 @@ class GeneratedPredicateTypes:
   equality: int = 0
   range: int = 0
   in_values: int = 0
+  like: int = 0
+  not_like: int = 0
 
 
 @dataclass

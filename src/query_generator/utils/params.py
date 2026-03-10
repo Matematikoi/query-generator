@@ -132,6 +132,8 @@ class SyntheticQueriesEndpoint:
   operator_weights: PredicateOperatorProbability
   equality_lower_bound_probability: list[float]
   extra_values_for_in: int
+  minimum_like_support_probability: list[float]
+  or_probability: list[float]
   # Paths
   duckdb_database: str
   output_folder: str
@@ -197,7 +199,14 @@ class HistogramEndpoint:
   database_path: str
   histogram_size: int = 51
   common_values_size: int = 10
+  sample_size: int = 100000
+  support_probability_threshold_for_substrings: float = 0.05
+  max_substrings_per_length: int = 100
   redundant_histogram_size = 0
+  include_mcv: bool = dc_field(init=False)
+
+  def __post_init__(self) -> None:
+    self.include_mcv = self.common_values_size > 0
 
 
 @dataclass

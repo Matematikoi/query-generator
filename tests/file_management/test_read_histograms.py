@@ -24,6 +24,7 @@ def test_read_histograms():
         operator_weights=None,
         equality_lower_bound_probability=None,
         extra_values_for_in=None,
+        minimum_like_support_probability=None,
       ),
     )
     histogram = predicate_generator.histogram
@@ -97,6 +98,7 @@ def test_get_min_max_from_bins(
         operator_weights=None,
         equality_lower_bound_probability=None,
         extra_values_for_in=None,
+        minimum_like_support_probability=None,
       ),
     )
     min_value, max_value = predicate_generator._get_min_max_from_bins(
@@ -126,6 +128,7 @@ def test_get_valid_histogram_type(input_type, expected_type):
       operator_weights=None,
       equality_lower_bound_probability=None,
       extra_values_for_in=None,
+      minimum_like_support_probability=None,
     ),
   )
   assert predicate_generator._get_histogram_type(input_type) == expected_type

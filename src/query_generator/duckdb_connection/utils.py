@@ -60,6 +60,21 @@ class RawDuckDBMostCommonValues:
   """
 
 
+@dataclass
+class DuckDBColumnInfo:
+  """DuckDB connection and column coordinates for one table column.
+
+  Attributes:
+      con (duckdb.DuckDBPyConnection): Active DuckDB connection.
+      table (str): Source table name.
+      column (str): Source column name.
+  """
+
+  con: duckdb.DuckDBPyConnection
+  table: str
+  column: str
+
+
 def get_tables(con: duckdb.DuckDBPyConnection) -> list[str]:
   """Retrieve the list of tables in the database.
 
@@ -99,48 +114,74 @@ def get_columns(
   ]
 
 
+def get_sample_as_cte(params: DuckDBColumnInfo, sample_size: int | None):
+  if sample_size is None or sample_size == 0:
+    return f"""
+    WITH sampled_values AS (FROM {params.table})
+    """
+
+  return f"""
+  WITH sampled_values AS (
+    SELECT {params.column}
+    FROM {params.table}
+    USING SAMPLE reservoir({sample_size} ROWS) REPEATABLE(42)
+  )
+  """
+
+
 def get_equi_height_histogram(
-  con: duckdb.DuckDBPyConnection, table: str, column: str, bin_count: int
+  params: DuckDBColumnInfo,
+  bin_count: int,
+  sample_size: int | None = None,
 ) -> list[RawDuckDBHistograms]:
   query = f"""
+    {get_sample_as_cte(params, sample_size)}
     SELECT bin, count
     FROM histogram(
-    '{table}',
-    {column},
+    sampled_values,
+    {params.column},
     bin_count := {bin_count},
     technique := 'equi-height'
   );
   """
-  data = con.execute(query).fetchall()
+  data = params.con.execute(query).fetchall()
   return [RawDuckDBHistograms(bin=d[0], count=d[1]) for d in data]
 
 
 def get_distinct_count(
-  con: duckdb.DuckDBPyConnection, table: str, column: str
+  params: DuckDBColumnInfo, sample_size: int | None = None
 ) -> int:
-  data: int = con.execute(f"""
-    SELECT COUNT(DISTINCT {column}) FROM {table};
-  """).fetchall()[0][0]
+  """Calculates the distinct count of a column.
+
+  If `sample_size` is not None, then a sample with seed 42 is taken."""
+  query = f"""
+    {get_sample_as_cte(params, sample_size)}
+    SELECT COUNT(DISTINCT {params.column}) FROM sampled_values;
+  """
+  data: int = params.con.execute(query).fetchall()[0][0]
   return data
 
 
 def get_null_count(
-  con: duckdb.DuckDBPyConnection, table: str, column: str
+  params: DuckDBColumnInfo, sample_size: int | None = None
 ) -> int:
-  data: int = con.execute(f"""
-    SELECT COUNT_IF({column} IS NULL) FROM {table};
-  """).fetchall()[0][0]
+  query = f"""
+    {get_sample_as_cte(params, sample_size)}
+    SELECT COUNT_IF({params.column} IS NULL) FROM sampled_values;
+  """
+  data: int = params.con.execute(query).fetchall()[0][0]
   return data
 
 
 def get_frequent_non_null_values(
-  con: duckdb.DuckDBPyConnection, table: str, column: str, limit: int
+  params: DuckDBColumnInfo, limit: int, sample_size: int | None
 ) -> list[RawDuckDBMostCommonValues]:
-  data = con.execute(f"""
-    SELECT {column}, COUNT(*) as count
-    FROM {table}
-    WHERE {column} IS NOT NULL
-    GROUP BY {column}
+  data = params.con.execute(f"""
+    {get_sample_as_cte(params, sample_size)}
+    SELECT {params.column}, COUNT(*) as count
+    FROM {params.table}
+    WHERE {params.column} IS NOT NULL
+    GROUP BY {params.column}
     ORDER BY count DESC
     LIMIT {limit};
   """).fetchall()
@@ -148,16 +189,18 @@ def get_frequent_non_null_values(
 
 
 def get_histogram_excluding_common_values(
-  con: duckdb.DuckDBPyConnection,
-  table: str,
-  column: str,
+  column_info: DuckDBColumnInfo,
   bin_count: int,
   common_values_size: int,
+  sample_size: int | None = None,
 ) -> list[RawDuckDBHistograms]:
+  con = column_info.con
+  column = column_info.column
   query = f"""
-    WITH common_values AS (
+    {get_sample_as_cte(column_info, sample_size)}
+    , common_values AS (
       SELECT {column}, COUNT(*) as count
-      FROM {table}
+      FROM sampled_values
       WHERE {column} IS NOT NULL
       GROUP BY {column}
       ORDER BY count DESC
@@ -165,7 +208,7 @@ def get_histogram_excluding_common_values(
     ),
     exclude_values AS (
       SELECT {column}
-      FROM {table}
+      FROM sampled_values
       WHERE {column} NOT IN (SELECT {column} FROM common_values)
       AND {column} IS NOT NULL
     )
@@ -179,3 +222,16 @@ def get_histogram_excluding_common_values(
   """
   data = con.execute(query).fetchall()
   return [RawDuckDBHistograms(bin=d[0], count=d[1]) for d in data]
+
+
+def get_sample_of_str_from_column(
+  params: DuckDBColumnInfo, sample_size: int | None
+) -> list[str]:
+  """Gets a list of str from a column."""
+  query = f"""
+    {get_sample_as_cte(params, sample_size)}
+    SELECT {params.column} FROM sampled_values
+    WHERE {params.column} IS NOT NULL;
+  """
+  data = params.con.execute(query).fetchall()
+  return [d[0] for d in data]

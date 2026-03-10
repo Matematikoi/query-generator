@@ -13,9 +13,6 @@ from query_generator.utils.definitions import (
   PredicateParameters,
 )
 from query_generator.utils.exceptions import UnkownDatasetError
-from pypika import OracleQuery
-from pypika import functions as fn
-
 from tests.utils import get_precomputed_histograms
 
 
@@ -31,13 +28,11 @@ def test_add_range_supports_all_histogram_types():
       operator_weights=None,
       equality_lower_bound_probability=None,
       extra_values_for_in=None,
+      minimum_like_support_probability=None,
     ),
   )
   for dtype in HistogramDataType:
-    query_builder._add_range(
-      OracleQuery()
-      .from_(query_builder.table_to_pypika_table["lineitem"])
-      .select(fn.Count("*")),
+    query_builder._build_criterion_range(
       PredicateRange(
         table="lineitem",
         column="foo",
