@@ -126,6 +126,7 @@ class DuckDBTraceNode(TypedDict):
   """
 
   output_cardinality: int
+  estimated_cardinality: int | None
   operator_type: str  # Maps to physical operators.
 
 
@@ -185,6 +186,15 @@ class DuckDBMetrics(TypedDict):
   output_cardinality: int
   query_keywords: list[str]
   operator_distribution: dict[DuckDBPhysicalOperators, int]
+  qerror: float | None
+  qerror_downstream_operators: list["QErrorDownstreamOperatorsBucket"]
+
+
+class QErrorDownstreamOperatorsBucket(TypedDict):
+  """Qerror values grouped by subtree size."""
+
+  downstream_operators: int
+  qerrors: list[float]
 
 
 class DuckDBMetricsName(StrEnum):
@@ -208,6 +218,7 @@ def get_attributes_root_node(trace: ParsedDuckDBTraceRoot) -> DuckDBTraceNode:
   return {
     "output_cardinality": trace["rows_returned"],
     "operator_type": DuckDBPhysicalOperators.ROOT.value,
+    "estimated_cardinality": None,
   }
 
 
@@ -225,9 +236,15 @@ def get_attributes_children_node(
 
   Gets output cardinality and operator type.
   """
+  estimated_cardinality_raw = trace["extra_info"].get("Estimated Cardinality")
   return {
     "output_cardinality": trace["operator_cardinality"],
     "operator_type": trace["operator_type"],
+    "estimated_cardinality": (
+      int(estimated_cardinality_raw)
+      if estimated_cardinality_raw is not None
+      else None
+    ),
   }
 
 
@@ -338,6 +355,48 @@ class DuckDBTraceParser:
       return None
     return float(self.get_cumulative_cardinality()) / self.get_rows_scanned()
 
+  def get_root_node_qerror(self) -> float | None:
+    """Compute q-error as the ratio of cumulatives."""
+    cumulative_estimated = 0
+    cumulative_actual = 0
+    for _, data in self.trace_graph.nodes(data=True):
+      if data["estimated_cardinality"] is None:
+        continue
+      cumulative_estimated += data["estimated_cardinality"]
+      cumulative_actual += data["output_cardinality"]
+    if cumulative_estimated == 0 or cumulative_actual == 0:
+      return None
+    return max(
+      cumulative_estimated / cumulative_actual,
+      cumulative_actual / cumulative_estimated,
+    )
+
+  def get_qerror_downstream_operators(self) -> dict[int, list[float]]:
+    """Group node qerrors by subtree size (node + descendants)."""
+    qerrors_by_downstream_nodes: dict[int, list[float]] = {}
+    for node_id, node_data in self.trace_graph.nodes(data=True):
+      estimated_cardinality = node_data.get("estimated_cardinality")
+      if estimated_cardinality is None:
+        continue
+      estimated = float(estimated_cardinality) + 1
+      actual = float(node_data["output_cardinality"]) + 1
+      qerror = max(estimated / actual, actual / estimated)
+      subtree_size = len(nx.descendants(self.trace_graph, node_id)) + 1
+      qerrors_by_downstream_nodes.setdefault(subtree_size, []).append(qerror)
+    return qerrors_by_downstream_nodes
+
+  def get_qerror_downstream_operators_buckets(
+    self,
+  ) -> list[QErrorDownstreamOperatorsBucket]:
+    grouped = self.get_qerror_downstream_operators()
+    return [
+      {
+        "downstream_operators": subtree_size,
+        "qerrors": qerrors,
+      }
+      for subtree_size, qerrors in sorted(grouped.items())
+    ]
+
   def get_metrics(self) -> DuckDBMetrics:
     """Get the metrics from the trace."""
     return {
@@ -352,6 +411,10 @@ class DuckDBTraceParser:
       "output_cardinality": self.get_output_cardinality(),
       "query_keywords": self.get_query_keywords(),
       "operator_distribution": self.get_operator_types(),
+      "qerror": self.get_root_node_qerror(),
+      "qerror_downstream_operators": (
+        self.get_qerror_downstream_operators_buckets()
+      ),
     }
 
   @staticmethod
@@ -385,10 +448,19 @@ def python_type_to_polars(
   ] = {
     int: pl.Int64,
     float: pl.Float64,
+    float | None: pl.Float64,
     str: pl.String,
     bool: pl.Boolean,
     dict[DuckDBPhysicalOperators, int]: pl.Struct(
       dict.fromkeys(DuckDBPhysicalOperators.get_all_operators(), pl.Int64)
+    ),
+    list[QErrorDownstreamOperatorsBucket]: pl.List(
+      pl.Struct(
+        {
+          "downstream_operators": pl.Int64,
+          "qerrors": pl.List(pl.Float64),
+        }
+      )
     ),
     list[str]: pl.List(pl.String),
   }
