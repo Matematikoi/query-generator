@@ -82,9 +82,11 @@ class PredicateNotLike(Predicate):
 class PredicateGenerator:
   def __init__(self, predicate_params: PredicateParameters) -> None:
     self.predicate_params = predicate_params
-    self.histogram: pl.DataFrame = pl.read_parquet(
-      predicate_params.histogram_path
-    ).filter(pl.col(HistogramColumns.HISTOGRAM.value) != [])
+    self.histogram: pl.DataFrame = (
+      pl.read_parquet(predicate_params.histogram_path)
+      .filter(pl.col(HistogramColumns.HISTOGRAM.value) != [])
+      .filter(pl.col(HistogramColumns.DISTINCT_COUNT) > 1)
+    )
 
   def _cast_array(
     self, str_array: list[str], dtype: HistogramDataType
@@ -212,7 +214,7 @@ class PredicateGenerator:
   ) -> Predicate | None:
     match predicate_type:
       case PredicateTypes.RANGE:
-        return self._get_range_predicate(
+        return self._try_range_predicate(
           table, column, row[HistogramColumns.HISTOGRAM], dtype
         )
       case PredicateTypes.IN:
@@ -369,6 +371,22 @@ class PredicateGenerator:
     value = most_common_values[idx][MostCommonValuesColumns.VALUE]
     assert isinstance(value, str)
     return value
+
+  def _try_range_predicate(
+    self,
+    table: str,
+    column: str,
+    bins: list[str],
+    dtype: HistogramDataType,
+  ) -> PredicateRange | None:
+    predicate = self._get_range_predicate(table, column, bins, dtype)
+    if predicate.min_value == predicate.max_value:
+      logger.debug(
+        f"Range predicate collapsed to equality, skipping."
+        f"\ntable={table}\ncolumn={column}"
+      )
+      return None
+    return predicate
 
   def _get_range_predicate(
     self,
