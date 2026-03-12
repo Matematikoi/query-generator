@@ -10,6 +10,12 @@ import networkx as nx
 import polars as pl
 import sqlparse
 
+from query_generator.metrics.function_classifier import (
+  FunctionRecord,
+  FunctionRecordFields,
+  parse_sql_functions,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -188,6 +194,7 @@ class DuckDBMetrics(TypedDict):
   operator_distribution: dict[DuckDBPhysicalOperators, int]
   qerror: float | None
   qerror_downstream_operators: list["QErrorDownstreamOperatorsBucket"]
+  functions: list[FunctionRecord]
 
 
 class QErrorDownstreamOperatorsBucket(TypedDict):
@@ -211,6 +218,7 @@ class DuckDBMetricsName(StrEnum):
   output_cardinality = "output_cardinality"
   query_keywords = "query_keywords"
   operator_distribution = "operator_distribution"
+  functions = "functions"
 
 
 def get_attributes_root_node(trace: ParsedDuckDBTraceRoot) -> DuckDBTraceNode:
@@ -350,6 +358,10 @@ class DuckDBTraceParser:
     """Get the output cardinality from the trace."""
     return self.trace["rows_returned"]
 
+  def get_functions(self) -> list[FunctionRecord]:
+    """Get the classified SQL functions from the query."""
+    return parse_sql_functions(self.get_raw_query())
+
   def get_cardinality_over_rows_scanned(self) -> float | None:
     if self.get_rows_scanned() == 0:
       return None
@@ -415,6 +427,7 @@ class DuckDBTraceParser:
       "qerror_downstream_operators": (
         self.get_qerror_downstream_operators_buckets()
       ),
+      "functions": self.get_functions(),
     }
 
   @staticmethod
@@ -463,6 +476,15 @@ def python_type_to_polars(
       )
     ),
     list[str]: pl.List(pl.String),
+    list[FunctionRecord]: pl.List(
+      pl.Struct(
+        {
+          FunctionRecordFields.CATEGORY: pl.String,
+          FunctionRecordFields.SUBCATEGORY: pl.String,
+          FunctionRecordFields.EXPRESSION: pl.String,
+        }
+      )
+    ),
   }
   return mapping[python_type]
 
