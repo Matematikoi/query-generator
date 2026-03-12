@@ -123,7 +123,11 @@ def _make_predicate_generator(tmp_path, rows: list[dict]) -> PredicateGenerator:
       HistogramColumns.SAMPLE_SIZE: pl.Int64,
       HistogramColumns.COMMON_SUBSTRINGS: pl.List(
         pl.Struct(
-          {"substring": pl.Utf8, "support": pl.Int64, "support_probability": pl.Float64}
+          {
+            "substring": pl.Utf8,
+            "support": pl.Int64,
+            "support_probability": pl.Float64,
+          }
         )
       ),
       HistogramColumns.MOST_COMMON_VALUES: pl.List(
@@ -191,13 +195,17 @@ def test_try_range_predicate_returns_none_when_collapsed(tmp_path):
     "query_generator.synthetic_queries.predicate_generator.random.randint",
     return_value=0,
   ):
-    result = gen._try_range_predicate("t", "c", ["United States"], HistogramDataType.STRING)
+    result = gen._try_range_predicate(
+      "t", "c", ["United States"], HistogramDataType.STRING
+    )
   assert result is None
 
 
 def test_try_range_predicate_returns_predicate_when_valid(tmp_path):
   """_try_range_predicate must return a PredicateRange when min != max."""
-  from query_generator.synthetic_queries.predicate_generator import PredicateRange
+  from query_generator.synthetic_queries.predicate_generator import (
+    PredicateRange,
+  )
 
   gen = _make_predicate_generator(
     tmp_path,
@@ -207,7 +215,9 @@ def test_try_range_predicate_returns_predicate_when_valid(tmp_path):
     "query_generator.synthetic_queries.predicate_generator.random.randint",
     return_value=0,
   ):
-    result = gen._try_range_predicate("t", "c", ["a", "b", "c", "d", "e"], HistogramDataType.STRING)
+    result = gen._try_range_predicate(
+      "t", "c", ["a", "b", "c", "d", "e"], HistogramDataType.STRING
+    )
   assert isinstance(result, PredicateRange)
   assert result.min_value != result.max_value
 
