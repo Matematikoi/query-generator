@@ -186,7 +186,7 @@ class DuckDBMetrics(TypedDict):
   output_cardinality: int
   query_keywords: list[str]
   operator_distribution: dict[DuckDBPhysicalOperators, int]
-  qerror: float
+  qerror: float | None
   qerror_downstream_operators: list["QErrorDownstreamOperatorsBucket"]
 
 
@@ -355,16 +355,21 @@ class DuckDBTraceParser:
       return None
     return float(self.get_cumulative_cardinality()) / self.get_rows_scanned()
 
-  def get_root_node_qerror(self) -> float:
-    """Compute q-error as the ratio of cumulative estimated to actual cardinality across all nodes."""
+  def get_root_node_qerror(self) -> float | None:
+    """Compute q-error as the ratio of cumulatives."""
     cumulative_estimated = 0
     cumulative_actual = 0
-    for node, data in self.trace_graph.nodes(data=True):
+    for _, data in self.trace_graph.nodes(data=True):
       if data["estimated_cardinality"] is None:
         continue
       cumulative_estimated += data["estimated_cardinality"]
       cumulative_actual += data["output_cardinality"]
-    return max(cumulative_estimated / cumulative_actual, cumulative_actual / cumulative_estimated)
+    if cumulative_estimated == 0 or cumulative_actual == 0:
+      return None
+    return max(
+      cumulative_estimated / cumulative_actual,
+      cumulative_actual / cumulative_estimated,
+    )
 
   def get_qerror_downstream_operators(self) -> dict[int, list[float]]:
     """Group node qerrors by subtree size (node + descendants)."""
