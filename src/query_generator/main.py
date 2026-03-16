@@ -8,8 +8,7 @@ import typer
 from query_generator.duckdb_connection.setup import generate_db
 from query_generator.extensions.fix_transform import fix_transform
 from query_generator.extensions.llm_clients import (
-  LLMClientFactory,
-  OllamaLLMClient,
+  get_llm_client_factory,
 )
 from query_generator.extensions.llm_extension import llm_extension
 from query_generator.extensions.union_queries import union_queries
@@ -265,11 +264,14 @@ def extensions_online_endpoint(
 
   if params.llm_extension:
     assert params.llm_params is not None
-    logger.info("Starting LLM extension")
+    logger.info(
+      "Starting LLM extension with provider: %s",
+      params.llm_params.provider,
+    )
     cnt += llm_extension(
       llm_params=params.llm_params,
-      llm_client_factory=LLMClientFactory(
-        factory=OllamaLLMClient, init_kwargs={}
+      llm_client_factory=get_llm_client_factory(
+        params.llm_params.provider,
       ),
       llm_config_params=params.llm_params.model,
       input_queries_base_path=Path(params.queries_parquet).parent,

@@ -65,7 +65,7 @@ We next illustrate the commands to run a small example pipeline.
 
 For Ollama we use the 
 model `llama3:latest` ollama model, which means that you should run
-`ollama pull llama3:latest` before running the `extensions-with-ollama` endpoint.
+`ollama pull llama3:latest` before running the `extensions-online` endpoint.
 
 
 ```bash
@@ -73,7 +73,7 @@ pixi run main generate-db -c params_config/generate_db/tpcds_dev.toml
 pixi run main make-histograms -c params_config/histogram/tpcds_dev.toml
 pixi run main synthetic-queries -c params_config/synthetic_generation/tpcds_dev.toml
 pixi run main filter-synthetic -c params_config/filter/filter_tpcds_dev.toml
-pixi run main extensions-with-ollama -c params_config/extensions_with_ollama/tpcds_dev.toml
+pixi run main extensions-online -c params_config/extensions_online/tpcds_dev.toml
 pixi run main fix-transform -c params_config/fix_transform/tpcds_ollama_dev.toml
 pixi run main get-metrics -c params_config/get_metrics/ollama_tpcds_dev.toml
 ```
@@ -87,7 +87,7 @@ Or by accessing the repective doc:
 - [`make-histograms`](./docs/endpoints/histogram.md)
 - [`synthetic-queries`](./docs/endpoints/synthetic_generation.md)
 - [`filter-synthetic`](./docs/endpoints/filter.md)
-- [`extensions-with-ollama`](./docs/endpoints/extensions_with_ollama.md)
+- [`extensions-online`](./docs/endpoints/extensions_online.md)
 - [`extensions-with-bedrock`](./docs/endpoints/extensions_with_bedrock.md)
 - [`fix-transform`](./docs/endpoints/fix_transform.md)
 - [`get-metrics`](./docs/endpoints/get_metrics.md)
@@ -111,7 +111,7 @@ pixi run main filter-synthetic -c params_config/filter/filter_tpcds.toml
 # Generate a test dataset with scale factor 0.1 to check LLM-generated queries.
 pixi run main generate-db -c params_config/generate_db/tpcds_test.toml
 # ollama augmentation and union
-pixi run main extensions-with-ollama -c params_config/extensions_with_ollama/tpcds_llama4.toml
+pixi run main extensions-online -c params_config/extensions_online/tpcds_llama4.toml
 # Transformation to the queries
 pixi run main fix-transform -c params_config/fix_transform/tpcds_ollama.toml
 # Get metrics about the generated queries
@@ -123,7 +123,7 @@ pixi run main get-metrics -c params_config/get_metrics/ollama_tpcds.toml
 pixi run main generate-db -c params_config/generate_db/tpch_dev.toml
 pixi run main make-histograms -c params_config/histogram/tpch_dev.toml
 pixi run main filter-synthetic -c params_config/filter/filter_tpch_dev.toml
-pixi run main extensions-with-ollama -c params_config/extensions_with_ollama/tpch_dev.toml
+pixi run main extensions-online -c params_config/extensions_online/tpch_dev.toml
 pixi run main fix-transform -c params_config/fix_transform/tpch_ollama_dev.toml
 ```
 
