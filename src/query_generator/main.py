@@ -30,7 +30,7 @@ from query_generator.tools.histograms import (
   query_histograms,
 )
 from query_generator.utils.params import (
-  ExtensionAndOllamaEndpoint,
+  ExtensionOnlineEndpoint,
   FilterEndpoint,
   FixTransformEndpoint,
   GenerateDBEndpoint,
@@ -222,10 +222,10 @@ def filter_synthetic_endpoint(
 
 
 @app.command(
-  "extensions-with-ollama",
-  help=build_help_from_dataclass(ExtensionAndOllamaEndpoint),
+  "extensions-online",
+  help=build_help_from_dataclass(ExtensionOnlineEndpoint),
 )
-def extensions_with_ollama_endpoint(
+def extensions_online_endpoint(
   config_file: Annotated[
     str,
     typer.Option(
@@ -249,7 +249,7 @@ def extensions_with_ollama_endpoint(
   """Add complex queries using LLM prompts.
   The configuration file should be a TOML file with the
   ComplexQueryGenerationParametersEndpoint structure."""
-  params = read_and_parse_toml(Path(config_file), ExtensionAndOllamaEndpoint)
+  params = read_and_parse_toml(Path(config_file), ExtensionOnlineEndpoint)
   default_logger(params.destination_folder, debug_file=debug)
   cnt = 0
   if params.union_extension:
@@ -264,7 +264,6 @@ def extensions_with_ollama_endpoint(
     logger.info("Union extension done")
 
   if params.llm_extension:
-    assert params.ollama_model is not None
     assert params.llm_params is not None
     logger.info("Starting LLM extension")
     cnt += llm_extension(
@@ -272,7 +271,7 @@ def extensions_with_ollama_endpoint(
       llm_client_factory=LLMClientFactory(
         factory=OllamaLLMClient, init_kwargs={}
       ),
-      llm_config_params=params.ollama_model,
+      llm_config_params=params.llm_params.model,
       input_queries_base_path=Path(params.queries_parquet).parent,
       destination_path=Path(params.destination_folder),
     )

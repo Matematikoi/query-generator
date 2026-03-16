@@ -2,7 +2,6 @@ llm_extension = true
 union_extension = true
 destination_folder = "generated_data/TPCDS_100/extended_queries_ollama/"
 queries_parquet = "generated_data/TPCDS_100/filtered_queries/filtered.parquet"
-ollama_model = "llama4:16x17b"
 
 [union_params]
 max_queries = 5
@@ -10,6 +9,8 @@ probability = 0.7
 
 
 [llm_params]
+provider = "ollama"
+model = "llama4:16x17b"
 database_path = "generated_data/TPCDS_100/database_test/TPCDS_0.1.duckdb"
 retry = 1
 total_queries = 10000

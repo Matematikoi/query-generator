@@ -2,7 +2,7 @@ from enum import StrEnum
 
 
 class EndpointName(StrEnum):
-  EXTENSIONS_WITH_OLLAMA = "extensions_with_ollama"
+  EXTENSIONS_ONLINE = "extensions_online"
   SYNTHETIC_GENERATION = "synthetic_generation"
   FILTER = "filter"
   GENERATE_DB = "generate_db"
@@ -12,19 +12,26 @@ class EndpointName(StrEnum):
   GET_METRICS = "get_metrics"
 
 
+class Provider(StrEnum):
+  OLLAMA = "ollama"
+  OPENAI = "openai"
+  ANTHROPIC = "anthropic"
+
+
 TOML_EXAMPLE: dict[EndpointName, str] = {
-  EndpointName.EXTENSIONS_WITH_OLLAMA: """\
+  EndpointName.EXTENSIONS_ONLINE: """\
 llm_extension = true
 union_extension = true
 queries_parquet = "tmp/filtered_queries/filtered.parquet"
 destination_folder = "tmp/extended_queries"
-ollama_model = "deepseek-r1:1.5b"
 
 [union_params]
 max_queries = 5
 probability = 0.7
 
 [llm_params]
+provider = "ollama"
+model = "deepseek-r1:1.5b"
 database_path = "data/duckdb/TPCDS/0.db"
 retry = 1
 total_queries = 5

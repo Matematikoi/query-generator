@@ -9,10 +9,6 @@
 details below
 - `llm_params` (LLMParams | None): The parameters for the LLM. See below for
 details.
-- `llm_model` (str): The model to use for the LLM from ollama. You can
-see a list of available models in 
-[https://ollama.com/library](https://ollama.com/library). This parameter
-is only mandatory if the `llm_extension` is set to true.
 
 ## Attributes Union params
 We generate at most one union query per unique join structure. If there
@@ -27,9 +23,15 @@ Default is 0.5.
 ## Attributes llm_params
 This Attributes are mandatory when the `llm_extension` is true.
 For each prompt that the model passes to the LLM model, it will also randomly
-pick one synthetic query to modify. Thus the prompts are about modifying 
+pick one synthetic query to modify. Thus the prompts are about modifying
 a query and not creating it from scratch.
 
+- `provider` (str): The LLM provider to use. Supported values: `"ollama"`,
+`"openai"`, `"anthropic"`. Defaults to `"ollama"`.
+- `model` (str): The model name to use for the LLM. When using the ollama
+provider, you can see a list of available models in
+[https://ollama.com/library](https://ollama.com/library). This parameter
+is mandatory when `llm_extension` is set to true.
 - `database_path` (str): The path to the DuckDB database file. Used to confirm
 query validity.
 - `total_queries` (int): The total number of queries to process with LLM. This
@@ -51,7 +53,7 @@ is being run by duckdb to validate. By default is 5 seconds.
 The file selected in the `prompts_path` is also a toml file that has
 the following structure.
 
-Before being able to run this model be sure to have the LLM model loaded
+When using the ollama provider, be sure to have the LLM model loaded
 in ollama. This means that you have run `ollama pull {model_name}` and
 that `ollama run {model_name}` is working.
 

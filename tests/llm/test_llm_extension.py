@@ -43,6 +43,7 @@ def _make_llm_params(
     database_path=db_path,
     total_queries=total_queries,
     retry=retry,
+    model="llama3:latest",
     prompts_path=str(prompts_path),
     schema_path=str(schema_path),
   )

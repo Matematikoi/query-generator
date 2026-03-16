@@ -2,10 +2,10 @@ llm_extension = true
 union_extension = false
 destination_folder = "generated_data/TPCDS_100/extended_queries_openai/"
 queries_parquet = "generated_data/TPCDS_100/filtered_queries/filtered.parquet"
-ollama_model = "gpt-4o-mini"
 
 [llm_params]
 provider = "openai"
+model = "gpt-4o-mini"
 batch_size = 100
 batch_poll_interval_seconds = 30.0
 database_path = "generated_data/TPCDS_100/database_test/TPCDS_0.1.duckdb"
