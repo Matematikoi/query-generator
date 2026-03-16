@@ -23,6 +23,17 @@ from query_generator.utils.params import (
 logger = logging.getLogger(__name__)
 
 
+@dataclass
+class QueryProcessor:
+  """Shared state for processing queries through the LLM retry loop."""
+
+  llm_client_factory: LLMClientFactory
+  llm_config_params: str
+  llm_params: LLMParams
+  query_validator: DuckDBQueryExecutor
+  schema_context: str
+
+
 def get_random_queries(
   queries_base_path: Path, llm_params: LLMParams
 ) -> list[tuple[str, str]]:
@@ -181,34 +192,30 @@ class QueryResult:
     }
 
 
-def _process_single_query(  # noqa: PLR0913
-  llm_client_factory: LLMClientFactory,
-  llm_config_params: str,
-  llm_params: LLMParams,
-  query_validator: DuckDBQueryExecutor,
+def process_single_query(
+  processor: QueryProcessor,
   cnt: int,
   query: str,
   original_path: str,
-  schema_context: str,
 ) -> QueryResult:
   """Run LLM + retry loop for one query. Returns the outcome."""
-  llm_client = llm_client_factory.build()
+  llm_client = processor.llm_client_factory.build()
   extension_type, messages = get_random_prompt(
-    llm_params, query, schema_context
+    processor.llm_params, query, processor.schema_context
   )
 
   valid_query = False
   duckdb_exception: Exception | None = Exception("no query was found")
   llm_extracted_query = ""
 
-  for attempt in range(llm_params.retry + 1):
+  for attempt in range(processor.llm_params.retry + 1):
     if attempt > 0:
       add_retry_query_to_messages(messages, duckdb_exception)
     logger.info("Starting query #%d, attempt #%d", cnt, attempt + 1)
-    llm_client.query(messages, llm_config_params)
+    llm_client.query(messages, processor.llm_config_params)
     logger.debug("LLM response received.")
     llm_extracted_query = extract_sql(messages[-1]["content"])
-    valid_query, duckdb_exception = query_validator.is_query_valid(
+    valid_query, duckdb_exception = processor.query_validator.is_query_valid(
       llm_extracted_query
     )
     if valid_query:
@@ -241,10 +248,15 @@ def llm_extension(
     The number of generated queries.
   """
   random.seed(42)
-  query_validator = DuckDBQueryExecutor(
-    llm_params.database_path, llm_params.duckdb_timeout_seconds
+  processor = QueryProcessor(
+    llm_client_factory=llm_client_factory,
+    llm_config_params=llm_config_params,
+    llm_params=llm_params,
+    query_validator=DuckDBQueryExecutor(
+      llm_params.database_path, llm_params.duckdb_timeout_seconds
+    ),
+    schema_context=get_schema_from_statistics(llm_params),
   )
-  schema_context: str = get_schema_from_statistics(llm_params)
   rows: list[dict[str, str]] = []
   log_rows: list[dict[str, Any]] = []
   sampled_queries = get_random_queries(input_queries_base_path, llm_params)
@@ -252,16 +264,7 @@ def llm_extension(
   for cnt, (query, original_path) in tqdm(  # type:ignore
     enumerate(sampled_queries), desc="LLM-Extension", total=len(sampled_queries)
   ):
-    result = _process_single_query(
-      llm_client_factory=llm_client_factory,
-      llm_config_params=llm_config_params,
-      llm_params=llm_params,
-      query_validator=query_validator,
-      cnt=cnt,
-      query=query,
-      original_path=original_path,
-      schema_context=schema_context,
-    )
+    result = process_single_query(processor, cnt, query, original_path)
 
     if result.valid:
       logger.debug("Generated a valid query.")
