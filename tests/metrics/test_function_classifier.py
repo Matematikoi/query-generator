@@ -67,6 +67,40 @@ def test_classification_correctness(
   )
 
 
+def test_arithmetic_binary():
+  result = parse_sql_functions("SELECT 1 + 1")
+  assert len(result) == 1
+  assert result[0]["category"] == "scalar"
+  assert result[0]["subcategory"] == "arithmetic"
+
+
+def test_neg_unary():
+  result = parse_sql_functions("SELECT -5")
+  assert len(result) == 1
+  assert result[0]["category"] == "scalar"
+  assert result[0]["subcategory"] == "arithmetic"
+
+
+def test_mixed_func_and_binary():
+  """ABS(a - b) should return both scalar.numeric (Abs) and scalar.arithmetic (Sub)."""
+  result = parse_sql_functions("SELECT ABS(a - b)")
+  cats = {(r["category"], r["subcategory"]) for r in result}
+  assert ("scalar", "numeric") in cats
+  assert ("scalar", "arithmetic") in cats
+
+
+def test_comparison_binary():
+  result = parse_sql_functions("SELECT 1 = 1")
+  assert len(result) == 1
+  assert result[0]["category"] == "scalar"
+  assert result[0]["subcategory"] == "comparison"
+
+
+def test_logical_not():
+  result = parse_sql_functions("SELECT NOT TRUE")
+  assert any(r["subcategory"] == "logical" for r in result)
+
+
 def test_select_one_returns_empty():
   assert parse_sql_functions("SELECT 1") == []
 

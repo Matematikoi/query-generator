@@ -210,5 +210,44 @@ Case = "SELECT ss_sales_price, CASE WHEN ss_sales_price > 100 THEN 'high' WHEN s
 [conditional.if]
 If = "SELECT ss_net_profit, IF(ss_net_profit > 0, 'profit', 'loss') AS outcome FROM store_sales LIMIT 5"
 
+[scalar.arithmetic]
+Add = "SELECT ss_sales_price + ss_wholesale_cost AS total FROM store_sales LIMIT 5"
+Sub = "SELECT ss_sales_price - ss_wholesale_cost AS diff FROM store_sales LIMIT 5"
+Mul = "SELECT ss_quantity * ss_sales_price AS revenue FROM store_sales LIMIT 5"
+Div = "SELECT ss_sales_price / ss_quantity AS unit_price FROM store_sales LIMIT 5"
+IntDiv = "SELECT 10 // 3 AS int_div LIMIT 5"
+Mod = "SELECT ss_quantity % 10 AS remainder FROM store_sales LIMIT 5"
+Neg = "SELECT -ss_net_profit AS neg_profit FROM store_sales LIMIT 5"
+
+[scalar.bitwise]
+BitwiseAnd = "SELECT 12 & 10 AS band LIMIT 5"
+BitwiseOr = "SELECT 12 | 10 AS bor LIMIT 5"
+BitwiseXor = "SELECT 12 ^ 10 AS bxor LIMIT 5"
+BitwiseLeftShift = "SELECT 1 << 4 AS shifted LIMIT 5"
+BitwiseRightShift = "SELECT 16 >> 2 AS shifted LIMIT 5"
+BitwiseNot = "SELECT ~42 AS bnot LIMIT 5"
+
+[scalar.comparison]
+EQ = "SELECT 1 = 1 AS eq LIMIT 5"
+NEQ = "SELECT 1 <> 2 AS neq LIMIT 5"
+GT = "SELECT 2 > 1 AS gt LIMIT 5"
+GTE = "SELECT 2 >= 2 AS gte LIMIT 5"
+LT = "SELECT 1 < 2 AS lt LIMIT 5"
+LTE = "SELECT 2 <= 2 AS lte LIMIT 5"
+NullSafeEQ = "SELECT 1 IS NOT DISTINCT FROM 1 AS nseq LIMIT 5"
+NullSafeNEQ = "SELECT 1 IS DISTINCT FROM 2 AS nsneq LIMIT 5"
+Is = "SELECT NULL IS NULL AS is_null LIMIT 5"
+
+[scalar.pattern_matching]
+Like = "SELECT c_last_name FROM customer WHERE c_last_name LIKE 'A%' LIMIT 5"
+ILike = "SELECT c_last_name FROM customer WHERE c_last_name ILIKE 'a%' LIMIT 5"
+SimilarTo = "SELECT c_last_name FROM customer WHERE c_last_name SIMILAR TO 'A%' LIMIT 5"
+
+[scalar.struct_access]
+Dot = "SELECT ({'a': 1, 'b': 2}).a AS val LIMIT 5"
+
+[scalar.logical]
+Not = "SELECT NOT TRUE AS negated LIMIT 5"
+
 [table_valued.table_valued]
 Unnest = "SELECT UNNEST([1, 2, 3]) AS v LIMIT 5"

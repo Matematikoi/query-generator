@@ -242,6 +242,60 @@ AGG_SUBCATEGORY: dict[type, str] = {
 }
 
 
+BINARY_SUBCATEGORY: dict[type, str] = {
+  # arithmetic
+  exp.Add: "scalar.arithmetic",
+  exp.Sub: "scalar.arithmetic",
+  exp.Mul: "scalar.arithmetic",
+  exp.Div: "scalar.arithmetic",
+  exp.IntDiv: "scalar.arithmetic",
+  exp.Mod: "scalar.arithmetic",
+  # string
+  exp.DPipe: "scalar.string",
+  # bitwise
+  exp.BitwiseAnd: "scalar.bitwise",
+  exp.BitwiseOr: "scalar.bitwise",
+  exp.BitwiseXor: "scalar.bitwise",
+  exp.BitwiseLeftShift: "scalar.bitwise",
+  exp.BitwiseRightShift: "scalar.bitwise",
+  # comparison
+  exp.EQ: "scalar.comparison",
+  exp.NEQ: "scalar.comparison",
+  exp.GT: "scalar.comparison",
+  exp.GTE: "scalar.comparison",
+  exp.LT: "scalar.comparison",
+  exp.LTE: "scalar.comparison",
+  exp.NullSafeEQ: "scalar.comparison",
+  exp.NullSafeNEQ: "scalar.comparison",
+  exp.Is: "scalar.comparison",
+  # pattern matching
+  exp.Like: "scalar.pattern_matching",
+  exp.ILike: "scalar.pattern_matching",
+  exp.Glob: "scalar.pattern_matching",
+  exp.SimilarTo: "scalar.pattern_matching",
+  exp.Match: "scalar.pattern_matching",
+  # other binary
+  exp.Dot: "scalar.struct_access",
+  exp.Escape: "scalar.pattern_matching",
+  exp.Adjacent: "scalar.range",
+  exp.Distance: "scalar.distance",
+  exp.Overlaps: "scalar.range",
+  exp.ExtendsLeft: "scalar.range",
+  exp.ExtendsRight: "scalar.range",
+  exp.PropertyEQ: "scalar.struct_access",
+  # postgres JSON
+  exp.JSONBContainsAllTopKeys: "scalar.json",
+  exp.JSONBContainsAnyTopKeys: "scalar.json",
+  exp.JSONBDeleteAtPath: "scalar.json",
+}
+
+UNARY_SUBCATEGORY: dict[type, str] = {
+  exp.Neg: "scalar.arithmetic",
+  exp.BitwiseNot: "scalar.bitwise",
+  exp.Not: "scalar.logical",
+}
+
+
 ANONYMOUS_NAME_CLASSIFICATION: dict[str, str] = {
   "JSON_ARRAY": "scalar.json",
   "JSON_EXISTS": "scalar.json",
@@ -292,6 +346,15 @@ def _classify_agg_or_scalar(
   return f"scalar.{sub}"
 
 
+def _classify_operator(node: exp.Expression) -> str | None:
+  """Classify Binary/Unary operator nodes. Returns None if not applicable."""
+  if isinstance(node, exp.Binary) and not isinstance(node, exp.Connector):
+    return BINARY_SUBCATEGORY.get(type(node))
+  if isinstance(node, exp.Unary) and not isinstance(node, exp.Paren):
+    return UNARY_SUBCATEGORY.get(type(node))
+  return None
+
+
 def _classify_function(
   node: exp.Expression,
   fn_ids: set[int],
@@ -300,10 +363,13 @@ def _classify_function(
 
   Returns 'other' for connectors and unrecognised nodes.
   """
-  if isinstance(node, exp.Case):
-    return "conditional.case"
-  if isinstance(node, exp.If):
-    return "conditional.if"
+  if isinstance(node, exp.Case | exp.If):
+    return (
+      "conditional.case" if isinstance(node, exp.Case) else "conditional.if"
+    )
+  op = _classify_operator(node)
+  if op:
+    return op
   if not isinstance(node, exp.Func) or isinstance(node, exp.Connector):
     return "other"
   if isinstance(node, exp.UDTF):
@@ -333,7 +399,16 @@ def parse_sql_functions(
     rows: list[FunctionRecord] = []
     seen: set[int] = set()
 
-    for node in tree.find_all(exp.Func, exp.Case, exp.If):
+    _node_types: tuple[type[exp.Expression], ...] = (
+      exp.Func,
+      exp.Case,
+      exp.If,
+      exp.Binary,
+      exp.Neg,
+      exp.BitwiseNot,
+      exp.Not,
+    )
+    for node in tree.find_all(*_node_types):
       nid = id(node)
       if nid in seen or isinstance(node, exp.Connector):
         continue
