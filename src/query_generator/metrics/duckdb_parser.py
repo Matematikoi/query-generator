@@ -481,6 +481,7 @@ def python_type_to_polars(
         {
           FunctionRecordFields.CATEGORY: pl.String,
           FunctionRecordFields.SUBCATEGORY: pl.String,
+          FunctionRecordFields.NAME: pl.String,
           FunctionRecordFields.EXPRESSION: pl.String,
         }
       )

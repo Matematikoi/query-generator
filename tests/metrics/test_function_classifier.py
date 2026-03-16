@@ -72,6 +72,7 @@ def test_arithmetic_binary():
   assert len(result) == 1
   assert result[0]["category"] == "scalar"
   assert result[0]["subcategory"] == "arithmetic"
+  assert result[0]["name"] == "Add"
 
 
 def test_neg_unary():
@@ -79,14 +80,15 @@ def test_neg_unary():
   assert len(result) == 1
   assert result[0]["category"] == "scalar"
   assert result[0]["subcategory"] == "arithmetic"
+  assert result[0]["name"] == "Neg"
 
 
 def test_mixed_func_and_binary():
   """ABS(a - b) should return both scalar.numeric (Abs) and scalar.arithmetic (Sub)."""
   result = parse_sql_functions("SELECT ABS(a - b)")
-  cats = {(r["category"], r["subcategory"]) for r in result}
-  assert ("scalar", "numeric") in cats
-  assert ("scalar", "arithmetic") in cats
+  cats = {(r["category"], r["subcategory"], r["name"]) for r in result}
+  assert ("scalar", "numeric", "Abs") in cats
+  assert ("scalar", "arithmetic", "Sub") in cats
 
 
 def test_comparison_binary():
@@ -94,11 +96,14 @@ def test_comparison_binary():
   assert len(result) == 1
   assert result[0]["category"] == "scalar"
   assert result[0]["subcategory"] == "comparison"
+  assert result[0]["name"] == "EQ"
 
 
 def test_logical_not():
   result = parse_sql_functions("SELECT NOT TRUE")
-  assert any(r["subcategory"] == "logical" for r in result)
+  assert any(
+    r["subcategory"] == "logical" and r["name"] == "Not" for r in result
+  )
 
 
 def test_select_one_returns_empty():
@@ -117,5 +122,6 @@ def test_function_record_fields_values():
   record: FunctionRecord = result[0]
   assert record[FunctionRecordFields.CATEGORY] == "agg"
   assert record[FunctionRecordFields.SUBCATEGORY] == "core"
+  assert record[FunctionRecordFields.NAME] == "Count"
   assert isinstance(record[FunctionRecordFields.EXPRESSION], str)
   assert len(record[FunctionRecordFields.EXPRESSION]) > 0

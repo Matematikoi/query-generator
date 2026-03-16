@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 class FunctionRecordFields(StrEnum):
   CATEGORY = "category"
   SUBCATEGORY = "subcategory"
+  NAME = "name"
   EXPRESSION = "expression"
 
 
@@ -21,6 +22,7 @@ class FunctionRecord(TypedDict):
 
   category: str
   subcategory: str
+  name: str
   expression: str
 
 
@@ -419,9 +421,15 @@ def parse_sql_functions(
         continue
 
       cat, _, subcat = full.partition(".")
+      name = (
+        node.name
+        if isinstance(node, exp.Anonymous | exp.AnonymousAggFunc)
+        else type(node).__name__
+      )
       record: FunctionRecord = {
         "category": cat,
         "subcategory": subcat or cat,
+        "name": name,
         "expression": node.sql(dialect="duckdb"),
       }
       rows.append(record)
