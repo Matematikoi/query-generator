@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Generic, Protocol, TypeVar, cast
 
+import boto3
 from ollama import Client
 from openai import OpenAI
 
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class BatchRequest:
-  """A single request to be included in an OpenAI batch."""
+  """A single request to be included in a batch."""
 
   custom_id: str
   messages: list[dict[str, str]]
@@ -26,11 +27,19 @@ class BatchRequest:
 
 @dataclass
 class BatchResult:
-  """A single result from an OpenAI batch."""
+  """A single result from a batch."""
 
   custom_id: str
   content: str | None
   error: str | None
+
+
+class BatchClient(Protocol):
+  """Protocol for batch LLM clients."""
+
+  def submit_batch(self, requests: list[BatchRequest]) -> str: ...
+  def poll_batch(self, batch_id: str, poll_interval: float) -> str: ...
+  def download_results(self, batch_id: str) -> list[BatchResult]: ...
 
 
 LLM_Message = list[dict[str, str]]
@@ -205,6 +214,184 @@ class OpenAIBatchClient:
       text = choices[0]["message"]["content"] if choices else None
       results.append(BatchResult(custom_id=custom_id, content=text, error=None))
     return results
+
+
+def _parse_s3_uri(uri: str) -> tuple[str, str]:
+  """Parse 's3://bucket/key' into (bucket, key)."""
+  if not uri.startswith("s3://"):
+    msg = f"Invalid S3 URI: {uri}"
+    raise ValueError(msg)
+  without_scheme = uri[len("s3://") :]
+  bucket, _, key = without_scheme.partition("/")
+  return bucket, key
+
+
+class BedrockBatchClient:
+  """Client for batch inference via AWS Bedrock."""
+
+  def __init__(
+    self,
+    s3_input_uri: str,
+    s3_output_uri: str,
+    role_arn: str,
+    region: str,
+    model: str,
+  ) -> None:
+    self.s3_input_uri = s3_input_uri
+    self.s3_output_uri = s3_output_uri
+    self.role_arn = role_arn
+    self.model = model
+    self.s3_client = boto3.client("s3", region_name=region)
+    self.bedrock_client = boto3.client("bedrock", region_name=region)
+    self._job_output_uri: dict[str, str] = {}
+
+  def submit_batch(self, requests: list[BatchRequest]) -> str:
+    """Build Bedrock JSONL, upload to S3, create invocation job."""
+    lines: list[str] = []
+    for req in requests:
+      line = {
+        "recordId": req.custom_id,
+        "modelInput": {
+          "anthropic_version": "bedrock-2023-05-31",
+          "max_tokens": 4096,
+          "messages": [m for m in req.messages if m["role"] != "system"],
+          "system": next(
+            (m["content"] for m in req.messages if m["role"] == "system"),
+            "",
+          ),
+        },
+      }
+      lines.append(json.dumps(line))
+    jsonl_bytes = ("\n".join(lines) + "\n").encode()
+
+    input_bucket, input_key = _parse_s3_uri(self.s3_input_uri)
+    timestamp = int(time.time())
+    file_key = f"{input_key}batch_{timestamp}.jsonl"
+    self.s3_client.put_object(
+      Bucket=input_bucket,
+      Key=file_key,
+      Body=jsonl_bytes,
+    )
+    input_s3_uri = f"s3://{input_bucket}/{file_key}"
+
+    response = self.bedrock_client.create_model_invocation_job(
+      modelId=self.model,
+      roleArn=self.role_arn,
+      jobName=f"batch-{timestamp}",
+      inputDataConfig={
+        "s3InputDataConfig": {"s3Uri": input_s3_uri},
+      },
+      outputDataConfig={
+        "s3OutputDataConfig": {"s3Uri": self.s3_output_uri},
+      },
+    )
+    job_arn = response["jobArn"]
+    logger.info(
+      "Created Bedrock batch job %s with %d requests.",
+      job_arn,
+      len(requests),
+    )
+    return job_arn
+
+  def poll_batch(self, batch_id: str, poll_interval: float) -> str:
+    """Poll Bedrock job until terminal state. Returns lowercase status."""
+    status_map = {
+      "Completed": "completed",
+      "Failed": "failed",
+      "Stopped": "cancelled",
+      "Stopping": "cancelled",
+    }
+    terminal = set(status_map.keys())
+    while True:
+      response = self.bedrock_client.get_model_invocation_job(
+        jobIdentifier=batch_id
+      )
+      status = response["status"]
+      logger.info("Bedrock job %s status: %s", batch_id, status)
+      if status in terminal:
+        if status == "Completed":
+          self._job_output_uri[batch_id] = response["outputDataConfig"][
+            "s3OutputDataConfig"
+          ]["s3Uri"]
+        return status_map[status]
+      time.sleep(poll_interval)
+
+  def download_results(self, batch_id: str) -> list[BatchResult]:
+    """Download and parse results from a completed Bedrock job."""
+    output_uri = self._job_output_uri.get(batch_id)
+    if not output_uri:
+      logger.warning("No output URI for job %s", batch_id)
+      return []
+
+    bucket, prefix = _parse_s3_uri(output_uri)
+    paginator = self.s3_client.get_paginator("list_objects_v2")
+    results: list[BatchResult] = []
+    for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
+      for obj in page.get("Contents", []):
+        key = obj["Key"]
+        if not key.endswith(".jsonl.out"):
+          continue
+        body = (
+          self.s3_client.get_object(Bucket=bucket, Key=key)["Body"]
+          .read()
+          .decode()
+        )
+        for raw_line in body.strip().split("\n"):
+          if not raw_line:
+            continue
+          record = json.loads(raw_line)
+          record_id = record["recordId"]
+          model_output = record.get("modelOutput")
+          if model_output is None:
+            error = record.get("error", "Unknown error")
+            results.append(
+              BatchResult(
+                custom_id=record_id,
+                content=None,
+                error=str(error),
+              )
+            )
+            continue
+          content_blocks = model_output.get("content", [])
+          text = content_blocks[0]["text"] if content_blocks else None
+          results.append(
+            BatchResult(
+              custom_id=record_id,
+              content=text,
+              error=None,
+            )
+          )
+    return results
+
+
+@dataclass
+class BedrockConfig:
+  """Configuration for Bedrock batch client."""
+
+  s3_input_uri: str
+  s3_output_uri: str
+  role_arn: str
+  region: str
+  model: str
+
+
+def get_batch_client(
+  provider: str,
+  bedrock_config: BedrockConfig | None = None,
+) -> BatchClient:
+  """Return the appropriate batch client for the provider."""
+  if provider == "bedrock":
+    assert bedrock_config is not None, (
+      "bedrock_config required for bedrock provider"
+    )
+    return BedrockBatchClient(
+      s3_input_uri=bedrock_config.s3_input_uri,
+      s3_output_uri=bedrock_config.s3_output_uri,
+      role_arn=bedrock_config.role_arn,
+      region=bedrock_config.region,
+      model=bedrock_config.model,
+    )
+  return OpenAIBatchClient()
 
 
 def get_llm_client_factory(provider: str) -> LLMClientFactory:

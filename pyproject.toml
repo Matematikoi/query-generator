@@ -44,6 +44,8 @@ matplotlib = ">=3.10.8,<4"
 seaborn = ">=0.13.2,<0.14"
 pyarrow = ">=22.0.0,<23"
 openai = ">=2.26.0,<3"
+anthropic = ">=0.85.0,<0.86"
+boto3 = ">=1.35.0,<2"
 
 
 [tool.pixi.feature.dev.dependencies]

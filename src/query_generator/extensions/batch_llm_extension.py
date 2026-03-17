@@ -1,4 +1,4 @@
-"""Batch LLM extension using OpenAI Batch API."""
+"""Batch LLM extension using OpenAI or Bedrock Batch APIs."""
 
 import logging
 import random
@@ -11,9 +11,11 @@ from query_generator.duckdb_connection.query_validation import (
   DuckDBQueryExecutor,
 )
 from query_generator.extensions.llm_clients import (
+  BatchClient,
   BatchRequest,
   BatchResult,
-  OpenAIBatchClient,
+  BedrockConfig,
+  get_batch_client,
 )
 from query_generator.extensions.llm_extension import (
   add_retry_query_to_messages,
@@ -62,7 +64,7 @@ def _build_batch_requests(
 
 
 def _submit_and_collect(
-  batch_client: OpenAIBatchClient,
+  batch_client: BatchClient,
   requests: list[BatchRequest],
   batch_size: int,
   poll_interval: float,
@@ -227,13 +229,29 @@ def batch_llm_extension(
   input_queries_base_path: Path,
   destination_path: Path,
 ) -> int:
-  """Generate new queries using the OpenAI Batch API.
+  """Generate new queries using batch APIs (OpenAI or Bedrock).
 
   Returns:
     The number of valid generated queries.
   """
   random.seed(42)
-  batch_client = OpenAIBatchClient()
+  bedrock_config = None
+  if llm_params.provider == "bedrock":
+    assert llm_params.s3_input_uri is not None
+    assert llm_params.s3_output_uri is not None
+    assert llm_params.bedrock_role_arn is not None
+    assert llm_params.aws_region is not None
+    bedrock_config = BedrockConfig(
+      s3_input_uri=llm_params.s3_input_uri,
+      s3_output_uri=llm_params.s3_output_uri,
+      role_arn=llm_params.bedrock_role_arn,
+      region=llm_params.aws_region,
+      model=llm_params.model,
+    )
+  batch_client = get_batch_client(
+    provider=llm_params.provider,
+    bedrock_config=bedrock_config,
+  )
   query_validator = DuckDBQueryExecutor(
     llm_params.database_path, llm_params.duckdb_timeout_seconds
   )

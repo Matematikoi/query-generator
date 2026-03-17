@@ -1,0 +1,19 @@
+llm_extension = true
+union_extension = false
+queries_parquet = "tmp/filtered_queries/filtered.parquet"
+destination_folder = "tmp/extended_queries_batch_bedrock"
+
+[llm_params]
+provider = "bedrock"
+model = "anthropic.claude-sonnet-4-20250514-v1:0"
+batch_size = 100
+batch_poll_interval_seconds = 60.0
+database_path = "tmp/database_TPCDS_0.1.duckdb"
+retry = 1
+total_queries = 100
+prompts_path = "params_config/prompts/basic_prompt.toml"
+schema_path = "params_config/schemas/dev.txt"
+s3_input_uri = "s3://my-bucket/batch-input/"
+s3_output_uri = "s3://my-bucket/batch-output/"
+bedrock_role_arn = "arn:aws:iam::123456789012:role/BedrockBatchRole"
+aws_region = "us-east-1"
