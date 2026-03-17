@@ -72,6 +72,8 @@ class LLMParams:
   provider: str = "ollama"
   duckdb_timeout_seconds: float = 5.0
   statistics_parquet: str | None = None
+  batch_size: int = 100
+  batch_poll_interval_seconds: float = 30.0
 
   @prompts.default  # type: ignore
   def _make_llm_prompts(self) -> LLMPrompts:
@@ -91,6 +93,31 @@ class ExtensionOnlineEndpoint:
 
 ```toml
 {TOML_EXAMPLE[EndpointName.EXTENSIONS_ONLINE]}
+```
+## Example prompts.toml
+
+```toml
+{TOML_EXAMPLE[EndpointName.PROMPTS]}
+```
+
+"""
+  queries_parquet: str
+  llm_extension: bool
+  union_extension: bool
+  destination_folder: str
+  llm_params: LLMParams | None = None
+  union_params: UnionParams | None = None
+
+
+@dataclass
+class ExtensionBatchEndpoint:
+  __doc__ = f"""Makes complex queries using OpenAI Batch API (50% cheaper).
+{get_markdown_documentation(EndpointName.EXTENSIONS_BATCH)}
+
+# Example
+
+```toml
+{TOML_EXAMPLE[EndpointName.EXTENSIONS_BATCH]}
 ```
 ## Example prompts.toml
 

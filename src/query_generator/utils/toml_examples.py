@@ -3,6 +3,7 @@ from enum import StrEnum
 
 class EndpointName(StrEnum):
   EXTENSIONS_ONLINE = "extensions_online"
+  EXTENSIONS_BATCH = "extensions_batch"
   SYNTHETIC_GENERATION = "synthetic_generation"
   FILTER = "filter"
   GENERATE_DB = "generate_db"
@@ -35,6 +36,23 @@ model = "deepseek-r1:1.5b"
 database_path = "data/duckdb/TPCDS/0.db"
 retry = 1
 total_queries = 5
+prompts_path = "params_config/prompts/basic_prompt.toml"
+schema_path = "params_config/schemas/dev.txt"
+""",
+  EndpointName.EXTENSIONS_BATCH: """\
+llm_extension = true
+union_extension = false
+queries_parquet = "tmp/filtered_queries/filtered.parquet"
+destination_folder = "tmp/extended_queries_batch"
+
+[llm_params]
+provider = "openai"
+model = "gpt-4o-mini"
+batch_size = 100
+batch_poll_interval_seconds = 30.0
+database_path = "tmp/database_TPCDS_0.1.duckdb"
+retry = 1
+total_queries = 100
 prompts_path = "params_config/prompts/basic_prompt.toml"
 schema_path = "params_config/schemas/dev.txt"
 """,

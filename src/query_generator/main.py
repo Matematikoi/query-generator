@@ -6,6 +6,7 @@ import duckdb
 import typer
 
 from query_generator.duckdb_connection.setup import generate_db
+from query_generator.extensions.batch_llm_extension import batch_llm_extension
 from query_generator.extensions.fix_transform import fix_transform
 from query_generator.extensions.llm_clients import (
   get_llm_client_factory,
@@ -29,6 +30,7 @@ from query_generator.tools.histograms import (
   query_histograms,
 )
 from query_generator.utils.params import (
+  ExtensionBatchEndpoint,
   ExtensionOnlineEndpoint,
   FilterEndpoint,
   FixTransformEndpoint,
@@ -278,6 +280,67 @@ def extensions_online_endpoint(
       destination_path=Path(params.destination_folder),
     )
     logger.info("LLM extension done")
+
+  logger.info(f"Total extension queries generated: {cnt}.")
+  toml_params = get_toml_from_params(params)
+  (Path(params.destination_folder) / "extension_config.toml").write_text(
+    toml_params
+  )
+
+
+@app.command(
+  "extensions-batch",
+  help=build_help_from_dataclass(ExtensionBatchEndpoint),
+)
+def extensions_batch_endpoint(
+  config_file: Annotated[
+    str,
+    typer.Option(
+      "--config",
+      "-c",
+      help="The path to the configuration file for batch extension",
+    ),
+  ],
+  *,
+  debug: Annotated[
+    bool,
+    typer.Option(
+      "-d",
+      "--debug",
+      help="Enable debug logging to file",
+      is_flag=True,
+      flag_value=True,
+    ),
+  ] = False,
+) -> None:
+  """Add complex queries using OpenAI Batch API (50% cheaper).
+  Submits queries in bulk, validates results, and retries failures."""
+  params = read_and_parse_toml(Path(config_file), ExtensionBatchEndpoint)
+  default_logger(params.destination_folder, debug_file=debug)
+  cnt = 0
+  if params.union_extension:
+    assert params.union_params is not None
+    logger.info("Starting Union extension")
+    cnt += union_queries(
+      Path(params.queries_parquet),
+      Path(params.destination_folder),
+      params.union_params.max_queries,
+      params.union_params.probability,
+    )
+    logger.info("Union extension done")
+
+  if params.llm_extension:
+    assert params.llm_params is not None
+    logger.info(
+      "Starting Batch LLM extension with provider: %s",
+      params.llm_params.provider,
+    )
+    cnt += batch_llm_extension(
+      llm_params=params.llm_params,
+      input_queries_base_path=Path(params.queries_parquet).parent,
+      destination_path=Path(params.destination_folder),
+    )
+    logger.info("Batch LLM extension done")
 
   logger.info(f"Total extension queries generated: {cnt}.")
   toml_params = get_toml_from_params(params)

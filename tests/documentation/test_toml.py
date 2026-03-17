@@ -4,6 +4,7 @@ from pathlib import Path
 from cattrs import structure
 
 from query_generator.utils.params import (
+  ExtensionBatchEndpoint,
   ExtensionOnlineEndpoint,
   FilterEndpoint,
   FixTransformEndpoint,
@@ -18,6 +19,7 @@ from query_generator.utils.toml_examples import TOML_EXAMPLE, EndpointName
 
 mapping = {
   EndpointName.EXTENSIONS_ONLINE: ExtensionOnlineEndpoint,
+  EndpointName.EXTENSIONS_BATCH: ExtensionBatchEndpoint,
   EndpointName.SYNTHETIC_GENERATION: SyntheticQueriesEndpoint,
   EndpointName.FILTER: FilterEndpoint,
   EndpointName.GENERATE_DB: GenerateDBEndpoint,

@@ -1,6 +1,9 @@
 """LLM clients file."""
 
+import io
+import json
 import logging
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
@@ -10,6 +13,25 @@ from ollama import Client
 from openai import OpenAI
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class BatchRequest:
+  """A single request to be included in an OpenAI batch."""
+
+  custom_id: str
+  messages: list[dict[str, str]]
+  model: str
+
+
+@dataclass
+class BatchResult:
+  """A single result from an OpenAI batch."""
+
+  custom_id: str
+  content: str | None
+  error: str | None
+
 
 LLM_Message = list[dict[str, str]]
 
@@ -117,6 +139,72 @@ class OpenAILLMClient:
       "prompt_eval_count": self.prompt_eval_count,
       "total_tokens": sum(self.eval_count) + sum(self.prompt_eval_count),
     }
+
+
+class OpenAIBatchClient:
+  """Client for submitting and retrieving OpenAI Batch API requests."""
+
+  def __init__(self) -> None:
+    self.client = OpenAI()
+
+  def submit_batch(self, requests: list[BatchRequest]) -> str:
+    """Upload JSONL and create a batch. Returns the batch ID."""
+    lines: list[str] = []
+    for req in requests:
+      line = {
+        "custom_id": req.custom_id,
+        "method": "POST",
+        "url": "/v1/chat/completions",
+        "body": {"model": req.model, "messages": req.messages},
+      }
+      lines.append(json.dumps(line))
+    jsonl_bytes = ("\n".join(lines) + "\n").encode()
+
+    uploaded = self.client.files.create(
+      file=io.BytesIO(jsonl_bytes), purpose="batch"
+    )
+    batch = self.client.batches.create(
+      input_file_id=uploaded.id,
+      endpoint="/v1/chat/completions",
+      completion_window="24h",
+    )
+    logger.info("Created batch %s with %d requests.", batch.id, len(requests))
+    return batch.id
+
+  def poll_batch(self, batch_id: str, poll_interval: float) -> str:
+    """Poll until the batch completes or fails. Returns final status."""
+    while True:
+      batch = self.client.batches.retrieve(batch_id)
+      status = batch.status
+      logger.info("Batch %s status: %s", batch_id, status)
+      if status in ("completed", "failed", "expired", "cancelled"):
+        return status
+      time.sleep(poll_interval)
+
+  def download_results(self, batch_id: str) -> list[BatchResult]:
+    """Download and parse results from a completed batch."""
+    batch = self.client.batches.retrieve(batch_id)
+    if not batch.output_file_id:
+      logger.warning("Batch %s has no output file.", batch_id)
+      return []
+    content = self.client.files.content(batch.output_file_id).text
+    results: list[BatchResult] = []
+    for line in content.strip().split("\n"):
+      if not line:
+        continue
+      obj = json.loads(line)
+      custom_id = obj["custom_id"]
+      error = obj.get("error")
+      if error:
+        results.append(
+          BatchResult(custom_id=custom_id, content=None, error=str(error))
+        )
+        continue
+      response_body = obj.get("response", {}).get("body", {})
+      choices = response_body.get("choices", [])
+      text = choices[0]["message"]["content"] if choices else None
+      results.append(BatchResult(custom_id=custom_id, content=text, error=None))
+    return results
 
 
 def get_llm_client_factory(provider: str) -> LLMClientFactory:

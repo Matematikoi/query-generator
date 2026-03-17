@@ -88,6 +88,7 @@ Or by accessing the repective doc:
 - [`synthetic-queries`](./docs/endpoints/synthetic_generation.md)
 - [`filter-synthetic`](./docs/endpoints/filter.md)
 - [`extensions-online`](./docs/endpoints/extensions_online.md)
+- [`extensions-batch`](./docs/endpoints/extensions_batch.md)
 - [`extensions-with-bedrock`](./docs/endpoints/extensions_with_bedrock.md)
 - [`fix-transform`](./docs/endpoints/fix_transform.md)
 - [`get-metrics`](./docs/endpoints/get_metrics.md)
