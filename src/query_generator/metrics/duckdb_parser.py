@@ -9,6 +9,7 @@ from typing import Any, NotRequired, TypedDict, get_type_hints
 import networkx as nx
 import polars as pl
 import sqlparse
+from networkx.algorithms.dag import descendants
 
 logger = logging.getLogger(__name__)
 
@@ -381,7 +382,7 @@ class DuckDBTraceParser:
       estimated = float(estimated_cardinality) + 1
       actual = float(node_data["output_cardinality"]) + 1
       qerror = max(estimated / actual, actual / estimated)
-      subtree_size = len(nx.descendants(self.trace_graph, node_id)) + 1
+      subtree_size = len(descendants(self.trace_graph, node_id)) + 1
       qerrors_by_downstream_nodes.setdefault(subtree_size, []).append(qerror)
     return qerrors_by_downstream_nodes
 

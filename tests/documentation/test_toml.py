@@ -4,7 +4,8 @@ from pathlib import Path
 from cattrs import structure
 
 from query_generator.utils.params import (
-  ExtensionAndOllamaEndpoint,
+  ExtensionBatchEndpoint,
+  ExtensionOnlineEndpoint,
   FilterEndpoint,
   FixTransformEndpoint,
   GenerateDBEndpoint,
@@ -17,7 +18,8 @@ from query_generator.utils.params import (
 from query_generator.utils.toml_examples import TOML_EXAMPLE, EndpointName
 
 mapping = {
-  EndpointName.EXTENSIONS_WITH_OLLAMA: ExtensionAndOllamaEndpoint,
+  EndpointName.EXTENSIONS_ONLINE: ExtensionOnlineEndpoint,
+  EndpointName.EXTENSIONS_BATCH: ExtensionBatchEndpoint,
   EndpointName.SYNTHETIC_GENERATION: SyntheticQueriesEndpoint,
   EndpointName.FILTER: FilterEndpoint,
   EndpointName.GENERATE_DB: GenerateDBEndpoint,
@@ -49,8 +51,8 @@ def test_toml_files():
 
 def test_llm_params():
   """test llm params are being correctly parsed"""
-  tpcds_dev = Path("params_config/extensions_with_ollama/tpcds_dev.toml")
-  params = read_and_parse_toml(tpcds_dev, ExtensionAndOllamaEndpoint)
+  tpcds_dev = Path("params_config/extensions_online/tpcds_dev.toml")
+  params = read_and_parse_toml(tpcds_dev, ExtensionOnlineEndpoint)
   base_prompt_expected: str = """
     You are writing queries in markdown notation.
     Use the format ```sql SELECT... ``` to ensure proper markdown formatting.

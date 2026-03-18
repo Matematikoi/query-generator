@@ -6,10 +6,10 @@ import duckdb
 import typer
 
 from query_generator.duckdb_connection.setup import generate_db
+from query_generator.extensions.batch_llm_extension import batch_llm_extension
 from query_generator.extensions.fix_transform import fix_transform
 from query_generator.extensions.llm_clients import (
-  LLMClientFactory,
-  OllamaLLMClient,
+  get_llm_client_factory,
 )
 from query_generator.extensions.llm_extension import llm_extension
 from query_generator.extensions.union_queries import union_queries
@@ -30,7 +30,8 @@ from query_generator.tools.histograms import (
   query_histograms,
 )
 from query_generator.utils.params import (
-  ExtensionAndOllamaEndpoint,
+  ExtensionBatchEndpoint,
+  ExtensionOnlineEndpoint,
   FilterEndpoint,
   FixTransformEndpoint,
   GenerateDBEndpoint,
@@ -222,10 +223,10 @@ def filter_synthetic_endpoint(
 
 
 @app.command(
-  "extensions-with-ollama",
-  help=build_help_from_dataclass(ExtensionAndOllamaEndpoint),
+  "extensions-online",
+  help=build_help_from_dataclass(ExtensionOnlineEndpoint),
 )
-def extensions_with_ollama_endpoint(
+def extensions_online_endpoint(
   config_file: Annotated[
     str,
     typer.Option(
@@ -249,7 +250,7 @@ def extensions_with_ollama_endpoint(
   """Add complex queries using LLM prompts.
   The configuration file should be a TOML file with the
   ComplexQueryGenerationParametersEndpoint structure."""
-  params = read_and_parse_toml(Path(config_file), ExtensionAndOllamaEndpoint)
+  params = read_and_parse_toml(Path(config_file), ExtensionOnlineEndpoint)
   default_logger(params.destination_folder, debug_file=debug)
   cnt = 0
   if params.union_extension:
@@ -264,19 +265,82 @@ def extensions_with_ollama_endpoint(
     logger.info("Union extension done")
 
   if params.llm_extension:
-    assert params.ollama_model is not None
     assert params.llm_params is not None
-    logger.info("Starting LLM extension")
+    logger.info(
+      "Starting LLM extension with provider: %s",
+      params.llm_params.provider,
+    )
     cnt += llm_extension(
       llm_params=params.llm_params,
-      llm_client_factory=LLMClientFactory(
-        factory=OllamaLLMClient, init_kwargs={}
+      llm_client_factory=get_llm_client_factory(
+        params.llm_params.provider,
       ),
-      llm_config_params=params.ollama_model,
+      llm_config_params=params.llm_params.model,
       input_queries_base_path=Path(params.queries_parquet).parent,
       destination_path=Path(params.destination_folder),
     )
     logger.info("LLM extension done")
+
+  logger.info(f"Total extension queries generated: {cnt}.")
+  toml_params = get_toml_from_params(params)
+  (Path(params.destination_folder) / "extension_config.toml").write_text(
+    toml_params
+  )
+
+
+@app.command(
+  "extensions-batch",
+  help=build_help_from_dataclass(ExtensionBatchEndpoint),
+)
+def extensions_batch_endpoint(
+  config_file: Annotated[
+    str,
+    typer.Option(
+      "--config",
+      "-c",
+      help="The path to the configuration file for batch extension",
+    ),
+  ],
+  *,
+  debug: Annotated[
+    bool,
+    typer.Option(
+      "-d",
+      "--debug",
+      help="Enable debug logging to file",
+      is_flag=True,
+      flag_value=True,
+    ),
+  ] = False,
+) -> None:
+  """Add complex queries using OpenAI Batch API (50% cheaper).
+  Submits queries in bulk, validates results, and retries failures."""
+  params = read_and_parse_toml(Path(config_file), ExtensionBatchEndpoint)
+  default_logger(params.destination_folder, debug_file=debug)
+  cnt = 0
+  if params.union_extension:
+    assert params.union_params is not None
+    logger.info("Starting Union extension")
+    cnt += union_queries(
+      Path(params.queries_parquet),
+      Path(params.destination_folder),
+      params.union_params.max_queries,
+      params.union_params.probability,
+    )
+    logger.info("Union extension done")
+
+  if params.llm_extension:
+    assert params.llm_params is not None
+    logger.info(
+      "Starting Batch LLM extension with provider: %s",
+      params.llm_params.provider,
+    )
+    cnt += batch_llm_extension(
+      llm_params=params.llm_params,
+      input_queries_base_path=Path(params.queries_parquet).parent,
+      destination_path=Path(params.destination_folder),
+    )
+    logger.info("Batch LLM extension done")
 
   logger.info(f"Total extension queries generated: {cnt}.")
   toml_params = get_toml_from_params(params)

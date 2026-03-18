@@ -1,0 +1,13 @@
+llm_extension = true
+union_extension = false
+queries_parquet = "tmp/filtered_queries/filtered.parquet"
+destination_folder = "tmp/extended_queries_bedrock"
+
+[llm_params]
+provider = "bedrock"
+model = "anthropic.claude-3-haiku-20240307-v1:0"
+database_path = "tmp/database_TPCDS_0.1.duckdb"
+retry = 1
+total_queries = 7
+prompts_path = "params_config/prompts/basic_prompt.toml"
+schema_path = "params_config/schemas/dev.txt"

@@ -2,7 +2,7 @@
 name = "query-generator"
 version = "0.2.0"
 requires-python = ">= 3.11"
-dependencies = ["ollama>=0.5.1,<0.6"]
+dependencies = ["ollama>=0.5.1,<0.6", "anthropic[bedrock]>=0.85.0,<1"]
 
 [project.scripts]
 main = "query_generator.main:main"
@@ -23,7 +23,12 @@ where = ["src"]
 
 [tool.pixi.pypi-dependencies]
 query_generator = { path = ".", editable = true }
-commonstrings = { git = "https://github.com/Matematikoi/commonstrings.git", rev = "87b1e54ccc282a504e55582a248a7e21d2f2b599" }
+
+[tool.pixi.target.linux-64.pypi-dependencies]
+commonstrings = { url = "https://github.com/Matematikoi/commonstrings/releases/download/v1.5/commonstrings-1.4-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl" }
+
+[tool.pixi.target.osx-arm64.pypi-dependencies]
+commonstrings = { url = "https://github.com/Matematikoi/commonstrings/releases/download/v1.5/commonstrings-1.4-cp313-cp313-macosx_11_0_arm64.whl" }
 
 [tool.pixi.dependencies]
 typer = ">=0.15.2,<0.16"
@@ -43,6 +48,7 @@ networkx = ">=3.6.1,<4"
 matplotlib = ">=3.10.8,<4"
 seaborn = ">=0.13.2,<0.14"
 pyarrow = ">=22.0.0,<23"
+openai = ">=2.26.0,<3"
 
 
 [tool.pixi.feature.dev.dependencies]

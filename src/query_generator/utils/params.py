@@ -65,11 +65,15 @@ class LLMParams:
   database_path: str
   total_queries: int
   retry: int
+  model: str
   prompts_path: Path = field(converter=Path)
   schema_path: Path = field(converter=Path)
   prompts: LLMPrompts = field(init=False)
+  provider: str = "ollama"
   duckdb_timeout_seconds: float = 5.0
   statistics_parquet: str | None = None
+  batch_size: int = 100
+  batch_poll_interval_seconds: float = 30.0
 
   @prompts.default  # type: ignore
   def _make_llm_prompts(self) -> LLMPrompts:
@@ -81,14 +85,14 @@ class LLMParams:
 
 
 @dataclass
-class ExtensionAndOllamaEndpoint:
-  __doc__ = f"""Makes complex queries from synthetic ones, mainly using ollama.
-{get_markdown_documentation(EndpointName.EXTENSIONS_WITH_OLLAMA)}
+class ExtensionOnlineEndpoint:
+  __doc__ = f"""Makes complex queries, one query at a time (online).
+{get_markdown_documentation(EndpointName.EXTENSIONS_ONLINE)}
 
 # Example
 
 ```toml
-{TOML_EXAMPLE[EndpointName.EXTENSIONS_WITH_OLLAMA]}
+{TOML_EXAMPLE[EndpointName.EXTENSIONS_ONLINE]}
 ```
 ## Example prompts.toml
 
@@ -101,7 +105,31 @@ class ExtensionAndOllamaEndpoint:
   llm_extension: bool
   union_extension: bool
   destination_folder: str
-  ollama_model: str | None = None
+  llm_params: LLMParams | None = None
+  union_params: UnionParams | None = None
+
+
+@dataclass
+class ExtensionBatchEndpoint:
+  __doc__ = f"""Makes complex queries using batch APIs (50% cheaper).
+{get_markdown_documentation(EndpointName.EXTENSIONS_BATCH)}
+
+# Example
+
+```toml
+{TOML_EXAMPLE[EndpointName.EXTENSIONS_BATCH]}
+```
+## Example prompts.toml
+
+```toml
+{TOML_EXAMPLE[EndpointName.PROMPTS]}
+```
+
+"""
+  queries_parquet: str
+  llm_extension: bool
+  union_extension: bool
+  destination_folder: str
   llm_params: LLMParams | None = None
   union_params: UnionParams | None = None
 
