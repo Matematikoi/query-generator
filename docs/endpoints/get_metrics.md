@@ -56,3 +56,20 @@ proxy for predicate and operator usage.
 in the **physical query operator plan graph** (e.g., `TABLE_SCAN`, `FILTER`,
 `HASH_JOIN`, `AGGREGATE`, `WINDOW`), describing what types of execution
 work the query performs.
+
+- `function_classification`: classifies SQL functions and operators found in
+each query using sqlglot. Each record contains `category`, `subcategory`,
+`name` (the sqlglot class name, e.g. `Add`, `Abs`, `Like`; for anonymous
+functions the SQL function name is used instead), and `expression` (the raw
+SQL text). Categories include:
+  - **scalar**: string, datetime, numeric, null_handling, type_conversion,
+    regex, json, array, map_struct, hash_crypto, session_system, arithmetic,
+    bitwise, comparison, pattern_matching, struct_access, logical, distance,
+    range
+  - **agg**: core, statistical, ordered_set, collection, approximate
+  - **window**: ranking, navigation, distribution, aggregate
+  - **conditional**: case, if
+  - **table_valued**: e.g., UNNEST
+
+  Binary operators (`+`, `-`, `*`, `/`, `=`, `<>`, `&`, `|`, `LIKE`, etc.)
+  and unary operators (`-`, `~`, `NOT`) are also classified.
