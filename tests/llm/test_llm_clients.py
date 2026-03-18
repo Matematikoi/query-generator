@@ -254,7 +254,13 @@ def test_bedrock_separates_system_messages(mock_bedrock_cls: MagicMock) -> None:
   client.query(messages, "anthropic.claude-3-haiku-20240307-v1:0")
 
   call_kwargs = mock_bedrock_cls.return_value.messages.create.call_args.kwargs
-  assert call_kwargs["system"] == "You are a SQL expert."
+  assert call_kwargs["system"] == [
+    {
+      "type": "text",
+      "text": "You are a SQL expert.",
+      "cache_control": {"type": "ephemeral"},
+    }
+  ]
   assert all(m["role"] != "system" for m in call_kwargs["messages"])
   assert messages[-1]["role"] == "assistant"
 

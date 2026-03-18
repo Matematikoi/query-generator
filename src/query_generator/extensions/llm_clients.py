@@ -193,7 +193,13 @@ class BedrockLLMClient:
           "max_tokens": 4096,
         }
         if system_parts:
-          kwargs["system"] = "\n".join(system_parts)
+          kwargs["system"] = [
+            {
+              "type": "text",
+              "text": "\n".join(system_parts),
+              "cache_control": {"type": "ephemeral"},
+            }
+          ]
         response = self.client.messages.create(**kwargs)
         break
       except anthropic.RateLimitError:
