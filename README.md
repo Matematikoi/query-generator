@@ -74,8 +74,6 @@ pixi run main make-histograms -c params_config/histogram/tpcds_dev.toml
 pixi run main synthetic-queries -c params_config/synthetic_generation/tpcds_dev.toml
 pixi run main filter-synthetic -c params_config/filter/filter_tpcds_dev.toml
 pixi run main extensions-online -c params_config/extensions_online/tpcds_dev.toml
-# Or use batch mode with Bedrock (requires AWS credentials, see docs/endpoints/extensions_batch.md)
-pixi run main extensions-batch -c params_config/extensions_batch/tpcds_dev_bedrock.toml
 pixi run main fix-transform -c params_config/fix_transform/tpcds_ollama_dev.toml
 pixi run main get-metrics -c params_config/get_metrics/ollama_tpcds_dev.toml
 ```
@@ -91,7 +89,6 @@ Or by accessing the repective doc:
 - [`filter-synthetic`](./docs/endpoints/filter.md)
 - [`extensions-online`](./docs/endpoints/extensions_online.md)
 - [`extensions-batch`](./docs/endpoints/extensions_batch.md)
-- [`extensions-with-bedrock`](./docs/endpoints/extensions_with_bedrock.md)
 - [`fix-transform`](./docs/endpoints/fix_transform.md)
 - [`get-metrics`](./docs/endpoints/get_metrics.md)
 

@@ -74,10 +74,6 @@ class LLMParams:
   statistics_parquet: str | None = None
   batch_size: int = 100
   batch_poll_interval_seconds: float = 30.0
-  s3_input_uri: str | None = None
-  s3_output_uri: str | None = None
-  bedrock_role_arn: str | None = None
-  aws_region: str | None = None
 
   @prompts.default  # type: ignore
   def _make_llm_prompts(self) -> LLMPrompts:

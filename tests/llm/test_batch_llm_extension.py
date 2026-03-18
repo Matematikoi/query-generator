@@ -8,10 +8,7 @@ import duckdb
 from query_generator.extensions.batch_llm_extension import batch_llm_extension
 from query_generator.extensions.llm_clients import (
   BatchResult,
-  BedrockBatchClient,
-  BedrockConfig,
   OpenAIBatchClient,
-  get_batch_client,
 )
 from query_generator.utils.params import LLMParams
 
@@ -69,7 +66,7 @@ def _mock_batch_client(results_by_round: list[list[BatchResult]]):
   return mock_client
 
 
-@patch("query_generator.extensions.batch_llm_extension.get_batch_client")
+@patch("query_generator.extensions.batch_llm_extension.OpenAIBatchClient")
 def test_all_valid_first_round(
   mock_client_cls: MagicMock, tmp_path: Path
 ) -> None:
@@ -103,7 +100,7 @@ def test_all_valid_first_round(
   assert (dest / "logs.parquet").exists()
 
 
-@patch("query_generator.extensions.batch_llm_extension.get_batch_client")
+@patch("query_generator.extensions.batch_llm_extension.OpenAIBatchClient")
 def test_retry_succeeds(mock_client_cls: MagicMock, tmp_path: Path) -> None:
   """First round fails, retry round succeeds."""
   queries_dir = tmp_path / "queries"
@@ -135,7 +132,7 @@ def test_retry_succeeds(mock_client_cls: MagicMock, tmp_path: Path) -> None:
   assert mock_client.submit_batch.call_count == 2
 
 
-@patch("query_generator.extensions.batch_llm_extension.get_batch_client")
+@patch("query_generator.extensions.batch_llm_extension.OpenAIBatchClient")
 def test_all_retries_exhausted(
   mock_client_cls: MagicMock, tmp_path: Path
 ) -> None:
@@ -169,7 +166,7 @@ def test_all_retries_exhausted(
   assert mock_client.submit_batch.call_count == 2
 
 
-@patch("query_generator.extensions.batch_llm_extension.get_batch_client")
+@patch("query_generator.extensions.batch_llm_extension.OpenAIBatchClient")
 def test_partial_success_with_retry(
   mock_client_cls: MagicMock, tmp_path: Path
 ) -> None:
@@ -204,7 +201,7 @@ def test_partial_success_with_retry(
   assert mock_client.submit_batch.call_count == 2
 
 
-@patch("query_generator.extensions.batch_llm_extension.get_batch_client")
+@patch("query_generator.extensions.batch_llm_extension.OpenAIBatchClient")
 def test_batch_api_error(mock_get_client: MagicMock, tmp_path: Path) -> None:
   """Batch returns an API-level error for a request."""
   queries_dir = tmp_path / "queries"
@@ -236,25 +233,7 @@ def test_batch_api_error(mock_get_client: MagicMock, tmp_path: Path) -> None:
 
 
 @patch("query_generator.extensions.llm_clients.OpenAI")
-def test_openai_provider_dispatch(_mock_openai: MagicMock) -> None:
-  """Verify default provider returns OpenAIBatchClient."""
-  client = get_batch_client(provider="openai")
+def test_openai_batch_client(_mock_openai: MagicMock) -> None:
+  """Verify OpenAIBatchClient can be instantiated."""
+  client = OpenAIBatchClient()
   assert isinstance(client, OpenAIBatchClient)
-
-
-@patch("query_generator.extensions.llm_clients.boto3")
-def test_bedrock_provider_dispatch(mock_boto3: MagicMock) -> None:
-  """Verify provider='bedrock' returns BedrockBatchClient."""
-  mock_boto3.client.return_value = MagicMock()
-  config = BedrockConfig(
-    s3_input_uri="s3://bucket/input/",
-    s3_output_uri="s3://bucket/output/",
-    role_arn="arn:aws:iam::123:role/Role",
-    region="us-east-1",
-    model="anthropic.claude-sonnet-4-20250514-v1:0",
-  )
-  client = get_batch_client(
-    provider="bedrock",
-    bedrock_config=config,
-  )
-  assert isinstance(client, BedrockBatchClient)
