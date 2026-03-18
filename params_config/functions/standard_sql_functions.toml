@@ -1,5 +1,5 @@
-# SQL Examples for TPC-DS database
-# Each entry: [category.subcategory.ExpressionName] with sql = "..."
+# Spark-safe subset of minimal_example.toml under the observed Spark execution baseline.
+# Each entry ran as written in both DuckDB and the provided Spark run.
 
 [window.ranking]
 Rank = "SELECT ss_customer_sk, ss_sales_price, RANK() OVER (PARTITION BY ss_store_sk ORDER BY ss_sales_price DESC) AS rnk FROM store_sales LIMIT 5"
@@ -30,8 +30,6 @@ Sum = "SELECT SUM(ss_sales_price) AS total_sales FROM store_sales LIMIT 5"
 Avg = "SELECT AVG(ss_sales_price) AS avg_price FROM store_sales LIMIT 5"
 Min = "SELECT MIN(ss_sales_price) AS min_price FROM store_sales LIMIT 5"
 Max = "SELECT MAX(ss_sales_price) AS max_price FROM store_sales LIMIT 5"
-First = "SELECT FIRST(ss_sales_price ORDER BY ss_sold_date_sk) AS first_price FROM store_sales LIMIT 5"
-Last = "SELECT LAST(ss_sales_price ORDER BY ss_sold_date_sk) AS last_price FROM store_sales LIMIT 5"
 AnyValue = "SELECT ANY_VALUE(ss_sales_price) AS any_price FROM store_sales LIMIT 5"
 
 [agg.statistical]
@@ -50,8 +48,6 @@ Skewness = "SELECT SKEWNESS(ss_sales_price) AS skew FROM store_sales LIMIT 5"
 PercentileCont = "SELECT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY ss_sales_price) AS median_price FROM store_sales LIMIT 5"
 PercentileDisc = "SELECT PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY ss_sales_price) AS median_disc FROM store_sales LIMIT 5"
 Median = "SELECT MEDIAN(ss_sales_price) AS median_price FROM store_sales LIMIT 5"
-Mode = "SELECT MODE() WITHIN GROUP (ORDER BY ss_quantity) AS mode_qty FROM store_sales LIMIT 5"
-Quantile = "SELECT QUANTILE(ss_sales_price, 0.9) AS p90_price FROM store_sales LIMIT 5"
 
 [agg.collection]
 ArrayAgg = "SELECT ARRAY_AGG(ss_sales_price) AS prices FROM store_sales GROUP BY ss_store_sk LIMIT 5"
@@ -76,24 +72,15 @@ Repeat = "SELECT REPEAT('ab', 3) AS repeated LIMIT 5"
 Reverse = "SELECT REVERSE(c_last_name) AS reversed FROM customer LIMIT 5"
 Split = "SELECT SPLIT(c_email_address, '@') AS parts FROM customer LIMIT 5"
 SplitPart = "SELECT SPLIT_PART(c_email_address, '@', 1) AS domain_user FROM customer LIMIT 5"
-StartsWith = "SELECT c_last_name, STARTS_WITH(c_last_name, 'A') AS starts_a FROM customer LIMIT 5"
-EndsWith = "SELECT c_last_name, ENDS_WITH(c_last_name, 'n') AS ends_n FROM customer LIMIT 5"
 Chr = "SELECT CHR(65) AS chr_a LIMIT 5"
 Ascii = "SELECT ASCII(c_last_name) AS ascii_val FROM customer LIMIT 5"
-Soundex = "SELECT JARO_WINKLER_SIMILARITY(c_first_name, c_last_name) AS name_similarity FROM customer LIMIT 5"
 Levenshtein = "SELECT LEVENSHTEIN(c_first_name, c_last_name) AS edit_dist FROM customer LIMIT 5"
-Encode = "SELECT ENCODE(c_last_name) AS encoded FROM customer LIMIT 5"
-Decode = "SELECT DECODE(ENCODE(c_last_name)) AS decoded FROM customer LIMIT 5"
 Translate = "SELECT TRANSLATE(c_last_name, 'aeiou', '12345') AS translated FROM customer LIMIT 5"
 
 [scalar.datetime]
-DateAdd = "SELECT d_date, DATE_ADD(d_date, INTERVAL 7 DAY) AS plus7 FROM date_dim LIMIT 5"
-DateDiff = "SELECT DATEDIFF('day', DATE '2000-01-01', d_date) AS diff FROM date_dim LIMIT 5"
 DateTrunc = "SELECT DATE_TRUNC('month', d_date) AS month_start FROM date_dim LIMIT 5"
-DateSub = "SELECT d_date, DATE_ADD(d_date, INTERVAL '-7 days') AS minus7 FROM date_dim LIMIT 5"
 Extract = "SELECT EXTRACT(YEAR FROM d_date) AS yr FROM date_dim LIMIT 5"
 CurrentDate = "SELECT CURRENT_DATE AS today LIMIT 5"
-CurrentTime = "SELECT CURRENT_TIME AS now_time LIMIT 5"
 CurrentTimestamp = "SELECT CURRENT_TIMESTAMP AS now_ts LIMIT 5"
 Year = "SELECT YEAR(d_date) AS yr FROM date_dim LIMIT 5"
 Month = "SELECT MONTH(d_date) AS mo FROM date_dim LIMIT 5"
@@ -102,13 +89,10 @@ Hour = "SELECT HOUR(CURRENT_TIMESTAMP) AS hr LIMIT 5"
 Minute = "SELECT MINUTE(CURRENT_TIMESTAMP) AS mn LIMIT 5"
 Second = "SELECT SECOND(CURRENT_TIMESTAMP) AS sec LIMIT 5"
 Quarter = "SELECT QUARTER(d_date) AS qtr FROM date_dim LIMIT 5"
-Week = "SELECT WEEK(d_date) AS wk FROM date_dim LIMIT 5"
 DayOfWeek = "SELECT DAYOFWEEK(d_date) AS dow FROM date_dim LIMIT 5"
 DayOfMonth = "SELECT DAYOFMONTH(d_date) AS dom FROM date_dim LIMIT 5"
 DayOfYear = "SELECT DAYOFYEAR(d_date) AS doy FROM date_dim LIMIT 5"
 LastDay = "SELECT LAST_DAY(d_date) AS last_d FROM date_dim LIMIT 5"
-StrToDate = "SELECT CAST(STRPTIME('2001-01-15', '%Y-%m-%d') AS DATE) AS parsed_date LIMIT 5"
-StrToTime = "SELECT CAST(STRPTIME('14:30:00', '%H:%M:%S') AS TIME) AS parsed_time LIMIT 5"
 
 [scalar.numeric]
 Abs = "SELECT ABS(ss_net_profit) AS abs_profit FROM store_sales LIMIT 5"
@@ -135,8 +119,6 @@ Acos = "SELECT ACOS(1.0) AS acos_val LIMIT 5"
 Atan = "SELECT ATAN(1.0) AS atan_val LIMIT 5"
 Atan2 = "SELECT ATAN2(1.0, 1.0) AS atan2_val LIMIT 5"
 Cbrt = "SELECT CBRT(27.0) AS cbrt_val LIMIT 5"
-IsNan = "SELECT ISNAN('nan'::FLOAT) AS is_nan LIMIT 5"
-IsInf = "SELECT ISINF('inf'::FLOAT) AS is_inf LIMIT 5"
 
 [scalar.null_handling]
 Coalesce = "SELECT COALESCE(ss_net_profit, 0) AS safe_profit FROM store_sales LIMIT 5"
@@ -144,7 +126,6 @@ Nullif = "SELECT NULLIF(ss_quantity, 0) AS non_zero_qty FROM store_sales LIMIT 5
 
 [scalar.type_conversion]
 Cast = "SELECT CAST(ss_quantity AS DOUBLE) AS qty_double FROM store_sales LIMIT 5"
-TryCast = "SELECT TRY_CAST(ss_quantity AS VARCHAR) AS qty_str FROM store_sales LIMIT 5"
 Typeof = "SELECT TYPEOF(ss_sales_price) AS type_name FROM store_sales LIMIT 5"
 Hex = "SELECT HEX(255) AS hex_val LIMIT 5"
 Unhex = "SELECT UNHEX('FF') AS unhex_val LIMIT 5"
@@ -152,65 +133,19 @@ Unhex = "SELECT UNHEX('FF') AS unhex_val LIMIT 5"
 [scalar.regex]
 RegexpReplace = "SELECT REGEXP_REPLACE(c_email_address, '@.*$', '@redacted.com') AS masked FROM customer LIMIT 5"
 RegexpExtract = "SELECT REGEXP_EXTRACT(c_email_address, '([^@]+)@', 1) AS username FROM customer LIMIT 5"
-RegexpLike = "SELECT c_email_address, REGEXP_MATCHES(c_email_address, '.*@.*\\..*') AS is_email FROM customer LIMIT 5"
-RegexpCount = "SELECT LEN(REGEXP_EXTRACT_ALL(c_email_address, '\\.')) AS dot_count FROM customer LIMIT 5"
-RegexpSplit = "SELECT STRING_SPLIT_REGEX(c_email_address, '@') AS parts FROM customer LIMIT 5"
-
-[scalar.json]
-JSONExtract = "SELECT JSON_EXTRACT('{\"a\":1,\"b\":2}', '$.a') AS val LIMIT 5"
-JSONExtractScalar = "SELECT JSON_EXTRACT_STRING('{\"a\":\"hello\"}', '$.a') AS str_val LIMIT 5"
-JSONObject = "SELECT JSON_OBJECT('name', c_last_name, 'year', c_birth_year) AS jobj FROM customer LIMIT 5"
-JSONArray = "SELECT JSON_ARRAY(1, 2, 3) AS jarr LIMIT 5"
-JSONExists = "SELECT JSON_EXISTS('{\"a\":1}', '$.a') AS exists_a LIMIT 5"
-JSONKeys = "SELECT JSON_KEYS('{\"a\":1,\"b\":2}') AS keys LIMIT 5"
-JSONType = "SELECT JSON_TYPE('{\"a\":1}', '$.a') AS jtype LIMIT 5"
-ParseJSON = "SELECT JSON('{\"a\":1}') AS parsed LIMIT 5"
-
-[scalar.array]
-Array = "SELECT [1, 2, 3] AS arr LIMIT 5"
-ArraySize = "SELECT ARRAY_LENGTH([1, 2, 3, 4]) AS arr_len LIMIT 5"
-ArrayContains = "SELECT ARRAY_CONTAINS([1, 2, 3], 2) AS has_two LIMIT 5"
-ArrayAppend = "SELECT ARRAY_APPEND([1, 2], 3) AS appended LIMIT 5"
-ArrayPrepend = "SELECT LIST_PREPEND(0, [1, 2, 3]) AS prepended LIMIT 5"
-ArrayConcat = "SELECT ARRAY_CONCAT([1, 2], [3, 4]) AS concatenated LIMIT 5"
-ArraySort = "SELECT LIST_SORT([3, 1, 2]) AS sorted LIMIT 5"
-ArrayReverse = "SELECT LIST_REVERSE([1, 2, 3]) AS reversed LIMIT 5"
-ArrayRemove = "SELECT LIST_FILTER([1, 2, 1, 3], x -> x != 1) AS filtered LIMIT 5"
-ArraySlice = "SELECT LIST_SLICE([1, 2, 3, 4], 2, 3) AS sliced LIMIT 5"
-ArrayFilter = "SELECT LIST_FILTER([1, 2, 3, 4], x -> x > 2) AS big_nums LIMIT 5"
-ArrayToString = "SELECT ARRAY_TO_STRING([1, 2, 3], ',') AS joined LIMIT 5"
-ArrayFirst = "SELECT LIST_FIRST([3, 1, 2]) AS first_el LIMIT 5"
-ArrayLast = "SELECT LIST_LAST([3, 1, 2]) AS last_el LIMIT 5"
-
-[scalar.map_struct]
-Struct = "SELECT {'a': 1, 'b': 2} AS s LIMIT 5"
-StructExtract = "SELECT STRUCT_EXTRACT({'a': 1, 'b': 2}, 'a') AS a_val LIMIT 5"
-MapKeys = "SELECT MAP_KEYS(MAP(['a', 'b'], [1, 2])) AS keys LIMIT 5"
-MapSize = "SELECT CARDINALITY(MAP(['a', 'b'], [1, 2])) AS map_size LIMIT 5"
-MapContainsKey = "SELECT ELEMENT_AT(MAP(['a'], [1]), 'a') IS NOT NULL AS has_a LIMIT 5"
 
 [scalar.hash_crypto]
 MD5 = "SELECT MD5(c_last_name) AS md5_name FROM customer LIMIT 5"
-SHA2 = "SELECT SHA256(c_last_name) AS sha256_name FROM customer LIMIT 5"
 
 [scalar.session_system]
 CurrentUser = "SELECT CURRENT_USER AS cur_user LIMIT 5"
-Uuid = "SELECT GEN_RANDOM_UUID() AS uid LIMIT 5"
 CurrentSchema = "SELECT CURRENT_SCHEMA() AS cur_schema LIMIT 5"
-CurrentTimezone = "SELECT CURRENT_SETTING('TimeZone') AS cur_tz LIMIT 5"
-
-[conditional.case]
-Case = "SELECT ss_sales_price, CASE WHEN ss_sales_price > 100 THEN 'high' WHEN ss_sales_price > 50 THEN 'mid' ELSE 'low' END AS price_tier FROM store_sales LIMIT 5"
-
-[conditional.if]
-If = "SELECT ss_net_profit, IF(ss_net_profit > 0, 'profit', 'loss') AS outcome FROM store_sales LIMIT 5"
 
 [scalar.arithmetic]
 Add = "SELECT ss_sales_price + ss_wholesale_cost AS total FROM store_sales LIMIT 5"
 Sub = "SELECT ss_sales_price - ss_wholesale_cost AS diff FROM store_sales LIMIT 5"
 Mul = "SELECT ss_quantity * ss_sales_price AS revenue FROM store_sales LIMIT 5"
 Div = "SELECT ss_sales_price / ss_quantity AS unit_price FROM store_sales LIMIT 5"
-IntDiv = "SELECT 10 // 3 AS int_div LIMIT 5"
 Mod = "SELECT ss_quantity % 10 AS remainder FROM store_sales LIMIT 5"
 Neg = "SELECT -ss_net_profit AS neg_profit FROM store_sales LIMIT 5"
 
@@ -218,8 +153,6 @@ Neg = "SELECT -ss_net_profit AS neg_profit FROM store_sales LIMIT 5"
 BitwiseAnd = "SELECT 12 & 10 AS band LIMIT 5"
 BitwiseOr = "SELECT 12 | 10 AS bor LIMIT 5"
 BitwiseXor = "SELECT 12 ^ 10 AS bxor LIMIT 5"
-BitwiseLeftShift = "SELECT 1 << 4 AS shifted LIMIT 5"
-BitwiseRightShift = "SELECT 16 >> 2 AS shifted LIMIT 5"
 BitwiseNot = "SELECT ~42 AS bnot LIMIT 5"
 
 [scalar.comparison]
@@ -236,13 +169,12 @@ Is = "SELECT NULL IS NULL AS is_null LIMIT 5"
 [scalar.pattern_matching]
 Like = "SELECT c_last_name FROM customer WHERE c_last_name LIKE 'A%' LIMIT 5"
 ILike = "SELECT c_last_name FROM customer WHERE c_last_name ILIKE 'a%' LIMIT 5"
-SimilarTo = "SELECT c_last_name FROM customer WHERE c_last_name SIMILAR TO 'A%' LIMIT 5"
-
-[scalar.struct_access]
-Dot = "SELECT ({'a': 1, 'b': 2}).a AS val LIMIT 5"
 
 [scalar.logical]
 Not = "SELECT NOT TRUE AS negated LIMIT 5"
 
-[table_valued.table_valued]
-Unnest = "SELECT UNNEST([1, 2, 3]) AS v LIMIT 5"
+[conditional.case]
+Case = "SELECT ss_sales_price, CASE WHEN ss_sales_price > 100 THEN 'high' WHEN ss_sales_price > 50 THEN 'mid' ELSE 'low' END AS price_tier FROM store_sales LIMIT 5"
+
+[conditional.if]
+If = "SELECT ss_net_profit, IF(ss_net_profit > 0, 'profit', 'loss') AS outcome FROM store_sales LIMIT 5"

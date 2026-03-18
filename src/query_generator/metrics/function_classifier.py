@@ -302,6 +302,14 @@ ANONYMOUS_NAME_CLASSIFICATION: dict[str, str] = {
   "JSON_ARRAY": "scalar.json",
   "JSON_EXISTS": "scalar.json",
   "JSON_ARRAYAGG": "agg.collection",
+  "TO_JSON": "scalar.json",
+  "JARO_WINKLER_SIMILARITY": "scalar.string",
+  "STRPTIME": "scalar.datetime",
+  "REGEXP_MATCHES": "scalar.regex",
+  "STRING_SPLIT_REGEX": "scalar.regex",
+  "JSON_EXTRACT_STRING": "scalar.json",
+  "JSON": "scalar.json",
+  "SHA256": "scalar.hash_crypto",
   "CURRENT_SETTING": "scalar.session_system",
 }
 
