@@ -17,7 +17,7 @@ class Provider(StrEnum):
   OLLAMA = "ollama"
   OPENAI = "openai"
   OPENAI_FLEX = "openai-flex"
-  ANTHROPIC = "anthropic"
+  BEDROCK = "bedrock"
 
 
 TOML_EXAMPLE: dict[EndpointName, str] = {

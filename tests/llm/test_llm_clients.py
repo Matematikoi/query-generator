@@ -1,11 +1,13 @@
-"""Tests for llm_extension using mocked OpenAILLMClient."""
+"""Tests for LLM clients (OpenAI, Bedrock) and llm_extension."""
 
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import anthropic
 import duckdb
 
 from query_generator.extensions.llm_clients import (
+  BedrockLLMClient,
   LLMClientFactory,
   OpenAILLMClient,
   get_llm_client_factory,
@@ -222,3 +224,92 @@ def test_get_llm_client_factory_openai_flex() -> None:
   """get_llm_client_factory('openai-flex') returns factory with flex tier."""
   factory = get_llm_client_factory("openai-flex")
   assert factory.init_kwargs == {"service_tier": "flex"}
+
+
+def test_get_llm_client_factory_bedrock() -> None:
+  """get_llm_client_factory('bedrock') returns BedrockLLMClient factory."""
+  factory = get_llm_client_factory("bedrock")
+  assert factory.factory is BedrockLLMClient
+  assert factory.init_kwargs == {}
+
+
+@patch("query_generator.extensions.llm_clients.AnthropicBedrock")
+def test_bedrock_separates_system_messages(mock_bedrock_cls: MagicMock) -> None:
+  """BedrockLLMClient extracts system messages and passes them via system=."""
+  mock_response = MagicMock()
+  mock_response.usage.input_tokens = 10
+  mock_response.usage.output_tokens = 5
+  mock_response.usage.cache_read_input_tokens = 0
+  mock_response.usage.cache_creation_input_tokens = 0
+  content_block = MagicMock()
+  content_block.text = "SELECT 1"
+  mock_response.content = [content_block]
+  mock_bedrock_cls.return_value.messages.create.return_value = mock_response
+
+  client = BedrockLLMClient()
+  messages: list[dict[str, str]] = [
+    {"role": "system", "content": "You are a SQL expert."},
+    {"role": "user", "content": "Write a query"},
+  ]
+  client.query(messages, "anthropic.claude-3-haiku-20240307-v1:0")
+
+  call_kwargs = mock_bedrock_cls.return_value.messages.create.call_args.kwargs
+  assert call_kwargs["system"] == "You are a SQL expert."
+  assert all(m["role"] != "system" for m in call_kwargs["messages"])
+  assert messages[-1]["role"] == "assistant"
+
+
+@patch("query_generator.extensions.llm_clients.AnthropicBedrock")
+@patch("query_generator.extensions.llm_clients.time.sleep")
+def test_bedrock_retries_on_rate_limit(
+  mock_sleep: MagicMock, mock_bedrock_cls: MagicMock
+) -> None:
+  """BedrockLLMClient retries on RateLimitError."""
+  mock_response = MagicMock()
+  mock_response.usage.input_tokens = 10
+  mock_response.usage.output_tokens = 5
+  mock_response.usage.cache_read_input_tokens = 0
+  mock_response.usage.cache_creation_input_tokens = 0
+  content_block = MagicMock()
+  content_block.text = "SELECT 1"
+  mock_response.content = [content_block]
+
+  rate_error = anthropic.RateLimitError(
+    message="rate limited",
+    response=MagicMock(status_code=429, headers={}),
+    body=None,
+  )
+  mock_bedrock_cls.return_value.messages.create.side_effect = [
+    rate_error,
+    mock_response,
+  ]
+
+  client = BedrockLLMClient()
+  messages: list[dict[str, str]] = [
+    {"role": "user", "content": "Write a query"},
+  ]
+  client.query(messages, "anthropic.claude-3-haiku-20240307-v1:0")
+
+  assert mock_bedrock_cls.return_value.messages.create.call_count == 2
+  mock_sleep.assert_called_once_with(600)
+  assert messages[-1]["content"] == "SELECT 1"
+
+
+@patch("query_generator.extensions.llm_clients.OpenAI")
+def test_openai_tracks_cached_tokens(mock_openai_cls: MagicMock) -> None:
+  """OpenAILLMClient tracks cached_tokens in logs."""
+  response = MagicMock()
+  response.usage.completion_tokens = 10
+  response.usage.prompt_tokens = 20
+  response.usage.prompt_tokens_details.cached_tokens = 5
+  choice = MagicMock()
+  choice.message.content = "SELECT 1"
+  response.choices = [choice]
+  mock_openai_cls.return_value.chat.completions.create.return_value = response
+
+  client = OpenAILLMClient()
+  messages: list[dict[str, str]] = [{"role": "user", "content": "Hello"}]
+  client.query(messages, "gpt-4o-mini")
+
+  logs = client.get_logs()
+  assert logs["cached_tokens"] == [5]

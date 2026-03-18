@@ -27,10 +27,13 @@ pick one synthetic query to modify. Thus the prompts are about modifying
 a query and not creating it from scratch.
 
 - `provider` (str): The LLM provider to use. Supported values: `"ollama"`,
-`"openai"`, `"openai-flex"`, `"anthropic"`. Defaults to `"ollama"`.
+`"openai"`, `"openai-flex"`, `"bedrock"`. Defaults to `"ollama"`.
 `"openai-flex"` uses OpenAI's flex service tier (`service_tier="flex"`),
 which provides batch-level pricing (50% discount) through the standard
 Chat Completions API — no file uploads or polling required.
+`"bedrock"` uses AWS Bedrock to call Claude models via the Anthropic SDK.
+Requires `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
+environment variables.
 - `model` (str): The model name to use for the LLM. When using the ollama
 provider, you can see a list of available models in
 [https://ollama.com/library](https://ollama.com/library). This parameter
@@ -100,3 +103,21 @@ triple quotes.
 A summarized version for the queries that were valid is included in 
 `llm_extension.parquet`. A log of the union queries is also generated
 if the endpoint is used under the `union_description.parquet`.
+
+## Bedrock Provider Setup
+
+To use the Bedrock provider, follow these steps:
+
+### 1. Enable Claude model access
+Go to the [AWS Bedrock console](https://console.aws.amazon.com/bedrock)
+and request access to the Anthropic Claude models in your target region.
+
+### 2. Create IAM user credentials
+Create an IAM user with programmatic access. Go to **IAM > Users >
+Security credentials > Create access key**.
+
+### 3. Set environment variables
+```bash
+export AWS_ACCESS_KEY_ID="your-access-key-id"
+export AWS_SECRET_ACCESS_KEY="your-secret-access-key"
+```
