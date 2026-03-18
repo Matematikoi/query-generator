@@ -27,7 +27,10 @@ pick one synthetic query to modify. Thus the prompts are about modifying
 a query and not creating it from scratch.
 
 - `provider` (str): The LLM provider to use. Supported values: `"ollama"`,
-`"openai"`, `"anthropic"`. Defaults to `"ollama"`.
+`"openai"`, `"openai-flex"`, `"anthropic"`. Defaults to `"ollama"`.
+`"openai-flex"` uses OpenAI's flex service tier (`service_tier="flex"`),
+which provides batch-level pricing (50% discount) through the standard
+Chat Completions API — no file uploads or polling required.
 - `model` (str): The model name to use for the LLM. When using the ollama
 provider, you can see a list of available models in
 [https://ollama.com/library](https://ollama.com/library). This parameter

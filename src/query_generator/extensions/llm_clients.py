@@ -7,7 +7,7 @@ import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Generic, Protocol, TypeVar, cast
+from typing import Any, Generic, Literal, Protocol, TypeVar, cast
 
 from ollama import Client
 from openai import OpenAI
@@ -42,6 +42,7 @@ class BatchClient(Protocol):
 
 
 LLM_Message = list[dict[str, str]]
+ServiceTier = Literal["auto", "default", "flex", "priority", "scale"]
 
 
 class LLMClient(Protocol):
@@ -108,10 +109,11 @@ class OllamaLLMClient:
 class OpenAILLMClient:
   """Wrapper for OpenAI Client."""
 
-  def __init__(self):
+  def __init__(self, service_tier: ServiceTier = "auto"):
     self.initialization_timestamp = datetime.now()
     self.messages_timestamps: list[datetime] = []
     self.client = OpenAI()
+    self.service_tier = service_tier
     self.eval_count: list[int] = []
     self.prompt_eval_count: list[int] = []
 
@@ -122,6 +124,7 @@ class OpenAILLMClient:
     response = self.client.chat.completions.create(
       model=llm_config_params,
       messages=cast(Any, messages),
+      service_tier=self.service_tier,
     )
     usage = response.usage
     self.eval_count.append(usage.completion_tokens if usage else 0)
@@ -219,4 +222,8 @@ def get_llm_client_factory(provider: str) -> LLMClientFactory:
   """Return the appropriate LLMClientFactory for the given provider."""
   if provider == "openai":
     return LLMClientFactory(factory=OpenAILLMClient, init_kwargs={})
+  if provider == "openai-flex":
+    return LLMClientFactory(
+      factory=OpenAILLMClient, init_kwargs={"service_tier": "flex"}
+    )
   return LLMClientFactory(factory=OllamaLLMClient, init_kwargs={})

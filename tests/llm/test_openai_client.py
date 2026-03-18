@@ -8,6 +8,7 @@ import duckdb
 from query_generator.extensions.llm_clients import (
   LLMClientFactory,
   OpenAILLMClient,
+  get_llm_client_factory,
 )
 from query_generator.extensions.llm_extension import llm_extension
 from query_generator.utils.params import LLMParams
@@ -197,3 +198,27 @@ def test_openai_all_retries_exhausted(
   assert result == 0
   # 1 initial + 2 retries = 3 calls
   assert mock_openai_cls.return_value.chat.completions.create.call_count == 3
+
+
+@patch("query_generator.extensions.llm_clients.OpenAI")
+def test_openai_flex_passes_service_tier(mock_openai_cls: MagicMock) -> None:
+  """OpenAILLMClient with service_tier='flex' forwards it to the API call."""
+  mock_openai_cls.return_value.chat.completions.create.return_value = (
+    _make_mock_openai_response(VALID_RESPONSE)
+  )
+
+  client = OpenAILLMClient(service_tier="flex")
+  messages: list[dict[str, str]] = [{"role": "user", "content": "Hello"}]
+  client.query(messages, "gpt-4o-mini")
+
+  mock_openai_cls.return_value.chat.completions.create.assert_called_once()
+  call_kwargs = (
+    mock_openai_cls.return_value.chat.completions.create.call_args.kwargs
+  )
+  assert call_kwargs["service_tier"] == "flex"
+
+
+def test_get_llm_client_factory_openai_flex() -> None:
+  """get_llm_client_factory('openai-flex') returns factory with flex tier."""
+  factory = get_llm_client_factory("openai-flex")
+  assert factory.init_kwargs == {"service_tier": "flex"}

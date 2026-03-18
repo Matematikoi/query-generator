@@ -16,6 +16,7 @@ class EndpointName(StrEnum):
 class Provider(StrEnum):
   OLLAMA = "ollama"
   OPENAI = "openai"
+  OPENAI_FLEX = "openai-flex"
   ANTHROPIC = "anthropic"
 
 
