@@ -74,6 +74,11 @@ class LLMParams:
   statistics_parquet: str | None = None
   batch_size: int = 100
   batch_poll_interval_seconds: float = 30.0
+  function_examples_path: Path | None = field(
+    default=None, converter=lambda v: Path(v) if v is not None else None
+  )
+  number_of_function_examples: int = 5
+  function_examples: list[tuple[str, str]] = field(init=False)
 
   @prompts.default  # type: ignore
   def _make_llm_prompts(self) -> LLMPrompts:
@@ -82,6 +87,20 @@ class LLMParams:
       schema=self.schema_path.read_text()
     )
     return raw_prompts
+
+  @function_examples.default  # type: ignore
+  def _load_function_examples(self) -> list[tuple[str, str]]:
+    if self.function_examples_path is None:
+      return []
+    raw = tomllib.loads(self.function_examples_path.read_text())
+    return [
+      (func_name, sql)
+      for category in raw.values()
+      if isinstance(category, dict)
+      for subcategory in category.values()
+      if isinstance(subcategory, dict)
+      for func_name, sql in subcategory.items()
+    ]
 
 
 @dataclass

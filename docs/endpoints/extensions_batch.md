@@ -40,6 +40,41 @@ endpoint.
 - `prompts_path` (str): Path to the TOML file containing prompts.
 - `duckdb_timeout_seconds` (float): Timeout for DuckDB validation.
   Default is 5 seconds.
+- `function_examples_path` (str | None): Optional path to a TOML file
+  containing SQL function examples (e.g.,
+  `params_config/functions/standard_sql_functions.toml`). Default is None.
+  See [Function examples in prompts](#function-examples-in-prompts) below
+  for details.
+- `number_of_function_examples` (int): The number of function examples to
+  sample and include in each prompt. Only used when `function_examples_path`
+  is set. Default is 5.
+
+## Function examples in prompts
+
+Without function examples, the synthetic queries produced by the pipeline
+tend to cover only a narrow set of SQL functions—mostly basic aggregates
+and arithmetic. Functional-coverage analysis shows that the synthetic-only
+stage covers as few as 8 out of 188 catalogued functions, and even after
+LLM augmentation the coverage varies widely depending on the model used.
+The root cause is that the LLM has no signal about *which* functions to
+introduce; it defaults to the ones it sees most often in training data.
+
+To address this, `function_examples_path` points to a TOML file that
+catalogues SQL functions organized by category and subcategory (window,
+aggregate, scalar, conditional, etc.), each with a concrete example query.
+At prompt time, the pipeline randomly samples `number_of_function_examples`
+entries from this file and appends them to the user message, between the
+weighted prompt text and the synthetic query. Because the sampling is
+random and per-prompt, successive runs naturally spread coverage across
+the full function taxonomy. The provided `standard_sql_functions.toml`
+contains 130+ Spark-safe function examples across categories such as
+`window.ranking`, `agg.statistical`, `scalar.string`, `scalar.datetime`,
+and `conditional.case`, so setting this parameter helps the workload cover
+functions that would otherwise rarely appear.
+
+The prompt format is the same as in `extensions-online`; see the
+[extensions_online documentation](extensions_online.md#function-examples-in-prompts)
+for an example of the resulting prompt structure.
 
 ## How it works
 

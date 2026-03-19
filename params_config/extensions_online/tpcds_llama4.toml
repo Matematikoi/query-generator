@@ -16,3 +16,5 @@ retry = 1
 total_queries = 10000
 prompts_path = "params_config/prompts/standard_prompt.toml"
 schema_path = "params_config/schemas/tpcds.txt"
+function_examples_path = "params_config/functions/standard_sql_functions.toml"
+number_of_function_examples = 5

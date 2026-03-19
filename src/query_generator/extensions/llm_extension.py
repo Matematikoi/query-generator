@@ -49,6 +49,25 @@ def get_random_queries(
   ]
 
 
+def sample_function_examples(params: LLMParams) -> str:
+  """Sample N function examples and format them for the prompt."""
+  if not params.function_examples:
+    return ""
+  samples = random.sample(
+    params.function_examples,
+    min(params.number_of_function_examples, len(params.function_examples)),
+  )
+  lines = [
+    f"- {name}. An example query using this function is: {sql}"
+    for name, sql in samples
+  ]
+  header = (
+    "When modifying the query, try to add the following functions "
+    "to the final query:\n"
+  )
+  return header + "\n".join(lines)
+
+
 def get_random_prompt(
   params: LLMParams, query: str, context: str
 ) -> tuple[str, LLM_Message]:
@@ -56,17 +75,15 @@ def get_random_prompt(
   weights = [params.prompts.weighted_prompts[e].weight for e in extension_types]
   extension_type = random.choices(extension_types, weights=weights)[0]
 
+  function_examples_text = sample_function_examples(params)
+  user_content = f"{params.prompts.weighted_prompts[extension_type]}\n"
+  if function_examples_text:
+    user_content += f"\n{function_examples_text}\n"
+  user_content += f"\n```sql\n{query}\n```\n"
+
   return extension_type, [
     {"role": "system", "content": params.prompts.base_prompt},
-    {
-      "role": "user",
-      "content": f"""
-{params.prompts.weighted_prompts[extension_type]}
-```sql
-{query}
-```
-""",
-    },
+    {"role": "user", "content": user_content},
   ]
 
 

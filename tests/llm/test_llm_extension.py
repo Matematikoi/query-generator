@@ -12,7 +12,11 @@ from query_generator.extensions.llm_clients import (
   LLMClientFactory,
   OllamaLLMClient,
 )
-from query_generator.extensions.llm_extension import llm_extension
+from query_generator.extensions.llm_extension import (
+  get_random_prompt,
+  llm_extension,
+  sample_function_examples,
+)
 from query_generator.utils.params import LLMParams
 
 VALID_SQL = "SELECT 1"
@@ -196,3 +200,93 @@ def test_empty_response_triggers_retry(
 
   assert result == 1
   assert mock_client_cls.return_value.chat.call_count == 2
+
+
+def test_sample_function_examples_returns_empty_when_no_examples(
+  tmp_path: Path,
+) -> None:
+  """When function_examples_path is None, sample_function_examples returns ''."""
+  db_path = str(tmp_path / "test.duckdb")
+  duckdb.connect(db_path).close()
+  params = _make_llm_params(db_path)
+  assert sample_function_examples(params) == ""
+
+
+def test_sample_function_examples_returns_correct_format(
+  tmp_path: Path,
+) -> None:
+  """sample_function_examples returns the expected header and lines."""
+  db_path = str(tmp_path / "test.duckdb")
+  duckdb.connect(db_path).close()
+  function_examples_path = (
+    Path(__file__).parent.parent.parent
+    / "params_config"
+    / "functions"
+    / "standard_sql_functions.toml"
+  )
+  params = LLMParams(
+    database_path=db_path,
+    total_queries=1,
+    retry=0,
+    model="test",
+    prompts_path=str(
+      Path(__file__).parent.parent.parent
+      / "params_config"
+      / "prompts"
+      / "basic_prompt.toml"
+    ),
+    schema_path=str(
+      Path(__file__).parent.parent.parent
+      / "params_config"
+      / "schemas"
+      / "dev.txt"
+    ),
+    function_examples_path=str(function_examples_path),
+    number_of_function_examples=3,
+  )
+  result = sample_function_examples(params)
+  assert result.startswith(
+    "When modifying the query, try to add the following functions"
+  )
+  lines = [line for line in result.split("\n") if line.startswith("- ")]
+  assert len(lines) == 3
+  for line in lines:
+    assert "An example query using this function is:" in line
+
+
+def test_get_random_prompt_includes_function_examples(
+  tmp_path: Path,
+) -> None:
+  """get_random_prompt includes function examples in the user message."""
+  db_path = str(tmp_path / "test.duckdb")
+  duckdb.connect(db_path).close()
+  function_examples_path = (
+    Path(__file__).parent.parent.parent
+    / "params_config"
+    / "functions"
+    / "standard_sql_functions.toml"
+  )
+  params = LLMParams(
+    database_path=db_path,
+    total_queries=1,
+    retry=0,
+    model="test",
+    prompts_path=str(
+      Path(__file__).parent.parent.parent
+      / "params_config"
+      / "prompts"
+      / "basic_prompt.toml"
+    ),
+    schema_path=str(
+      Path(__file__).parent.parent.parent
+      / "params_config"
+      / "schemas"
+      / "dev.txt"
+    ),
+    function_examples_path=str(function_examples_path),
+    number_of_function_examples=3,
+  )
+  _, messages = get_random_prompt(params, "SELECT 1", "")
+  user_content = messages[1]["content"]
+  assert "try to add the following functions" in user_content
+  assert "```sql" in user_content
