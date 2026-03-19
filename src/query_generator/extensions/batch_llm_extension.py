@@ -17,6 +17,7 @@ from query_generator.extensions.llm_clients import (
   OpenAIBatchClient,
 )
 from query_generator.extensions.llm_extension import (
+  SampledQuery,
   add_retry_query_to_messages,
   extract_sql,
   get_random_prompt,
@@ -30,21 +31,28 @@ from query_generator.utils.params import LLMParams
 logger = logging.getLogger(__name__)
 
 
-def _build_batch_requests(
-  sampled_queries: list[tuple[str, str]],
+def build_batch_requests(
+  sampled_queries: list[SampledQuery],
   llm_params: LLMParams,
 ) -> tuple[list[BatchRequest], dict[str, dict[str, Any]]]:
   """Build BatchRequest list and a metadata dict keyed by custom_id.
 
   Returns:
     (requests, metadata) where metadata[custom_id] contains messages,
-    extension_type, original_path, and the original query.
+    extension_type, original_path, the original query, and
+    function_names.
   """
   requests: list[BatchRequest] = []
   metadata: dict[str, dict[str, Any]] = {}
-  for idx, (query, original_path) in enumerate(sampled_queries):
+  for idx, sampled in enumerate(sampled_queries):
     custom_id = f"req-{idx}"
-    extension_type, messages = get_random_prompt(llm_params, query, "")
+    messages = get_random_prompt(
+      llm_params,
+      sampled.query,
+      sampled.extension_type,
+      sampled.function_samples,
+    )
+    function_names = [name for name, _ in sampled.function_samples]
     requests.append(
       BatchRequest(
         custom_id=custom_id,
@@ -54,10 +62,11 @@ def _build_batch_requests(
     )
     metadata[custom_id] = {
       "messages": messages,
-      "extension_type": extension_type,
-      "original_path": original_path,
-      "query": query,
+      "extension_type": sampled.extension_type,
+      "original_path": sampled.path,
+      "query": sampled.query,
       "idx": idx,
+      "function_names": function_names,
     }
   return requests, metadata
 
@@ -69,7 +78,7 @@ def _submit_and_collect(
   poll_interval: float,
   round_num: int,
 ) -> list[BatchResult]:
-  """Chunk requests into batches, submit each, poll, and collect results."""
+  """Chunk requests into batches, submit each, poll, and collect."""
   all_results: list[BatchResult] = []
   chunks = [
     requests[i : i + batch_size] for i in range(0, len(requests), batch_size)
@@ -107,7 +116,8 @@ def _validate_results(
   """Validate batch results against DuckDB.
 
   Returns:
-    (valid_entries, log_entries, failed_requests_for_retry, updated_metadata)
+    (valid_entries, log_entries, failed_requests_for_retry,
+     updated_metadata)
   """
   valid_entries: list[dict[str, Any]] = []
   log_entries: list[dict[str, Any]] = []
@@ -124,6 +134,7 @@ def _validate_results(
     extension_type = meta["extension_type"]
     original_path = meta["original_path"]
     messages = meta["messages"]
+    function_names = meta.get("function_names", [])
 
     if result.error or not result.content:
       error_msg = result.error or "Empty response"
@@ -137,6 +148,7 @@ def _validate_results(
           "messages": messages,
           "new_path": "",
           "client_logs": "batch_api",
+          "function_names": function_names,
         }
       )
       # Add to retry with LLM error
@@ -178,6 +190,7 @@ def _validate_results(
           "query": sql,
           "retries": round_num,
           "messages": messages_with_response,
+          "function_names": function_names,
         }
       )
       log_entries.append(
@@ -190,6 +203,7 @@ def _validate_results(
           "messages": messages_with_response,
           "new_path": "",
           "client_logs": "batch_api",
+          "function_names": function_names,
         }
       )
     else:
@@ -204,6 +218,7 @@ def _validate_results(
           "messages": messages_with_response,
           "new_path": "",
           "client_logs": "batch_api",
+          "function_names": function_names,
         }
       )
       # Build retry with DuckDB error
@@ -240,9 +255,9 @@ def batch_llm_extension(
   )
 
   sampled_queries = get_random_queries(input_queries_base_path, llm_params)
-  requests, metadata = _build_batch_requests(sampled_queries, llm_params)
+  requests, metadata = build_batch_requests(sampled_queries, llm_params)
 
-  # Set model on all requests (already set in _build_batch_requests)
+  # Set model on all requests (already set in build_batch_requests)
   all_valid: list[dict[str, Any]] = []
   all_logs: list[dict[str, Any]] = []
   rows: list[dict[str, str]] = []
@@ -282,6 +297,7 @@ def batch_llm_extension(
         entry["query"],
       )
       row["retries"] = str(entry["retries"])
+      row["function_names"] = entry["function_names"]
       rows.append(row)
 
     all_valid.extend(valid_entries)

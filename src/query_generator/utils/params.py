@@ -94,7 +94,7 @@ class LLMParams:
       return []
     raw = tomllib.loads(self.function_examples_path.read_text())
     return [
-      (func_name, sql)
+      (f"{category}.{subcategory}.{func_name}", sql)
       for category in raw.values()
       if isinstance(category, dict)
       for subcategory in category.values()
