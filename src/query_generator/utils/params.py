@@ -70,7 +70,7 @@ class LLMParams:
   schema_path: Path = field(converter=Path)
   prompts: LLMPrompts = field(init=False)
   provider: str = "ollama"
-  duckdb_timeout_seconds: float = 5.0
+  duckdb_timeout_seconds: float = 20.0
   statistics_parquet: str | None = None
   batch_size: int = 100
   batch_poll_interval_seconds: float = 30.0
@@ -94,10 +94,10 @@ class LLMParams:
       return []
     raw = tomllib.loads(self.function_examples_path.read_text())
     return [
-      (f"{category}.{subcategory}.{func_name}", sql)
-      for category in raw.values()
+      (f"{cat_name}.{subcat_name}.{func_name}", sql)
+      for cat_name, category in raw.items()
       if isinstance(category, dict)
-      for subcategory in category.values()
+      for subcat_name, subcategory in category.items()
       if isinstance(subcategory, dict)
       for func_name, sql in subcategory.items()
     ]

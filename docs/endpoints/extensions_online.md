@@ -108,14 +108,19 @@ To address this, `function_examples_path` points to a TOML file that
 catalogues SQL functions organized by category and subcategory (window,
 aggregate, scalar, conditional, etc.), each with a concrete example query.
 At prompt time, the pipeline randomly samples `number_of_function_examples`
-entries from this file and appends them to the user message, between the
-weighted prompt text and the synthetic query. The resulting prompt looks
-like:
+entries from this file and includes them in the user message. The prompt
+places the synthetic query first as reference, then the task instruction,
+then the function examples close to the output. The resulting prompt
+looks like:
 
 ```text
+This is the query you will be modifying. You can base yourself upon it:
+
+<synthetic query>
+
 <weighted prompt text>
 
-If possible, try to use the following SQL functions in the modified query:
+Add the following SQL functions to the modified query. Skip any that are impossible to fit:
 
 - Function: CumeDist (window.distribution)
   Example:
@@ -129,7 +134,7 @@ If possible, try to use the following SQL functions in the modified query:
   SELECT CORR(ss_sales_price, ss_quantity) AS price_qty_corr FROM store_sales LIMIT 5
   ```
 
-<synthetic query>
+Return only the modified query in ```sql ``` format.
 ```
 
 Because the sampling is random and per-prompt, successive runs naturally

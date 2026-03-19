@@ -92,8 +92,8 @@ def format_function_examples(
   if not function_samples:
     return ""
   header = (
-    "If possible, try to use the following SQL functions "
-    "in the modified query:\n"
+    "Add the following SQL functions to the modified query. "
+    "Skip any that are impossible to fit:\n"
   )
   entries: list[str] = []
   for dotted_name, sql in function_samples:
@@ -115,22 +115,19 @@ def get_random_prompt(
   function_text = format_function_examples(function_samples)
   prompt_text = params.prompts.weighted_prompts[extension_type].prompt
 
-  user_content = (
-    f"""{prompt_text}
+  user_content = f"""This is the query you will be modifying. \
+You can base yourself upon it:
+
+```sql
+{query}
+```
+
+{prompt_text}
+
 {function_text}
 
-```sql
-{query}
-```
+Return only the modified query in ```sql ``` format.
 """
-    if function_text
-    else f"""{prompt_text}
-
-```sql
-{query}
-```
-"""
-  )
 
   return [
     {"role": "system", "content": params.prompts.base_prompt},

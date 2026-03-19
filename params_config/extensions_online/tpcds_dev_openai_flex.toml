@@ -1,0 +1,15 @@
+llm_extension = true
+union_extension = false
+queries_parquet = "tmp/filtered_queries/filtered.parquet"
+destination_folder = "tmp/extended_queries_openai_flex"
+
+[llm_params]
+provider = "openai-flex"
+model = "gpt-5-nano"
+database_path = "tmp/database_TPCDS_0.1.duckdb"
+retry = 1
+total_queries = 5
+prompts_path = "params_config/prompts/standard_prompt.toml"
+schema_path = "params_config/schemas/tpcds.txt"
+function_examples_path = "params_config/functions/standard_sql_functions.toml"
+number_of_function_examples = 5

@@ -217,9 +217,7 @@ def test_format_function_examples_returns_correct_format() -> None:
     ("math.aggregate.AVG", "SELECT AVG(x) FROM t"),
   ]
   result = format_function_examples(samples)
-  assert result.startswith(
-    "If possible, try to use the following SQL functions"
-  )
+  assert result.startswith("Add the following SQL functions")
   assert "- Function: SUM (math.aggregate)" in result
   assert "- Function: UPPER (string.transform)" in result
   assert "- Function: AVG (math.aggregate)" in result
@@ -260,9 +258,14 @@ def test_get_random_prompt_includes_function_examples(
     params, "SELECT 1", extension_types[0], function_samples
   )
   user_content = messages[1]["content"]
-  assert "try to use the following SQL functions" in user_content
+  assert "Add the following SQL functions" in user_content
   assert "- Function:" in user_content
   assert "```sql" in user_content
+  # Verify layout: query first, task instruction, then functions near the end
+  query_pos = user_content.index("SELECT 1")
+  func_pos = user_content.index("- Function:")
+  output_pos = user_content.index("Return only the modified query")
+  assert query_pos < func_pos < output_pos
 
 
 def test_get_random_prompt_omits_function_section_when_empty(
@@ -292,8 +295,9 @@ def test_get_random_prompt_omits_function_section_when_empty(
   extension_types = list(params.prompts.weighted_prompts.keys())
   messages = get_random_prompt(params, "SELECT 1", extension_types[0], [])
   user_content = messages[1]["content"]
-  assert "try to use the following SQL functions" not in user_content
+  assert "Add the following SQL functions" not in user_content
   assert "```sql" in user_content
+  assert "Return only the modified query" in user_content
 
 
 def test_get_random_queries_reproducible(tmp_path: Path) -> None:
