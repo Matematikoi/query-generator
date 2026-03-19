@@ -39,6 +39,8 @@ retry = 1
 total_queries = 5
 prompts_path = "params_config/prompts/basic_prompt.toml"
 schema_path = "params_config/schemas/dev.txt"
+function_examples_path = "params_config/functions/standard_sql_functions.toml"
+number_of_function_examples = 5
 """,
   EndpointName.EXTENSIONS_BATCH: """\
 llm_extension = true
@@ -56,6 +58,8 @@ retry = 1
 total_queries = 100
 prompts_path = "params_config/prompts/basic_prompt.toml"
 schema_path = "params_config/schemas/dev.txt"
+function_examples_path = "params_config/functions/standard_sql_functions.toml"
+number_of_function_examples = 5
 """,
   EndpointName.PROMPTS: """
 base_prompt = "use the {{schema}} keyword to append the schema"

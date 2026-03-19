@@ -52,8 +52,16 @@ the basic prompts mention in the `prompts_path`. The file can be any
 plain file, like a txt.
 - `prompts_path` (str): The path to the toml file that contains the prompts.
 the details on the toml file are below.
-- `duckdb_timeout_seconds` (float): The timeout time for a query that 
+- `duckdb_timeout_seconds` (float): The timeout time for a query that
 is being run by duckdb to validate. By default is 5 seconds.
+- `function_examples_path` (str | None): Optional path to a TOML file
+containing SQL function examples (e.g.,
+`params_config/functions/standard_sql_functions.toml`). Default is None.
+See [Function examples in prompts](#function-examples-in-prompts) below
+for details.
+- `number_of_function_examples` (int): The number of function examples to
+sample and include in each prompt. Only used when `function_examples_path`
+is set. Default is 5.
 
 ## Attributes prompts
 The file selected in the `prompts_path` is also a toml file that has
@@ -85,6 +93,57 @@ query for the LLM model.
     - `weight` (float): The weight of the prompt. It assigns a probability to
     select this prompt over the others. The values don't have to add up
     to 1 since they will be normalized. 
+
+## Function examples in prompts
+
+Without function examples, the synthetic queries produced by the pipeline
+tend to cover only a narrow set of SQL functions—mostly basic aggregates
+and arithmetic. Functional-coverage analysis shows that the synthetic-only
+stage covers as few as 8 out of 188 catalogued functions, and even after
+LLM augmentation the coverage varies widely depending on the model used.
+The root cause is that the LLM has no signal about *which* functions to
+introduce; it defaults to the ones it sees most often in training data.
+
+To address this, `function_examples_path` points to a TOML file that
+catalogues SQL functions organized by category and subcategory (window,
+aggregate, scalar, conditional, etc.), each with a concrete example query.
+At prompt time, the pipeline randomly samples `number_of_function_examples`
+entries from this file and includes them in the user message. The prompt
+places the synthetic query first as reference, then the task instruction,
+then the function examples close to the output. The resulting prompt
+looks like:
+
+```text
+This is the query you will be modifying. You can base yourself upon it:
+
+<synthetic query>
+
+<weighted prompt text>
+
+Add the following SQL functions to the modified query. Skip any that are impossible to fit:
+
+- Function: CumeDist (window.distribution)
+  Example:
+  ```sql
+  SELECT ss_sales_price, CUME_DIST() OVER (ORDER BY ss_sales_price) AS cume_dist FROM store_sales LIMIT 5
+  ```
+
+- Function: Corr (agg.statistical)
+  Example:
+  ```sql
+  SELECT CORR(ss_sales_price, ss_quantity) AS price_qty_corr FROM store_sales LIMIT 5
+  ```
+
+Return only the modified query in ```sql ``` format.
+```
+
+Because the sampling is random and per-prompt, successive runs naturally
+spread coverage across the full function taxonomy. The provided
+`standard_sql_functions.toml` contains 130+ Spark-safe function examples
+across categories such as `window.ranking`, `agg.statistical`,
+`scalar.string`, `scalar.datetime`, and `conditional.case`, so setting
+this parameter helps the workload cover functions that would otherwise
+rarely appear.
 
 # Output
 

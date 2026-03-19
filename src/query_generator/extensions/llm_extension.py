@@ -24,6 +24,16 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
+class SampledQuery:
+  """A query with pre-selected extension type and function samples."""
+
+  query: str
+  path: str
+  extension_type: str
+  function_samples: list[tuple[str, str]]
+
+
+@dataclass
 class QueryProcessor:
   """Shared state for processing queries through the LLM retry loop."""
 
@@ -36,37 +46,92 @@ class QueryProcessor:
 
 def get_random_queries(
   queries_base_path: Path, llm_params: LLMParams
-) -> list[tuple[str, str]]:
-  """Get random queries from the synthetic queries parquet file.
-
-  Returns:
-    A list of tuples containing the query and its original path."""
-  sql_files = list(queries_base_path.rglob("*.sql"))
+) -> list[SampledQuery]:
+  """Get random queries with pre-selected extension types and samples."""
+  sql_files = sorted(queries_base_path.rglob("*.sql"))
   random_query_paths = random.choices(sql_files, k=llm_params.total_queries)
+
+  extension_types = list(llm_params.prompts.weighted_prompts.keys())
+  weights = [
+    llm_params.prompts.weighted_prompts[e].weight for e in extension_types
+  ]
+  selected_types = random.choices(
+    extension_types, weights=weights, k=llm_params.total_queries
+  )
+
+  n = min(
+    llm_params.number_of_function_examples,
+    len(llm_params.function_examples),
+  )
+  selected_samples = [
+    random.sample(llm_params.function_examples, n)
+    if llm_params.function_examples
+    else []
+    for _ in range(llm_params.total_queries)
+  ]
+
   return [
-    (p.read_text(), str(p.relative_to(queries_base_path)))
-    for p in random_query_paths
+    SampledQuery(
+      query=p.read_text(),
+      path=str(p.relative_to(queries_base_path)),
+      extension_type=ext_type,
+      function_samples=func_samples,
+    )
+    for p, ext_type, func_samples in zip(
+      random_query_paths, selected_types, selected_samples, strict=False
+    )
   ]
 
 
-def get_random_prompt(
-  params: LLMParams, query: str, context: str
-) -> tuple[str, LLM_Message]:
-  extension_types = list(params.prompts.weighted_prompts.keys())
-  weights = [params.prompts.weighted_prompts[e].weight for e in extension_types]
-  extension_type = random.choices(extension_types, weights=weights)[0]
+def format_function_examples(
+  function_samples: list[tuple[str, str]],
+) -> str:
+  """Format pre-sampled function examples for the prompt.
 
-  return extension_type, [
-    {"role": "system", "content": params.prompts.base_prompt},
-    {
-      "role": "user",
-      "content": f"""
-{params.prompts.weighted_prompts[extension_type]}
+  Returns empty string when the list is empty."""
+  if not function_samples:
+    return ""
+  header = (
+    "Add the following SQL functions to the modified query. "
+    "Skip any that are impossible to fit:\n"
+  )
+  entries: list[str] = []
+  for dotted_name, sql in function_samples:
+    parts = dotted_name.rsplit(".", 1)
+    name = parts[-1]
+    category = parts[0] if len(parts) > 1 else ""
+    label = f"{name} ({category})" if category else name
+    entries.append(f"- Function: {label}\n  Example:\n  ```sql\n  {sql}\n  ```")
+  return header + "\n\n".join(entries)
+
+
+def get_random_prompt(
+  params: LLMParams,
+  query: str,
+  extension_type: str,
+  function_samples: list[tuple[str, str]],
+) -> LLM_Message:
+  """Build the LLM prompt. Pure function — no random calls."""
+  function_text = format_function_examples(function_samples)
+  prompt_text = params.prompts.weighted_prompts[extension_type].prompt
+
+  user_content = f"""This is the query you will be modifying. \
+You can base yourself upon it:
+
 ```sql
 {query}
 ```
-""",
-    },
+
+{prompt_text}
+
+{function_text}
+
+Return only the modified query in ```sql ``` format.
+"""
+
+  return [
+    {"role": "system", "content": params.prompts.base_prompt},
+    {"role": "user", "content": user_content},
   ]
 
 
@@ -162,9 +227,10 @@ class QueryResult:
   duckdb_exception: Exception | None
   messages: LLM_Message
   client_logs: dict[str, Any]
+  function_names: list[str]
 
-  def to_row(self, destination_path: Path) -> dict[str, str]:
-    """Build the row dict for the llm_extension parquet (valid queries only)."""
+  def to_row(self, destination_path: Path) -> dict[str, Any]:
+    """Build the row dict for the llm_extension parquet."""
     return {
       **write_query_llm_and_get_row(
         destination_path,
@@ -174,6 +240,7 @@ class QueryResult:
         self.query,
       ),
       "retries": str(self.retries),
+      "function_names": self.function_names,
     }
 
   def to_log_row(self) -> dict[str, Any]:
@@ -189,20 +256,24 @@ class QueryResult:
       "messages": self.messages,
       "new_path": get_new_query_name(self.cnt, self.original_path),
       "client_logs": self.client_logs,
+      "function_names": self.function_names,
     }
 
 
 def process_single_query(
   processor: QueryProcessor,
   cnt: int,
-  query: str,
-  original_path: str,
+  sampled: SampledQuery,
 ) -> QueryResult:
   """Run LLM + retry loop for one query. Returns the outcome."""
   llm_client = processor.llm_client_factory.build()
-  extension_type, messages = get_random_prompt(
-    processor.llm_params, query, processor.schema_context
+  messages = get_random_prompt(
+    processor.llm_params,
+    sampled.query,
+    sampled.extension_type,
+    sampled.function_samples,
   )
+  function_names = [name for name, _ in sampled.function_samples]
 
   valid_query = False
   duckdb_exception: Exception | None = Exception("no query was found")
@@ -225,13 +296,14 @@ def process_single_query(
   return QueryResult(
     valid=valid_query,
     query=llm_extracted_query,
-    extension_type=extension_type,
-    original_path=original_path,
+    extension_type=sampled.extension_type,
+    original_path=sampled.path,
     cnt=cnt,
     retries=attempt + 1,
     duckdb_exception=duckdb_exception,
     messages=messages,
     client_logs=llm_client.get_logs(),
+    function_names=function_names,
   )
 
 
@@ -261,10 +333,12 @@ def llm_extension(
   log_rows: list[dict[str, Any]] = []
   sampled_queries = get_random_queries(input_queries_base_path, llm_params)
 
-  for cnt, (query, original_path) in tqdm(  # type:ignore
-    enumerate(sampled_queries), desc="LLM-Extension", total=len(sampled_queries)
+  for cnt, sampled in tqdm(  # type:ignore
+    enumerate(sampled_queries),
+    desc="LLM-Extension",
+    total=len(sampled_queries),
   ):
-    result = process_single_query(processor, cnt, query, original_path)
+    result = process_single_query(processor, cnt, sampled)
 
     if result.valid:
       logger.debug("Generated a valid query.")

@@ -70,10 +70,15 @@ class LLMParams:
   schema_path: Path = field(converter=Path)
   prompts: LLMPrompts = field(init=False)
   provider: str = "ollama"
-  duckdb_timeout_seconds: float = 5.0
+  duckdb_timeout_seconds: float = 20.0
   statistics_parquet: str | None = None
   batch_size: int = 100
   batch_poll_interval_seconds: float = 30.0
+  function_examples_path: Path | None = field(
+    default=None, converter=lambda v: Path(v) if v is not None else None
+  )
+  number_of_function_examples: int = 5
+  function_examples: list[tuple[str, str]] = field(init=False)
 
   @prompts.default  # type: ignore
   def _make_llm_prompts(self) -> LLMPrompts:
@@ -82,6 +87,20 @@ class LLMParams:
       schema=self.schema_path.read_text()
     )
     return raw_prompts
+
+  @function_examples.default  # type: ignore
+  def _load_function_examples(self) -> list[tuple[str, str]]:
+    if self.function_examples_path is None:
+      return []
+    raw = tomllib.loads(self.function_examples_path.read_text())
+    return [
+      (f"{cat_name}.{subcat_name}.{func_name}", sql)
+      for cat_name, category in raw.items()
+      if isinstance(category, dict)
+      for subcat_name, subcategory in category.items()
+      if isinstance(subcategory, dict)
+      for func_name, sql in subcategory.items()
+    ]
 
 
 @dataclass

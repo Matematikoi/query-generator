@@ -7,6 +7,7 @@ import pytest
 from query_generator.synthetic_queries.predicate_generator import (
   HistogramDataType,
   PredicateGenerator,
+  PredicateRange,
 )
 from query_generator.tools.histograms import HistogramColumns
 from query_generator.utils.definitions import Dataset, PredicateParameters
@@ -203,10 +204,6 @@ def test_try_range_predicate_returns_none_when_collapsed(tmp_path):
 
 def test_try_range_predicate_returns_predicate_when_valid(tmp_path):
   """_try_range_predicate must return a PredicateRange when min != max."""
-  from query_generator.synthetic_queries.predicate_generator import (
-    PredicateRange,
-  )
-
   gen = _make_predicate_generator(
     tmp_path,
     [_base_row(distinct_count=5, bins=["a", "b", "c", "d", "e"])],
