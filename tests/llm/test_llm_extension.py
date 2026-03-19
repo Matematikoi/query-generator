@@ -210,7 +210,7 @@ def test_format_function_examples_returns_empty_when_no_examples() -> None:
 
 
 def test_format_function_examples_returns_correct_format() -> None:
-  """format_function_examples returns the expected header and lines."""
+  """format_function_examples returns structured entries."""
   samples = [
     ("math.aggregate.SUM", "SELECT SUM(x) FROM t"),
     ("string.transform.UPPER", "SELECT UPPER(name) FROM t"),
@@ -218,12 +218,13 @@ def test_format_function_examples_returns_correct_format() -> None:
   ]
   result = format_function_examples(samples)
   assert result.startswith(
-    "When modifying the query, try to add the following functions"
+    "If possible, try to use the following SQL functions"
   )
-  lines = [line for line in result.split("\n") if line.startswith("- ")]
-  assert len(lines) == 3
-  for line in lines:
-    assert "An example query using this function is:" in line
+  assert "- Function: SUM (math.aggregate)" in result
+  assert "- Function: UPPER (string.transform)" in result
+  assert "- Function: AVG (math.aggregate)" in result
+  assert result.count("```sql") == 3
+  assert "SELECT SUM(x) FROM t" in result
 
 
 def test_get_random_prompt_includes_function_examples(
@@ -259,7 +260,8 @@ def test_get_random_prompt_includes_function_examples(
     params, "SELECT 1", extension_types[0], function_samples
   )
   user_content = messages[1]["content"]
-  assert "try to add the following functions" in user_content
+  assert "try to use the following SQL functions" in user_content
+  assert "- Function:" in user_content
   assert "```sql" in user_content
 
 
@@ -290,7 +292,7 @@ def test_get_random_prompt_omits_function_section_when_empty(
   extension_types = list(params.prompts.weighted_prompts.keys())
   messages = get_random_prompt(params, "SELECT 1", extension_types[0], [])
   user_content = messages[1]["content"]
-  assert "try to add the following functions" not in user_content
+  assert "try to use the following SQL functions" not in user_content
   assert "```sql" in user_content
 
 

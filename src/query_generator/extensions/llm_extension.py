@@ -91,15 +91,18 @@ def format_function_examples(
   Returns empty string when the list is empty."""
   if not function_samples:
     return ""
-  lines = [
-    f"- {name}. An example query using this function is: {sql}"
-    for name, sql in function_samples
-  ]
   header = (
-    "When modifying the query, try to add the following functions "
-    "to the final query:\n"
+    "If possible, try to use the following SQL functions "
+    "in the modified query:\n"
   )
-  return header + "\n".join(lines)
+  entries: list[str] = []
+  for dotted_name, sql in function_samples:
+    parts = dotted_name.rsplit(".", 1)
+    name = parts[-1]
+    category = parts[0] if len(parts) > 1 else ""
+    label = f"{name} ({category})" if category else name
+    entries.append(f"- Function: {label}\n  Example:\n  ```sql\n  {sql}\n  ```")
+  return header + "\n\n".join(entries)
 
 
 def get_random_prompt(

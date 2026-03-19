@@ -115,10 +115,19 @@ like:
 ```text
 <weighted prompt text>
 
-When modifying the query, try to add the following functions to the final
-query:
-- CumeDist. An example query using this function is: SELECT ss_sales_price, CUME_DIST() OVER (ORDER BY ss_sales_price) AS cume_dist FROM store_sales LIMIT 5
-- Corr. An example query using this function is: SELECT CORR(ss_sales_price, ss_quantity) AS price_qty_corr FROM store_sales LIMIT 5
+If possible, try to use the following SQL functions in the modified query:
+
+- Function: CumeDist (window.distribution)
+  Example:
+  ```sql
+  SELECT ss_sales_price, CUME_DIST() OVER (ORDER BY ss_sales_price) AS cume_dist FROM store_sales LIMIT 5
+  ```
+
+- Function: Corr (agg.statistical)
+  Example:
+  ```sql
+  SELECT CORR(ss_sales_price, ss_quantity) AS price_qty_corr FROM store_sales LIMIT 5
+  ```
 
 <synthetic query>
 ```
