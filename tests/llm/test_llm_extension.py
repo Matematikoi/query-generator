@@ -13,6 +13,7 @@ from query_generator.extensions.llm_clients import (
   OllamaLLMClient,
 )
 from query_generator.extensions.llm_extension import (
+  QueryResult,
   format_function_examples,
   get_random_prompt,
   get_random_queries,
@@ -339,8 +340,6 @@ def test_get_random_queries_reproducible(tmp_path: Path) -> None:
 
 def test_function_names_in_log_row(tmp_path: Path) -> None:
   """QueryResult.to_log_row() includes function_names."""
-  from query_generator.extensions.llm_extension import QueryResult
-
   qr = QueryResult(
     valid=True,
     query="SELECT 1",
@@ -366,8 +365,6 @@ def test_function_names_in_log_row(tmp_path: Path) -> None:
 
 def test_function_names_in_to_row(tmp_path: Path) -> None:
   """QueryResult.to_row() includes function_names."""
-  from query_generator.extensions.llm_extension import QueryResult
-
   dest = tmp_path / "output"
   dest.mkdir()
 
