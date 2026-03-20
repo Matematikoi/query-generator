@@ -12,7 +12,7 @@ from typing import Any, Generic, Literal, Protocol, TypeVar, cast
 import anthropic
 from anthropic import AnthropicBedrock
 from ollama import Client
-from openai import OpenAI
+from openai import APIError, OpenAI
 
 logger = logging.getLogger(__name__)
 
@@ -124,11 +124,17 @@ class OpenAILLMClient:
     """Send a single request to the OpenAI API and return its response."""
     self.messages_timestamps.append(datetime.now())
     logger.info("Sending request to OpenAI model %s", llm_config_params)
-    response = self.client.chat.completions.create(
-      model=llm_config_params,
-      messages=cast(Any, messages),
-      service_tier=self.service_tier,
-    )
+    while True:
+      try:
+        response = self.client.chat.completions.create(
+          model=llm_config_params,
+          messages=cast(Any, messages),
+          service_tier=self.service_tier,
+        )
+        break
+      except APIError:
+        logger.warning("OpenAI API error, sleeping 5min before retry")
+        time.sleep(300)
     usage = response.usage
     self.eval_count.append(usage.completion_tokens if usage else 0)
     self.prompt_eval_count.append(usage.prompt_tokens if usage else 0)
