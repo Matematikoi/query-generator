@@ -2,11 +2,11 @@ base_prompt = """
     You are a database expert. Now you are writing \
     queries to test your SQL engine on the TPCDS \
     dataset with challenging and diverse queries. You are \
-    asked to extend each given query with new features, without \ 
-    modifying the existing join structure or predicates, unless 
+    asked to extend each given query with new features, without \
+    modifying the existing join structure or predicates, unless
     explicitly asked in future instructions. The resulting query \
     should not be trivial or equivalent to the input query.\
-    When answering, return the query only in the markdown \ 
+    When answering, return the query only in the markdown \
     format, for example:\
     ```sql select * from table```
 The schema you will be using is the following:
@@ -51,23 +51,49 @@ weight = 10
 
 [weighted_prompts.recursive_query_simple]
 prompt = """For the given guery, choose a table and write a recursive query \
-    on that table. In this case, you can ignore the join structure and predicates \ 
+    on that table. In this case, you can ignore the join structure and predicates \
     in the input query. """
 weight = 5
 
 [weighted_prompts.recursive_query_complex]
-prompt = """Extend the given query with a new table that is computed from a  \ 
-    recursive construct. Try to keep existing join structure and predicates, while 
+prompt = """Extend the given query with a new table that is computed from a  \
+    recursive construct. Try to keep existing join structure and predicates, while
     adding the table computed from recursion. """
 weight = 5
 
 [weighted_prompts.edge_case]
-prompt = """Modify this query to make it interesting and elaborate. 
-Incorporate obscure semantical corner cases and unusual or 
+prompt = """Modify this query to make it interesting and elaborate.
+Incorporate obscure semantical corner cases and unusual or
 even bizarre SQL semantics. Don't include recursion. """
-weight = 10
+weight = 20
 
+[weighted_prompts.semi_join]
+prompt = """
+Semi joins return rows from the left table that have at least one match
+in the right table. This is an example of a semijoin :
+```sql
+SELECT *
+FROM city_airport
+WHERE iata IN (SELECT iata FROM airport_names);
+```
 
+Modify this query to add a semijoin.
+"""
+weight = 5
+
+[weighted_prompts.antijoin]
+prompt = """Anti joins return rows from the left table that
+have no matches in the right table. This is an example of an
+antijoin:
+```sql
+SELECT *
+FROM city_airport
+WHERE iata NOT IN (SELECT iata FROM airport_names WHERE iata IS NOT NULL);
+```
+
+Modify this query to add an antijoin.
+"""
+weight = 5
 
 [weighted_prompts.group_by_1]
 prompt = """
