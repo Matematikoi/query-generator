@@ -7,7 +7,7 @@ import anthropic
 import duckdb
 
 from query_generator.extensions.llm_clients import (
-  BedrockLLMClient,
+  AnthropicBedrockLLMClient,
   LLMClientFactory,
   OpenAILLMClient,
   get_llm_client_factory,
@@ -229,7 +229,7 @@ def test_get_llm_client_factory_openai_flex() -> None:
 def test_get_llm_client_factory_bedrock() -> None:
   """get_llm_client_factory('bedrock') returns BedrockLLMClient factory."""
   factory = get_llm_client_factory("bedrock")
-  assert factory.factory is BedrockLLMClient
+  assert factory.factory is AnthropicBedrockLLMClient
   assert factory.init_kwargs == {}
 
 
@@ -246,7 +246,7 @@ def test_bedrock_separates_system_messages(mock_bedrock_cls: MagicMock) -> None:
   mock_response.content = [content_block]
   mock_bedrock_cls.return_value.messages.create.return_value = mock_response
 
-  client = BedrockLLMClient()
+  client = AnthropicBedrockLLMClient()
   messages: list[dict[str, str]] = [
     {"role": "system", "content": "You are a SQL expert."},
     {"role": "user", "content": "Write a query"},
@@ -290,7 +290,7 @@ def test_bedrock_retries_on_rate_limit(
     mock_response,
   ]
 
-  client = BedrockLLMClient()
+  client = AnthropicBedrockLLMClient()
   messages: list[dict[str, str]] = [
     {"role": "user", "content": "Write a query"},
   ]

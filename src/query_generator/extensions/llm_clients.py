@@ -166,7 +166,7 @@ class OpenAILLMClient:
     }
 
 
-class BedrockLLMClient:
+class AnthropicBedrockLLMClient:
   """Wrapper for Anthropic Bedrock Client."""
 
   def __init__(self):
@@ -321,5 +321,5 @@ def get_llm_client_factory(provider: str) -> LLMClientFactory:
       factory=OpenAILLMClient, init_kwargs={"service_tier": "flex"}
     )
   if provider == "bedrock":
-    return LLMClientFactory(factory=BedrockLLMClient, init_kwargs={})
+    return LLMClientFactory(factory=AnthropicBedrockLLMClient, init_kwargs={})
   return LLMClientFactory(factory=OllamaLLMClient, init_kwargs={})
