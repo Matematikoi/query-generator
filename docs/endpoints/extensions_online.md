@@ -163,9 +163,9 @@ A summarized version for the queries that were valid is included in
 `llm_extension.parquet`. A log of the union queries is also generated
 if the endpoint is used under the `union_description.parquet`.
 
-## Bedrock Provider Setup
+## Bedrock Anthropic Provider Setup
 
-To use the Bedrock provider, follow these steps:
+To use the Bedrock Anthropic provider, follow these steps:
 
 ### 1. Enable Claude model access
 Go to the [AWS Bedrock console](https://console.aws.amazon.com/bedrock)
