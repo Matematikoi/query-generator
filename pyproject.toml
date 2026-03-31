@@ -49,6 +49,8 @@ matplotlib = ">=3.10.8,<4"
 seaborn = ">=0.13.2,<0.14"
 pyarrow = ">=22.0.0,<23"
 openai = ">=2.26.0,<3"
+pyspark = ">=4.1.1,<5"
+openjdk = ">=17,<18"
 
 
 [tool.pixi.feature.dev.dependencies]

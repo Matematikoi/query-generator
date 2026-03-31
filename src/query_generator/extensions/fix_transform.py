@@ -10,7 +10,7 @@ from sqlglot import exp, parse_one
 from sqlglot.expressions import Expression
 from tqdm import tqdm
 
-from query_generator.duckdb_connection.query_validation import (
+from query_generator.database_connection.duckdb_validation import (
   DuckDBQueryExecutor,
 )
 from query_generator.duckdb_connection.trace_collection import (

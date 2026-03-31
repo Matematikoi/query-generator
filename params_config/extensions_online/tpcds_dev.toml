@@ -17,3 +17,4 @@ prompts_path = "params_config/prompts/basic_prompt.toml"
 schema_path = "params_config/schemas/dev.txt"
 function_examples_path = "params_config/functions/standard_sql_functions.toml"
 number_of_function_examples = 5
+validator_engine = "duckdb"

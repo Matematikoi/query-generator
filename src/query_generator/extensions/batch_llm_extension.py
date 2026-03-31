@@ -7,9 +7,8 @@ from typing import Any
 
 from tqdm import tqdm
 
-from query_generator.duckdb_connection.query_validation import (
-  DuckDBQueryExecutor,
-)
+from query_generator.database_connection.abc import QueryValidator
+from query_generator.database_connection.factory import build_query_validator
 from query_generator.extensions.llm_clients import (
   BatchClient,
   BatchRequest,
@@ -105,7 +104,7 @@ def _submit_and_collect(
 def _validate_results(
   results: list[BatchResult],
   metadata: dict[str, dict[str, Any]],
-  query_validator: DuckDBQueryExecutor,
+  query_validator: QueryValidator,
   round_num: int,
 ) -> tuple[
   list[dict[str, Any]],
@@ -250,9 +249,7 @@ def batch_llm_extension(
   """
   random.seed(42)
   batch_client: BatchClient = OpenAIBatchClient()
-  query_validator = DuckDBQueryExecutor(
-    llm_params.database_path, llm_params.duckdb_timeout_seconds
-  )
+  query_validator = build_query_validator(llm_params)
 
   sampled_queries = get_random_queries(input_queries_base_path, llm_params)
   requests, metadata = build_batch_requests(sampled_queries, llm_params)

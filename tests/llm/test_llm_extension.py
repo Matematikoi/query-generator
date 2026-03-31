@@ -389,3 +389,64 @@ def test_function_names_in_to_row(tmp_path: Path) -> None:
   row = qr.to_row(dest)
   assert "function_names" in row
   assert row["function_names"] == ["math.aggregate.SUM"]
+
+
+@patch("query_generator.extensions.llm_clients.Client")
+def test_pyspark_validator_with_mocked_llm(
+  mock_client_cls: MagicMock, tmp_path: Path
+) -> None:
+  """LLM extension works with PySpark validator reading parquet files."""
+  parquet_dir = tmp_path / "parquet_data"
+  table_dir = parquet_dir / "test_table"
+  table_dir.mkdir(parents=True)
+
+  db_path = str(tmp_path / "test.duckdb")
+  con = duckdb.connect(db_path)
+  con.execute("CREATE TABLE test_table (id INTEGER, name VARCHAR)")
+  con.execute("INSERT INTO test_table VALUES (1, 'alice'), (2, 'bob')")
+  con.execute(
+    f"COPY test_table TO '{table_dir / 'data.parquet'}' (FORMAT PARQUET)"
+  )
+  con.close()
+
+  queries_dir = tmp_path / "queries"
+  queries_dir.mkdir()
+  _setup_queries_dir(queries_dir, count=1)
+  dest = tmp_path / "output"
+  dest.mkdir()
+
+  valid_spark_sql = "SELECT * FROM test_table WHERE id = 1"
+  mock_client_cls.return_value.chat.return_value = _make_mock_chat_response(
+    f"```sql\n{valid_spark_sql}\n```"
+  )
+
+  params = LLMParams(
+    database_path=str(parquet_dir),
+    total_queries=1,
+    retry=0,
+    model="test",
+    prompts_path=str(
+      Path(__file__).parent.parent.parent
+      / "params_config"
+      / "prompts"
+      / "basic_prompt.toml"
+    ),
+    schema_path=str(
+      Path(__file__).parent.parent.parent
+      / "params_config"
+      / "schemas"
+      / "dev.txt"
+    ),
+    validator_engine="pyspark",
+  )
+  factory = LLMClientFactory(factory=OllamaLLMClient, init_kwargs={})
+
+  result = llm_extension(
+    llm_params=params,
+    llm_client_factory=factory,
+    llm_config_params="test-model",
+    input_queries_base_path=queries_dir,
+    destination_path=dest,
+  )
+
+  assert result == 1

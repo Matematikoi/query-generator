@@ -38,8 +38,14 @@ environment variables.
 provider, you can see a list of available models in
 [https://ollama.com/library](https://ollama.com/library). This parameter
 is mandatory when `llm_extension` is set to true.
-- `database_path` (str): The path to the DuckDB database file. Used to confirm
-query validity.
+- `validator_engine` (str): The query validation engine to use. Supported values:
+`"duckdb"` (default) or `"pyspark"`. When `"pyspark"`, `database_path` must
+point to a parquet directory with structure `database_path/table_name/data.parquet`
+(as produced by `generate-db` with `parquet_path`).
+- `database_path` (str): The path to the database used for query validation.
+When `validator_engine` is `"duckdb"`, this should be a `.duckdb` or `.db`
+duckdb database file. When `validator_engine` is `"pyspark"`, this should be a
+parquet directory (as produced by `generate-db` with `parquet_path`).
 - `total_queries` (int): The total number of queries to process with LLM. This
 is not the total number of queries produced since some cases may fail to
 generate a valid query.

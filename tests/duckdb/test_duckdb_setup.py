@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from query_generator.duckdb_connection.query_validation import (
+from query_generator.database_connection.duckdb_validation import (
   DuckDBQueryExecutor,
 )
 from query_generator.duckdb_connection.setup import generate_db

@@ -13,6 +13,7 @@ from query_generator.utils.definitions import (
   ComplexQueryLLMPrompt,
   Dataset,
   PredicateOperatorProbability,
+  ValidatorEngine,
 )
 from query_generator.utils.toml_examples import TOML_EXAMPLE, EndpointName
 
@@ -70,6 +71,7 @@ class LLMParams:
   schema_path: Path = field(converter=Path)
   prompts: LLMPrompts = field(init=False)
   provider: str = "ollama"
+  validator_engine: ValidatorEngine = ValidatorEngine.DUCKDB
   duckdb_timeout_seconds: float = 20.0
   statistics_parquet: str | None = None
   batch_size: int = 100
