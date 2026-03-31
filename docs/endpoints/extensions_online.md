@@ -58,8 +58,8 @@ the basic prompts mention in the `prompts_path`. The file can be any
 plain file, like a txt.
 - `prompts_path` (str): The path to the toml file that contains the prompts.
 the details on the toml file are below.
-- `duckdb_timeout_seconds` (float): The timeout time for a query that
-is being run by duckdb to validate. By default is 5 seconds.
+- `duckdb_timeout_seconds` (float): The timeout time for query validation
+with the selected validator engine. By default is 20 seconds.
 - `function_examples_path` (str | None): Optional path to a TOML file
 containing SQL function examples (e.g.,
 `params_config/functions/standard_sql_functions.toml`). Default is None.

@@ -29,17 +29,24 @@ endpoint.
   Default is 100. OpenAI has a limit of 50,000 requests per batch.
 - `batch_poll_interval_seconds` (float): Seconds to sleep between polls
   when waiting for a batch to complete. Default is 30.0.
-- `database_path` (str): The path to the DuckDB database file. Used to
-  validate generated queries.
+- `validator_engine` (str): The query validation engine to use. Supported
+  values: `"duckdb"` (default) or `"pyspark"`. When `"pyspark"`,
+  `database_path` must point to a parquet directory with structure
+  `database_path/table_name/data.parquet` (as produced by `generate-db`
+  with `parquet_path`).
+- `database_path` (str): The path to the database used for query validation.
+  When `validator_engine` is `"duckdb"`, this should be a `.duckdb` or `.db`
+  DuckDB database file. When `validator_engine` is `"pyspark"`, this should be
+  a parquet directory.
 - `total_queries` (int): The total number of queries to process.
   OpenAI requires a minimum of 100 requests per batch.
 - `retry` (int): Number of retry rounds for failed queries. Each retry
-  round re-submits all failed queries as a new batch with the DuckDB
+  round re-submits all failed queries as a new batch with the validation
   error appended to the conversation.
 - `schema_path` (str): Path to the schema file used in prompts.
 - `prompts_path` (str): Path to the TOML file containing prompts.
-- `duckdb_timeout_seconds` (float): Timeout for DuckDB validation.
-  Default is 5 seconds.
+- `duckdb_timeout_seconds` (float): Timeout for query validation with the
+  selected validator engine. Default is 20 seconds.
 - `function_examples_path` (str | None): Optional path to a TOML file
   containing SQL function examples (e.g.,
   `params_config/functions/standard_sql_functions.toml`). Default is None.
@@ -83,9 +90,9 @@ for an example of the resulting prompt structure.
 3. Chunk queries into groups of `batch_size` and submit each chunk as a
    batch via the OpenAI Batch API.
 4. Poll each batch until completion, then download and parse results.
-5. Validate each generated SQL query against DuckDB.
+5. Validate each generated SQL query with the selected validator engine.
 6. Failed queries are re-submitted in subsequent retry rounds with the
-   DuckDB error message appended to the conversation.
+   validation error message appended to the conversation.
 7. Results are saved incrementally as parquet files.
 
 ## Output

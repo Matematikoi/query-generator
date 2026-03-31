@@ -35,6 +35,7 @@ probability = 0.7
 provider = "ollama"
 model = "deepseek-r1:1.5b"
 database_path = "data/duckdb/TPCDS/0.db"
+validator_engine = "duckdb"
 retry = 1
 total_queries = 5
 prompts_path = "params_config/prompts/basic_prompt.toml"
@@ -54,6 +55,7 @@ model = "gpt-4o-mini"
 batch_size = 100
 batch_poll_interval_seconds = 30.0
 database_path = "tmp/database_TPCDS_0.1.duckdb"
+validator_engine = "duckdb"
 retry = 1
 total_queries = 100
 prompts_path = "params_config/prompts/basic_prompt.toml"
@@ -114,6 +116,7 @@ total_bins = 100
 dataset = "TPCDS"
 scale_factor = 0.1
 db_path = "path/to/duckdb.db"
+parquet_path = "path/to/parquet_dir"
 """,
   EndpointName.HISTOGRAM: """\
 database_path = "path/to/duckdb.db"
