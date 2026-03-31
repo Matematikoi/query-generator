@@ -8,8 +8,10 @@ from typing import Any
 import polars as pl
 from tqdm import tqdm
 
-from query_generator.database_connection.abc import QueryValidator
 from query_generator.database_connection.factory import build_query_validator
+from query_generator.database_connection.query_validator_abc import (
+  QueryValidator,
+)
 from query_generator.extensions.llm_clients import (
   LLM_Message,
   LLMClientFactory,
