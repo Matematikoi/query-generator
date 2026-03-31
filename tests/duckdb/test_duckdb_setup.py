@@ -106,6 +106,32 @@ def test_duckdb_normal_validation(setup_and_teardown_db):
   assert db_exception is None
 
 
+def test_export_db_to_parquet_tpch(setup_and_teardown_db, tmp_path):
+  """Test that parquet export creates table_name/data.parquet for each table."""
+  parquet_dir = tmp_path / "parquet_output"
+  con = generate_db(
+    GenerateDBEndpoint(Dataset.TPCH, TEMP_DB_PATH, 0.0, str(parquet_dir))
+  )
+  con.close()
+
+  expected_tables = [
+    "customer",
+    "lineitem",
+    "nation",
+    "orders",
+    "part",
+    "partsupp",
+    "region",
+    "supplier",
+  ]
+  for table in expected_tables:
+    parquet_file = parquet_dir / table / "data.parquet"
+    assert parquet_file.exists(), f"Missing parquet file for table {table}"
+    assert parquet_file.stat().st_size > 0, (
+      f"Empty parquet file for table {table}"
+    )
+
+
 @pytest.mark.parametrize(
   "query,expected_output_size",
   [

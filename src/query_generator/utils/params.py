@@ -203,6 +203,7 @@ class GenerateDBEndpoint:
   dataset: Dataset
   db_path: str
   scale_factor: float | None = None
+  parquet_path: str | None = None
 
 
 @dataclass
