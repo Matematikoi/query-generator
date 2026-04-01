@@ -31,6 +31,7 @@ def _run_pyspark_query_worker(
 ) -> None:
   """Execute a Spark SQL query in an isolated process."""
   try:
+    logging.getLogger("py4j").setLevel(logging.INFO)
     spark = (
       SparkSession.builder.master("local[*]")
       .appName("query-validator")
