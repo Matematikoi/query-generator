@@ -29,9 +29,6 @@ class QueryWorkerInput:
   limit_output_size: int
 
 
-COUNT_CTE_NAME = "cte_for_count"
-
-
 def _run_query_worker(
   query: str,
   q: Queue,

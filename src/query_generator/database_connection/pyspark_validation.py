@@ -55,6 +55,8 @@ def _run_pyspark_query_worker(
   except Exception as exc:
     # Convert to plain Exception so it can be pickled across processes.
     # PySpark exceptions often fail to deserialize in the parent process.
+    # timed_out is always False here — timeouts are detected at the
+    # parent-process level via p.join(timeout) in _execute_with_timeout.
     q.put(
       QueryExecution(
         result=None, exception=Exception(str(exc)), timed_out=False
