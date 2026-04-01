@@ -31,6 +31,7 @@ def _run_pyspark_query_worker(
 ) -> None:
   """Execute a Spark SQL query in an isolated process."""
   try:
+    os.environ["SPARK_HOME"] = pyspark.__path__[0]
     logging.getLogger("py4j").setLevel(logging.INFO)
     spark = (
       SparkSession.builder.master("local[*]")
@@ -74,7 +75,6 @@ class PySparkQueryValidator(QueryValidator):
     timeout_seconds: float,
     limit_output_size: int = 1_000,
   ) -> None:
-    os.environ["SPARK_HOME"] = pyspark.__path__[0]
     output_size_buffer = 100
     self.parquet_path = parquet_path
     self.timeout_seconds = timeout_seconds
@@ -105,7 +105,10 @@ class PySparkQueryValidator(QueryValidator):
         self.timeout_seconds,
       )
       p.terminate()
-      p.join()
+      p.join(5)
+      if p.is_alive():
+        p.kill()
+        p.join()
       return QueryExecution(
         result=None,
         exception=TimeoutError(

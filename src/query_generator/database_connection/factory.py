@@ -17,7 +17,7 @@ def build_query_validator(llm_params: LLMParams) -> QueryValidator:
   """
   if llm_params.validator_engine == ValidatorEngine.DUCKDB:
     return DuckDBQueryExecutor(
-      llm_params.database_path, llm_params.duckdb_timeout_seconds
+      llm_params.database_path, llm_params.validation_timeout_seconds
     )
   if llm_params.validator_engine == ValidatorEngine.PYSPARK:
     from query_generator.database_connection.pyspark_validation import (
@@ -25,7 +25,7 @@ def build_query_validator(llm_params: LLMParams) -> QueryValidator:
     )
 
     return PySparkQueryValidator(
-      llm_params.database_path, llm_params.duckdb_timeout_seconds
+      llm_params.database_path, llm_params.validation_timeout_seconds
     )
   msg = f"Unknown validator engine: {llm_params.validator_engine}"
   raise ValueError(msg)

@@ -72,7 +72,7 @@ class LLMParams:
   prompts: LLMPrompts = field(init=False)
   provider: str = "ollama"
   validator_engine: ValidatorEngine = ValidatorEngine.DUCKDB
-  duckdb_timeout_seconds: float = 20.0
+  validation_timeout_seconds: float = 20.0
   statistics_parquet: str | None = None
   batch_size: int = 100
   batch_poll_interval_seconds: float = 30.0
