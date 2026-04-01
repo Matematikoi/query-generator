@@ -1,7 +1,11 @@
 import logging
+import os
 from dataclasses import dataclass
 from multiprocessing import Process, Queue
 from pathlib import Path
+
+import pyspark
+from pyspark.sql import SparkSession
 
 from query_generator.database_connection.duckdb_validation import (
   QueryExecution,
@@ -27,8 +31,6 @@ def _run_pyspark_query_worker(
 ) -> None:
   """Execute a Spark SQL query in an isolated process."""
   try:
-    from pyspark.sql import SparkSession
-
     spark = (
       SparkSession.builder.master("local[*]")
       .appName("query-validator")
@@ -71,6 +73,7 @@ class PySparkQueryValidator(QueryValidator):
     timeout_seconds: float,
     limit_output_size: int = 1_000,
   ) -> None:
+    os.environ["SPARK_HOME"] = pyspark.__path__[0]
     output_size_buffer = 100
     self.parquet_path = parquet_path
     self.timeout_seconds = timeout_seconds

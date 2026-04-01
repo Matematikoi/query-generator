@@ -14,6 +14,11 @@ class ValidatorEngine(StrEnum):
   PYSPARK = "pyspark"
 
 
+class SQLDialect(StrEnum):
+  DUCKDB = "duckdb"
+  SPARK = "spark"
+
+
 @dataclass
 class PredicateOperatorProbability:
   """Probability of using a specific predicate operator.
