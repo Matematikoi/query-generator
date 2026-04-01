@@ -30,6 +30,7 @@ def _run_pyspark_query_worker(
   params: PySparkWorkerInput,
 ) -> None:
   """Execute a Spark SQL query in an isolated process."""
+  spark = None
   try:
     os.environ["SPARK_HOME"] = pyspark.__path__[0]
     logging.getLogger("py4j").setLevel(logging.INFO)
@@ -59,6 +60,9 @@ def _run_pyspark_query_worker(
         result=None, exception=Exception(str(exc)), timed_out=False
       )
     )
+  finally:
+    if spark is not None:
+      spark.stop()
 
 
 class PySparkQueryValidator(QueryValidator):
