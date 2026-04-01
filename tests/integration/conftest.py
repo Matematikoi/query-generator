@@ -1,21 +1,24 @@
-import logging
-import os
 from pathlib import Path
+from typing import Generator
 
 import duckdb
-import pyspark
 import pytest
-from pyspark.sql import SparkSession
-
-os.environ["SPARK_HOME"] = pyspark.__path__[0]
-logging.getLogger("py4j").setLevel(logging.INFO)
 
 PARQUET_PATH = Path("tmp/database_parquet/TPCDS_0.1")
 DUCKDB_PATH = Path("tmp/database_TPCDS_0.1.duckdb")
 
 
 @pytest.fixture(scope="session")
-def spark() -> SparkSession:
+def spark() -> Generator:
+  import logging
+  import os
+
+  import pyspark
+  from pyspark.sql import SparkSession
+
+  os.environ["SPARK_HOME"] = pyspark.__path__[0]
+  logging.getLogger("py4j").setLevel(logging.INFO)
+
   if not PARQUET_PATH.exists():
     pytest.skip(
       f"Parquet database not found at {PARQUET_PATH}. Run generate-db first."
