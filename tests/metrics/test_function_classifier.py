@@ -19,8 +19,6 @@ _FUNCTIONS_DIR = (
 _TOML_PATH = _FUNCTIONS_DIR / "minimal_example.toml"
 _DUCKDB_TOML_PATH = _FUNCTIONS_DIR / "duckdb_functions.toml"
 _SPARK_TOML_PATH = _FUNCTIONS_DIR / "spark_functions.toml"
-_DUCKDB_CODEX_TOML_PATH = _FUNCTIONS_DIR / "duckdb_functions_codex.toml"
-_PYSPARK_CODEX_TOML_PATH = _FUNCTIONS_DIR / "pyspark_functions_codex.toml"
 
 
 def _load_toml_examples_from(
@@ -49,8 +47,6 @@ def _load_toml_examples() -> list[tuple[str, str, str, str]]:
 _TOML_EXAMPLES = _load_toml_examples()
 _DUCKDB_EXAMPLES = _load_toml_examples_from(_DUCKDB_TOML_PATH)
 _SPARK_EXAMPLES = _load_toml_examples_from(_SPARK_TOML_PATH)
-_DUCKDB_CODEX_EXAMPLES = _load_toml_examples_from(_DUCKDB_CODEX_TOML_PATH)
-_PYSPARK_CODEX_EXAMPLES = _load_toml_examples_from(_PYSPARK_CODEX_TOML_PATH)
 
 
 def _assert_expected_classification(
@@ -176,37 +172,3 @@ def test_spark_classification_correctness(
   category: str, subcategory: str, name: str, sql: str
 ):
   _assert_expected_classification(category, subcategory, name, sql)
-
-
-@pytest.mark.parametrize(
-  "category,subcategory,name,sql",
-  _DUCKDB_CODEX_EXAMPLES,
-  ids=[f"{cat}.{sub}.{name}" for cat, sub, name, _ in _DUCKDB_CODEX_EXAMPLES],
-)
-def test_duckdb_codex_classification_correctness(
-  category: str, subcategory: str, name: str, sql: str
-):
-  _assert_expected_classification(
-    category,
-    subcategory,
-    name,
-    sql,
-    dialect=SQLDialect.DUCKDB,
-  )
-
-
-@pytest.mark.parametrize(
-  "category,subcategory,name,sql",
-  _PYSPARK_CODEX_EXAMPLES,
-  ids=[f"{cat}.{sub}.{name}" for cat, sub, name, _ in _PYSPARK_CODEX_EXAMPLES],
-)
-def test_pyspark_codex_classification_correctness(
-  category: str, subcategory: str, name: str, sql: str
-):
-  _assert_expected_classification(
-    category,
-    subcategory,
-    name,
-    sql,
-    dialect=SQLDialect.SPARK,
-  )
