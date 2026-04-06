@@ -321,11 +321,17 @@ def llm_extension(
     The number of generated queries.
   """
   random.seed(42)
+  query_validator = build_query_validator(
+    database_path=llm_params.database_path,
+    validation_timeout_seconds=llm_params.validation_timeout_seconds,
+    validator_engine=llm_params.validator_engine,
+  )
+
   processor = QueryProcessor(
     llm_client_factory=llm_client_factory,
     llm_config_params=llm_config_params,
     llm_params=llm_params,
-    query_validator=build_query_validator(llm_params),
+    query_validator=query_validator,
     schema_context=get_schema_from_statistics(llm_params),
   )
   rows: list[dict[str, str]] = []
