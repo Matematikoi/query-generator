@@ -49,6 +49,8 @@ matplotlib = ">=3.10.8,<4"
 seaborn = ">=0.13.2,<0.14"
 pyarrow = ">=22.0.0,<23"
 openai = ">=2.26.0,<3"
+pyspark = ">=4.1.1,<5"
+openjdk = ">=17,<18"
 
 
 [tool.pixi.feature.dev.dependencies]
@@ -71,6 +73,7 @@ check = "ruff check --fix src"
 typing = "pyrefly check src"
 lint = {depends-on = ["format","check","typing"]}
 test = "pytest"
+test-integration = "pytest -m integration"
 
 [tool.ruff]
 line-length = 80
@@ -110,6 +113,10 @@ replace_imports_with_any = ["commonstrings"]
 [tool.pytest.ini_options]
 pythonpath = "."
 testpaths = [ "tests" ]
+markers = [
+  "integration: requires external database (run with pixi run test-integration)",
+]
+addopts = "-m 'not integration'"
 
 [tool.ruff.lint.per-file-ignores]
 # Too many arguments

@@ -8,8 +8,9 @@ from typing import Any
 import polars as pl
 from tqdm import tqdm
 
-from query_generator.duckdb_connection.query_validation import (
-  DuckDBQueryExecutor,
+from query_generator.database_connection.factory import build_query_validator
+from query_generator.database_connection.query_validator_abc import (
+  QueryValidator,
 )
 from query_generator.extensions.llm_clients import (
   LLM_Message,
@@ -40,7 +41,7 @@ class QueryProcessor:
   llm_client_factory: LLMClientFactory
   llm_config_params: str
   llm_params: LLMParams
-  query_validator: DuckDBQueryExecutor
+  query_validator: QueryValidator
   schema_context: str
 
 
@@ -324,9 +325,7 @@ def llm_extension(
     llm_client_factory=llm_client_factory,
     llm_config_params=llm_config_params,
     llm_params=llm_params,
-    query_validator=DuckDBQueryExecutor(
-      llm_params.database_path, llm_params.duckdb_timeout_seconds
-    ),
+    query_validator=build_query_validator(llm_params),
     schema_context=get_schema_from_statistics(llm_params),
   )
   rows: list[dict[str, str]] = []

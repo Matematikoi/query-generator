@@ -38,8 +38,14 @@ environment variables.
 provider, you can see a list of available models in
 [https://ollama.com/library](https://ollama.com/library). This parameter
 is mandatory when `llm_extension` is set to true.
-- `database_path` (str): The path to the DuckDB database file. Used to confirm
-query validity.
+- `validator_engine` (str): The query validation engine to use. Supported values:
+`"duckdb"` (default) or `"pyspark"`. When `"pyspark"`, `database_path` must
+point to a parquet directory with structure `database_path/table_name/data.parquet`
+(as produced by `generate-db` with `parquet_path`).
+- `database_path` (str): The path to the database used for query validation.
+When `validator_engine` is `"duckdb"`, this should be a `.duckdb` or `.db`
+duckdb database file. When `validator_engine` is `"pyspark"`, this should be a
+parquet directory (as produced by `generate-db` with `parquet_path`).
 - `total_queries` (int): The total number of queries to process with LLM. This
 is not the total number of queries produced since some cases may fail to
 generate a valid query.
@@ -52,8 +58,8 @@ the basic prompts mention in the `prompts_path`. The file can be any
 plain file, like a txt.
 - `prompts_path` (str): The path to the toml file that contains the prompts.
 the details on the toml file are below.
-- `duckdb_timeout_seconds` (float): The timeout time for a query that
-is being run by duckdb to validate. By default is 5 seconds.
+- `duckdb_timeout_seconds` (float): The timeout time for query validation
+with the selected validator engine. By default is 20 seconds.
 - `function_examples_path` (str | None): Optional path to a TOML file
 containing SQL function examples (e.g.,
 `params_config/functions/standard_sql_functions.toml`). Default is None.

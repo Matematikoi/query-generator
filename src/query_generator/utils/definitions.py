@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 from pathlib import Path
 
 
@@ -7,6 +7,16 @@ class Dataset(Enum):
   TPCDS = "TPCDS"
   TPCH = "TPCH"
   JOB = "JOB"
+
+
+class ValidatorEngine(StrEnum):
+  DUCKDB = "duckdb"
+  PYSPARK = "pyspark"
+
+
+class SQLDialect(StrEnum):
+  DUCKDB = "duckdb"
+  SPARK = "spark"
 
 
 @dataclass

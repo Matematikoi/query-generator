@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from query_generator.duckdb_connection.query_validation import (
+from query_generator.database_connection.duckdb_validation import (
   DuckDBQueryExecutor,
 )
 from query_generator.duckdb_connection.setup import generate_db
@@ -104,6 +104,32 @@ def test_duckdb_normal_validation(setup_and_teardown_db):
   valid, db_exception = validator.is_query_valid(normal_query)
   assert valid
   assert db_exception is None
+
+
+def test_export_db_to_parquet_tpch(setup_and_teardown_db, tmp_path):
+  """Test that parquet export creates table_name/data.parquet for each table."""
+  parquet_dir = tmp_path / "parquet_output"
+  con = generate_db(
+    GenerateDBEndpoint(Dataset.TPCH, TEMP_DB_PATH, 0.0, str(parquet_dir))
+  )
+  con.close()
+
+  expected_tables = [
+    "customer",
+    "lineitem",
+    "nation",
+    "orders",
+    "part",
+    "partsupp",
+    "region",
+    "supplier",
+  ]
+  for table in expected_tables:
+    parquet_file = parquet_dir / table / "data.parquet"
+    assert parquet_file.exists(), f"Missing parquet file for table {table}"
+    assert parquet_file.stat().st_size > 0, (
+      f"Empty parquet file for table {table}"
+    )
 
 
 @pytest.mark.parametrize(

@@ -47,6 +47,25 @@ def get_path(
   raise UnkownDatasetError(dataset.value)
 
 
+def export_duckdb_con_to_parquet(
+  con: duckdb.DuckDBPyConnection,
+  parquet_path: str,
+) -> None:
+  """Export all tables in the database to Parquet files.
+
+  Creates the directory structure: parquet_path/table_name/data.parquet
+  """
+  base_path = Path(parquet_path)
+  tables = [row[0] for row in con.sql("SHOW TABLES").fetchall()]
+  for table in tables:
+    table_dir = base_path / table
+    table_dir.mkdir(parents=True, exist_ok=True)
+    output_file = table_dir / "data.parquet"
+    con.sql(f"COPY {table} TO '{output_file}' (FORMAT PARQUET)")
+    logger.debug(f"Exported table {table} to {output_file}")
+  logger.info(f"Exported {len(tables)} tables to {base_path}")
+
+
 def generate_db(params: GenerateDBEndpoint) -> duckdb.DuckDBPyConnection:
   """Installs TPCDS and TPCH datasets in DuckDB.
 
@@ -74,4 +93,8 @@ def generate_db(params: GenerateDBEndpoint) -> duckdb.DuckDBPyConnection:
   con = duckdb.connect(db_path)
   generate_data(params.scale_factor, params.dataset, con)
   logger.info(f"Database {db_path} created.")
+
+  if params.parquet_path is not None:
+    export_duckdb_con_to_parquet(con, params.parquet_path)
+
   return con

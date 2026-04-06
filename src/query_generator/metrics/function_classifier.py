@@ -7,6 +7,8 @@ from typing import TypedDict
 import sqlglot
 import sqlglot.expressions as exp
 
+from query_generator.utils.definitions import SQLDialect
+
 logger = logging.getLogger(__name__)
 
 
@@ -51,10 +53,13 @@ SCALAR_SUBCATEGORY: dict[type, str] = {
   exp.Overlay: "string",
   exp.Split: "string",
   exp.SplitPart: "string",
+  exp.SubstringIndex: "string",
   exp.StartsWith: "string",
   exp.EndsWith: "string",
+  exp.Contains: "string",
   exp.Chr: "string",
   exp.Ascii: "string",
+  exp.StrPosition: "string",
   exp.Soundex: "string",
   exp.Levenshtein: "string",
   exp.Encode: "string",
@@ -63,6 +68,9 @@ SCALAR_SUBCATEGORY: dict[type, str] = {
   exp.Stuff: "string",
   exp.BitLength: "string",
   exp.IsAscii: "string",
+  exp.Format: "string",
+  exp.ToBase64: "string",
+  exp.FromBase64: "string",
   # datetime
   exp.DateAdd: "datetime",
   exp.DateDiff: "datetime",
@@ -85,8 +93,11 @@ SCALAR_SUBCATEGORY: dict[type, str] = {
   exp.DayOfMonth: "datetime",
   exp.DayOfYear: "datetime",
   exp.LastDay: "datetime",
+  exp.WeekOfYear: "datetime",
+  exp.NextDay: "datetime",
   exp.AddMonths: "datetime",
   exp.MonthsBetween: "datetime",
+  exp.DateFromUnixDate: "datetime",
   exp.TimestampAdd: "datetime",
   exp.TimestampDiff: "datetime",
   exp.TimestampSub: "datetime",
@@ -103,6 +114,12 @@ SCALAR_SUBCATEGORY: dict[type, str] = {
   exp.UnixMillis: "datetime",
   exp.StrToDate: "datetime",
   exp.StrToTime: "datetime",
+  exp.TimeToStr: "datetime",
+  exp.TimeToUnix: "datetime",
+  exp.DateFromParts: "datetime",
+  exp.TsOrDsAdd: "datetime",
+  exp.TsOrDsToDate: "datetime",
+  exp.UnixToStr: "datetime",
   # numeric
   exp.Abs: "numeric",
   exp.Round: "numeric",
@@ -129,6 +146,11 @@ SCALAR_SUBCATEGORY: dict[type, str] = {
   exp.Atan: "numeric",
   exp.Atan2: "numeric",
   exp.Cbrt: "numeric",
+  exp.Factorial: "numeric",
+  exp.Cosh: "numeric",
+  exp.Sinh: "numeric",
+  exp.Tanh: "numeric",
+  exp.WidthBucket: "numeric",
   exp.IsNan: "numeric",
   exp.IsInf: "numeric",
   # null handling
@@ -186,12 +208,17 @@ SCALAR_SUBCATEGORY: dict[type, str] = {
   exp.ArrayToString: "array",
   exp.ArrayFirst: "array",
   exp.ArrayLast: "array",
+  exp.GenerateSeries: "array",
   # map / struct
   exp.Map: "map_struct",
   exp.Struct: "map_struct",
   exp.StructExtract: "map_struct",
   exp.MapKeys: "map_struct",
   exp.MapSize: "map_struct",
+  exp.MapFromEntries: "map_struct",
+  exp.StrToMap: "map_struct",
+  exp.VarMap: "map_struct",
+  exp.MapContainsKey: "map_struct",
   # hash / crypto
   exp.MD5: "hash_crypto",
   exp.SHA: "hash_crypto",
@@ -234,12 +261,14 @@ AGG_SUBCATEGORY: dict[type, str] = {
   # collection
   exp.ArrayAgg: "collection",
   exp.ArrayConcatAgg: "collection",
+  exp.ArrayUniqueAgg: "collection",
   exp.GroupConcat: "collection",
   exp.JSONArrayAgg: "collection",
   exp.JSONObjectAgg: "collection",
   exp.ObjectAgg: "collection",
   # approximate
   exp.ApproxDistinct: "approximate",
+  exp.ApproxQuantile: "approximate",
   exp.Hll: "approximate",
 }
 
@@ -311,6 +340,85 @@ ANONYMOUS_NAME_CLASSIFICATION: dict[str, str] = {
   "JSON": "scalar.json",
   "SHA256": "scalar.hash_crypto",
   "CURRENT_SETTING": "scalar.session_system",
+  "PERCENTILE_APPROX": "agg.approximate",
+  "COLLECT_LIST": "agg.collection",
+  "COLLECT_SET": "agg.collection",
+  "GET_JSON_OBJECT": "scalar.json",
+  "FROM_JSON": "scalar.json",
+  "SORT_ARRAY": "scalar.array",
+  "ARRAY_JOIN": "scalar.array",
+  "ARRAY_DISTINCT": "scalar.array",
+  "ARRAY_INTERSECT": "scalar.array",
+  "ARRAY_UNION": "scalar.array",
+  "ARRAY_EXCEPT": "scalar.array",
+  "ARRAY_POSITION": "scalar.array",
+  "ARRAY_REPEAT": "scalar.array",
+  "ARRAYS_OVERLAP": "scalar.array",
+  "MAP_VALUES": "scalar.map_struct",
+  "MAP_ENTRIES": "scalar.map_struct",
+  "MAP_CONCAT": "scalar.map_struct",
+  "MAP_FROM_ARRAYS": "scalar.map_struct",
+  "MAP_FROM_ENTRIES": "scalar.map_struct",
+  "SHIFTLEFT": "scalar.bitwise",
+  "SHIFTRIGHT": "scalar.bitwise",
+  "FORMAT_NUMBER": "scalar.string",
+  "FORMAT_STRING": "scalar.string",
+  "WEEKOFYEAR": "scalar.datetime",
+  "DATE_FORMAT": "scalar.datetime",
+  "FROM_UNIXTIME": "scalar.datetime",
+  "UNIX_TIMESTAMP": "scalar.datetime",
+  "ADD_MONTHS": "scalar.datetime",
+  "MONTHS_BETWEEN": "scalar.datetime",
+  "NEXT_DAY": "scalar.datetime",
+  "CONV": "scalar.type_conversion",
+  "HASH": "scalar.hash_crypto",
+  "XXHASH64": "scalar.hash_crypto",
+  "NVL": "scalar.null_handling",
+  "NANVL": "scalar.null_handling",
+  "GROUP_CONCAT": "agg.collection",
+  "SOUNDEX": "scalar.string",
+  "POSEXPLODE": "table_valued",
+  "BASE64": "scalar.string",
+  "UNBASE64": "scalar.string",
+  "TO_DATE": "scalar.datetime",
+  "TO_TIMESTAMP": "scalar.datetime",
+  "SEQUENCE": "scalar.array",
+  "NAMED_STRUCT": "scalar.map_struct",
+  "ARRAY_COMPACT": "scalar.array",
+  "ARRAY_MAX": "scalar.array",
+  "ARRAY_MIN": "scalar.array",
+  "ARRAYS_ZIP": "scalar.array",
+  "SUBSTRING_INDEX": "scalar.string",
+  "STARTSWITH": "scalar.string",
+  "ENDSWITH": "scalar.string",
+  "CONTAINS": "scalar.string",
+  "OVERLAY": "scalar.string",
+  "INSTR": "scalar.string",
+  "BROUND": "scalar.numeric",
+  "LOG2": "scalar.numeric",
+  "LOG10": "scalar.numeric",
+  "FACTORIAL": "scalar.numeric",
+  "COSH": "scalar.numeric",
+  "SINH": "scalar.numeric",
+  "TANH": "scalar.numeric",
+  "WIDTH_BUCKET": "scalar.numeric",
+  "MAKE_DATE": "scalar.datetime",
+  "MAKE_TIMESTAMP": "scalar.datetime",
+  "DATE_FROM_UNIX_DATE": "scalar.datetime",
+  "MAP_CONTAINS_KEY": "scalar.map_struct",
+  "STR_TO_MAP": "scalar.map_struct",
+  "STRFTIME": "scalar.datetime",
+  "EPOCH": "scalar.datetime",
+  "REGEXP_SUBSTR": "scalar.regex",
+  "REGEXP_INSTR": "scalar.regex",
+  "REGEXP_COUNT": "scalar.regex",
+  "REGEXP_EXTRACT_ALL": "scalar.regex",
+  "APPROX_QUANTILE": "agg.approximate",
+  "LIST_DISTINCT": "scalar.array",
+  "LIST_INTERSECT": "scalar.array",
+  "GENERATE_SERIES": "scalar.array",
+  "EVEN": "scalar.numeric",
+  "TRUNC": "scalar.numeric",
 }
 
 
@@ -391,6 +499,7 @@ def _classify_function(
 
 def parse_sql_functions(
   sql_text: str,
+  dialect: SQLDialect | None = SQLDialect.DUCKDB,
 ) -> list[FunctionRecord]:
   """Parse SQL and return classified records per function.
 
@@ -399,7 +508,11 @@ def parse_sql_functions(
   Returns [] on parse errors.
   """
   try:
-    tree = sqlglot.parse_one(sql_text, error_level=sqlglot.ErrorLevel.IGNORE)
+    tree = sqlglot.parse_one(
+      sql_text,
+      read=dialect,
+      error_level=sqlglot.ErrorLevel.IGNORE,
+    )
     if tree is None:
       return []
 
@@ -438,7 +551,7 @@ def parse_sql_functions(
         "category": cat,
         "subcategory": subcat or cat,
         "name": name,
-        "expression": node.sql(dialect="duckdb"),
+        "expression": node.sql(dialect=dialect or SQLDialect.DUCKDB),
       }
       rows.append(record)
   except Exception:

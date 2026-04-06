@@ -10,28 +10,66 @@ from query_generator.metrics.function_classifier import (
   FunctionRecordFields,
   parse_sql_functions,
 )
+from query_generator.utils.definitions import SQLDialect
 
-_TOML_PATH = (
-  Path(__file__).parent.parent.parent
-  / "params_config"
-  / "functions"
-  / "minimal_example.toml"
+_FUNCTIONS_DIR = (
+  Path(__file__).parent.parent.parent / "params_config" / "functions"
 )
 
+_TOML_PATH = _FUNCTIONS_DIR / "minimal_example.toml"
+_DUCKDB_TOML_PATH = _FUNCTIONS_DIR / "duckdb_functions.toml"
+_SPARK_TOML_PATH = _FUNCTIONS_DIR / "spark_functions.toml"
 
-def _load_toml_examples() -> list[tuple[str, str, str, str]]:
-  """Load (category, subcategory, name, sql) from the minimal_example.toml."""
-  with open(_TOML_PATH, "rb") as f:
+
+def _load_toml_examples_from(
+  path: Path,
+) -> list[tuple[str, str, str, str]]:
+  """Load (category, subcategory, name, sql) from a function TOML file."""
+  with open(path, "rb") as f:
     data = tomllib.load(f)
   entries: list[tuple[str, str, str, str]] = []
   for category, subcategories in data.items():
+    if not isinstance(subcategories, dict):
+      continue
     for subcategory, expressions in subcategories.items():
+      if not isinstance(expressions, dict):
+        continue
       for name, sql in expressions.items():
         entries.append((category, subcategory, name, sql))
   return entries
 
 
+def _load_toml_examples() -> list[tuple[str, str, str, str]]:
+  """Load (category, subcategory, name, sql) from the minimal_example.toml."""
+  return _load_toml_examples_from(_TOML_PATH)
+
+
 _TOML_EXAMPLES = _load_toml_examples()
+_DUCKDB_EXAMPLES = _load_toml_examples_from(_DUCKDB_TOML_PATH)
+_SPARK_EXAMPLES = _load_toml_examples_from(_SPARK_TOML_PATH)
+
+
+def _assert_expected_classification(
+  category: str,
+  subcategory: str,
+  name: str,
+  sql: str,
+  dialect: SQLDialect | None = None,
+) -> None:
+  result = parse_sql_functions(sql, dialect=dialect)
+  assert isinstance(result, list), f"Expected list, got {type(result)}"
+  found = any(
+    r[FunctionRecordFields.CATEGORY] == category
+    and r[FunctionRecordFields.SUBCATEGORY] == subcategory
+    for r in result
+  )
+  seen = [
+    (r[FunctionRecordFields.CATEGORY], r[FunctionRecordFields.SUBCATEGORY])
+    for r in result
+  ]
+  assert found, (
+    f"[{name}] Expected ({category!r}, {subcategory!r}) but got {seen}"
+  )
 
 
 def test_all_keys_present_in_every_record():
@@ -51,20 +89,7 @@ def test_all_keys_present_in_every_record():
 def test_classification_correctness(
   category: str, subcategory: str, name: str, sql: str
 ):
-  result = parse_sql_functions(sql)
-  assert isinstance(result, list), f"Expected list, got {type(result)}"
-  found = any(
-    r[FunctionRecordFields.CATEGORY] == category
-    and r[FunctionRecordFields.SUBCATEGORY] == subcategory
-    for r in result
-  )
-  seen = [
-    (r[FunctionRecordFields.CATEGORY], r[FunctionRecordFields.SUBCATEGORY])
-    for r in result
-  ]
-  assert found, (
-    f"[{name}] Expected ({category!r}, {subcategory!r}) but got {seen}"
-  )
+  _assert_expected_classification(category, subcategory, name, sql)
 
 
 def test_arithmetic_binary():
@@ -125,3 +150,25 @@ def test_function_record_fields_values():
   assert record[FunctionRecordFields.NAME] == "Count"
   assert isinstance(record[FunctionRecordFields.EXPRESSION], str)
   assert len(record[FunctionRecordFields.EXPRESSION]) > 0
+
+
+@pytest.mark.parametrize(
+  "category,subcategory,name,sql",
+  _DUCKDB_EXAMPLES,
+  ids=[f"{cat}.{sub}.{name}" for cat, sub, name, _ in _DUCKDB_EXAMPLES],
+)
+def test_duckdb_classification_correctness(
+  category: str, subcategory: str, name: str, sql: str
+):
+  _assert_expected_classification(category, subcategory, name, sql)
+
+
+@pytest.mark.parametrize(
+  "category,subcategory,name,sql",
+  _SPARK_EXAMPLES,
+  ids=[f"{cat}.{sub}.{name}" for cat, sub, name, _ in _SPARK_EXAMPLES],
+)
+def test_spark_classification_correctness(
+  category: str, subcategory: str, name: str, sql: str
+):
+  _assert_expected_classification(category, subcategory, name, sql)
