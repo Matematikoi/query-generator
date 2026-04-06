@@ -1,8 +1,9 @@
 import contextlib
 import logging
+import multiprocessing
 import threading
 from dataclasses import dataclass
-from multiprocessing import Process, Queue
+from multiprocessing import Queue
 
 import duckdb
 
@@ -12,6 +13,8 @@ from query_generator.database_connection.query_validator_abc import (
 from query_generator.utils.exceptions import DuckDBTimeoutError
 
 logger = logging.getLogger(__name__)
+
+_MP_CTX = multiprocessing.get_context("spawn")
 
 
 @dataclass
@@ -100,9 +103,9 @@ class DuckDBQueryExecutor(QueryValidator):
     self, query: str, description: str
   ) -> QueryExecution:
     logger.debug("Start %s.", description)
-    q: Queue = Queue()
+    q: Queue = _MP_CTX.Queue()
 
-    p = Process(
+    p = _MP_CTX.Process(
       target=_run_query_worker,
       args=(
         query,

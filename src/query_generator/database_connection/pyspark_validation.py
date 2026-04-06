@@ -1,7 +1,8 @@
 import logging
+import multiprocessing
 import os
 from dataclasses import dataclass
-from multiprocessing import Process, Queue
+from multiprocessing import Queue
 from pathlib import Path
 
 import pyspark
@@ -15,6 +16,8 @@ from query_generator.database_connection.query_validator_abc import (
 )
 
 logger = logging.getLogger(__name__)
+
+_MP_CTX = multiprocessing.get_context("spawn")
 
 
 @dataclass
@@ -95,9 +98,9 @@ class PySparkQueryValidator(QueryValidator):
     self, query: str, description: str
   ) -> QueryExecution:
     logger.debug("Start %s.", description)
-    q: Queue = Queue()
+    q: Queue = _MP_CTX.Queue()
 
-    p = Process(
+    p = _MP_CTX.Process(
       target=_run_pyspark_query_worker,
       args=(query, q, self.worker_input),
     )
