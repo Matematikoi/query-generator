@@ -52,7 +52,7 @@ def _run_pyspark_query_worker(
         table.createOrReplaceTempView(table_dir.name)
 
     result_df = spark.sql(query)
-    rows = result_df.limit(params.limit_output_size).collect()
+    rows = result_df.limit(params.limit_output_size).take(100)
     row_tuples = [tuple(row) for row in rows]
     q.put(QueryExecution(result=row_tuples, exception=None, timed_out=False))
   except Exception as exc:
