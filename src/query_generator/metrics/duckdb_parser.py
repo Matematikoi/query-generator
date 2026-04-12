@@ -11,6 +11,7 @@ import polars as pl
 import sqlparse
 from networkx.algorithms.dag import descendants
 
+from query_generator.metrics.canonical_join import get_canonical_join_form_fn
 from query_generator.metrics.function_classifier import (
   FunctionRecord,
   FunctionRecordFields,
@@ -129,12 +130,14 @@ class DuckDBTraceNode(TypedDict):
   Attributes:
       output_cardinality: The output cardinality of the operator.
       operator_type: DuckDB physical operator type.
+      table: Table name for TABLE_SCAN nodes, None otherwise.
 
   """
 
   output_cardinality: int
   estimated_cardinality: int | None
   operator_type: str  # Maps to physical operators.
+  table: str | None
 
 
 ParsedTraceExtraInfoDuckdb = TypedDict(
@@ -196,6 +199,7 @@ class DuckDBMetrics(TypedDict):
   qerror: float | None
   qerror_downstream_operators: list["QErrorDownstreamOperatorsBucket"]
   functions: list[FunctionRecord]
+  canonical_join_form: str | None
 
 
 class QErrorDownstreamOperatorsBucket(TypedDict):
@@ -228,6 +232,7 @@ def get_attributes_root_node(trace: ParsedDuckDBTraceRoot) -> DuckDBTraceNode:
     "output_cardinality": trace["rows_returned"],
     "operator_type": DuckDBPhysicalOperators.ROOT.value,
     "estimated_cardinality": None,
+    "table": None,
   }
 
 
@@ -246,12 +251,18 @@ def get_attributes_children_node(
   Gets output cardinality and operator type.
   """
   estimated_cardinality_raw = trace["extra_info"].get("Estimated Cardinality")
+  operator_type = trace["operator_type"]
   return {
     "output_cardinality": trace["operator_cardinality"],
-    "operator_type": trace["operator_type"],
+    "operator_type": operator_type,
     "estimated_cardinality": (
       int(estimated_cardinality_raw)
       if estimated_cardinality_raw is not None
+      else None
+    ),
+    "table": (
+      trace["operator_name"]
+      if operator_type == DuckDBPhysicalOperators.TABLE_SCAN
       else None
     ),
   }
@@ -363,6 +374,10 @@ class DuckDBTraceParser:
     """Get the classified SQL functions from the query."""
     return parse_sql_functions(self.get_raw_query())
 
+  def get_canonical_join_form(self) -> str | None:
+    """Get the canonical join structure string for this query plan."""
+    return get_canonical_join_form_fn(self.trace_graph)
+
   def get_cardinality_over_rows_scanned(self) -> float | None:
     if self.get_rows_scanned() == 0:
       return None
@@ -429,6 +444,7 @@ class DuckDBTraceParser:
         self.get_qerror_downstream_operators_buckets()
       ),
       "functions": self.get_functions(),
+      "canonical_join_form": self.get_canonical_join_form(),
     }
 
   @staticmethod
@@ -464,6 +480,7 @@ def python_type_to_polars(
     float: pl.Float64,
     float | None: pl.Float64,
     str: pl.String,
+    str | None: pl.String,
     bool: pl.Boolean,
     dict[DuckDBPhysicalOperators, int]: pl.Struct(
       dict.fromkeys(DuckDBPhysicalOperators.get_all_operators(), pl.Int64)
