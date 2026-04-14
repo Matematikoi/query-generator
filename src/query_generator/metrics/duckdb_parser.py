@@ -261,7 +261,7 @@ def get_attributes_children_node(
       else None
     ),
     "table": (
-      trace["operator_name"]
+      trace["extra_info"].get("Table")
       if operator_type == DuckDBPhysicalOperators.TABLE_SCAN
       else None
     ),
