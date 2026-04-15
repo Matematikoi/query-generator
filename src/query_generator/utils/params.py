@@ -63,6 +63,7 @@ class LLMPrompts:
 class LLMEngineParams:
   """Engine specific parameters for LLM augmentation."""
 
+  database_path: str
   prompts_path: Path = field(converter=Path)
   schema_path: Path = field(converter=Path)
   prompts: LLMPrompts = field(init=False)
@@ -101,7 +102,6 @@ class LLMEngineParams:
 class LLMParams:
   """Params used for the LLM endpoint"""
 
-  database_path: str
   total_queries: int
   retry: int
   model: str

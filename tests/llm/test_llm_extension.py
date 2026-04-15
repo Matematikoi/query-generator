@@ -19,7 +19,7 @@ from query_generator.extensions.llm_extension import (
   get_random_queries,
   llm_extension,
 )
-from query_generator.utils.params import LLMParams
+from query_generator.utils.params import LLMEngineParams, LLMParams
 
 VALID_SQL = "SELECT 1"
 VALID_RESPONSE = f"```sql\n{VALID_SQL}\n```"
@@ -46,12 +46,14 @@ def _make_llm_params(
     / "dev.txt"
   )
   return LLMParams(
-    database_path=db_path,
     total_queries=total_queries,
     retry=retry,
     model="llama3:latest",
-    prompts_path=str(prompts_path),
-    schema_path=str(schema_path),
+    engine_params=LLMEngineParams(
+      database_path=db_path,
+      prompts_path=str(prompts_path),
+      schema_path=str(schema_path),
+    ),
   )
 
 
@@ -232,24 +234,26 @@ def test_get_random_prompt_includes_function_examples(
   db_path = str(tmp_path / "test.duckdb")
   duckdb.connect(db_path).close()
   params = LLMParams(
-    database_path=db_path,
     total_queries=1,
     retry=0,
     model="test",
-    prompts_path=str(
-      Path(__file__).parent.parent.parent
-      / "params_config"
-      / "prompts"
-      / "basic_prompt.toml"
-    ),
-    schema_path=str(
-      Path(__file__).parent.parent.parent
-      / "params_config"
-      / "schemas"
-      / "dev.txt"
+    engine_params=LLMEngineParams(
+      database_path=db_path,
+      prompts_path=str(
+        Path(__file__).parent.parent.parent
+        / "params_config"
+        / "prompts"
+        / "basic_prompt.toml"
+      ),
+      schema_path=str(
+        Path(__file__).parent.parent.parent
+        / "params_config"
+        / "schemas"
+        / "dev.txt"
+      ),
     ),
   )
-  extension_types = list(params.prompts.weighted_prompts.keys())
+  extension_types = list(params.engine_params.prompts.weighted_prompts.keys())
   function_samples = [
     ("math.aggregate.SUM", "SELECT SUM(x) FROM t"),
     ("string.transform.UPPER", "SELECT UPPER(name) FROM t"),
@@ -275,24 +279,26 @@ def test_get_random_prompt_omits_function_section_when_empty(
   db_path = str(tmp_path / "test.duckdb")
   duckdb.connect(db_path).close()
   params = LLMParams(
-    database_path=db_path,
     total_queries=1,
     retry=0,
     model="test",
-    prompts_path=str(
-      Path(__file__).parent.parent.parent
-      / "params_config"
-      / "prompts"
-      / "basic_prompt.toml"
-    ),
-    schema_path=str(
-      Path(__file__).parent.parent.parent
-      / "params_config"
-      / "schemas"
-      / "dev.txt"
+    engine_params=LLMEngineParams(
+      database_path=db_path,
+      prompts_path=str(
+        Path(__file__).parent.parent.parent
+        / "params_config"
+        / "prompts"
+        / "basic_prompt.toml"
+      ),
+      schema_path=str(
+        Path(__file__).parent.parent.parent
+        / "params_config"
+        / "schemas"
+        / "dev.txt"
+      ),
     ),
   )
-  extension_types = list(params.prompts.weighted_prompts.keys())
+  extension_types = list(params.engine_params.prompts.weighted_prompts.keys())
   messages = get_random_prompt(params, "SELECT 1", extension_types[0], [])
   user_content = messages[1]["content"]
   assert "Add the following SQL functions" not in user_content
@@ -315,24 +321,26 @@ def test_get_random_queries_reproducible(tmp_path: Path) -> None:
     / "standard_sql_functions.toml"
   )
   params = LLMParams(
-    database_path=db_path,
     total_queries=10,
     retry=0,
     model="test",
-    prompts_path=str(
-      Path(__file__).parent.parent.parent
-      / "params_config"
-      / "prompts"
-      / "basic_prompt.toml"
+    engine_params=LLMEngineParams(
+      database_path=db_path,
+      prompts_path=str(
+        Path(__file__).parent.parent.parent
+        / "params_config"
+        / "prompts"
+        / "basic_prompt.toml"
+      ),
+      schema_path=str(
+        Path(__file__).parent.parent.parent
+        / "params_config"
+        / "schemas"
+        / "dev.txt"
+      ),
+      function_examples_path=str(function_examples_path),
+      number_of_function_examples=3,
     ),
-    schema_path=str(
-      Path(__file__).parent.parent.parent
-      / "params_config"
-      / "schemas"
-      / "dev.txt"
-    ),
-    function_examples_path=str(function_examples_path),
-    number_of_function_examples=3,
   )
 
   random.seed(42)
@@ -421,23 +429,25 @@ def test_pyspark_validator_with_mocked_llm(
   )
 
   params = LLMParams(
-    database_path=str(parquet_dir),
     total_queries=1,
     retry=0,
     model="test",
-    prompts_path=str(
-      Path(__file__).parent.parent.parent
-      / "params_config"
-      / "prompts"
-      / "basic_prompt.toml"
+    engine_params=LLMEngineParams(
+      database_path=str(parquet_dir),
+      prompts_path=str(
+        Path(__file__).parent.parent.parent
+        / "params_config"
+        / "prompts"
+        / "basic_prompt.toml"
+      ),
+      schema_path=str(
+        Path(__file__).parent.parent.parent
+        / "params_config"
+        / "schemas"
+        / "dev.txt"
+      ),
+      validator_engine="pyspark",
     ),
-    schema_path=str(
-      Path(__file__).parent.parent.parent
-      / "params_config"
-      / "schemas"
-      / "dev.txt"
-    ),
-    validator_engine="pyspark",
   )
   factory = LLMClientFactory(factory=OllamaLLMClient, init_kwargs={})
 

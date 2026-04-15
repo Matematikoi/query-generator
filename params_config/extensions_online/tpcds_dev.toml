@@ -10,11 +10,13 @@ probability = 0.7
 [llm_params]
 provider = "ollama"
 model = "llama3:latest"
-database_path = "tmp/database_TPCDS_0.1.duckdb"
 retry = 0
 total_queries = 7
+
+[llm_params.engine_params]
+database_path = "tmp/database_TPCDS_0.1.duckdb"
+validator_engine = "duckdb"
 prompts_path = "params_config/prompts/basic_prompt.toml"
 schema_path = "params_config/schemas/dev.txt"
 function_examples_path = "params_config/functions/standard_sql_functions.toml"
 number_of_function_examples = 5
-validator_engine = "duckdb"

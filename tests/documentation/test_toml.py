@@ -61,6 +61,6 @@ def test_llm_params():
 surrounding it with ```sql Select from....```
 """
   assert (
-    params.llm_params.prompts.base_prompt.strip()
+    params.llm_params.engine_params.prompts.base_prompt.strip()
     == base_prompt_expected.strip()
   )

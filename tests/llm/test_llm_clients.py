@@ -13,7 +13,7 @@ from query_generator.extensions.llm_clients import (
   get_llm_client_factory,
 )
 from query_generator.extensions.llm_extension import llm_extension
-from query_generator.utils.params import LLMParams
+from query_generator.utils.params import LLMEngineParams, LLMParams
 
 VALID_SQL = "SELECT 1"
 VALID_RESPONSE = f"```sql\n{VALID_SQL}\n```"
@@ -39,13 +39,15 @@ def _make_llm_params(
     / "dev.txt"
   )
   return LLMParams(
-    database_path=db_path,
     total_queries=total_queries,
     retry=retry,
     model="gpt-4o-mini",
     provider="openai",
-    prompts_path=str(prompts_path),
-    schema_path=str(schema_path),
+    engine_params=LLMEngineParams(
+      database_path=db_path,
+      prompts_path=str(prompts_path),
+      schema_path=str(schema_path),
+    ),
   )
 
 
