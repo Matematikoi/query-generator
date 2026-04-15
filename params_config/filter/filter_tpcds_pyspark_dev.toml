@@ -1,0 +1,4 @@
+input_parquet = "tmp/synthetic_queries_pyspark/output.parquet"
+destination_folder = "tmp/filtered_queries_pyspark"
+empty_set = true
+stratified_sampling = false
