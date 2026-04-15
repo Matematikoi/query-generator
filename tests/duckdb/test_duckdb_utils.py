@@ -11,8 +11,8 @@ from query_generator.duckdb_connection.utils import (
   get_null_count,
   DuckDBColumnInfo,
 )
-from query_generator.synthetic_queries.synthetic_query_generator import (
-  get_result_from_duckdb,
+from query_generator.database_connection.duckdb_validation import (
+  DuckDBQueryExecutor,
 )
 from query_generator.tools.histograms import DuckDBHistogramParser
 from query_generator.utils.definitions import Dataset
@@ -61,10 +61,9 @@ def test_null_values(duckdb_connection):
   """Test null counting for a column."""
   con = duckdb_connection
   column_info = DuckDBColumnInfo(con=con, table="item", column="i_rec_end_date")
-  expected = get_result_from_duckdb(
-    f"SELECT COUNT_IF({column_info.column} IS NULL) FROM {column_info.table}",
-    con,
-  )
+  expected = con.execute(
+    f"SELECT COUNT_IF({column_info.column} IS NULL) FROM {column_info.table}"
+  ).fetchall()[0][0]
 
   assert get_null_count(column_info) == expected
 
@@ -77,10 +76,13 @@ def test_null_values(duckdb_connection):
   ],
 )
 def test_duck_db_execution(query, expected_result, duckdb_connection):
-  """Test the execution of queries in DuckDB."""
-  # Setup DuckDB
-  con = duckdb_connection
-  val = get_result_from_duckdb(query, con)
+  """Test get_synthetic_query_cardinality on DuckDBQueryExecutor."""
+  executor = DuckDBQueryExecutor(
+    database_path=TEMP_DB_PATH, timeout_seconds=10.0
+  )
+  # Reuse the fixture's open connection to avoid a read-only/write conflict.
+  executor._persistent_con = duckdb_connection
+  val = executor.get_synthetic_query_cardinality(query)
   assert val == expected_result, f"Expected {expected_result}, but got {val}"
 
 

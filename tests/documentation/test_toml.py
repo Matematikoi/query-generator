@@ -41,11 +41,11 @@ def test_toml_files():
   """Test the example toml files provided"""
   base_path = Path(__file__).parent.parent.parent
   for endpoint_name in EndpointName:
-    docs_path = (base_path / "params_config" / endpoint_name).glob("*toml")
-    assert len(list(docs_path)) > 0
+    docs = list((base_path / "params_config" / endpoint_name).glob("*toml"))
+    assert len(docs) > 0
     # parse the docs and throw no errors in the process
-    for doc in docs_path:
-      params = read_and_parse_toml(doc.read_text(), mapping[endpoint_name])
+    for doc in docs:
+      params = read_and_parse_toml(doc, mapping[endpoint_name])
       assert params is not None
 
 

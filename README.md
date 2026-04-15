@@ -137,8 +137,8 @@ generation stages.
 ```bash
 pixi run main generate-db -c params_config/generate_db/tpcds_spark_dev.toml
 pixi run main make-histograms -c params_config/histogram/tpcds_dev.toml
-pixi run main synthetic-queries -c params_config/synthetic_generation/tpcds_dev.toml
-pixi run main filter-synthetic -c params_config/filter/filter_tpcds_dev.toml
+pixi run main synthetic-queries -c params_config/synthetic_generation/tpcds_pyspark_dev.toml
+pixi run main filter-synthetic -c params_config/filter/filter_tpcds_pyspark_dev.toml
 pixi run main extensions-online -c params_config/extensions_online/tpcds_pyspark_dev.toml
 ```
 

@@ -191,9 +191,12 @@ class SyntheticQueriesEndpoint:
   minimum_like_support_probability: list[float]
   or_probability: list[float]
   # Paths
-  duckdb_database: str
+  validation_database_path: str
   output_folder: str
   histogram_path: str
+  # Validator
+  validator_engine: ValidatorEngine = ValidatorEngine.DUCKDB
+  validation_timeout_seconds: float = 5.0
 
 
 @dataclass

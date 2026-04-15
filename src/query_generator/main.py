@@ -5,6 +5,7 @@ from typing import Annotated
 import duckdb
 import typer
 
+from query_generator.database_connection.factory import build_query_validator
 from query_generator.duckdb_connection.setup import generate_db
 from query_generator.extensions.batch_llm_extension import batch_llm_extension
 from query_generator.extensions.fix_transform import fix_transform
@@ -170,10 +171,14 @@ def synthetic_queries(
     SyntheticQueriesEndpoint,
   )
   default_logger(params.output_folder, debug_file=debug)
-  con = duckdb.connect(database=params.duckdb_database, read_only=True)
+  validator = build_query_validator(
+    database_path=params.validation_database_path,
+    validation_timeout_seconds=params.validation_timeout_seconds,
+    validator_engine=params.validator_engine,
+  )
   generate_synthetic_queries(
     SyntheticQueriesParams(
-      con=con,
+      validator=validator,
       user_input=params,
     ),
   )

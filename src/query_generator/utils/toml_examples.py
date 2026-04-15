@@ -81,7 +81,7 @@ weight = 2
 """,
   EndpointName.SYNTHETIC_GENERATION: """\
 dataset = "TPCDS"
-duckdb_database = "path/to/duckdb.db"
+validation_database_path = "path/to/duckdb.db"
 output_folder = "path/to/destination/"
 histogram_path = "path/to/histogram.parquet"
 

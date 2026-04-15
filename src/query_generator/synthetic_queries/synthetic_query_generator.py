@@ -1,14 +1,15 @@
 import logging
-import threading
 from dataclasses import dataclass
 from itertools import product
 from pathlib import Path
 from typing import Any
 
-import duckdb
 import polars as pl
 from tqdm import tqdm
 
+from query_generator.database_connection.query_validator_abc import (
+  QueryValidator,
+)
 from query_generator.synthetic_queries.query_builder import (
   QueryGenerator,
 )
@@ -29,30 +30,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SyntheticQueriesParams:
   user_input: SyntheticQueriesEndpoint
-  con: duckdb.DuckDBPyConnection
-
-
-def get_result_from_duckdb(
-  query: str, con: duckdb.DuckDBPyConnection, timeout: float = 5.0
-) -> int:
-  did_timeout = False
-
-  def _interrupt() -> None:
-    nonlocal did_timeout
-    did_timeout = True
-    con.interrupt()
-
-  timer = threading.Timer(timeout, _interrupt)
-  timer.start()
-  try:
-    result = con.sql(query).fetchall()[0][0]
-    return int(result)
-  except duckdb.BinderException:
-    return -1
-  except duckdb.Error:
-    return -1
-  finally:
-    timer.cancel()
+  validator: QueryValidator
 
 
 def get_total_iterations(search_params: SyntheticQueriesEndpoint) -> int:
@@ -136,7 +114,9 @@ def generate_synthetic_queries(
       )
     )
     for query in query_generator.generate_queries():
-      selected_rows = get_result_from_duckdb(query.query, params.con)
+      selected_rows = params.validator.get_synthetic_query_cardinality(
+        query.query
+      )
       if selected_rows == -1:
         logger.error("Query generated was not valid.")
         logger.debug(f"Query generated:\n{query.query}")

@@ -11,3 +11,11 @@ class QueryValidator(ABC):
   @abstractmethod
   def get_query_output_size(self, query: str) -> tuple[int | None, bool]:
     """Get query output row count. Returns (row_count_or_none, timed_out)."""
+
+  @abstractmethod
+  def get_synthetic_query_cardinality(self, query: str) -> int:
+    """Run a COUNT(*) query and return its scalar result.
+
+    Uses a persistent connection — no new process per call. Returns -1 on
+    error or timeout.
+    """

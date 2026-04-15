@@ -1,7 +1,7 @@
 llm_extension = true
 union_extension = true
-queries_parquet = "tmp/filtered_queries/filtered.parquet"
-destination_folder = "tmp/extended_queries_ollama_pyspark"
+queries_parquet = "tmp/filtered_queries_pyspark/filtered.parquet"
+destination_folder = "tmp/extended_queries_ollama_pyspark_dev"
 
 [union_params]
 max_queries = 5
@@ -16,7 +16,7 @@ total_queries = 7
 [llm_params.engine_params]
 database_path = "tmp/database_parquet/TPCDS_0.1"
 validator_engine = "pyspark"
-prompts_path = "params_config/prompts/standard_prompt.toml"
-schema_path = "params_config/schemas/tpcds_spark.txt"
-function_examples_path = "params_config/functions/spark_functions.toml"
+prompts_path = "params_config/prompts/basic_prompt.toml"
+schema_path = "params_config/schemas/dev.txt"
+function_examples_path = "params_config/functions/minimal_example.toml"
 number_of_function_examples = 5
