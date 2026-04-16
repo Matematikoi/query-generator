@@ -190,7 +190,8 @@ class DuckDBQueryExecutor(QueryValidator):
     try:
       rows = self._persistent_con.execute(query).fetchall()
       return int(rows[0][0]) if rows else -1
-    except Exception:
+    except Exception as exc:
+      logger.debug("Cardinality query failed: %s | query: %s", exc, query)
       return -1
     finally:
       timer.cancel()

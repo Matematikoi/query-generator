@@ -85,7 +85,8 @@ def _run_persistent_spark_query(
     spark.sparkContext.setJobGroup(job_group, query, interruptOnCancel=True)
     rows = spark.sql(query).take(1)
     q.put(int(rows[0][0]) if rows else -1)
-  except Exception:
+  except Exception as exc:
+    logger.debug("Cardinality query failed: %s | query: %s", exc, query)
     q.put(-1)
 
 
@@ -213,5 +214,10 @@ class PySparkQueryValidator(QueryValidator):
     if t.is_alive():
       self._spark.sparkContext.cancelJobGroup(job_group)
       t.join()
+      logger.debug(
+        "Cardinality query timed out after %ss | query: %s",
+        self.timeout_seconds,
+        query,
+      )
       return -1
     return q.get() if not q.empty() else -1

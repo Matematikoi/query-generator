@@ -1,0 +1,310 @@
+base_prompt = """
+You are a database expert. Now you are writing \
+queries to test your SQL engine on the TPCDS \
+dataset with challenging and diverse queries. You are \
+asked to extend each given query with new features, without \
+modifying the existing join structure or predicates, unless
+explicitly asked in future instructions. The resulting query \
+should not be trivial or equivalent to the input query.\
+When answering, return the query only in the markdown \
+format, for example:\
+```sql select * from table```
+The schema you will be using is the following:
+
+{schema}
+
+
+You will be using the SparkSQL engine. Here are some tips to take into account
+in this SQL dialect.
+
+## SparkSQL Rules
+
+### GROUP BY & Aggregation
+- Every non-aggregate column in SELECT must appear in GROUP BY.
+  - If the column is a dimension (string, id, flag): add it to GROUP BY.
+  - If the column is a measure (numeric fact): wrap it in an aggregate (MIN, MAX, SUM, AVG).
+- If any aggregate function (COUNT, SUM, AVG, etc.) appears in SELECT, a GROUP BY clause is required.
+- Inside ARRAY(...), all column references must be in GROUP BY or wrapped in an aggregate.
+  WRONG: ARRAY(col1, col2) with GROUP BY but col1 not a group key
+  RIGHT: ARRAY(MIN(col1), MIN(col2)) or add col1, col2 to GROUP BY
+
+### Window Functions
+- Window functions (OVER) alone do NOT require GROUP BY.
+- If the same SELECT has any aggregate function AND a window function, add GROUP BY.
+- In a query with GROUP BY, the window expression can only reference group keys or aggregates.
+  WRONG: SELECT col1, SUM(raw_col) OVER (...) FROM t GROUP BY col1  -- raw_col not a group key
+  RIGHT: SELECT col1, SUM(SUM(raw_col)) OVER (...) FROM t GROUP BY col1  -- inner SUM aggregates raw_col first, GROUP BY still required
+
+### JOIN Ordering
+- A table alias can only appear in a JOIN condition after that table has been introduced.
+  WRONG: FROM a JOIN b ON b.id = c.id JOIN c ON a.id = c.id  -- c.id used before c is joined
+  RIGHT: FROM a JOIN c ON a.id = c.id JOIN b ON b.id = c.id  -- join c first, then reference it
+- Subqueries in FROM always need an alias.
+
+### Type Safety
+- Use TRY_DIVIDE(a, b) instead of a / b — avoids DIVIDE_BY_ZERO errors.
+- Use TRY_CAST(x AS T) instead of CAST(x AS T) — tolerates invalid conversions.
+- DATE_ADD(date, n): n must be INT/SMALLINT/TINYINT — use CAST(col AS INT) if col is BIGINT.
+- ARRAY_UNION(a, b): both arrays must have the same element type — CAST to align.
+- Integer division (INT / INT) returns INT — use CAST(a AS DOUBLE) for fractional results.
+
+### Schema Discipline
+- Only use column names from the schema provided above. Do not invent column names.
+- Use IS NOT NULL guards in anti-join subqueries to avoid swallowing all rows when NULLs are present.
+
+"""
+
+
+[weighted_prompts.self_join]
+prompt = "Your task is extend this query to add a self-join while keeping the existing predicates"
+weight = 10
+
+[weighted_prompts.outer_join]
+prompt = "Your task is to modify one join to become an outer-join while keeping all other predicates"
+weight = 10
+
+[weighted_prompts.nested_join_in]
+prompt = """Your task is to take this query and add a nested subquery in the type of \
+    an IN nested subquery. Make sure that the nested subquery returns at least one  \
+    column so that the subquery needs to be computed everytime; \
+    otherwise it will just be a constant. Keep the existing predicates."""
+weight = 5
+
+[weighted_prompts.nested_join_exists]
+prompt = """Your task is to take this query and add a nested subquery in the type of \
+    an EXISTS nested subquery. Make sure that the nested subquery returns at least one  \
+    column so that the subquery needs to be computed everytime; \
+    otherwise it will just be a constant. Keep the existing predicates."""
+weight = 5
+
+[weighted_prompts.window_function]
+prompt = """Your task is to add a window function to this query. \
+    It must be done in a way that works in most SQL dialects. \
+    You should keep the predicates of the query mostly intact."""
+weight = 10
+
+[weighted_prompts.inequality_join]
+prompt = """Your task is to modify one join to make it an inequality join \
+    while keeping all other predicates of the given query."""
+weight = 10
+
+
+[weighted_prompts.recursive_query_simple]
+prompt = """For the given guery, choose a table and write a recursive query \
+    on that table. In this case, you can ignore the join structure and predicates \
+    in the input query. """
+weight = 5
+
+[weighted_prompts.recursive_query_complex]
+prompt = """Extend the given query with a new table that is computed from a  \
+    recursive construct. Try to keep existing join structure and predicates, while
+    adding the table computed from recursion. """
+weight = 5
+
+[weighted_prompts.edge_case]
+prompt = """Modify this query to make it interesting and elaborate.
+Incorporate obscure semantical corner cases and unusual or
+even bizarre SQL semantics. Don't include recursion. """
+weight = 20
+
+[weighted_prompts.semi_join]
+prompt = """
+Semi joins return rows from the left table that have at least one match
+in the right table. This is an example of a semijoin :
+```sql
+SELECT *
+FROM city_airport
+WHERE iata IN (SELECT iata FROM airport_names);
+```
+
+Modify this query to add a semijoin.
+"""
+weight = 5
+
+[weighted_prompts.antijoin]
+prompt = """Anti joins return rows from the left table that
+have no matches in the right table. This is an example of an
+antijoin:
+```sql
+SELECT *
+FROM city_airport
+WHERE iata NOT IN (SELECT iata FROM airport_names WHERE iata IS NOT NULL);
+```
+
+Modify this query to add an antijoin.
+"""
+weight = 5
+
+[weighted_prompts.group_by_1]
+prompt = """
+Your task is to add a group by clause to the query.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
+
+The group by clause size should be 1.
+"""
+weight = 7
+
+
+[weighted_prompts.group_by_order_by_1]
+prompt = """
+Your task is to add a group by clause and an order by clause to the query.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
+
+The group by clause size should be 1.
+"""
+weight = 3
+
+[weighted_prompts.group_by_rollup_1]
+prompt = """
+Your task is to add a group by clause with rollup to the query.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
+
+The group by clause size should be 1.
+"""
+weight = 1
+
+
+[weighted_prompts.group_by_2]
+prompt = """
+Your task is to add a group by clause to the query.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
+
+The group by clause size should be 2.
+"""
+weight = 7
+
+
+[weighted_prompts.group_by_order_by_2]
+prompt = """
+Your task is to add a group by clause and an order by clause to the query.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
+
+The group by clause size should be 2.
+"""
+weight = 3
+
+[weighted_prompts.group_by_rollup_2]
+prompt = """
+Your task is to add a group by clause with rollup to the query.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
+
+The group by clause size should be 2.
+"""
+weight = 1
+
+
+[weighted_prompts.group_by_3]
+prompt = """
+Your task is to add a group by clause to the query.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
+
+The group by clause size should be 3.
+"""
+weight = 7
+
+
+[weighted_prompts.group_by_order_by_3]
+prompt = """
+Your task is to add a group by clause and an order by clause to the query.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
+
+The group by clause size should be 3.
+"""
+weight = 3
+
+[weighted_prompts.group_by_rollup_3]
+prompt = """
+Your task is to add a group by clause with rollup to the query.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
+
+The group by clause size should be 3.
+"""
+weight = 1
+
+
+[weighted_prompts.group_by_4]
+prompt = """
+Your task is to add a group by clause to the query.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
+
+The group by clause size should be 4.
+"""
+weight = 4
+
+
+[weighted_prompts.group_by_order_by_4]
+prompt = """
+Your task is to add a group by clause and an order by clause to the query.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
+
+The group by clause size should be 4.
+"""
+weight = 2
+
+[weighted_prompts.group_by_rollup_4]
+prompt = """
+Your task is to add a group by clause with rollup to the query.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
+
+The group by clause size should be 4.
+"""
+weight = 1
+
+
+[weighted_prompts.group_by_6]
+prompt = """
+Your task is to add a group by clause to the query.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
+
+The group by clause size should be 6.
+"""
+weight = 1
+
+
+[weighted_prompts.group_by_order_by_6]
+prompt = """
+Your task is to add a group by clause and an order by clause to the query.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
+
+The group by clause size should be 6.
+"""
+weight = 1
+
+[weighted_prompts.group_by_rollup_6]
+prompt = """
+Your task is to add a group by clause with rollup to the query.
+Make sure that the attributes in the group by clause are included in
+the select clause as the group by key, but the aggregates in the
+select clause should be posed on other attributes.
+
+The group by clause size should be 6.
+"""
+weight = 1

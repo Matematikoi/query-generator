@@ -1,0 +1,22 @@
+llm_extension = true
+union_extension = true
+queries_parquet = "tmp/filtered_queries_pyspark/filtered.parquet"
+destination_folder = "tmp/extended_queries_ollama_pyspark_dev"
+
+[union_params]
+max_queries = 5
+probability = 0.7
+
+[llm_params]
+provider = "ollama"
+model = "llama3:latest"
+retry = 1
+total_queries = 7
+
+[llm_params.engine_params]
+database_path = "tmp/database_parquet/TPCDS_0.1"
+validator_engine = "pyspark"
+prompts_path = "params_config/prompts/spark_prompt.toml"
+schema_path = "params_config/schemas/tpcds_spark.txt"
+function_examples_path = "params_config/functions/spark_functions.toml"
+number_of_function_examples = 5

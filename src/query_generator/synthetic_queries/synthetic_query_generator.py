@@ -118,8 +118,7 @@ def generate_synthetic_queries(
         query.query
       )
       if selected_rows == -1:
-        logger.error("Query generated was not valid.")
-        logger.debug(f"Query generated:\n{query.query}")
+        logger.debug("Query skipped (validator returned -1):\n%s", query.query)
         continue  # invalid query
 
       relative_path = writer.write_query_to_batch(
