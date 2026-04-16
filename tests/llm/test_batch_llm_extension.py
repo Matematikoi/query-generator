@@ -10,7 +10,7 @@ from query_generator.extensions.llm_clients import (
   BatchResult,
   OpenAIBatchClient,
 )
-from query_generator.utils.params import LLMParams
+from query_generator.utils.params import LLMEngineParams, LLMParams
 
 VALID_SQL = "SELECT 1"
 VALID_RESPONSE = f"```sql\n{VALID_SQL}\n```"
@@ -37,15 +37,17 @@ def _make_llm_params(
     / "dev.txt"
   )
   return LLMParams(
-    database_path=db_path,
     total_queries=total_queries,
     retry=retry,
     model="gpt-4o-mini",
     provider="openai",
-    prompts_path=str(prompts_path),
-    schema_path=str(schema_path),
     batch_size=batch_size,
     batch_poll_interval_seconds=0.01,
+    engine_params=LLMEngineParams(
+      database_path=db_path,
+      prompts_path=str(prompts_path),
+      schema_path=str(schema_path),
+    ),
   )
 
 

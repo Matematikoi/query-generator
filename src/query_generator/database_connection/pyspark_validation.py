@@ -1,6 +1,8 @@
 import logging
 import multiprocessing
 import os
+import threading
+import uuid
 from dataclasses import dataclass
 from multiprocessing import Queue
 from pathlib import Path
@@ -52,7 +54,9 @@ def _run_pyspark_query_worker(
         table.createOrReplaceTempView(table_dir.name)
 
     result_df = spark.sql(query)
-    rows = result_df.limit(params.limit_output_size).take(100)
+    rows = result_df.limit(params.limit_output_size).take(
+      params.limit_output_size
+    )
     row_tuples = [tuple(row) for row in rows]
     q.put(QueryExecution(result=row_tuples, exception=None, timed_out=False))
   except Exception as exc:
@@ -68,6 +72,22 @@ def _run_pyspark_query_worker(
   finally:
     if spark is not None:
       spark.stop()
+
+
+def _run_persistent_spark_query(
+  spark: SparkSession,
+  query: str,
+  job_group: str,
+  q: Queue,
+) -> None:
+  """Run a COUNT(*) query on a persistent SparkSession, put result in q."""
+  try:
+    spark.sparkContext.setJobGroup(job_group, query, interruptOnCancel=True)
+    rows = spark.sql(query).take(1)
+    q.put(int(rows[0][0]) if rows else -1)
+  except Exception as exc:
+    logger.debug("Cardinality query failed: %s | query: %s", exc, query)
+    q.put(-1)
 
 
 class PySparkQueryValidator(QueryValidator):
@@ -93,6 +113,7 @@ class PySparkQueryValidator(QueryValidator):
       timeout_seconds=timeout_seconds,
       limit_output_size=self.limit_output_size,
     )
+    self._spark: SparkSession | None = None
 
   def _execute_with_timeout(
     self, query: str, description: str
@@ -158,3 +179,45 @@ class PySparkQueryValidator(QueryValidator):
     result = len(execution.result) if execution.result is not None else None
     logger.debug("Query exception: %s", execution.exception)
     return result, execution.timed_out
+
+  def get_synthetic_query_cardinality(self, query: str) -> int:
+    """Run a COUNT(*) query and return its scalar result.
+
+    Uses a persistent SparkSession — no new process per call. Timeout via
+    Spark job group cancellation. Returns -1 on error or timeout.
+    """
+    if self._spark is None:
+      os.environ["SPARK_HOME"] = pyspark.__path__[0]
+      logging.getLogger("py4j").setLevel(logging.INFO)
+      self._spark = (
+        SparkSession.builder.master("local[*]")
+        .appName("query-validator")
+        .config("spark.ui.showConsoleProgress", "false")
+        .config("spark.log.level", "WARN")
+        .getOrCreate()
+      )
+      base = Path(self.parquet_path)
+      for table_dir in sorted(base.iterdir()):
+        if table_dir.is_dir():
+          table = self._spark.read.parquet(str(table_dir))
+          table.createOrReplaceTempView(table_dir.name)
+
+    job_group = str(uuid.uuid4())
+    q: Queue = Queue()
+    t = threading.Thread(
+      target=_run_persistent_spark_query,
+      args=(self._spark, query, job_group, q),
+      daemon=True,
+    )
+    t.start()
+    t.join(self.timeout_seconds)
+    if t.is_alive():
+      self._spark.sparkContext.cancelJobGroup(job_group)
+      t.join()
+      logger.debug(
+        "Cardinality query timed out after %ss | query: %s",
+        self.timeout_seconds,
+        query,
+      )
+      return -1
+    return q.get() if not q.empty() else -1

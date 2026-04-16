@@ -252,9 +252,9 @@ def batch_llm_extension(
   random.seed(42)
   batch_client: BatchClient = OpenAIBatchClient()
   query_validator = build_query_validator(
-    database_path=llm_params.database_path,
-    validation_timeout_seconds=llm_params.validation_timeout_seconds,
-    validator_engine=llm_params.validator_engine,
+    database_path=llm_params.engine_params.database_path,
+    validation_timeout_seconds=llm_params.engine_params.validation_timeout_seconds,
+    validator_engine=llm_params.engine_params.validator_engine,
   )
 
   sampled_queries = get_random_queries(input_queries_base_path, llm_params)

@@ -98,6 +98,7 @@ class DuckDBQueryExecutor(QueryValidator):
       timeout_seconds=timeout_seconds,
       limit_output_size=self.limit_output_size,
     )
+    self._persistent_con: duckdb.DuckDBPyConnection | None = None
 
   def _execute_with_timeout(
     self, query: str, description: str
@@ -171,3 +172,26 @@ class DuckDBQueryExecutor(QueryValidator):
       execution.exception,
     )
     return result, execution.timed_out
+
+  def get_synthetic_query_cardinality(self, query: str) -> int:
+    """Run a COUNT(*) query and return its scalar result.
+
+    Uses a persistent connection — no new process per call. Timeout via
+    threading.Timer + con.interrupt(). Returns -1 on error or timeout.
+    """
+    if self._persistent_con is None:
+      self._persistent_con = duckdb.connect(
+        database=self.database_path, read_only=True
+      )
+    timer = threading.Timer(
+      self.timeout_seconds, self._persistent_con.interrupt
+    )
+    timer.start()
+    try:
+      rows = self._persistent_con.execute(query).fetchall()
+      return int(rows[0][0]) if rows else -1
+    except Exception as exc:
+      logger.debug("Cardinality query failed: %s | query: %s", exc, query)
+      return -1
+    finally:
+      timer.cancel()

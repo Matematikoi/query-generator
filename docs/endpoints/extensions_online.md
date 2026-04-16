@@ -38,14 +38,6 @@ environment variables.
 provider, you can see a list of available models in
 [https://ollama.com/library](https://ollama.com/library). This parameter
 is mandatory when `llm_extension` is set to true.
-- `validator_engine` (str): The query validation engine to use. Supported values:
-`"duckdb"` (default) or `"pyspark"`. When `"pyspark"`, `database_path` must
-point to a parquet directory with structure `database_path/table_name/data.parquet`
-(as produced by `generate-db` with `parquet_path`).
-- `database_path` (str): The path to the database used for query validation.
-When `validator_engine` is `"duckdb"`, this should be a `.duckdb` or `.db`
-duckdb database file. When `validator_engine` is `"pyspark"`, this should be a
-parquet directory (as produced by `generate-db` with `parquet_path`).
 - `total_queries` (int): The total number of queries to process with LLM. This
 is not the total number of queries produced since some cases may fail to
 generate a valid query.
@@ -53,13 +45,27 @@ generate a valid query.
 This means that everytime a prompt has an error, we take the DBMS error
 and send it back to the LLM for them to fix. Common errors are having
 a wrong column name, or syntax errors.
-- `schema_path` (str): The path to the schema used. Used to add it into 
-the basic prompts mention in the `prompts_path`. The file can be any
+
+## Attributes llm_params.engine_params
+
+Engine-specific parameters that control how queries are validated and what
+context is provided to the LLM.
+
+- `database_path` (str): The path to the database used for query validation.
+When `validator_engine` is `"duckdb"`, this should be a `.duckdb` or `.db`
+duckdb database file. When `validator_engine` is `"pyspark"`, this should be a
+parquet directory (as produced by `generate-db` with `parquet_path`).
+- `validator_engine` (str): The query validation engine to use. Supported values:
+`"duckdb"` (default) or `"pyspark"`. When `"pyspark"`, `database_path` must
+point to a parquet directory with structure `database_path/table_name/data.parquet`
+(as produced by `generate-db` with `parquet_path`).
+- `validation_timeout_seconds` (float): The timeout for query validation
+with the selected validator engine. Default is 20 seconds.
+- `schema_path` (str): The path to the schema used. Used to add it into
+the basic prompts mentioned in the `prompts_path`. The file can be any
 plain file, like a txt.
 - `prompts_path` (str): The path to the toml file that contains the prompts.
-the details on the toml file are below.
-- `duckdb_timeout_seconds` (float): The timeout time for query validation
-with the selected validator engine. By default is 20 seconds.
+The details on the toml file are below.
 - `function_examples_path` (str | None): Optional path to a TOML file
 containing SQL function examples (e.g.,
 `params_config/functions/standard_sql_functions.toml`). Default is None.

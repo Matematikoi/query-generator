@@ -1,5 +1,5 @@
 dataset = "TPCDS"
-duckdb_database = "generated_data/TPCDS_100/database/TPCDS_100.duckdb"
+validation_database_path = "generated_data/TPCDS_100/database/TPCDS_100.duckdb"
 histogram_path = "generated_data/TPCDS_100/histograms/histogram.parquet"
 output_folder = "generated_data/TPCDS_100/synthetic_data/"
 

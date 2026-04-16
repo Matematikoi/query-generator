@@ -6,9 +6,11 @@ destination_folder = "tmp/extended_queries_openai"
 [llm_params]
 provider = "openai"
 model = "gpt-4o-mini"
-database_path = "tmp/database_TPCDS_0.1.duckdb"
 retry = 1
 total_queries = 7
+
+[llm_params.engine_params]
+database_path = "tmp/database_TPCDS_0.1.duckdb"
 prompts_path = "params_config/prompts/basic_prompt.toml"
 schema_path = "params_config/schemas/dev.txt"
 function_examples_path = "params_config/functions/standard_sql_functions.toml"

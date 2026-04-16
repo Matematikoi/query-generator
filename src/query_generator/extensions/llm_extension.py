@@ -52,21 +52,24 @@ def get_random_queries(
   sql_files = sorted(queries_base_path.rglob("*.sql"))
   random_query_paths = random.choices(sql_files, k=llm_params.total_queries)
 
-  extension_types = list(llm_params.prompts.weighted_prompts.keys())
+  extension_types = list(
+    llm_params.engine_params.prompts.weighted_prompts.keys()
+  )
   weights = [
-    llm_params.prompts.weighted_prompts[e].weight for e in extension_types
+    llm_params.engine_params.prompts.weighted_prompts[e].weight
+    for e in extension_types
   ]
   selected_types = random.choices(
     extension_types, weights=weights, k=llm_params.total_queries
   )
 
   n = min(
-    llm_params.number_of_function_examples,
-    len(llm_params.function_examples),
+    llm_params.engine_params.number_of_function_examples,
+    len(llm_params.engine_params.function_examples),
   )
   selected_samples = [
-    random.sample(llm_params.function_examples, n)
-    if llm_params.function_examples
+    random.sample(llm_params.engine_params.function_examples, n)
+    if llm_params.engine_params.function_examples
     else []
     for _ in range(llm_params.total_queries)
   ]
@@ -114,7 +117,9 @@ def get_random_prompt(
 ) -> LLM_Message:
   """Build the LLM prompt. Pure function — no random calls."""
   function_text = format_function_examples(function_samples)
-  prompt_text = params.prompts.weighted_prompts[extension_type].prompt
+  prompt_text = params.engine_params.prompts.weighted_prompts[
+    extension_type
+  ].prompt
 
   user_content = f"""This is the query you will be modifying. \
 You can base yourself upon it:
@@ -131,7 +136,7 @@ Return only the modified query in ```sql ``` format.
 """
 
   return [
-    {"role": "system", "content": params.prompts.base_prompt},
+    {"role": "system", "content": params.engine_params.prompts.base_prompt},
     {"role": "user", "content": user_content},
   ]
 
@@ -322,9 +327,9 @@ def llm_extension(
   """
   random.seed(42)
   query_validator = build_query_validator(
-    database_path=llm_params.database_path,
-    validation_timeout_seconds=llm_params.validation_timeout_seconds,
-    validator_engine=llm_params.validator_engine,
+    database_path=llm_params.engine_params.database_path,
+    validation_timeout_seconds=llm_params.engine_params.validation_timeout_seconds,
+    validator_engine=llm_params.engine_params.validator_engine,
   )
 
   processor = QueryProcessor(

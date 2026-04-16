@@ -60,22 +60,15 @@ class LLMPrompts:
 
 
 @define
-class LLMParams:
-  """Params used for the LLM endpoint"""
+class LLMEngineParams:
+  """Engine specific parameters for LLM augmentation."""
 
   database_path: str
-  total_queries: int
-  retry: int
-  model: str
   prompts_path: Path = field(converter=Path)
   schema_path: Path = field(converter=Path)
   prompts: LLMPrompts = field(init=False)
-  provider: str = "ollama"
   validator_engine: ValidatorEngine = ValidatorEngine.DUCKDB
   validation_timeout_seconds: float = 20.0
-  statistics_parquet: str | None = None
-  batch_size: int = 100
-  batch_poll_interval_seconds: float = 30.0
   function_examples_path: Path | None = field(
     default=None, converter=lambda v: Path(v) if v is not None else None
   )
@@ -103,6 +96,20 @@ class LLMParams:
       if isinstance(subcategory, dict)
       for func_name, sql in subcategory.items()
     ]
+
+
+@define
+class LLMParams:
+  """Params used for the LLM endpoint"""
+
+  total_queries: int
+  retry: int
+  model: str
+  engine_params: LLMEngineParams
+  provider: str = "ollama"
+  statistics_parquet: str | None = None
+  batch_size: int = 100
+  batch_poll_interval_seconds: float = 30.0
 
 
 @dataclass
@@ -184,9 +191,12 @@ class SyntheticQueriesEndpoint:
   minimum_like_support_probability: list[float]
   or_probability: list[float]
   # Paths
-  duckdb_database: str
+  validation_database_path: str
   output_folder: str
   histogram_path: str
+  # Validator
+  validator_engine: ValidatorEngine = ValidatorEngine.DUCKDB
+  validation_timeout_seconds: float = 5.0
 
 
 @dataclass

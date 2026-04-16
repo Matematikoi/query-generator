@@ -1,5 +1,6 @@
 import tomllib
 from unittest import mock
+from unittest.mock import MagicMock
 
 import polars as pl
 import pytest
@@ -56,13 +57,12 @@ def test_cherry_pick(count_star, upper_bound, total_bins, expected_bin):
   ],
 )
 def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
+  mock_validator = MagicMock()
+  mock_validator.get_synthetic_query_cardinality.return_value = 0
   with (
     mock.patch(
       "query_generator.synthetic_queries.utils.query_writer.Writer.write_query_to_batch"
     ) as mock_writer,
-    mock.patch(
-      "query_generator.synthetic_queries.synthetic_query_generator.get_result_from_duckdb"
-    ) as mock_connect,
     mock.patch(
       "query_generator.synthetic_queries.synthetic_query_generator.checkpoint_queries_parquet"
     ),
@@ -70,11 +70,10 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       "query_generator.synthetic_queries.utils.query_writer.Writer.write_toml"
     ),
   ):
-    mock_connect.return_value = 0
     data_toml = f"""
       dataset = "TPCDS"
       output_folder = ""
-      duckdb_database = ""
+      validation_database_path = ""
       dev = true
       max_hops = [1]
       extra_predicates = {extra_predicates}
@@ -99,7 +98,7 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
     user_input = structure(tomllib.loads(data_toml), SyntheticQueriesEndpoint)
     generate_synthetic_queries(
       params=SyntheticQueriesParams(
-        con=None,
+        validator=mock_validator,
         user_input=user_input,
       ),
     )

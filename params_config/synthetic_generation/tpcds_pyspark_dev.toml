@@ -1,7 +1,8 @@
 dataset = "TPCDS"
-validation_database_path = "tmp/database_TPCDS_0.1.duckdb"
+validation_database_path = "tmp/database_parquet/TPCDS_0.1"
+validator_engine = "pyspark"
 histogram_path = "tmp/histograms/histogram.parquet"
-output_folder = "tmp/synthetic_queries"
+output_folder = "tmp/synthetic_queries_pyspark"
 
 unique_joins = true
 max_signatures_per_fact_table = 1

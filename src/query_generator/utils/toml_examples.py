@@ -34,10 +34,12 @@ probability = 0.7
 [llm_params]
 provider = "ollama"
 model = "deepseek-r1:1.5b"
-database_path = "data/duckdb/TPCDS/0.db"
-validator_engine = "duckdb"
 retry = 1
 total_queries = 5
+
+[llm_params.engine_params]
+database_path = "data/duckdb/TPCDS/0.db"
+validator_engine = "duckdb"
 prompts_path = "params_config/prompts/basic_prompt.toml"
 schema_path = "params_config/schemas/dev.txt"
 function_examples_path = "params_config/functions/standard_sql_functions.toml"
@@ -54,10 +56,12 @@ provider = "openai"
 model = "gpt-4o-mini"
 batch_size = 100
 batch_poll_interval_seconds = 30.0
-database_path = "tmp/database_TPCDS_0.1.duckdb"
-validator_engine = "duckdb"
 retry = 1
 total_queries = 100
+
+[llm_params.engine_params]
+database_path = "tmp/database_TPCDS_0.1.duckdb"
+validator_engine = "duckdb"
 prompts_path = "params_config/prompts/basic_prompt.toml"
 schema_path = "params_config/schemas/dev.txt"
 function_examples_path = "params_config/functions/standard_sql_functions.toml"
@@ -77,7 +81,7 @@ weight = 2
 """,
   EndpointName.SYNTHETIC_GENERATION: """\
 dataset = "TPCDS"
-duckdb_database = "path/to/duckdb.db"
+validation_database_path = "path/to/duckdb.db"
 output_folder = "path/to/destination/"
 histogram_path = "path/to/histogram.parquet"
 

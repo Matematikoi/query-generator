@@ -1,3 +1,4 @@
 dataset = "TPCDS"
 scale_factor = 0.1
 db_path = "tmp/database_TPCDS_0.1.duckdb"
+parquet_path = "tmp/database_parquet/TPCDS_0.1"
