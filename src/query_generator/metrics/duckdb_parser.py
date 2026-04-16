@@ -195,6 +195,7 @@ class DuckDBMetrics(TypedDict):
   query_size_tokens: int
   output_cardinality: int
   query_keywords: list[str]
+  filter_selectivity: list[float]
   operator_distribution: dict[DuckDBPhysicalOperators, int]
   qerror: float | None
   qerror_downstream_operators: list["QErrorDownstreamOperatorsBucket"]
@@ -427,6 +428,14 @@ class DuckDBTraceParser:
       for subtree_size, qerrors in sorted(grouped.items())
     ]
 
+  def get_filter_selectivity(self) -> list[float]:
+    """Gets the selectivity of the filters"""
+    result = []
+    for node_id, node_data in self.trace_graph.nodes(data=True):
+      op = node_data.get("operator_type")
+      if op is None
+    return result
+
   def get_metrics(self) -> DuckDBMetrics:
     """Get the metrics from the trace."""
     return {
@@ -447,6 +456,7 @@ class DuckDBTraceParser:
       ),
       "functions": self.get_functions(),
       "canonical_join_form": self.get_canonical_join_form(),
+      "filter_selectivity": self.get_filter_selectivity(),
     }
 
   @staticmethod
