@@ -18,40 +18,329 @@ You will be using the SparkSQL engine. Here are some tips to take into account
 in this SQL dialect.
 
 ## SparkSQL Rules
+## Document 1 — SparkSQL Syntax Rules
 
-### GROUP BY & Aggregation
-- Every non-aggregate column in SELECT must appear in GROUP BY.
-  - If the column is a dimension (string, id, flag): add it to GROUP BY.
-  - If the column is a measure (numeric fact): wrap it in an aggregate (MIN, MAX, SUM, AVG).
-- If any aggregate function (COUNT, SUM, AVG, etc.) appears in SELECT, a GROUP BY clause is required.
-- Inside ARRAY(...), all column references must be in GROUP BY or wrapped in an aggregate.
-  WRONG: ARRAY(col1, col2) with GROUP BY but col1 not a group key
-  RIGHT: ARRAY(MIN(col1), MIN(col2)) or add col1, col2 to GROUP BY
+### RULE 1: Window Function with GROUP BY
+When a query has both GROUP BY and a window function, the window function argument cannot reference a raw column. Wrap it in an inner aggregate first.
 
-### Window Functions
-- Window functions (OVER) alone do NOT require GROUP BY.
-- If the same SELECT has any aggregate function AND a window function, add GROUP BY.
-- In a query with GROUP BY, the window expression can only reference group keys or aggregates.
-  WRONG: SELECT col1, SUM(raw_col) OVER (...) FROM t GROUP BY col1  -- raw_col not a group key
-  RIGHT: SELECT col1, SUM(SUM(raw_col)) OVER (...) FROM t GROUP BY col1  -- inner SUM aggregates raw_col first, GROUP BY still required
+```
+BAD:  SUM(col)          OVER (PARTITION BY g ORDER BY o)
+GOOD: SUM(SUM(col))     OVER (PARTITION BY g ORDER BY o)
+```
 
-### JOIN Ordering
-- A table alias can only appear in a JOIN condition after that table has been introduced.
-  WRONG: FROM a JOIN b ON b.id = c.id JOIN c ON a.id = c.id  -- c.id used before c is joined
-  RIGHT: FROM a JOIN c ON a.id = c.id JOIN b ON b.id = c.id  -- join c first, then reference it
-- Subqueries in FROM always need an alias.
+Applies to all window functions. For NTH_VALUE, LAG, LEAD, etc.:
+```
+BAD:  NTH_VALUE(col, 2) OVER (...)
+GOOD: NTH_VALUE(MAX(col), 2) OVER (...)
+```
 
-### Type Safety
-- Use TRY_DIVIDE(a, b) instead of a / b — avoids DIVIDE_BY_ZERO errors.
-- Use TRY_CAST(x AS T) instead of CAST(x AS T) — tolerates invalid conversions.
-- DATE_ADD(date, n): n must be INT/SMALLINT/TINYINT — use CAST(col AS INT) if col is BIGINT.
-- ARRAY_UNION(a, b): both arrays must have the same element type — CAST to align.
-- Integer division (INT / INT) returns INT — use CAST(a AS DOUBLE) for fractional results.
+---
 
-### Schema Discipline
-- Only use column names from the schema provided above. Do not invent column names.
-- Use IS NOT NULL guards in anti-join subqueries to avoid swallowing all rows when NULLs are present.
+### RULE 2: Non-Aggregated Scalar Expressions Alongside Aggregates
+If any aggregate (COUNT, SUM, MAX, etc.) appears in SELECT, every other expression referencing a column must also be an aggregate or a GROUP BY key. This applies even when the column is wrapped in a scalar function.
 
+```
+BAD:  SELECT COUNT(*), ELEMENT_AT(ARRAY(col1, col2), 1) FROM t
+GOOD: SELECT COUNT(*), ELEMENT_AT(ARRAY(MAX(col1), MAX(col2)), 1) FROM t
+GOOD: SELECT COUNT(*), ELEMENT_AT(ARRAY(1, 2, 3), 1) FROM t  -- constants are OK
+```
+
+Applies to: ELEMENT_AT, CONTAINS, ARRAY(), WIDTH_BUCKET, REPEAT, NAMED_STRUCT, CONCAT_WS, MAP_ENTRIES, and any scalar function wrapping a raw column.
+
+---
+
+### RULE 3: NVL2 and Other Scalar Functions on Non-Grouped Columns
+NVL2, IF, and COALESCE applied directly to a raw column are treated as non-aggregated expressions in a GROUP BY query. Wrap the column argument in an aggregate.
+
+```
+BAD:  NVL2(col, 'yes', 'no')
+GOOD: NVL2(MAX(col), 'yes', 'no')
+```
+
+Applies to any GROUP BY variant including ROLLUP and CUBE.
+
+---
+
+### RULE 4: JOIN Ordering — No Forward References
+In explicit JOIN syntax, a table alias is only in scope after it is introduced. You cannot reference an alias in an ON clause of a JOIN that appears before the alias is defined.
+
+```
+BAD:
+  FROM a
+  JOIN b ON c.id = b.id      -- c is not yet defined
+  JOIN c ON c.fk = a.pk
+
+GOOD:
+  FROM a
+  JOIN c ON c.fk = a.pk      -- c is defined here
+  JOIN b ON c.id = b.id      -- c is now in scope
+```
+
+---
+
+### RULE 5: Casting Date Surrogate Keys (BIGINT to DATE)
+TPC-DS `*_date_sk` columns are BIGINT surrogate keys, not DATE types. `CAST(bigint AS DATE)` is rejected. Any date/time function (DATE_TRUNC, DATE_ADD, etc.) requires `DATE_FROM_UNIX_DATE()` conversion first.
+
+```
+BAD:  CAST(wr_returned_date_sk AS DATE)
+BAD:  DATE_TRUNC('month', CAST(ss_sold_date_sk AS STRING))
+GOOD: DATE_FROM_UNIX_DATE(wr_returned_date_sk)
+GOOD: DATE_TRUNC('month', DATE_FROM_UNIX_DATE(ss_sold_date_sk))
+```
+
+Columns that are actual DATE types (e.g., d_date, i_rec_start_date) can be cast normally:
+```
+GOOD: CAST(d.d_date AS TIMESTAMP)
+```
+
+---
+
+### RULE 6: FORMAT_NUMBER Output Cannot Be Cast to Numeric
+FORMAT_NUMBER returns a STRING with locale-formatted commas (e.g., '1,234.56'). Casting that string to DOUBLE or DECIMAL fails due to the comma separator.
+
+```
+BAD:  CAST(FORMAT_NUMBER(SUM(col), 2) AS DOUBLE) > 0
+GOOD: SUM(col) > 0
+GOOD: TRY_CAST(REPLACE(FORMAT_NUMBER(SUM(col), 2), ',', '') AS DOUBLE)
+```
+
+---
+
+### RULE 7: STRUCT Field Names Must Match Across ARRAY Elements
+SparkSQL derives struct field names from expression names. If two STRUCT() literals produce different field names, ARRAY() rejects them with a DATA_DIFF_TYPES error. Use named_struct() with explicit, consistent field names.
+
+```
+BAD:
+  ARRAY(
+    STRUCT('k1', col_a),               -- fields: col1, col_a
+    STRUCT('k2', COALESCE(col_b, 'x')) -- fields: col1, col2  <- mismatch
+  )
+
+GOOD:
+  ARRAY(
+    named_struct('key', 'k1', 'val', col_a),
+    named_struct('key', 'k2', 'val', COALESCE(col_b, 'x'))
+  )
+```
+
+Required when building the ARRAY input for MAP_FROM_ENTRIES.
+
+---
+
+### RULE 8: Semijoin Subqueries Must Be Selective
+An IN (SELECT ...) semijoin on a large fact table with no WHERE clause will cause a query timeout. Always add a selective filter to the subquery.
+
+```
+BAD:  WHERE i.i_item_sk IN (SELECT ss_item_sk FROM store_sales)
+
+GOOD: WHERE i.i_item_sk IN (
+        SELECT ss_item_sk FROM store_sales
+        WHERE ss_net_paid > 0
+          AND ss_sold_date_sk BETWEEN 2451000 AND 2452000
+      )
+```
+
+---
+
+### RULE 9: Non-Deterministic Functions Cannot Be Arguments to Aggregates
+SparkSQL forbids non-deterministic expressions (RANDN(), RAND(), RANDOM(), UUID()) inside aggregate functions (SUM, AVG, MIN, MAX, COUNT, etc.). The error is AGGREGATE_FUNCTION_WITH_NONDETERMINISTIC_EXPRESSION.
+
+```
+BAD:  SUM(RANDN(42) * col)
+BAD:  AVG(RAND() + col)
+BAD:  AVG(CASE WHEN ... THEN col * (1 + RANDN(99) * 0.01) ... END)
+
+GOOD: SUM(col)                     -- aggregate only deterministic expressions
+GOOD: RANDN(42) AS noise           -- use non-deterministic in scalar position only
+```
+
+---
+
+### RULE 10: LATERAL VIEW Column Reference Must Use Defined Alias
+In LATERAL VIEW, columns are accessible by their bare column alias or the table alias prefix — not by a different prefix.
+
+```
+Syntax: LATERAL VIEW POSEXPLODE(arr) table_alias AS col1, col2
+
+BAD:  SUM(pe.pos)          -- 'pe' is not the defined table alias
+GOOD: SUM(pos)             -- bare column name
+GOOD: SUM(pe_table.pos)    -- correct table alias prefix
+```
+
+---
+---
+
+## Document 2 — Concrete Examples
+
+```sql
+-- RULE 1 EXAMPLE: Window Function with GROUP BY
+
+-- BAD: ws_ext_sales_price is raw, not in GROUP BY
+SELECT cd_gender, wp_type, COUNT(*),
+  SUM(ws.ws_ext_sales_price) OVER (PARTITION BY cd_gender ORDER BY wp_type) AS running_sum
+FROM ... GROUP BY cd_gender, wp_type;
+-- Error: MISSING_AGGREGATION on ws_ext_sales_price
+
+-- GOOD: double-aggregate pattern
+SELECT cd_gender, wp_type, COUNT(*),
+  SUM(SUM(ws.ws_ext_sales_price)) OVER (PARTITION BY cd_gender ORDER BY wp_type) AS running_sum
+FROM ... GROUP BY cd_gender, wp_type;
+```
+
+```sql
+-- RULE 2 EXAMPLE: Non-Aggregated Scalar Expression Alongside Aggregates
+
+-- BAD: ELEMENT_AT references raw columns alongside COUNT(*)
+SELECT COUNT(*),
+  ELEMENT_AT(ARRAY(cr.cr_returning_customer_sk, cs.cs_item_sk), 1) AS first_el
+FROM catalog_returns cr, catalog_sales cs;
+-- Error: MISSING_GROUP_BY
+
+-- GOOD option A: wrap column references in MAX()
+SELECT COUNT(*),
+  ELEMENT_AT(ARRAY(MAX(cr.cr_returning_customer_sk), MAX(cs.cs_item_sk)), 1) AS first_el
+FROM catalog_returns cr, catalog_sales cs;
+
+-- GOOD option B: use only constants inside ELEMENT_AT
+SELECT COUNT(*), ELEMENT_AT(ARRAY(1, 2, 3), 2) AS second_el
+FROM catalog_returns cr, catalog_sales cs;
+```
+
+```sql
+-- RULE 3 EXAMPLE: NVL2 on Non-Grouped Column
+
+-- BAD: ss_net_paid is not a GROUP BY ROLLUP key
+SELECT hd_buy_potential, d_year,
+  NVL2(ss.ss_net_paid, 'has_value', 'is_null') AS net_paid_status
+FROM ... GROUP BY ROLLUP (hd_buy_potential, d_year);
+-- Error: MISSING_AGGREGATION on ss_net_paid
+
+-- GOOD: wrap the column in an aggregate
+SELECT hd_buy_potential, d_year,
+  NVL2(MAX(ss.ss_net_paid), 'has_value', 'is_null') AS net_paid_status
+FROM ... GROUP BY ROLLUP (hd_buy_potential, d_year);
+```
+
+```sql
+-- RULE 4 EXAMPLE: JOIN Forward Reference
+
+-- BAD: cr is used in ON clause before it is defined
+FROM customer_demographics cd
+JOIN customer c         ON cr.cr_returning_customer_sk = c.c_customer_sk
+JOIN catalog_returns cr ON cr.cr_refunded_cdemo_sk = cd.cd_demo_sk;
+-- Error: UNRESOLVED_COLUMN cr.cr_returning_customer_sk
+
+-- GOOD: define cr before referencing it
+FROM customer_demographics cd
+JOIN catalog_returns cr ON cr.cr_refunded_cdemo_sk = cd.cd_demo_sk
+JOIN customer c         ON cr.cr_returning_customer_sk = c.c_customer_sk;
+```
+
+```sql
+-- RULE 5 EXAMPLE: Date Surrogate Key with Date Functions
+
+-- BAD: wr_returned_date_sk is BIGINT, not DATE
+DATE_ADD(MAX(CAST(wr.wr_returned_date_sk AS DATE)), 7) AS plus7
+-- Error: cannot cast BIGINT to DATE
+
+-- BAD: DATE_TRUNC on surrogate key cast to STRING
+DATE_TRUNC('month', CAST(ss.ss_sold_date_sk AS STRING))
+-- Error: CAST_INVALID_INPUT — '2451825' cannot be cast to TIMESTAMP
+
+-- GOOD: use DATE_FROM_UNIX_DATE for integer day-offset keys
+DATE_ADD(DATE_FROM_UNIX_DATE(MAX(wr.wr_returned_date_sk)), 7) AS plus7
+DATE_TRUNC('month', DATE_FROM_UNIX_DATE(ss.ss_sold_date_sk))
+
+-- ALSO GOOD: d_date is an actual DATE column, CAST is allowed
+DATE_ADD(MAX(d.d_date), 7) AS plus7
+```
+
+```sql
+-- RULE 6 EXAMPLE: FORMAT_NUMBER Output Cast to Numeric
+
+-- BAD: FORMAT_NUMBER returns '1,234.56' — comma breaks CAST
+HAVING CAST(FORMAT_NUMBER(SUM(cs_net_paid), 2) AS DOUBLE) > 0
+-- Error: cannot cast '1,234.56' to DOUBLE
+
+-- GOOD: compare the numeric value directly
+HAVING SUM(cs_net_paid) > 0
+
+-- ALSO GOOD: strip commas before casting if string form is needed
+TRY_CAST(REPLACE(FORMAT_NUMBER(SUM(cs_net_paid), 2), ',' , '') AS DOUBLE)
+```
+
+```sql
+-- RULE 7 EXAMPLE: Inconsistent STRUCT Field Names in ARRAY
+
+-- BAD: STRUCT derives field names from expressions — they differ per element
+MAP_FROM_ENTRIES(ARRAY(
+  STRUCT('page_id',   wp.wp_web_page_id),           -- fields: col1, wp_web_page_id
+  STRUCT('page_type', COALESCE(wp.wp_type, '?')),   -- fields: col1, col2         <- mismatch
+  STRUCT('autogen',   wp.wp_autogen_flag)            -- fields: col1, wp_autogen_flag <- mismatch
+))
+-- Error: DATA_DIFF_TYPES
+
+-- GOOD: use named_struct with identical, explicit field names
+MAP_FROM_ENTRIES(ARRAY(
+  named_struct('key', 'page_id',   'val', wp.wp_web_page_id),
+  named_struct('key', 'page_type', 'val', COALESCE(wp.wp_type, '?')),
+  named_struct('key', 'autogen',   'val', wp.wp_autogen_flag)
+))
+```
+
+```sql
+-- RULE 8 EXAMPLE: Unrestricted Semijoin on Large Table
+
+-- BAD: full scan of store_sales with no filter
+WHERE i.i_item_sk IN (SELECT ss_item_sk FROM store_sales)
+-- Error: query exceeded 50.0s timeout
+
+-- GOOD: add a selective filter to the subquery
+WHERE i.i_item_sk IN (
+  SELECT ss_item_sk FROM store_sales
+  WHERE ss_net_paid > 0
+    AND ss_sold_date_sk BETWEEN 2451000 AND 2452000
+)
+```
+
+```sql
+-- RULE 9 EXAMPLE: Non-Deterministic Function Inside Aggregate
+
+-- BAD: RANDN() inside SUM — non-deterministic expression in aggregate
+SUM(RANDN(42) * cs.cs_net_paid_inc_ship_tax) AS noisy_sum
+-- Error: AGGREGATE_FUNCTION_WITH_NONDETERMINISTIC_EXPRESSION
+
+-- BAD: RANDN() inside AVG
+AVG(RANDN(0) + cs.cs_ext_ship_cost) AS noisy_avg
+
+-- BAD: RANDN() inside CASE inside AVG
+AVG(CASE WHEN i.i_class_id = 1
+         THEN cs.cs_net_paid * (1 + RANDN(99) * 0.01)
+         ELSE NULL END) AS conditional_noisy_avg
+
+-- GOOD: aggregate only deterministic expressions
+SUM(cs.cs_net_paid_inc_ship_tax) AS clean_sum
+
+-- GOOD: use RANDN() in scalar position (not inside an aggregate)
+SELECT RANDN(42) AS noise_value, SUM(col) AS total FROM t
+```
+
+```sql
+-- RULE 10 EXAMPLE: LATERAL VIEW Column Alias Reference
+
+-- BAD: 'pe' is not the defined table alias — table alias is 'pe_table'
+FROM customer_demographics cd, web_page wp, web_sales ws, customer c
+LATERAL VIEW POSEXPLODE(ARRAY(10, 20, 30)) pe_table AS pos, val
+...
+SUM(pe.pos) AS sum_pos
+-- Error: UNRESOLVED_COLUMN pe.pos — Did you mean pe_table.pos?
+
+-- GOOD: use the correct table alias prefix
+SUM(pe_table.pos) AS sum_pos
+
+-- ALSO GOOD: use the bare column name directly
+SUM(pos) AS sum_pos
+```
 """
 
 
