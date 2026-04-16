@@ -29,20 +29,10 @@ each signature up to `max_queries_per_signature` queries.
 
 - `dataset` (str): The dataset to be used (TPCDS, TPCH). This information
 is needed to load the correct foreign-key/primary-key information.
-- `validation_database_path` (str): The path to the database used for query
-validation. When `validator_engine` is `"duckdb"` (default), this should be
-a `.duckdb` or `.db` DuckDB database file. When `validator_engine` is
-`"pyspark"`, this should be a parquet directory structured as
-`validation_database_path/table_name/data.parquet` (as produced by
-`generate-db` with `parquet_path`).
-- `validator_engine` (str): The query validation engine. Supported values:
-`"duckdb"` (default) or `"pyspark"`. Uses a persistent connection —
-no new process is spawned per query.
-- `validation_timeout_seconds` (float): Timeout per query validation.
-Default is 5.0 seconds.
 - `histogram_path` (str): The path to the histogram parquet file generated
 using the `make-histograms` endpoint.
 - `output_folder` (str): The folder to save the generated queries.
+
 
 - `unique_joins` (bool): Whether to enforce unique joins in the subgraph.
 - `max_signatures_per_fact_table` (int): Maximum number of signatures per
@@ -79,6 +69,23 @@ backwards-compatible). For example, `[0.5]` produces a random mix of AND and OR
 connectors between predicates.
 - `operator_weights`: dictionary for the weights used to sample the predicate
 types. More information below.
+
+## Engine params
+
+Parameters under the `[engine]` table control which database is used for query
+validation during synthetic generation.
+
+- `validation_database_path` (str): The path to the database used for query
+validation. When `validator_engine` is `"duckdb"` (default), this should be
+a `.duckdb` or `.db` DuckDB database file. When `validator_engine` is
+`"pyspark"`, this should be a parquet directory structured as
+`validation_database_path/table_name/data.parquet` (as produced by
+`generate-db` with `parquet_path`).
+- `validator_engine` (str): The query validation engine. Supported values:
+`"duckdb"` (default) or `"pyspark"`. Uses a persistent connection —
+no new process is spawned per query.
+- `validation_timeout_seconds` (float): Timeout per query validation.
+Default is 5.0 seconds.
 
 
 ## Operator weights

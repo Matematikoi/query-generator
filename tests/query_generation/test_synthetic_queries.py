@@ -73,7 +73,6 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
     data_toml = f"""
       dataset = "TPCDS"
       output_folder = ""
-      validation_database_path = ""
       dev = true
       max_hops = [1]
       extra_predicates = {extra_predicates}
@@ -87,6 +86,9 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       minimum_like_support_probability = [0.05]
       or_probability = [0.0]
       histogram_path = "{str(get_precomputed_histograms(Dataset.TPCDS))}"
+
+      [engine]
+      validation_database_path = ""
 
       [operator_weights]
       operator_in = 1

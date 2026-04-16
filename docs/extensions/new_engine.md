@@ -179,20 +179,26 @@ def build_query_validator(...) -> QueryValidator:
 **DuckDB (`tpcds_dev.toml`):**
 ```toml
 dataset = "TPCDS"
-validation_database_path = "tmp/database_TPCDS_0.1.duckdb"
 histogram_path = "tmp/histograms/histogram.parquet"
 output_folder = "tmp/synthetic_queries"
 ...
+
+[engine]
+validation_database_path = "tmp/database_TPCDS_0.1.duckdb"
+validation_timeout_seconds = 5.0
 ```
 
 **New engine (`tpcds_myengine_dev.toml`):**
 ```toml
 dataset = "TPCDS"
-validation_database_path = "tmp/database_parquet/TPCDS_0.1"
-validator_engine = "myengine"
 histogram_path = "tmp/histograms/histogram.parquet"
 output_folder = "tmp/synthetic_queries_myengine"
 ...
+
+[engine]
+validation_database_path = "tmp/database_parquet/TPCDS_0.1"
+validator_engine = "myengine"
+validation_timeout_seconds = 5.0
 ```
 
 `histogram_path` always points to the file produced by the DuckDB-based histogram
