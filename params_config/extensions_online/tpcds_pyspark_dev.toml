@@ -16,6 +16,7 @@ total_queries = 7
 [llm_params.engine_params]
 database_path = "tmp/database_parquet/TPCDS_0.1"
 validator_engine = "pyspark"
+validation_timeout_seconds = 20.0
 prompts_path = "params_config/prompts/basic_prompt.toml"
 schema_path = "params_config/schemas/dev.txt"
 function_examples_path = "params_config/functions/minimal_example.toml"

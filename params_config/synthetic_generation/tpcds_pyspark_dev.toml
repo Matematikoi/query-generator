@@ -1,8 +1,6 @@
 dataset = "TPCDS"
-validation_database_path = "tmp/database_parquet/TPCDS_0.1"
-validator_engine = "pyspark"
-histogram_path = "tmp/histograms/histogram.parquet"
 output_folder = "tmp/synthetic_queries_pyspark"
+histogram_path = "tmp/histograms/histogram.parquet"
 
 unique_joins = true
 max_signatures_per_fact_table = 1
@@ -17,6 +15,11 @@ equality_lower_bound_probability = [0,0.1]
 extra_values_for_in = 3
 minimum_like_support_probability = [0.05]
 or_probability = [0.2]
+
+[engine]
+validation_database_path = "tmp/database_parquet/TPCDS_0.1"
+validator_engine = "pyspark"
+validation_timeout_seconds = 5.0
 
 [operator_weights]
 operator_in = 1

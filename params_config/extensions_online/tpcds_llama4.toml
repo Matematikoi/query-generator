@@ -16,6 +16,7 @@ total_queries = 10000
 
 [llm_params.engine_params]
 database_path = "generated_data/TPCDS_100/database_test/TPCDS_0.1.duckdb"
+validation_timeout_seconds = 20.0
 prompts_path = "params_config/prompts/standard_prompt.toml"
 schema_path = "params_config/schemas/tpcds.txt"
 function_examples_path = "params_config/functions/standard_sql_functions.toml"

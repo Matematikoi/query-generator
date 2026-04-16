@@ -163,6 +163,15 @@ class ExtensionBatchEndpoint:
 
 
 @dataclass
+class SyntheticQueriesEngine:
+  """Engine variables for the synthetic endpoint"""
+
+  validation_database_path: str
+  validator_engine: ValidatorEngine = ValidatorEngine.DUCKDB
+  validation_timeout_seconds: float = 5.0
+
+
+@dataclass
 class SyntheticQueriesEndpoint:
   __doc__ = f"""Generate synthetic queries based on schema & column-statistics.
 {get_markdown_documentation(EndpointName.SYNTHETIC_GENERATION)}
@@ -191,12 +200,9 @@ class SyntheticQueriesEndpoint:
   minimum_like_support_probability: list[float]
   or_probability: list[float]
   # Paths
-  validation_database_path: str
   output_folder: str
   histogram_path: str
-  # Validator
-  validator_engine: ValidatorEngine = ValidatorEngine.DUCKDB
-  validation_timeout_seconds: float = 5.0
+  engine: SyntheticQueriesEngine
 
 
 @dataclass

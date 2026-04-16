@@ -81,7 +81,6 @@ weight = 2
 """,
   EndpointName.SYNTHETIC_GENERATION: """\
 dataset = "TPCDS"
-validation_database_path = "path/to/duckdb.db"
 output_folder = "path/to/destination/"
 histogram_path = "path/to/histogram.parquet"
 
@@ -98,6 +97,10 @@ equality_lower_bound_probability = [0,0.1]
 extra_values_for_in = 3
 minimum_like_support_probability = [0.05]
 or_probability = [0.2]
+
+[engine]
+validation_database_path = "path/to/duckdb.db"
+validation_timeout_seconds = 5.0
 
 [operator_weights]
 operator_in = 1

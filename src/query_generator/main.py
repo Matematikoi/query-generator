@@ -172,9 +172,9 @@ def synthetic_queries(
   )
   default_logger(params.output_folder, debug_file=debug)
   validator = build_query_validator(
-    database_path=params.validation_database_path,
-    validation_timeout_seconds=params.validation_timeout_seconds,
-    validator_engine=params.validator_engine,
+    database_path=params.engine.validation_database_path,
+    validation_timeout_seconds=params.engine.validation_timeout_seconds,
+    validator_engine=params.engine.validator_engine,
   )
   generate_synthetic_queries(
     SyntheticQueriesParams(
