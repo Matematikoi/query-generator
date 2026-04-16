@@ -473,5 +473,3 @@ Table("web_site",
   'web_tax_percentage       .decimal(5,2))
 
 
-The SQL engine you will be using is Spark SQL, so make sure to follow its
-syntax.
