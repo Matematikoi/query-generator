@@ -252,6 +252,12 @@ def get_attributes_children_node(
   """
   estimated_cardinality_raw = trace["extra_info"].get("Estimated Cardinality")
   operator_type = trace["operator_type"]
+  table_raw = (
+    trace["extra_info"].get("Table")
+    if operator_type == DuckDBPhysicalOperators.TABLE_SCAN
+    else None
+  )
+  table: str | None = str(table_raw) if table_raw is not None else None
   return {
     "output_cardinality": trace["operator_cardinality"],
     "operator_type": operator_type,
@@ -260,11 +266,7 @@ def get_attributes_children_node(
       if estimated_cardinality_raw is not None
       else None
     ),
-    "table": (
-      trace["extra_info"].get("Table")
-      if operator_type == DuckDBPhysicalOperators.TABLE_SCAN
-      else None
-    ),
+    "table": table,
   }
 
 
