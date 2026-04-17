@@ -138,6 +138,7 @@ class DuckDBTraceNode(TypedDict):
   estimated_cardinality: int | None
   operator_type: str  # Maps to physical operators.
   table: str | None
+  rows_read: int | None
 
 
 ParsedTraceExtraInfoDuckdb = TypedDict(
@@ -225,6 +226,7 @@ class DuckDBMetricsName(StrEnum):
   query_keywords = "query_keywords"
   operator_distribution = "operator_distribution"
   functions = "functions"
+  filter_selectivity = "filter_selectivity"
 
 
 def get_attributes_root_node(trace: ParsedDuckDBTraceRoot) -> DuckDBTraceNode:
@@ -234,6 +236,7 @@ def get_attributes_root_node(trace: ParsedDuckDBTraceRoot) -> DuckDBTraceNode:
     "operator_type": DuckDBPhysicalOperators.ROOT.value,
     "estimated_cardinality": None,
     "table": None,
+    "rows_read": trace["cumulative_rows_scanned"],
   }
 
 
@@ -268,6 +271,7 @@ def get_attributes_children_node(
       else None
     ),
     "table": table,
+    "rows_read": trace["cumulative_rows_scanned"],
   }
 
 
@@ -431,9 +435,13 @@ class DuckDBTraceParser:
   def get_filter_selectivity(self) -> list[float]:
     """Gets the selectivity of the filters"""
     result = []
-    for node_id, node_data in self.trace_graph.nodes(data=True):
+    for _, node_data in self.trace_graph.nodes(data=True):
       op = node_data.get("operator_type")
-      if op is None
+      if op is not None and op == DuckDBPhysicalOperators.TABLE_SCAN:
+        result.append(
+          float(node_data.get("output_cardinality"))
+          / float(node_data.get("rows_read"))
+        )
     return result
 
   def get_metrics(self) -> DuckDBMetrics:
