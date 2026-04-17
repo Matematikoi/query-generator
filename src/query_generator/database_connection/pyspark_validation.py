@@ -33,6 +33,7 @@ def _run_pyspark_query_worker(
   query: str,
   q: Queue,
   params: PySparkWorkerInput,
+  ready_queue: Queue,
 ) -> None:
   """Execute a Spark SQL query in an isolated process."""
   spark = None
@@ -52,6 +53,8 @@ def _run_pyspark_query_worker(
       if table_dir.is_dir():
         table = spark.read.parquet(str(table_dir))
         table.createOrReplaceTempView(table_dir.name)
+
+    ready_queue.put("READY")
 
     result_df = spark.sql(query)
     rows = result_df.limit(params.limit_output_size).take(
@@ -120,12 +123,22 @@ class PySparkQueryValidator(QueryValidator):
   ) -> QueryExecution:
     logger.debug("Start %s.", description)
     q: Queue = _MP_CTX.Queue()
+    ready_queue: Queue = _MP_CTX.Queue()
 
     p = _MP_CTX.Process(
       target=_run_pyspark_query_worker,
-      args=(query, q, self.worker_input),
+      args=(query, q, self.worker_input, ready_queue),
     )
     p.start()
+    logger.debug("PySpark worker process started (pid=%s).", p.pid)
+
+    ready_queue.get()
+    logger.debug(
+      "Spark session ready, starting %ss query timeout (pid=%s).",
+      self.timeout_seconds,
+      p.pid,
+    )
+
     p.join(self.timeout_seconds)
 
     if p.is_alive():
