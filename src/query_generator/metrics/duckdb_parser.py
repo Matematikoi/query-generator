@@ -439,8 +439,8 @@ class DuckDBTraceParser:
       op = node_data.get("operator_type")
       if op is not None and op == DuckDBPhysicalOperators.TABLE_SCAN:
         result.append(
-          float(node_data.get("output_cardinality"))
-          / float(node_data.get("rows_read"))
+          float(node_data.get("output_cardinality") + 1)
+          / float(node_data.get("rows_read") + 1)
         )
     return result
 
