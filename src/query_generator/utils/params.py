@@ -69,6 +69,7 @@ class LLMEngineParams:
   prompts: LLMPrompts = field(init=False)
   validator_engine: ValidatorEngine = ValidatorEngine.DUCKDB
   validation_timeout_seconds: float = 20.0
+  spark_config: dict[str, str] = field(factory=dict)
   function_examples_path: Path | None = field(
     default=None, converter=lambda v: Path(v) if v is not None else None
   )
@@ -169,6 +170,7 @@ class SyntheticQueriesEngine:
   validation_database_path: str
   validator_engine: ValidatorEngine = ValidatorEngine.DUCKDB
   validation_timeout_seconds: float = 5.0
+  spark_config: dict[str, str] = dc_field(default_factory=dict)
 
 
 @dataclass

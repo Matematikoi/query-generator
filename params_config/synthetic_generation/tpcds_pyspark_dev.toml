@@ -21,6 +21,10 @@ validation_database_path = "tmp/database_parquet/TPCDS_0.1"
 validator_engine = "pyspark"
 validation_timeout_seconds = 5.0
 
+[engine.spark_config]
+"spark.driver.memory" = "4g"
+"spark.sql.shuffle.partitions" = "4"
+
 [operator_weights]
 operator_in = 1
 operator_range = 3

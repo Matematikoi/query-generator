@@ -175,6 +175,7 @@ def synthetic_queries(
     database_path=params.engine.validation_database_path,
     validation_timeout_seconds=params.engine.validation_timeout_seconds,
     validator_engine=params.engine.validator_engine,
+    spark_config=params.engine.spark_config,
   )
   generate_synthetic_queries(
     SyntheticQueriesParams(

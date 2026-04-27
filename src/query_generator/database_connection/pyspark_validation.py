@@ -3,7 +3,7 @@ import multiprocessing
 import os
 import threading
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from multiprocessing import Queue
 from pathlib import Path
 
@@ -27,6 +27,7 @@ class PySparkWorkerInput:
   parquet_path: str
   timeout_seconds: float
   limit_output_size: int
+  spark_config: dict[str, str] = field(default_factory=dict)
 
 
 def _run_pyspark_query_worker(
@@ -40,13 +41,16 @@ def _run_pyspark_query_worker(
   try:
     os.environ["SPARK_HOME"] = pyspark.__path__[0]
     logging.getLogger("py4j").setLevel(logging.INFO)
-    spark = (
-      SparkSession.builder.master("local[*]")
+    master = params.spark_config.get("master") or "local[*]"
+    builder = (
+      SparkSession.builder.master(master)
       .appName("query-validator")
       .config("spark.ui.showConsoleProgress", "false")
       .config("spark.log.level", "WARN")
-      .getOrCreate()
     )
+    for k, v in params.spark_config.items():
+      builder = builder.config(k, v)
+    spark = builder.getOrCreate()
 
     base = Path(params.parquet_path)
     for table_dir in sorted(base.iterdir()):
@@ -106,15 +110,18 @@ class PySparkQueryValidator(QueryValidator):
     parquet_path: str,
     timeout_seconds: float,
     limit_output_size: int = 1_000,
+    spark_config: dict[str, str] | None = None,
   ) -> None:
     output_size_buffer = 100
     self.parquet_path = parquet_path
     self.timeout_seconds = timeout_seconds
     self.limit_output_size = limit_output_size + output_size_buffer
+    self.spark_config: dict[str, str] = spark_config or {}
     self.worker_input = PySparkWorkerInput(
       parquet_path=parquet_path,
       timeout_seconds=timeout_seconds,
       limit_output_size=self.limit_output_size,
+      spark_config=self.spark_config,
     )
     self._spark: SparkSession | None = None
 
@@ -202,13 +209,16 @@ class PySparkQueryValidator(QueryValidator):
     if self._spark is None:
       os.environ["SPARK_HOME"] = pyspark.__path__[0]
       logging.getLogger("py4j").setLevel(logging.INFO)
-      self._spark = (
-        SparkSession.builder.master("local[*]")
+      master = self.spark_config.get("master") or "local[*]"
+      builder = (
+        SparkSession.builder.master(master)
         .appName("query-validator")
         .config("spark.ui.showConsoleProgress", "false")
         .config("spark.log.level", "WARN")
-        .getOrCreate()
       )
+      for k, v in self.spark_config.items():
+        builder = builder.config(k, v)
+      self._spark = builder.getOrCreate()
       base = Path(self.parquet_path)
       for table_dir in sorted(base.iterdir()):
         if table_dir.is_dir():
