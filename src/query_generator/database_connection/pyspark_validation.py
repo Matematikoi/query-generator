@@ -3,6 +3,7 @@ import multiprocessing
 import os
 import threading
 import uuid
+from contextlib import suppress
 from dataclasses import dataclass, field
 from multiprocessing import Queue
 from pathlib import Path
@@ -235,8 +236,11 @@ class PySparkQueryValidator(QueryValidator):
     t.start()
     t.join(self.timeout_seconds)
     if t.is_alive():
-      self._spark.sparkContext.cancelJobGroup(job_group)
-      t.join()
+      try:
+        self._spark.sparkContext.cancelJobGroup(job_group)
+      except Exception:
+        suppress(Exception)
+      self._spark = None
       logger.debug(
         "Cardinality query timed out after %ss | query: %s",
         self.timeout_seconds,
