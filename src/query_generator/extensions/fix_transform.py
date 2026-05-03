@@ -13,11 +13,17 @@ from tqdm import tqdm
 from query_generator.database_connection.duckdb_validation import (
   DuckDBQueryExecutor,
 )
-from query_generator.duckdb_connection.trace_collection import (
-  DuckDBTraceOuputDataFrameRow,
-  DuckDBTraceParams,
-  duckdb_collect_one_trace,
+from query_generator.database_connection.factory_trace_collect import (
+  GeneralTraceRow,
+  build_trace_collector,
 )
+from query_generator.database_connection.factory_validation import (
+  build_query_validator,
+)
+from query_generator.database_connection.query_validator_abc import (
+  QueryValidator,
+)
+from query_generator.utils.definitions import ValidatorEngine
 from query_generator.utils.exceptions import (
   ColumnNotFoundError,
   NoColumnAlternativeError,
@@ -276,32 +282,6 @@ def replace_min_max(sql: str, schema: dict[str, dict[str, str]]) -> str:
   return root.sql(pretty=True)
 
 
-def get_trace_from_transform(
-  query: str, query_path: Path, params: FixTransformEndpoint
-) -> tuple[DuckDBTraceOuputDataFrameRow, bool]:
-  """Try to get trace from transformed query, if fails, fall back to original.
-
-  Returns the trace and whether the transformed query was successful.
-  """
-  trace_params = DuckDBTraceParams(
-    queries_path=params.queries_folder,
-    duckdb_path=params.duckdb_database,
-    timeout_seconds=params.timeout_seconds,
-    fetch_limit=params.max_output_size,
-    output_folder=params.destination_folder,
-    max_memory_gb=params.max_memory_gb,
-  )
-
-  trace = duckdb_collect_one_trace(query, query_path, trace_params)
-  if trace.trace_success:
-    return trace, True
-  # Transformation failed, fall back to previous query
-  logger.info("Transformation failed, falling back to original query trace.")
-  return duckdb_collect_one_trace(
-    query_path.read_text(), query_path, trace_params
-  ), False
-
-
 def apply_transformation_make_group_by_disjoint(
   query: str, schema: dict[str, dict[str, str]], *, apply_transformation: bool
 ) -> tuple[str, Exception | None]:
@@ -332,7 +312,7 @@ def apply_replace_min_max(
 
 def apply_output_size_transformation(
   query: str,
-  query_executor: DuckDBQueryExecutor,
+  query_executor: QueryValidator,
   params: FixTransformEndpoint,
   query_path: Path,
 ) -> str | None:
@@ -377,28 +357,48 @@ def apply_output_size_transformation(
 def fix_transform(params: FixTransformEndpoint) -> None:
   """Add LIMIT to sql queries according to output size."""
   random.seed(42)
-  queries_folder: Path = Path(params.queries_folder)
+  queries_folder = Path(params.queries_folder)
   destination_folder = Path(params.destination_folder)
   queries_paths = list(queries_folder.glob("**/*.sql"))
-  query_executor = DuckDBQueryExecutor(
-    params.duckdb_database,
-    params.timeout_seconds,
-    params.max_memory_gb,
-    params.max_output_size,
-  )
-  rows = []
 
-  schema = get_duckdb_schema(params.duckdb_database)
-  traces = []
-  for query_path in tqdm(queries_paths, total=len(queries_paths)):  # type: ignore
-    logger.debug(f"Processing query: {query_path}")
+  engine = params.engine
+  is_spark = engine.validator_engine == ValidatorEngine.PYSPARK
+
+  schema = get_duckdb_schema(engine.database_path) if not is_spark else {}
+
+  collect_trace = build_trace_collector(params)
+
+  if is_spark:
+    query_executor = build_query_validator(
+      engine.database_path,
+      params.timeout_seconds,
+      engine.validator_engine,
+      spark_config=engine.spark_config,
+    )
+  else:
+    query_executor = DuckDBQueryExecutor(
+      engine.database_path,
+      params.timeout_seconds,
+      params.max_memory_gb,
+      params.max_output_size,
+    )
+
+  rows: list[dict] = []
+  traces: list[GeneralTraceRow] = []
+  for query_path in tqdm(queries_paths, total=len(queries_paths)):  # type: ignore[not-iterable]
+    logger.debug("Processing query: %s", query_path)
     query = query_path.read_text()
-    # Apply transformations
+
     query, exception_group_by = apply_transformation_make_group_by_disjoint(
-      query, schema, apply_transformation=params.make_select_group_by_disjoint
+      query,
+      schema,
+      apply_transformation=params.make_select_group_by_disjoint
+      and not is_spark,
     )
     query = apply_replace_min_max(
-      query, schema, apply_transformation=params.make_count_statement_diverse
+      query,
+      schema,
+      apply_transformation=params.make_count_statement_diverse and not is_spark,
     )
     query = apply_output_size_transformation(
       query, query_executor, params, query_path
@@ -406,20 +406,16 @@ def fix_transform(params: FixTransformEndpoint) -> None:
     if query is None:
       continue
 
-    logger.debug("Starting trace collection.")
-    trace, transformation_success = get_trace_from_transform(
-      query, query_path, params
-    )
-    logger.debug("Trace collection finished.")
+    trace, transformation_success = collect_trace(query, query_path)
 
-    if not transformation_success:
-      # If transformation failed, we revert to original query
-      query = query_path.read_text()
     if not trace.trace_success:
       logger.warning(
-        f"Trace collection failed for query: {query_path}. Skipping."
+        "Trace collection failed for query: %s. Skipping.", query_path
       )
       continue
+
+    if not transformation_success:
+      query = query_path.read_text()
 
     traces.append(trace)
     new_query_path = destination_folder / query_path.relative_to(queries_folder)
@@ -438,16 +434,16 @@ def fix_transform(params: FixTransformEndpoint) -> None:
         TransformEnum.was_transformed: transformation_success,
       }
     )
+
   df_traces = pl.DataFrame([unstructure(t) for t in traces])
-  df_traces.write_parquet(destination_folder / "traces_duckdb.parquet")
+  df_traces.write_parquet(destination_folder / "traces.parquet")
   df_transformation = pl.DataFrame(rows)
   df_transformation.write_parquet(
     destination_folder / "transformation_log.parquet"
   )
-  logger.info(f"Total queries processed: {len(queries_paths)}.")
+  logger.info("Total queries processed: %d.", len(queries_paths))
   logger.info(
-    f"Total queries succesfully transformed: {
-      df_transformation.filter(pl.col(TransformEnum.was_transformed)).height
-    }."
+    "Total queries successfully transformed: %d.",
+    df_transformation.filter(pl.col(TransformEnum.was_transformed)).height,
   )
-  logger.info(f"Total traces collected: {df_traces.height}.")
+  logger.info("Total traces collected: %d.", df_traces.height)

@@ -1,6 +1,7 @@
 import logging
 import multiprocessing
 import os
+import queue
 import threading
 import uuid
 from contextlib import suppress
@@ -55,7 +56,7 @@ def _run_pyspark_query_worker(
 
     base = Path(params.parquet_path)
     for table_dir in sorted(base.iterdir()):
-      if table_dir.is_dir():
+      if table_dir.is_dir() and not table_dir.name.startswith("."):
         table = spark.read.parquet(str(table_dir))
         table.createOrReplaceTempView(table_dir.name)
 
@@ -140,7 +141,13 @@ class PySparkQueryValidator(QueryValidator):
     p.start()
     logger.debug("PySpark worker process started (pid=%s).", p.pid)
 
-    ready_queue.get()
+    try:
+      ready_queue.get(timeout=20)
+    except queue.Empty:
+      logger.warning(
+        "Spark session did not start within 20s (pid=%s).",
+        p.pid,
+      )
     logger.debug(
       "Spark session ready, starting %ss query timeout (pid=%s).",
       self.timeout_seconds,

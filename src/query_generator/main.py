@@ -5,7 +5,9 @@ from typing import Annotated
 import duckdb
 import typer
 
-from query_generator.database_connection.factory import build_query_validator
+from query_generator.database_connection.factory_validation import (
+  build_query_validator,
+)
 from query_generator.duckdb_connection.setup import generate_db
 from query_generator.extensions.batch_llm_extension import batch_llm_extension
 from query_generator.extensions.fix_transform import fix_transform
