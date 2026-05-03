@@ -10,6 +10,8 @@ import seaborn as sns
 
 from query_generator.duckdb_connection.trace_collection import DuckDBTraceEnum
 from query_generator.metrics.duckdb_parser import DuckDBMetricsName
+from query_generator.metrics.spark_parser import SparkMetricsName
+from query_generator.utils.definitions import ValidatorEngine
 from query_generator.utils.params import GetMetricsEndpoint
 
 logger = logging.getLogger(__name__)
@@ -23,6 +25,11 @@ HISTOGRAMS_WITH_LOG: dict[DuckDBMetricsName, bool] = {
   DuckDBMetricsName.cumulative_rows_scanned_duckdb: True,
   DuckDBMetricsName.cardinality_over_rows_scanned: True,
   DuckDBMetricsName.output_cardinality: True,
+}
+
+SPARK_HISTOGRAMS_WITH_LOG: dict[SparkMetricsName, bool] = {
+  SparkMetricsName.wall_time_ms: True,
+  SparkMetricsName.number_of_stages: False,
 }
 
 
@@ -86,7 +93,9 @@ def plot_operators(params: GetMetricsEndpoint, metrics_df: pl.DataFrame):
 def plot_numerical_histogram(
   params: GetMetricsEndpoint,
   metrics_df: pl.DataFrame,
-  column: DuckDBMetricsName,
+  col_name: str,
+  *,
+  log_scale: bool,
 ):
   """Plot and save a histogram for the selected numeric column."""
   output_dir = Path(params.output_folder) / "histograms"
@@ -101,7 +110,6 @@ def plot_numerical_histogram(
   collapsed_df = metrics_df.with_columns(
     collapse_expr.alias(collapsed_hue_column)
   )
-  col_name = str(column.value)
   if col_name not in collapsed_df.columns:
     logger.warning("Column %s not found in metrics_df; skipping.", col_name)
     return
@@ -109,7 +117,7 @@ def plot_numerical_histogram(
   filtered_df = collapsed_df.filter(
     pl.col(col_name).is_not_null() & pl.col(collapsed_hue_column).is_not_null()
   )
-  log_axis = HISTOGRAMS_WITH_LOG[column]
+  log_axis = log_scale
   if log_axis:
     filtered_df = filtered_df.filter(pl.col(col_name) > 0)
 
@@ -159,8 +167,28 @@ def plot_numerical_histogram(
   logger.info("Saved histogram for %s to %s", col_name, output_path)
 
 
-def plot_metrics(params: GetMetricsEndpoint, metrics_df: pl.DataFrame):
-  for column in HISTOGRAMS_WITH_LOG:
-    plot_numerical_histogram(params, metrics_df, column)
-
+def _plot_duckdb_metrics(
+  params: GetMetricsEndpoint, metrics_df: pl.DataFrame
+) -> None:
+  for column, log_scale in HISTOGRAMS_WITH_LOG.items():
+    plot_numerical_histogram(
+      params, metrics_df, str(column.value), log_scale=log_scale
+    )
   plot_operators(params, metrics_df)
+
+
+def _plot_spark_metrics(
+  params: GetMetricsEndpoint, metrics_df: pl.DataFrame
+) -> None:
+  for column, log_scale in SPARK_HISTOGRAMS_WITH_LOG.items():
+    plot_numerical_histogram(
+      params, metrics_df, str(column.value), log_scale=log_scale
+    )
+
+
+def plot_metrics(params: GetMetricsEndpoint, metrics_df: pl.DataFrame) -> None:
+  match params.validator_engine:
+    case ValidatorEngine.DUCKDB:
+      _plot_duckdb_metrics(params, metrics_df)
+    case ValidatorEngine.PYSPARK:
+      _plot_spark_metrics(params, metrics_df)

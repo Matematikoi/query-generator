@@ -6,6 +6,7 @@ import os
 import queue
 import uuid
 from dataclasses import dataclass
+from enum import StrEnum
 from multiprocessing import Queue
 from pathlib import Path
 
@@ -24,6 +25,17 @@ class SparkTraceParams:
   timeout_seconds: float
   output_folder: str
   spark_config: dict[str, str]
+
+
+class SparkTraceEnum(StrEnum):
+  """Column names for SparkTraceRow."""
+
+  relative_path = "relative_path"
+  query_folder = "query_folder"
+  query_name = "query_name"
+  spark_log = "spark_log"
+  error = "error"
+  trace_success = "trace_success"
 
 
 @dataclass

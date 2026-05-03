@@ -18,6 +18,13 @@ was output by the `fix-transform` endpoint. Called duckdb_traces.parquet
   limits per metric name. Each value must be `[min, max]` and is applied
   when plotting the histogram for that metric.
 
+# Engine
+
+- `validator_engine` (str): `"duckdb"` (default) or `"pyspark"`. Controls
+  which trace format is parsed. Use `"duckdb"` when traces were collected by
+  the DuckDB mode of `fix-transform`, and `"pyspark"` when traces were
+  collected by the Spark mode.
+
 # Metrics
 
 - `latency_duckdb`: the execution time in seconds it takes for the query
@@ -73,3 +80,12 @@ SQL text). Categories include:
 
   Binary operators (`+`, `-`, `*`, `/`, `=`, `<>`, `&`, `|`, `LIKE`, etc.)
   and unary operators (`-`, `~`, `NOT`) are also classified.
+
+# Spark Metrics
+
+Available when `validator_engine = "pyspark"`:
+
+- `wall_time_ms`: wall-clock time in milliseconds from query submission to
+  completion, as recorded in the Spark event log.
+
+- `number_of_stages`: number of Spark stages executed for the query.

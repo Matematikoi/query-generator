@@ -323,6 +323,7 @@ class GetMetricsEndpoint:
   group_by_templates: dict[str, str] = dc_field(default_factory=dict)
   x_axis_limits: dict[str, list[float]] = dc_field(default_factory=dict)
   y_axis_limits: dict[str, list[float]] = dc_field(default_factory=dict)
+  validator_engine: ValidatorEngine = dc_field(default=ValidatorEngine.DUCKDB)
 
 
 T = TypeVar("T")
