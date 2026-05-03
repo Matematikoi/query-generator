@@ -3,8 +3,16 @@
 - `queries_folder` (str): The folder containing the sql queries to
     which the LIMIT will be added.
 - `destination_folder` (str): The folder to save the formatted queries.
-- `duckdb_database` (str): Path to the duckdb database to validate queries.
-It will also do a trace collection.
+
+## Engine
+
+- `engine.database_path` (str): Path to the database. A `.duckdb` file when
+  `validator_engine = "duckdb"`; a directory of Parquet tables
+  (`database_path/table_name/*.parquet`) when `validator_engine = "pyspark"`.
+- `engine.validator_engine` (str): `"duckdb"` (default) or `"pyspark"`.
+- `engine.spark_config` (dict, optional): Extra Spark configuration keys passed
+  directly to `SparkSession.builder.config()`. Example:
+  `"spark.sql.shuffle.partitions" = "4"`.
 - `max_output_size` (int): The maximum output size for the queries. Queries
 with an output tuple size greater than this value will have a LIMIT added.
 If the value is 0, no limit will be imposed.    
@@ -14,17 +22,27 @@ allowed to run. Queries beyond this threshold will not be "valid" queries.
 an empty set. If set to true, only queries that return at least one
 tuple will be kept. By default is set to False.
 - `make_select_group_by_disjoint` (bool): Whether to make the select clause
-attributes disjoint from the group by clause attributes. By default
-is set to False.
+attributes disjoint from the group by clause attributes. DuckDB mode only.
+By default is set to False.
 - `make_count_statement_diverse` (bool): Whether to change the COUNT statements
-to other aggregate functions or COUNT variants. By default is set to False.
+to other aggregate functions or COUNT variants. DuckDB mode only.
+By default is set to False.
 - `max_memory_gb` (int): The maximum amount of memory in gigabytes that
-duckdb is allowed to use while running the queries. By default is set to 5.
+duckdb is allowed to use while running the queries. DuckDB mode only.
+By default is set to 5.
 
 Since the limit on queries will be imposed based on the output of the queries,
 the queries need to be run to collect their output sizes.
-We do another pass of query running to collect the final traces and leave them
-in the DUCKDB_TRACES folder.
+We do another pass of query running to collect the final traces, written to
+`traces.parquet` in the destination folder. Raw trace files are kept in
+`DUCKDB_TRACES/` (DuckDB mode) or `SPARK_TRACES/` (Spark mode).
+
+# Spark Catalog
+
+In Spark mode, a Hive metastore is created at
+`engine.database_path/.spark/catalog/` on first run and reused on subsequent
+runs. The setup registers every non-hidden subdirectory of `database_path` as a
+Parquet table and computes CBO statistics for all columns.
 
 # Transformations
 
