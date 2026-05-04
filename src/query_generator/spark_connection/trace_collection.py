@@ -106,7 +106,7 @@ def _spark_trace_worker(
       "spark.job.description",
       f"query_uuid:{worker_input.query_uuid}",
     )
-    spark.sql(worker_input.query).collect()
+    spark.sql(worker_input.query).take(1000)
     q.put(("ok", ""))
   except Exception as exc:
     q.put(("error", str(exc)))
@@ -171,7 +171,6 @@ def spark_collect_one_trace(
     p.join(5)
     if p.is_alive():
       p.kill()
-      p.join()
     error = f"Timeout after {params.timeout_seconds}s"
   elif not q.empty():
     status, msg = q.get()

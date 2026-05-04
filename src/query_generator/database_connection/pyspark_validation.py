@@ -166,7 +166,6 @@ class PySparkQueryValidator(QueryValidator):
       p.join(5)
       if p.is_alive():
         p.kill()
-        p.join()
       return QueryExecution(
         result=None,
         exception=TimeoutError(
