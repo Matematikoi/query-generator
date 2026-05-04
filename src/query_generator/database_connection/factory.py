@@ -14,6 +14,7 @@ def build_query_validator(
   database_path: str,
   validation_timeout_seconds: int | float,
   validator_engine: ValidatorEngine,
+  **kwargs,
 ) -> QueryValidator:
   """Build the appropriate query validator based on validator_engine.
 
@@ -24,6 +25,8 @@ def build_query_validator(
   if validator_engine == ValidatorEngine.DUCKDB:
     return DuckDBQueryExecutor(database_path, validation_timeout_seconds)
   if validator_engine == ValidatorEngine.PYSPARK:
-    return PySparkQueryValidator(database_path, validation_timeout_seconds)
+    return PySparkQueryValidator(
+      database_path, validation_timeout_seconds, **kwargs
+    )
   msg = f"Unknown validator engine: {validator_engine}"
   raise ValueError(msg)

@@ -255,6 +255,7 @@ def batch_llm_extension(
     database_path=llm_params.engine_params.database_path,
     validation_timeout_seconds=llm_params.engine_params.validation_timeout_seconds,
     validator_engine=llm_params.engine_params.validator_engine,
+    spark_config=llm_params.engine_params.spark_config,
   )
 
   sampled_queries = get_random_queries(input_queries_base_path, llm_params)
