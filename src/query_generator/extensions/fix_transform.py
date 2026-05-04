@@ -435,12 +435,12 @@ def fix_transform(params: FixTransformEndpoint) -> None:
       }
     )
 
-  df_traces = pl.DataFrame([unstructure(t) for t in traces])
-  df_traces.write_parquet(destination_folder / "traces.parquet")
-  df_transformation = pl.DataFrame(rows)
-  df_transformation.write_parquet(
-    destination_folder / "transformation_log.parquet"
-  )
+    df_traces = pl.DataFrame([unstructure(t) for t in traces])
+    df_traces.write_parquet(destination_folder / "traces.parquet")
+    df_transformation = pl.DataFrame(rows)
+    df_transformation.write_parquet(
+      destination_folder / "transformation_log.parquet"
+    )
   logger.info("Total queries processed: %d.", len(queries_paths))
   logger.info(
     "Total queries successfully transformed: %d.",
