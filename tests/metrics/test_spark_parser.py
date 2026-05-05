@@ -1,6 +1,6 @@
 import json
 
-import pytest
+from query_generator.metrics.spark_parser import SparkTraceParser
 
 MINIMAL_NDJSON = "\n".join(
   [
@@ -65,9 +65,5 @@ def test_get_metrics_from_raw_log_number_of_stages():
   assert metrics["number_of_stages"] == 1
 
 
-def test_get_metrics_from_raw_log_raises_on_empty():
-  from query_generator.metrics.spark_parser import SparkTraceParser
-  from query_generator.utils.exceptions import SparkNoUUIDTaggedExecutionsError
-
-  with pytest.raises(SparkNoUUIDTaggedExecutionsError):
-    SparkTraceParser.get_metrics_from_raw_log("")
+def test_get_metrics_from_raw_log_returns_none_on_empty():
+  assert SparkTraceParser.get_metrics_from_raw_log("") is None

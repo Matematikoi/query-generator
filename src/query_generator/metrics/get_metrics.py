@@ -32,7 +32,7 @@ def _get_pool() -> Pool:
 
 def _get_trace_parser(
   validator_engine: ValidatorEngine,
-) -> tuple[str, Callable[[str], DuckDBMetrics | SparkTraceMetrics]]:
+) -> tuple[str, Callable[[str], DuckDBMetrics | SparkTraceMetrics | None]]:
   match validator_engine:
     case ValidatorEngine.DUCKDB:
       return (
@@ -82,9 +82,16 @@ def get_metrics(params: GetMetricsEndpoint) -> None:
   )
   traces = filtered_df[trace_col].to_list()
   with _get_pool() as pool:
-    metrics = pool.map(parse_fn, traces)
+    raw_metrics = pool.map(parse_fn, traces)
+  valid_mask = [m is not None for m in raw_metrics]
+  skipped = valid_mask.count(False)
+  if skipped:
+    logger.warning("Skipped %d traces that returned no metrics", skipped)
+  metrics = [m for m in raw_metrics if m is not None]
   metrics_df = pl.DataFrame(metrics)
-  result_df = pl.concat([filtered_df, metrics_df], how="horizontal")
+  result_df = pl.concat(
+    [filtered_df.filter(pl.Series(valid_mask)), metrics_df], how="horizontal"
+  )
   write_parquet(result_df, params.output_folder / "metrics.parquet")
   logger.info("Metrics collected")
   plot_metrics(params, result_df)

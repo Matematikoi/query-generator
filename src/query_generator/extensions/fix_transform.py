@@ -444,6 +444,6 @@ def fix_transform(params: FixTransformEndpoint) -> None:
   logger.info("Total queries processed: %d.", len(queries_paths))
   logger.info(
     "Total queries successfully transformed: %d.",
-    df_transformation.filter(pl.col(TransformEnum.was_transformed)).height,
+    sum(r[TransformEnum.was_transformed] for r in rows),
   )
-  logger.info("Total traces collected: %d.", df_traces.height)
+  logger.info("Total traces collected: %d.", len(traces))
