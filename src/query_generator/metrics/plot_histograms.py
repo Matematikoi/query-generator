@@ -32,6 +32,7 @@ SPARK_HISTOGRAMS_WITH_LOG: dict[SparkMetricsName, bool] = {
   SparkMetricsName.number_of_stages: False,
   SparkMetricsName.number_of_joins: False,
   SparkMetricsName.shuffle_bytes_written: True,
+  SparkMetricsName.number_of_physical_operators: False,
 }
 
 
