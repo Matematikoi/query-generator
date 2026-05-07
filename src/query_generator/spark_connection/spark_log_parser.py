@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from collections.abc import Iterable
 from dataclasses import dataclass, field
@@ -8,6 +9,8 @@ from pathlib import Path
 from typing import TypedDict
 
 from query_generator.utils.exceptions import SparkUUIDNotFoundError
+
+logger = logging.getLogger(__name__)
 
 
 class SparkNode(TypedDict):
@@ -117,7 +120,11 @@ def _collect_events(raw_lines: Iterable[bytes]) -> _EventLog:
     stripped = raw_line.strip()
     if not stripped:
       continue
-    event = json.loads(stripped)
+    try:
+      event = json.loads(stripped)
+    except json.JSONDecodeError:
+      logger.warning("Skipping malformed JSON line in Spark log.")
+      continue
     event_type = event.get("Event", "")
 
     if "SQLExecutionStart" in event_type:

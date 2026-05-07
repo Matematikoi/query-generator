@@ -89,9 +89,11 @@ def get_metrics(params: GetMetricsEndpoint) -> None:
     logger.warning("Skipped %d traces that returned no metrics", skipped)
   metrics = [m for m in raw_metrics if m is not None]
   metrics_df = pl.DataFrame(metrics)
-  result_df = pl.concat(
-    [filtered_df.filter(pl.Series(valid_mask)), metrics_df], how="horizontal"
-  )
+  valid_df = filtered_df.filter(pl.Series(valid_mask))
+  # Spark raw logs dwarf DuckDB traces; replace with parsed_spark_trace.
+  if params.validator_engine == ValidatorEngine.PYSPARK:
+    valid_df = valid_df.drop(trace_col)
+  result_df = pl.concat([valid_df, metrics_df], how="horizontal")
   write_parquet(result_df, params.output_folder / "metrics.parquet")
   logger.info("Metrics collected")
   plot_metrics(params, result_df)
