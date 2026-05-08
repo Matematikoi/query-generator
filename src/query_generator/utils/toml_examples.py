@@ -134,14 +134,18 @@ histogram_sample_size = 10000
 """,
   EndpointName.FIX_TRANSFORM: """\
 queries_folder = "path/to/queries/"
-duckdb_database  = "path/to/duckdb_database.duckdb"
 destination_folder = "path/to/destination/"
 max_output_size = 1000
 timeout_seconds = 10
+
+[engine]
+database_path = "path/to/duckdb_database.duckdb"
+validator_engine = "duckdb"
 """,
   EndpointName.GET_METRICS: """\
-input_parquet = "path/to/traces_duckdb.parquet"
+input_parquet = "path/to/traces.parquet"
 output_folder = "path/to/output_folder/"
+validator_engine = "duckdb"
 [template_occurrence_limit]
 template_1 = 100
 [x_axis_limits]

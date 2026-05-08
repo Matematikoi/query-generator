@@ -434,11 +434,13 @@ class DuckDBTraceParser:
   @staticmethod
   def get_metrics_from_raw_trace(
     raw_trace: str,
+    sql: str = "",
   ) -> DuckDBMetrics:
     """Get the metrics from the raw trace.
 
     Args:
         raw_trace: The raw trace as a JSON string.
+        sql: Unused — DuckDB embeds the SQL inside the trace JSON.
 
     Returns:
         The duckdb metrics as a typed dict. Ideal for polars operations.

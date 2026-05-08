@@ -278,6 +278,13 @@ class HistogramEndpoint:
 
 
 @dataclass
+class FixTransformEngine:
+  database_path: str
+  validator_engine: ValidatorEngine = dc_field(default=ValidatorEngine.DUCKDB)
+  spark_config: dict[str, str] = dc_field(default_factory=dict)
+
+
+@dataclass
 class FixTransformEndpoint:
   __doc__ = f"""Adds LIMIT to sql queries according to output size.
 {get_markdown_documentation(EndpointName.FIX_TRANSFORM)}
@@ -290,7 +297,7 @@ class FixTransformEndpoint:
   """
   queries_folder: str
   destination_folder: str
-  duckdb_database: str
+  engine: FixTransformEngine
   timeout_seconds: float
   filter_empty_set: bool = False
   max_output_size: int = 1000
@@ -316,6 +323,7 @@ class GetMetricsEndpoint:
   group_by_templates: dict[str, str] = dc_field(default_factory=dict)
   x_axis_limits: dict[str, list[float]] = dc_field(default_factory=dict)
   y_axis_limits: dict[str, list[float]] = dc_field(default_factory=dict)
+  validator_engine: ValidatorEngine = dc_field(default=ValidatorEngine.DUCKDB)
 
 
 T = TypeVar("T")

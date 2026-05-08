@@ -102,3 +102,23 @@ class NoBasicHistogramElementError(Exception):
 class ColumnNotFoundError(Exception):
   def __init__(self, column: str) -> None:
     super().__init__(f"Column {column} not found in schema.")
+
+
+class SparkUUIDNotFoundError(Exception):
+  def __init__(self, description: str) -> None:
+    super().__init__(f"No query_uuid found in description: {description!r}")
+
+
+_LOG_PREVIEW_LENGTH = 120
+
+
+class SparkNoUUIDTaggedExecutionsError(Exception):
+  def __init__(self, raw_log: str) -> None:
+    preview = (
+      raw_log[:_LOG_PREVIEW_LENGTH] + "..."
+      if len(raw_log) > _LOG_PREVIEW_LENGTH
+      else raw_log
+    )
+    super().__init__(
+      f"No UUID-tagged executions found in Spark log. Log preview: {preview!r}"
+    )

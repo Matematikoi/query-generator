@@ -1,0 +1,3 @@
+input_parquet = "tmp/transformed_queries_spark_dev/traces.parquet"
+output_folder = "tmp/spark_metrics_dev/"
+validator_engine = "pyspark"

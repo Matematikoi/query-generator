@@ -1,15 +1,23 @@
 import logging
 import multiprocessing as mp
+from collections.abc import Callable
 from multiprocessing.pool import Pool
 
 import polars as pl
 
 from query_generator.duckdb_connection.trace_collection import DuckDBTraceEnum
-from query_generator.metrics.duckdb_parser import DuckDBTraceParser
-from query_generator.metrics.plot_histograms import plot_metrics
-from query_generator.synthetic_queries.utils.query_writer import (
-  write_parquet,
+from query_generator.metrics.duckdb_parser import (
+  DuckDBMetrics,
+  DuckDBTraceParser,
 )
+from query_generator.metrics.plot_histograms import plot_metrics
+from query_generator.metrics.spark_parser import (
+  SparkTraceMetrics,
+  SparkTraceParser,
+)
+from query_generator.spark_connection.trace_collection import SparkTraceEnum
+from query_generator.synthetic_queries.utils.query_writer import write_parquet
+from query_generator.utils.definitions import ValidatorEngine
 from query_generator.utils.params import GetMetricsEndpoint
 
 logger = logging.getLogger(__name__)
@@ -18,9 +26,24 @@ logger = logging.getLogger(__name__)
 def _get_pool() -> Pool:
   """Lazily create a process pool to escape the GIL."""
   workers = mp.cpu_count() - 1
-  start_method = "fork"
-  ctx = mp.get_context(start_method)
+  ctx = mp.get_context("fork")
   return ctx.Pool(processes=workers)
+
+
+def _get_trace_parser(
+  validator_engine: ValidatorEngine,
+) -> tuple[str, Callable[[str, str], DuckDBMetrics | SparkTraceMetrics | None]]:
+  match validator_engine:
+    case ValidatorEngine.DUCKDB:
+      return (
+        DuckDBTraceEnum.duckdb_trace,
+        DuckDBTraceParser.get_metrics_from_raw_trace,
+      )
+    case ValidatorEngine.PYSPARK:
+      return SparkTraceEnum.spark_log, SparkTraceParser.get_metrics_from_raw_log
+    case _:
+      msg = f"Unknown engine: {validator_engine}"
+      raise ValueError(msg)
 
 
 def apply_template_occurrence_limit(
@@ -44,8 +67,9 @@ def apply_template_occurrence_limit(
 
 def get_metrics(params: GetMetricsEndpoint) -> None:
   """Get metrics according to given queries."""
+  trace_col, parse_fn = _get_trace_parser(params.validator_engine)
   traces_df = pl.read_parquet(params.input_parquet)
-  trace_expr = pl.col(DuckDBTraceEnum.duckdb_trace)
+  trace_expr = pl.col(trace_col)
   success_expr = pl.col(DuckDBTraceEnum.trace_success)
   min_trace_length = 2
   valid_trace_expr = (
@@ -56,11 +80,27 @@ def get_metrics(params: GetMetricsEndpoint) -> None:
   filtered_df = apply_template_occurrence_limit(
     params, traces_df.filter(valid_trace_expr)
   )
-  traces = filtered_df[DuckDBTraceEnum.duckdb_trace].to_list()
+  traces = filtered_df[trace_col].to_list()
+  query_col = "query"
+  if query_col in filtered_df.columns:
+    sqls = filtered_df[query_col].to_list()
+  else:
+    logger.warning("Column '%s' not found.", query_col)
+    sqls = [""] * len(traces)
   with _get_pool() as pool:
-    metrics = pool.map(DuckDBTraceParser.get_metrics_from_raw_trace, traces)
+    pairs = zip(traces, sqls, strict=True)
+    raw_metrics = pool.starmap(parse_fn, pairs)
+  valid_mask = [m is not None for m in raw_metrics]
+  skipped = valid_mask.count(False)
+  if skipped:
+    logger.warning("Skipped %d traces that returned no metrics", skipped)
+  metrics = [m for m in raw_metrics if m is not None]
   metrics_df = pl.DataFrame(metrics)
-  result_df = pl.concat([filtered_df, metrics_df], how="horizontal")
+  valid_df = filtered_df.filter(pl.Series(valid_mask))
+  # Spark raw logs dwarf DuckDB traces; replace with parsed_spark_trace.
+  if params.validator_engine == ValidatorEngine.PYSPARK:
+    valid_df = valid_df.drop(trace_col)
+  result_df = pl.concat([valid_df, metrics_df], how="horizontal")
   write_parquet(result_df, params.output_folder / "metrics.parquet")
   logger.info("Metrics collected")
   plot_metrics(params, result_df)
