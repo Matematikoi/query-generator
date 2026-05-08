@@ -33,6 +33,7 @@ class SparkTraceEnum(StrEnum):
   relative_path = "relative_path"
   query_folder = "query_folder"
   query_name = "query_name"
+  query = "query"
   spark_log = "spark_log"
   error = "error"
   trace_success = "trace_success"
@@ -43,6 +44,7 @@ class SparkTraceRow:
   relative_path: str
   query_folder: str
   query_name: str
+  query: str
   spark_log: str
   error: str
   trace_success: bool
@@ -183,6 +185,7 @@ def spark_collect_one_trace(
       relative_path=relative_path,
       query_folder=sql_file.parent.name,
       query_name=sql_file.stem,
+      query=sql,
       spark_log="",
       error=error or "No log files produced",
       trace_success=False,
@@ -192,6 +195,7 @@ def spark_collect_one_trace(
     relative_path=relative_path,
     query_folder=sql_file.parent.name,
     query_name=sql_file.stem,
+    query=sql,
     spark_log=spark_log,
     error=error,
     trace_success=True,

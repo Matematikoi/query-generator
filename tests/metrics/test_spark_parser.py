@@ -324,3 +324,34 @@ def test_operator_distribution_minimal():
     for entry in metrics["operator_distribution"]
   }
   assert dist == {"Project": 1}
+
+
+SIMPLE_SQL = "SELECT a, b FROM t WHERE a > 1"
+
+
+def test_query_size_bytes():
+  metrics = SparkTraceParser.get_metrics_from_raw_log(
+    MINIMAL_NDJSON, SIMPLE_SQL
+  )
+  assert metrics["query_size_bytes"] == len(SIMPLE_SQL.encode("utf-8"))
+
+
+def test_query_size_tokens():
+  metrics = SparkTraceParser.get_metrics_from_raw_log(
+    MINIMAL_NDJSON, SIMPLE_SQL
+  )
+  assert metrics["query_size_tokens"] > 0
+
+
+def test_query_keywords_contains_select():
+  metrics = SparkTraceParser.get_metrics_from_raw_log(
+    MINIMAL_NDJSON, SIMPLE_SQL
+  )
+  assert "SELECT" in metrics["query_keywords"]
+
+
+def test_query_sql_metrics_empty_when_no_sql():
+  metrics = SparkTraceParser.get_metrics_from_raw_log(MINIMAL_NDJSON)
+  assert metrics["query_size_bytes"] == 0
+  assert metrics["query_size_tokens"] == 0
+  assert metrics["query_keywords"] == []

@@ -3,6 +3,8 @@ import logging
 from enum import StrEnum
 from typing import TypedDict
 
+import sqlparse
+
 from query_generator.spark_connection.spark_log_parser import (
   SparkNode,
   parse_spark_log_str,
@@ -24,6 +26,9 @@ class SparkMetricsName(StrEnum):
   number_of_physical_operators = "number_of_physical_operators"
   operator_distribution = "operator_distribution"
   parsed_spark_trace = "parsed_spark_trace"
+  query_size_bytes = "query_size_bytes"
+  query_size_tokens = "query_size_tokens"
+  query_keywords = "query_keywords"
 
 
 class SparkTraceMetrics(TypedDict):
@@ -34,10 +39,13 @@ class SparkTraceMetrics(TypedDict):
   number_of_physical_operators: int
   operator_distribution: list[OperatorCount]
   parsed_spark_trace: str
+  query_size_bytes: int
+  query_size_tokens: int
+  query_keywords: list[str]
 
 
 class SparkTraceParser:
-  def __init__(self, raw_log: str) -> None:
+  def __init__(self, raw_log: str, sql: str = "") -> None:
     results = parse_spark_log_str(raw_log)
     if len(results) > 1:
       logger.warning(
@@ -45,6 +53,17 @@ class SparkTraceParser:
         len(results),
       )
     self.metrics_data = results[0] if results else None
+    self.sql = sql
+    try:
+      parsed_statements = sqlparse.parse(sql)
+      self._parsed_query: list[sqlparse.sql.Token] = (
+        list(parsed_statements[0].flatten()) if parsed_statements else []
+      )
+    except Exception:
+      logger.warning(
+        "Failed to parse SQL with sqlparse; SQL metrics will be empty."
+      )
+      self._parsed_query = []
 
   def _count_joins(self, node: SparkNode) -> int:
     count = 1 if "Join" in node["node_name"] else 0
@@ -124,6 +143,17 @@ class SparkTraceParser:
       for op, cnt in sorted(counts.items(), key=lambda x: x[1], reverse=True)
     ]
 
+  def get_query_size_bytes(self) -> int:
+    return len(self.sql.encode("utf-8"))
+
+  def get_query_size_tokens(self) -> int:
+    return sum(
+      1 for t in self._parsed_query if not t.is_whitespace and not t.is_newline
+    )
+
+  def get_query_keywords(self) -> list[str]:
+    return [t.normalized for t in self._parsed_query if t.is_keyword]
+
   def get_parsed_spark_trace(self) -> str:
     assert self.metrics_data is not None
     return json.dumps(self.metrics_data)
@@ -139,9 +169,14 @@ class SparkTraceParser:
       "number_of_physical_operators": self.get_number_of_physical_operators(),
       "operator_distribution": self.get_operator_distribution(),
       "parsed_spark_trace": self.get_parsed_spark_trace(),
+      "query_size_bytes": self.get_query_size_bytes(),
+      "query_size_tokens": self.get_query_size_tokens(),
+      "query_keywords": self.get_query_keywords(),
     }
 
   @staticmethod
-  def get_metrics_from_raw_log(raw_log: str) -> SparkTraceMetrics | None:
-    parser = SparkTraceParser(raw_log)
+  def get_metrics_from_raw_log(
+    raw_log: str, sql: str = ""
+  ) -> SparkTraceMetrics | None:
+    parser = SparkTraceParser(raw_log, sql)
     return parser.get_metrics()

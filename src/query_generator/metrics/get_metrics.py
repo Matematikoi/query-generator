@@ -32,7 +32,7 @@ def _get_pool() -> Pool:
 
 def _get_trace_parser(
   validator_engine: ValidatorEngine,
-) -> tuple[str, Callable[[str], DuckDBMetrics | SparkTraceMetrics | None]]:
+) -> tuple[str, Callable[[str, str], DuckDBMetrics | SparkTraceMetrics | None]]:
   match validator_engine:
     case ValidatorEngine.DUCKDB:
       return (
@@ -81,8 +81,15 @@ def get_metrics(params: GetMetricsEndpoint) -> None:
     params, traces_df.filter(valid_trace_expr)
   )
   traces = filtered_df[trace_col].to_list()
+  query_col = "query"
+  if query_col in filtered_df.columns:
+    sqls = filtered_df[query_col].to_list()
+  else:
+    logger.warning("Column '%s' not found.", query_col)
+    sqls = [""] * len(traces)
   with _get_pool() as pool:
-    raw_metrics = pool.map(parse_fn, traces)
+    pairs = zip(traces, sqls, strict=True)
+    raw_metrics = pool.starmap(parse_fn, pairs)
   valid_mask = [m is not None for m in raw_metrics]
   skipped = valid_mask.count(False)
   if skipped:
