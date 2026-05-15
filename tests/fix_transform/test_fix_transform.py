@@ -1,4 +1,78 @@
-from query_generator.extensions.fix_transform import apply_replace_min_max
+import random
+from pathlib import Path
+
+from query_generator.extensions.fix_transform import (
+  apply_replace_min_max,
+  get_queries_with_limits,
+)
+from query_generator.utils.params import (
+  FixTransformEndpoint,
+  FixTransformEngine,
+)
+
+
+def _make_endpoint(
+  queries_folder: str, limits: dict[str, int]
+) -> FixTransformEndpoint:
+  return FixTransformEndpoint(
+    queries_folder=queries_folder,
+    destination_folder="unused",
+    engine=FixTransformEngine(database_path="unused"),
+    timeout_seconds=1.0,
+    limit_folder_trace_collection=limits,
+  )
+
+
+def _populate_folder(root: Path, folder_name: str, count: int) -> list[Path]:
+  folder = root / folder_name
+  folder.mkdir()
+  files = []
+  for i in range(count):
+    p = folder / f"q{i:03d}.sql"
+    p.write_text("SELECT 1")
+    files.append(p)
+  return files
+
+
+def test_get_queries_with_limits_no_limit(tmp_path: Path) -> None:
+  _populate_folder(tmp_path, "union", 5)
+  _populate_folder(tmp_path, "group_by", 3)
+  params = _make_endpoint(str(tmp_path), {})
+  result = get_queries_with_limits(params)
+  assert len(result) == 8
+
+
+def test_get_queries_with_limits_applies_limit(tmp_path: Path) -> None:
+  _populate_folder(tmp_path, "union", 10)
+  _populate_folder(tmp_path, "group_by", 10)
+  params = _make_endpoint(str(tmp_path), {"union": 3})
+  random.seed(42)
+  result = get_queries_with_limits(params)
+  union_results = [p for p in result if p.parent.name == "union"]
+  group_by_results = [p for p in result if p.parent.name == "group_by"]
+  assert len(union_results) == 3
+  assert len(group_by_results) == 10
+
+
+def test_get_queries_with_limits_limit_larger_than_count(
+  tmp_path: Path,
+) -> None:
+  _populate_folder(tmp_path, "union", 2)
+  params = _make_endpoint(str(tmp_path), {"union": 100})
+  random.seed(42)
+  result = get_queries_with_limits(params)
+  assert len(result) == 2
+
+
+def test_get_queries_with_limits_is_deterministic(tmp_path: Path) -> None:
+  _populate_folder(tmp_path, "union", 10)
+  params = _make_endpoint(str(tmp_path), {"union": 4})
+  random.seed(42)
+  first = get_queries_with_limits(params)
+  random.seed(42)
+  second = get_queries_with_limits(params)
+  assert first == second
+
 
 UNPARSABLE_QUERY = """
 WITH RECURSIVE recursive_promo_chain AS (

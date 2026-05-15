@@ -360,7 +360,7 @@ def extensions_batch_endpoint(
 @app.command(
   "fix-transform", help=build_help_from_dataclass(FixTransformEndpoint)
 )
-def add_limit_endpoint(
+def fix_transform_endpoint(
   config_file: Annotated[
     str,
     typer.Option(
