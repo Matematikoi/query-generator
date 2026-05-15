@@ -30,6 +30,10 @@ By default is set to False.
 - `max_memory_gb` (int): The maximum amount of memory in gigabytes that
 duckdb is allowed to use while running the queries. DuckDB mode only.
 By default is set to 5.
+- `limit_folder_trace_collection` (dict[str, int], optional): Limits the number
+of SQL files collected per subfolder of `queries_folder`. Keys are subfolder
+names; values are the maximum number of queries to sample from that folder.
+Sampling is seeded for reproducibility. Default: no limits (all files collected).
 
 Since the limit on queries will be imposed based on the output of the queries,
 the queries need to be run to collect their output sizes.

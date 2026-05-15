@@ -12,3 +12,6 @@ make_count_statement_diverse = true
 [engine]
 database_path = "tmp/database_TPCDS_0.1.duckdb"
 validator_engine = "duckdb"
+
+[limit_folder_trace_collection]
+union = 1

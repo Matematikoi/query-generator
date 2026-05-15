@@ -304,6 +304,7 @@ class FixTransformEndpoint:
   make_select_group_by_disjoint: bool = False
   make_count_statement_diverse: bool = False
   max_memory_gb: int = 5
+  limit_folder_trace_collection: dict[str, int] = dc_field(default_factory=dict)
 
 
 @dataclass

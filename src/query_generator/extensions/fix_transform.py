@@ -354,12 +354,31 @@ def apply_output_size_transformation(
   return query
 
 
+def get_queries_with_limits(params: FixTransformEndpoint) -> list[Path]:
+  queries_folder = Path(params.queries_folder)
+  limits = params.limit_folder_trace_collection
+  if not limits:
+    return list(queries_folder.glob("**/*.sql"))
+  result: list[Path] = []
+  for folder in sorted(queries_folder.iterdir()):
+    if not folder.is_dir():
+      continue
+    folder_queries = sorted(folder.glob("**/*.sql"))
+    limit = limits.get(folder.name)
+    if limit is not None:
+      folder_queries = random.sample(
+        folder_queries, k=min(limit, len(folder_queries))
+      )
+    result.extend(folder_queries)
+  return result
+
+
 def fix_transform(params: FixTransformEndpoint) -> None:
   """Add LIMIT to sql queries according to output size."""
   random.seed(42)
   queries_folder = Path(params.queries_folder)
   destination_folder = Path(params.destination_folder)
-  queries_paths = list(queries_folder.glob("**/*.sql"))
+  queries_paths = get_queries_with_limits(params)
 
   engine = params.engine
   is_spark = engine.validator_engine == ValidatorEngine.PYSPARK
