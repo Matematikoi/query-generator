@@ -11,6 +11,7 @@ import polars as pl
 import sqlparse
 from networkx.algorithms.dag import descendants
 
+from query_generator.metrics.canonical_join import get_canonical_join_form_fn
 from query_generator.metrics.function_classifier import (
   FunctionRecord,
   FunctionRecordFields,
@@ -129,12 +130,15 @@ class DuckDBTraceNode(TypedDict):
   Attributes:
       output_cardinality: The output cardinality of the operator.
       operator_type: DuckDB physical operator type.
+      table: Table name for TABLE_SCAN nodes, None otherwise.
 
   """
 
   output_cardinality: int
   estimated_cardinality: int | None
   operator_type: str  # Maps to physical operators.
+  table: str | None
+  rows_read: int | None
 
 
 ParsedTraceExtraInfoDuckdb = TypedDict(
@@ -192,10 +196,12 @@ class DuckDBMetrics(TypedDict):
   query_size_tokens: int
   output_cardinality: int
   query_keywords: list[str]
+  filter_selectivity: list[float]
   operator_distribution: dict[DuckDBPhysicalOperators, int]
   qerror: float | None
   qerror_downstream_operators: list["QErrorDownstreamOperatorsBucket"]
   functions: list[FunctionRecord]
+  canonical_join_form: str | None
 
 
 class QErrorDownstreamOperatorsBucket(TypedDict):
@@ -220,6 +226,7 @@ class DuckDBMetricsName(StrEnum):
   query_keywords = "query_keywords"
   operator_distribution = "operator_distribution"
   functions = "functions"
+  filter_selectivity = "filter_selectivity"
 
 
 def get_attributes_root_node(trace: ParsedDuckDBTraceRoot) -> DuckDBTraceNode:
@@ -228,6 +235,8 @@ def get_attributes_root_node(trace: ParsedDuckDBTraceRoot) -> DuckDBTraceNode:
     "output_cardinality": trace["rows_returned"],
     "operator_type": DuckDBPhysicalOperators.ROOT.value,
     "estimated_cardinality": None,
+    "table": None,
+    "rows_read": trace["cumulative_rows_scanned"],
   }
 
 
@@ -246,14 +255,23 @@ def get_attributes_children_node(
   Gets output cardinality and operator type.
   """
   estimated_cardinality_raw = trace["extra_info"].get("Estimated Cardinality")
+  operator_type = trace["operator_type"]
+  table_raw = (
+    trace["extra_info"].get("Table")
+    if operator_type == DuckDBPhysicalOperators.TABLE_SCAN
+    else None
+  )
+  table: str | None = str(table_raw) if table_raw is not None else None
   return {
     "output_cardinality": trace["operator_cardinality"],
-    "operator_type": trace["operator_type"],
+    "operator_type": operator_type,
     "estimated_cardinality": (
       int(estimated_cardinality_raw)
       if estimated_cardinality_raw is not None
       else None
     ),
+    "table": table,
+    "rows_read": trace["cumulative_rows_scanned"],
   }
 
 
@@ -363,6 +381,10 @@ class DuckDBTraceParser:
     """Get the classified SQL functions from the query."""
     return parse_sql_functions(self.get_raw_query())
 
+  def get_canonical_join_form(self) -> str | None:
+    """Get the canonical join structure string for this query plan."""
+    return get_canonical_join_form_fn(self.trace_graph)
+
   def get_cardinality_over_rows_scanned(self) -> float | None:
     if self.get_rows_scanned() == 0:
       return None
@@ -410,6 +432,18 @@ class DuckDBTraceParser:
       for subtree_size, qerrors in sorted(grouped.items())
     ]
 
+  def get_filter_selectivity(self) -> list[float]:
+    """Gets the selectivity of the filters"""
+    result = []
+    for _, node_data in self.trace_graph.nodes(data=True):
+      op = node_data.get("operator_type")
+      if op is not None and op == DuckDBPhysicalOperators.TABLE_SCAN:
+        result.append(
+          float(node_data.get("output_cardinality") + 1)
+          / float(node_data.get("rows_read") + 1)
+        )
+    return result
+
   def get_metrics(self) -> DuckDBMetrics:
     """Get the metrics from the trace."""
     return {
@@ -429,6 +463,8 @@ class DuckDBTraceParser:
         self.get_qerror_downstream_operators_buckets()
       ),
       "functions": self.get_functions(),
+      "canonical_join_form": self.get_canonical_join_form(),
+      "filter_selectivity": self.get_filter_selectivity(),
     }
 
   @staticmethod
@@ -466,6 +502,7 @@ def python_type_to_polars(
     float: pl.Float64,
     float | None: pl.Float64,
     str: pl.String,
+    str | None: pl.String,
     bool: pl.Boolean,
     dict[DuckDBPhysicalOperators, int]: pl.Struct(
       dict.fromkeys(DuckDBPhysicalOperators.get_all_operators(), pl.Int64)
