@@ -80,7 +80,7 @@ weight = 2
 
 """,
   EndpointName.SYNTHETIC_GENERATION: """\
-dataset = "TPCDS"
+schema_path = "schemas/tpcds.json"
 output_folder = "path/to/destination/"
 histogram_path = "path/to/histogram.parquet"
 

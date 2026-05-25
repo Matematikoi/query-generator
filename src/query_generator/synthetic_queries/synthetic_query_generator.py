@@ -95,7 +95,7 @@ def generate_synthetic_queries(
     batch_number += 1
     query_generator = QueryGenerator(
       SyntheticQueryGenerationParameters(
-        dataset=params.user_input.dataset,
+        schema=params.user_input.schema,
         max_hops=max_hops,
         max_queries_per_fact_table=params.user_input.max_signatures_per_fact_table,
         max_queries_per_signature=params.user_input.max_queries_per_signature,
