@@ -1,0 +1,113 @@
+{
+  "tables": {
+    "alkphos": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "arg1",
+          "ref_table": "bupa_name",
+          "ref_column": "arg1"
+        }
+      ]
+    },
+    "bupa": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "arg1",
+          "ref_table": "bupa_name",
+          "ref_column": "arg1"
+        },
+        {
+          "column": "arg2",
+          "ref_table": "bupa_type",
+          "ref_column": "arg1"
+        }
+      ]
+    },
+    "bupa_name": {
+      "columns": [
+        "arg1"
+      ],
+      "foreign_keys": []
+    },
+    "bupa_type": {
+      "columns": [
+        "arg1"
+      ],
+      "foreign_keys": []
+    },
+    "drinks": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "arg1",
+          "ref_table": "bupa_name",
+          "ref_column": "arg1"
+        }
+      ]
+    },
+    "gammagt": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "arg1",
+          "ref_table": "bupa_name",
+          "ref_column": "arg1"
+        }
+      ]
+    },
+    "mcv": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "arg1",
+          "ref_table": "bupa_name",
+          "ref_column": "arg1"
+        }
+      ]
+    },
+    "sgot": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "arg1",
+          "ref_table": "bupa_name",
+          "ref_column": "arg1"
+        }
+      ]
+    },
+    "sgpt": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "arg1",
+          "ref_table": "bupa_name",
+          "ref_column": "arg1"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

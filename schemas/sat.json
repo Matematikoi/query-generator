@@ -1,0 +1,612 @@
+{
+  "tables": {
+    "class": {
+      "columns": [
+        "cls"
+      ],
+      "foreign_keys": []
+    },
+    "fault": {
+      "columns": [
+        "tm",
+        "tf"
+      ],
+      "foreign_keys": [
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        },
+        {
+          "column": "tf",
+          "ref_table": "trfl",
+          "ref_column": "tf"
+        }
+      ]
+    },
+    "fault_test": {
+      "columns": [
+        "tm",
+        "tf"
+      ],
+      "foreign_keys": [
+        {
+          "column": "tf",
+          "ref_table": "trfl",
+          "ref_column": "tf"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "gmt_mission_phase": {
+      "columns": [
+        "tm",
+        "state"
+      ],
+      "foreign_keys": [
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "succ": {
+      "columns": [
+        "tm1",
+        "tm2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "tm1",
+          "ref_table": "time",
+          "ref_column": "tm"
+        },
+        {
+          "column": "tm2",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "time": {
+      "columns": [
+        "tm"
+      ],
+      "foreign_keys": []
+    },
+    "tm001_eod_relay": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm002_battov_temp": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm004_eoc_signaled": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        },
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        }
+      ]
+    },
+    "tm007_switch": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm009_switch": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm011_eod_override": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm013_switch": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm015_eod_signaled": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm017_switch": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm018_switch": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm021_eoc_disabled": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm022_switch": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        },
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        }
+      ]
+    },
+    "tm029_ovt_disabled": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm031_switch": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm038_switch": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm039_eod_disabled": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm040_switch": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm042_switch": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm043_switch": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm054_supply_1a": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm055_supply_1b": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm057_supply_2c": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm058_asr_or_switch_10": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm070_supply_3c": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm071_asr_or_switch_20": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm211_bus_voltage": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm220_supply_1c": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm222_charging": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "tm257_battery_voltage": {
+      "columns": [
+        "tm",
+        "class"
+      ],
+      "foreign_keys": [
+        {
+          "column": "class",
+          "ref_table": "class",
+          "ref_column": "cls"
+        },
+        {
+          "column": "tm",
+          "ref_table": "time",
+          "ref_column": "tm"
+        }
+      ]
+    },
+    "trfl": {
+      "columns": [
+        "tf"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

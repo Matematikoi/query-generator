@@ -1,0 +1,276 @@
+{
+  "tables": {
+    "activities": {
+      "columns": [
+        "activity_id",
+        "assay_id",
+        "doc_id",
+        "record_id",
+        "molregno",
+        "relation",
+        "published_value",
+        "published_units",
+        "standard_value",
+        "standard_units",
+        "standard_flag",
+        "standard_type",
+        "activity_comment",
+        "published_activity_type"
+      ],
+      "foreign_keys": [
+        {
+          "column": "assay_id",
+          "ref_table": "assays",
+          "ref_column": "assay_id"
+        },
+        {
+          "column": "doc_id",
+          "ref_table": "docs",
+          "ref_column": "doc_id"
+        },
+        {
+          "column": "molregno",
+          "ref_table": "compounds",
+          "ref_column": "molregno"
+        },
+        {
+          "column": "record_id",
+          "ref_table": "compound_records",
+          "ref_column": "record_id"
+        }
+      ]
+    },
+    "assay2target": {
+      "columns": [
+        "assay_id",
+        "tid",
+        "assay_tax_id",
+        "assay_organism",
+        "relationship_type",
+        "complex",
+        "multi",
+        "confidence",
+        "assay_strain"
+      ],
+      "foreign_keys": [
+        {
+          "column": "assay_id",
+          "ref_table": "assays",
+          "ref_column": "assay_id"
+        },
+        {
+          "column": "confidence",
+          "ref_table": "confidence_lookup",
+          "ref_column": "confidence"
+        },
+        {
+          "column": "tid",
+          "ref_table": "target_dictionary",
+          "ref_column": "tid"
+        }
+      ]
+    },
+    "assay_type": {
+      "columns": [
+        "assay_type",
+        "assay_desc"
+      ],
+      "foreign_keys": []
+    },
+    "assays": {
+      "columns": [
+        "assay_id",
+        "assay_type",
+        "description",
+        "doc_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "assay_type",
+          "ref_table": "assay_type",
+          "ref_column": "assay_type"
+        },
+        {
+          "column": "doc_id",
+          "ref_table": "docs",
+          "ref_column": "doc_id"
+        }
+      ]
+    },
+    "compound_properties": {
+      "columns": [
+        "molregno",
+        "mw_freebase",
+        "alogp",
+        "hba",
+        "hbd",
+        "psa",
+        "rtb",
+        "ro3_pass",
+        "num_ro5_violations",
+        "med_chem_friendly",
+        "mol_id"
+      ],
+      "foreign_keys": []
+    },
+    "compound_records": {
+      "columns": [
+        "record_id",
+        "molregno",
+        "doc_id",
+        "compound_key",
+        "compound_name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "doc_id",
+          "ref_table": "docs",
+          "ref_column": "doc_id"
+        },
+        {
+          "column": "molregno",
+          "ref_table": "compounds",
+          "ref_column": "molregno"
+        }
+      ]
+    },
+    "compound_synonyms": {
+      "columns": [
+        "molregno",
+        "synonyms"
+      ],
+      "foreign_keys": [
+        {
+          "column": "molregno",
+          "ref_table": "compounds",
+          "ref_column": "molregno"
+        }
+      ]
+    },
+    "compounds": {
+      "columns": [
+        "molregno",
+        "molweight",
+        "molformula",
+        "molfile",
+        "canonical_smiles",
+        "inchi",
+        "inchi_key"
+      ],
+      "foreign_keys": []
+    },
+    "confidence_lookup": {
+      "columns": [
+        "confidence",
+        "confidence_summary",
+        "description"
+      ],
+      "foreign_keys": []
+    },
+    "docs": {
+      "columns": [
+        "doc_id",
+        "journal",
+        "year",
+        "volume",
+        "issue",
+        "first_page",
+        "last_page",
+        "pubmed_id"
+      ],
+      "foreign_keys": []
+    },
+    "relationship_type": {
+      "columns": [
+        "relationship_type",
+        "relationship_desc"
+      ],
+      "foreign_keys": []
+    },
+    "target_class": {
+      "columns": [
+        "tc_id",
+        "tid",
+        "l1",
+        "l2",
+        "l3",
+        "l4",
+        "l5",
+        "l6",
+        "l7",
+        "l8",
+        "target_classification"
+      ],
+      "foreign_keys": [
+        {
+          "column": "tid",
+          "ref_table": "target_dictionary",
+          "ref_column": "tid"
+        }
+      ]
+    },
+    "target_dictionary": {
+      "columns": [
+        "tid",
+        "target_type",
+        "db_source",
+        "description",
+        "gene_names",
+        "pref_name",
+        "synonyms",
+        "keywords",
+        "protein_sequence",
+        "protein_md5sum",
+        "tax_id",
+        "organism",
+        "tissue",
+        "strain",
+        "db_version",
+        "cell_line",
+        "in_drugstore",
+        "in_starlite",
+        "protein_accession",
+        "ec_number"
+      ],
+      "foreign_keys": [
+        {
+          "column": "target_type",
+          "ref_table": "target_type",
+          "ref_column": "target_type"
+        }
+      ]
+    },
+    "target_protein": {
+      "columns": [
+        "canonical_smiles",
+        "relation",
+        "standard_units",
+        "standard_value",
+        "standard_type",
+        "assay_type",
+        "relationship_type",
+        "assay_organism",
+        "target_type",
+        "organism",
+        "protein_accession"
+      ],
+      "foreign_keys": []
+    },
+    "target_type": {
+      "columns": [
+        "target_type",
+        "target_desc"
+      ],
+      "foreign_keys": []
+    },
+    "version": {
+      "columns": [
+        "name",
+        "creation_date",
+        "comments"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

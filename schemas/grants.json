@@ -1,0 +1,177 @@
+{
+  "tables": {
+    "awards": {
+      "columns": [
+        "award_title",
+        "award_effective_date",
+        "award_expiration_date",
+        "award_amount",
+        "award_instrument",
+        "organisation_code",
+        "program_officer",
+        "abstract_narration",
+        "min_amd_letter_date",
+        "max_amd_letter_date",
+        "arra_amount",
+        "award_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "organisation_code",
+          "ref_table": "organization",
+          "ref_column": "code"
+        }
+      ]
+    },
+    "foa_info": {
+      "columns": [
+        "code",
+        "name"
+      ],
+      "foreign_keys": []
+    },
+    "foa_info_awards": {
+      "columns": [
+        "award_id",
+        "code"
+      ],
+      "foreign_keys": [
+        {
+          "column": "code",
+          "ref_table": "foa_info",
+          "ref_column": "code"
+        },
+        {
+          "column": "award_id",
+          "ref_table": "awards",
+          "ref_column": "award_id"
+        }
+      ]
+    },
+    "institution": {
+      "columns": [
+        "name",
+        "city_name",
+        "zipcode",
+        "contact",
+        "address",
+        "country_name",
+        "state_name",
+        "state_code"
+      ],
+      "foreign_keys": []
+    },
+    "institution_awards": {
+      "columns": [
+        "award_id",
+        "name",
+        "zipcode"
+      ],
+      "foreign_keys": [
+        {
+          "column": "award_id",
+          "ref_table": "awards",
+          "ref_column": "award_id"
+        },
+        {
+          "column": "name",
+          "ref_table": "institution",
+          "ref_column": "name"
+        },
+        {
+          "column": "zipcode",
+          "ref_table": "institution",
+          "ref_column": "zipcode"
+        }
+      ]
+    },
+    "investigator": {
+      "columns": [
+        "email_id",
+        "first_name",
+        "last_name"
+      ],
+      "foreign_keys": []
+    },
+    "investigator_awards": {
+      "columns": [
+        "award_id",
+        "email_id",
+        "start_date",
+        "end_date",
+        "role_code"
+      ],
+      "foreign_keys": [
+        {
+          "column": "award_id",
+          "ref_table": "awards",
+          "ref_column": "award_id"
+        },
+        {
+          "column": "email_id",
+          "ref_table": "investigator",
+          "ref_column": "email_id"
+        }
+      ]
+    },
+    "organization": {
+      "columns": [
+        "code",
+        "division",
+        "directorate"
+      ],
+      "foreign_keys": []
+    },
+    "program_element": {
+      "columns": [
+        "code",
+        "text"
+      ],
+      "foreign_keys": []
+    },
+    "program_element_awards": {
+      "columns": [
+        "award_id",
+        "code"
+      ],
+      "foreign_keys": [
+        {
+          "column": "code",
+          "ref_table": "program_element",
+          "ref_column": "code"
+        },
+        {
+          "column": "award_id",
+          "ref_table": "awards",
+          "ref_column": "award_id"
+        }
+      ]
+    },
+    "program_reference": {
+      "columns": [
+        "code",
+        "text"
+      ],
+      "foreign_keys": []
+    },
+    "program_reference_awards": {
+      "columns": [
+        "award_id",
+        "code"
+      ],
+      "foreign_keys": [
+        {
+          "column": "code",
+          "ref_table": "program_reference",
+          "ref_column": "code"
+        },
+        {
+          "column": "award_id",
+          "ref_table": "awards",
+          "ref_column": "award_id"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

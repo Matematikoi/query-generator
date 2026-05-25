@@ -1,0 +1,72 @@
+{
+  "tables": {
+    "atom": {
+      "columns": [
+        "atom_id",
+        "molecule_id",
+        "type"
+      ],
+      "foreign_keys": [
+        {
+          "column": "molecule_id",
+          "ref_table": "molecule",
+          "ref_column": "molecule_id"
+        }
+      ]
+    },
+    "bond": {
+      "columns": [
+        "atom_id",
+        "atom_id2",
+        "type"
+      ],
+      "foreign_keys": [
+        {
+          "column": "atom_id",
+          "ref_table": "atom",
+          "ref_column": "atom_id"
+        },
+        {
+          "column": "atom_id2",
+          "ref_table": "atom",
+          "ref_column": "atom_id"
+        }
+      ]
+    },
+    "gmember": {
+      "columns": [
+        "atom_id",
+        "group_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "atom_id",
+          "ref_table": "atom",
+          "ref_column": "atom_id"
+        },
+        {
+          "column": "group_id",
+          "ref_table": "group",
+          "ref_column": "group_id"
+        }
+      ]
+    },
+    "group": {
+      "columns": [
+        "group_id",
+        "type"
+      ],
+      "foreign_keys": []
+    },
+    "molecule": {
+      "columns": [
+        "molecule_id",
+        "activity",
+        "logp",
+        "mweight"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

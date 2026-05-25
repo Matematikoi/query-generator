@@ -1,0 +1,51 @@
+{
+  "tables": {
+    "atom": {
+      "columns": [
+        "atom_id",
+        "molecule_id",
+        "element",
+        "type",
+        "charge"
+      ],
+      "foreign_keys": [
+        {
+          "column": "molecule_id",
+          "ref_table": "molecule",
+          "ref_column": "molecule_id"
+        }
+      ]
+    },
+    "bond": {
+      "columns": [
+        "atom1_id",
+        "atom2_id",
+        "type"
+      ],
+      "foreign_keys": [
+        {
+          "column": "atom1_id",
+          "ref_table": "atom",
+          "ref_column": "atom_id"
+        },
+        {
+          "column": "atom2_id",
+          "ref_table": "atom",
+          "ref_column": "atom_id"
+        }
+      ]
+    },
+    "molecule": {
+      "columns": [
+        "molecule_id",
+        "ind1",
+        "inda",
+        "logp",
+        "lumo",
+        "mutagenic"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

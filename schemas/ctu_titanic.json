@@ -1,0 +1,14 @@
+{
+  "tables": {
+    "data": {
+      "columns": [
+        "Class",
+        "Age",
+        "Sex",
+        "Survived"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

@@ -1,0 +1,256 @@
+{
+  "tables": {
+    "actors": {
+      "columns": [
+        "actorid",
+        "name",
+        "sex"
+      ],
+      "foreign_keys": []
+    },
+    "business": {
+      "columns": [
+        "movieid",
+        "businesstext"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        }
+      ]
+    },
+    "countries": {
+      "columns": [
+        "movieid",
+        "country"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        }
+      ]
+    },
+    "directors": {
+      "columns": [
+        "directorid",
+        "name",
+        "rate",
+        "gross",
+        "num"
+      ],
+      "foreign_keys": []
+    },
+    "distributors": {
+      "columns": [
+        "movieid",
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        }
+      ]
+    },
+    "editors": {
+      "columns": [
+        "editorid",
+        "name"
+      ],
+      "foreign_keys": []
+    },
+    "genres": {
+      "columns": [
+        "movieid",
+        "genre"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        }
+      ]
+    },
+    "language": {
+      "columns": [
+        "movieid",
+        "language"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        }
+      ]
+    },
+    "movies": {
+      "columns": [
+        "movieid",
+        "title",
+        "year"
+      ],
+      "foreign_keys": []
+    },
+    "movies2actors": {
+      "columns": [
+        "movieid",
+        "actorid",
+        "as_character",
+        "leading"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        },
+        {
+          "column": "actorid",
+          "ref_table": "actors",
+          "ref_column": "actorid"
+        }
+      ]
+    },
+    "movies2directors": {
+      "columns": [
+        "movieid",
+        "directorid",
+        "genre"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        },
+        {
+          "column": "directorid",
+          "ref_table": "directors",
+          "ref_column": "directorid"
+        }
+      ]
+    },
+    "movies2editors": {
+      "columns": [
+        "movieid",
+        "editorid",
+        "addition"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        },
+        {
+          "column": "editorid",
+          "ref_table": "editors",
+          "ref_column": "editorid"
+        }
+      ]
+    },
+    "movies2producers": {
+      "columns": [
+        "movieid",
+        "producerid",
+        "addition"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        },
+        {
+          "column": "producerid",
+          "ref_table": "producers",
+          "ref_column": "producerid"
+        }
+      ]
+    },
+    "movies2writers": {
+      "columns": [
+        "movieid",
+        "writerid",
+        "addition"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        },
+        {
+          "column": "writerid",
+          "ref_table": "writers",
+          "ref_column": "writerid"
+        }
+      ]
+    },
+    "prodcompanies": {
+      "columns": [
+        "movieid",
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        }
+      ]
+    },
+    "producers": {
+      "columns": [
+        "producerid",
+        "name"
+      ],
+      "foreign_keys": []
+    },
+    "ratings": {
+      "columns": [
+        "movieid",
+        "rank",
+        "votes",
+        "distribution"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        }
+      ]
+    },
+    "runningtimes": {
+      "columns": [
+        "movieid",
+        "time",
+        "addition",
+        "time1"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        }
+      ]
+    },
+    "writers": {
+      "columns": [
+        "writerid",
+        "name"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

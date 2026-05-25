@@ -1,0 +1,31 @@
+{
+  "tables": {
+    "product": {
+      "columns": [
+        "session_id",
+        "sequence_order",
+        "category_a",
+        "category_b",
+        "category_c",
+        "category_d"
+      ],
+      "foreign_keys": [
+        {
+          "column": "session_id",
+          "ref_table": "session",
+          "ref_column": "session_id"
+        }
+      ]
+    },
+    "session": {
+      "columns": [
+        "session_id",
+        "start_time",
+        "end_time",
+        "gender"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

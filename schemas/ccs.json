@@ -1,0 +1,86 @@
+{
+  "tables": {
+    "customers": {
+      "columns": [
+        "CustomerID",
+        "Segment",
+        "Currency"
+      ],
+      "foreign_keys": []
+    },
+    "gasstations": {
+      "columns": [
+        "GasStationID",
+        "ChainID",
+        "Country",
+        "Segment"
+      ],
+      "foreign_keys": []
+    },
+    "products": {
+      "columns": [
+        "ProductID",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "transactions": {
+      "columns": [
+        "Date",
+        "Time",
+        "CustomerID",
+        "CardID",
+        "GasStationID",
+        "ProductID",
+        "Amount",
+        "Price"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CustomerID",
+          "ref_table": "customers",
+          "ref_column": "CustomerID"
+        },
+        {
+          "column": "GasStationID",
+          "ref_table": "gasstations",
+          "ref_column": "GasStationID"
+        },
+        {
+          "column": "ProductID",
+          "ref_table": "products",
+          "ref_column": "ProductID"
+        }
+      ]
+    },
+    "transactions_1k": {
+      "columns": [
+        "TransactionID",
+        "Date",
+        "Time",
+        "CustomerID",
+        "CardID",
+        "GasStationID",
+        "ProductID",
+        "Amount",
+        "Price"
+      ],
+      "foreign_keys": []
+    },
+    "yearmonth": {
+      "columns": [
+        "CustomerID",
+        "Date",
+        "Consumption"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CustomerID",
+          "ref_table": "customers",
+          "ref_column": "CustomerID"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

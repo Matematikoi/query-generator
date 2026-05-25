@@ -1,0 +1,379 @@
+{
+  "tables": {
+    "circuit": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "circuit_hole": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "cont_loaded": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "element": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": []
+    },
+    "equal": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "element",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "fixed": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "free": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "half_circuit": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "half_circuit_hole": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "llong": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "long_for_hole": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "mesh": {
+      "columns": [
+        "name",
+        "num"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        },
+        {
+          "column": "num",
+          "ref_table": "nnumber",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "mesh_test": {
+      "columns": [
+        "name",
+        "num"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "mesh_test_Neg": {
+      "columns": [
+        "name",
+        "num"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "neighbour_xy": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "element",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "neighbour_yz": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "element",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "neighbour_zx": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "element",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "nnumber": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": []
+    },
+    "noload": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "notimportant": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "one_side_fixed": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "one_side_loaded": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "opposite": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "element",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "quarter_circuit": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "short_for_hole": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "sshort": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "two_side_fixed": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "two_side_loaded": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "usual": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "element",
+          "ref_column": "name"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

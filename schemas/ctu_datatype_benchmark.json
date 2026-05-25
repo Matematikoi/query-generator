@@ -1,0 +1,87 @@
+{
+  "tables": {
+    "dimension": {
+      "columns": [
+        "target_id",
+        "target_timestamp",
+        "bool",
+        "char",
+        "date",
+        "float",
+        "double",
+        "smallint",
+        "int",
+        "bigint",
+        "numeric_decimal",
+        "numeric_whole",
+        "text",
+        "time",
+        "timestamp",
+        "varchar",
+        "time2",
+        "date2",
+        "timestamp2",
+        "tinyint",
+        "real",
+        "decimal_decimal",
+        "decimal_whole",
+        "datetime",
+        "datetime2",
+        "year",
+        "year2",
+        "tinytext",
+        "mediumtext",
+        "longtext",
+        "enum",
+        "set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "target_id",
+          "ref_table": "target",
+          "ref_column": "target_id"
+        }
+      ]
+    },
+    "target": {
+      "columns": [
+        "target_id",
+        "target",
+        "target_ts",
+        "target_date",
+        "bit",
+        "char",
+        "varchar",
+        "float",
+        "double",
+        "real",
+        "tinyint",
+        "smallint",
+        "int",
+        "bigint",
+        "numeric_decimal",
+        "numeric_whole",
+        "decimal_decimal",
+        "decimal_whole",
+        "time",
+        "date",
+        "datetime",
+        "timestamp",
+        "year",
+        "time2",
+        "date2",
+        "datetime2",
+        "timestamp2",
+        "year2",
+        "text",
+        "tinytext",
+        "mediumtext",
+        "longtext",
+        "enum",
+        "set"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

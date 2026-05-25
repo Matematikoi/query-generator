@@ -1,0 +1,186 @@
+{
+  "tables": {
+    "Album": {
+      "columns": [
+        "AlbumId",
+        "Title",
+        "ArtistId"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ArtistId",
+          "ref_table": "Artist",
+          "ref_column": "ArtistId"
+        }
+      ]
+    },
+    "Artist": {
+      "columns": [
+        "ArtistId",
+        "Name"
+      ],
+      "foreign_keys": []
+    },
+    "Customer": {
+      "columns": [
+        "CustomerId",
+        "FirstName",
+        "LastName",
+        "Company",
+        "Address",
+        "City",
+        "State",
+        "Country",
+        "PostalCode",
+        "Phone",
+        "Fax",
+        "Email",
+        "SupportRepId"
+      ],
+      "foreign_keys": [
+        {
+          "column": "SupportRepId",
+          "ref_table": "Employee",
+          "ref_column": "EmployeeId"
+        }
+      ]
+    },
+    "Employee": {
+      "columns": [
+        "EmployeeId",
+        "LastName",
+        "FirstName",
+        "Title",
+        "ReportsTo",
+        "BirthDate",
+        "HireDate",
+        "Address",
+        "City",
+        "State",
+        "Country",
+        "PostalCode",
+        "Phone",
+        "Fax",
+        "Email"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ReportsTo",
+          "ref_table": "Employee",
+          "ref_column": "EmployeeId"
+        }
+      ]
+    },
+    "Genre": {
+      "columns": [
+        "GenreId",
+        "Name"
+      ],
+      "foreign_keys": []
+    },
+    "Invoice": {
+      "columns": [
+        "InvoiceId",
+        "CustomerId",
+        "InvoiceDate",
+        "BillingAddress",
+        "BillingCity",
+        "BillingState",
+        "BillingCountry",
+        "BillingPostalCode",
+        "Total"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CustomerId",
+          "ref_table": "Customer",
+          "ref_column": "CustomerId"
+        }
+      ]
+    },
+    "InvoiceLine": {
+      "columns": [
+        "InvoiceLineId",
+        "InvoiceId",
+        "TrackId",
+        "UnitPrice",
+        "Quantity"
+      ],
+      "foreign_keys": [
+        {
+          "column": "InvoiceId",
+          "ref_table": "Invoice",
+          "ref_column": "InvoiceId"
+        },
+        {
+          "column": "TrackId",
+          "ref_table": "Track",
+          "ref_column": "TrackId"
+        }
+      ]
+    },
+    "MediaType": {
+      "columns": [
+        "MediaTypeId",
+        "Name"
+      ],
+      "foreign_keys": []
+    },
+    "Playlist": {
+      "columns": [
+        "PlaylistId",
+        "Name"
+      ],
+      "foreign_keys": []
+    },
+    "PlaylistTrack": {
+      "columns": [
+        "PlaylistId",
+        "TrackId"
+      ],
+      "foreign_keys": [
+        {
+          "column": "PlaylistId",
+          "ref_table": "Playlist",
+          "ref_column": "PlaylistId"
+        },
+        {
+          "column": "TrackId",
+          "ref_table": "Track",
+          "ref_column": "TrackId"
+        }
+      ]
+    },
+    "Track": {
+      "columns": [
+        "TrackId",
+        "Name",
+        "AlbumId",
+        "MediaTypeId",
+        "GenreId",
+        "Composer",
+        "Milliseconds",
+        "Bytes",
+        "UnitPrice"
+      ],
+      "foreign_keys": [
+        {
+          "column": "AlbumId",
+          "ref_table": "Album",
+          "ref_column": "AlbumId"
+        },
+        {
+          "column": "GenreId",
+          "ref_table": "Genre",
+          "ref_column": "GenreId"
+        },
+        {
+          "column": "MediaTypeId",
+          "ref_table": "MediaType",
+          "ref_column": "MediaTypeId"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

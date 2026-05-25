@@ -1,0 +1,21 @@
+{
+  "tables": {
+    "dataset1": {
+      "columns": [
+        "X",
+        "Y",
+        "Artificial"
+      ],
+      "foreign_keys": []
+    },
+    "dataset2": {
+      "columns": [
+        "X",
+        "Y",
+        "Stranger"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

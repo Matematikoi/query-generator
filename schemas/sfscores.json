@@ -1,0 +1,57 @@
+{
+  "tables": {
+    "businesses": {
+      "columns": [
+        "business_id",
+        "name",
+        "address",
+        "city",
+        "postal_code",
+        "latitude",
+        "longitude",
+        "phone_number",
+        "tax_code",
+        "business_certificate",
+        "application_date",
+        "owner_name",
+        "owner_address",
+        "owner_city",
+        "owner_state",
+        "owner_zip"
+      ],
+      "foreign_keys": []
+    },
+    "inspections": {
+      "columns": [
+        "business_id",
+        "score",
+        "date",
+        "type"
+      ],
+      "foreign_keys": [
+        {
+          "column": "business_id",
+          "ref_table": "businesses",
+          "ref_column": "business_id"
+        }
+      ]
+    },
+    "violations": {
+      "columns": [
+        "business_id",
+        "date",
+        "violation_type_id",
+        "risk_category",
+        "description"
+      ],
+      "foreign_keys": [
+        {
+          "column": "business_id",
+          "ref_table": "businesses",
+          "ref_column": "business_id"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

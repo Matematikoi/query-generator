@@ -1,0 +1,253 @@
+{
+  "tables": {
+    "Attributes": {
+      "columns": [
+        "attribute_id",
+        "attribute_name"
+      ],
+      "foreign_keys": []
+    },
+    "Business": {
+      "columns": [
+        "business_id",
+        "active",
+        "city",
+        "state",
+        "stars",
+        "review_count"
+      ],
+      "foreign_keys": []
+    },
+    "Business_Attributes": {
+      "columns": [
+        "attribute_id",
+        "business_id",
+        "attribute_value"
+      ],
+      "foreign_keys": [
+        {
+          "column": "attribute_id",
+          "ref_table": "Attributes",
+          "ref_column": "attribute_id"
+        },
+        {
+          "column": "business_id",
+          "ref_table": "Business",
+          "ref_column": "business_id"
+        }
+      ]
+    },
+    "Business_Categories": {
+      "columns": [
+        "business_id",
+        "category_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "business_id",
+          "ref_table": "Business",
+          "ref_column": "business_id"
+        },
+        {
+          "column": "category_id",
+          "ref_table": "Categories",
+          "ref_column": "category_id"
+        }
+      ]
+    },
+    "Business_Hours": {
+      "columns": [
+        "business_id",
+        "day_id",
+        "opening_time",
+        "closing_time"
+      ],
+      "foreign_keys": [
+        {
+          "column": "business_id",
+          "ref_table": "Business",
+          "ref_column": "business_id"
+        },
+        {
+          "column": "day_id",
+          "ref_table": "Days",
+          "ref_column": "day_id"
+        }
+      ]
+    },
+    "Categories": {
+      "columns": [
+        "category_id",
+        "category_name"
+      ],
+      "foreign_keys": []
+    },
+    "Checkins": {
+      "columns": [
+        "business_id",
+        "day_id",
+        "label_time_0",
+        "label_time_1",
+        "label_time_2",
+        "label_time_3",
+        "label_time_4",
+        "label_time_5",
+        "label_time_6",
+        "label_time_7",
+        "label_time_8",
+        "label_time_9",
+        "label_time_10",
+        "label_time_11",
+        "label_time_12",
+        "label_time_13",
+        "label_time_14",
+        "label_time_15",
+        "label_time_16",
+        "label_time_17",
+        "label_time_18",
+        "label_time_19",
+        "label_time_20",
+        "label_time_21",
+        "label_time_22",
+        "label_time_23"
+      ],
+      "foreign_keys": [
+        {
+          "column": "business_id",
+          "ref_table": "Business",
+          "ref_column": "business_id"
+        },
+        {
+          "column": "day_id",
+          "ref_table": "Days",
+          "ref_column": "day_id"
+        },
+        {
+          "column": "business_id",
+          "ref_table": "Business",
+          "ref_column": "business_id"
+        },
+        {
+          "column": "day_id",
+          "ref_table": "Days",
+          "ref_column": "day_id"
+        }
+      ]
+    },
+    "Compliments": {
+      "columns": [
+        "compliment_id",
+        "compliment_type"
+      ],
+      "foreign_keys": []
+    },
+    "Days": {
+      "columns": [
+        "day_id",
+        "day_of_week"
+      ],
+      "foreign_keys": []
+    },
+    "Elite": {
+      "columns": [
+        "user_id",
+        "year_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "user_id",
+          "ref_table": "Users",
+          "ref_column": "user_id"
+        },
+        {
+          "column": "year_id",
+          "ref_table": "Years",
+          "ref_column": "year_id"
+        }
+      ]
+    },
+    "Reviews": {
+      "columns": [
+        "business_id",
+        "user_id",
+        "review_stars",
+        "review_votes_funny",
+        "review_votes_useful",
+        "review_votes_cool",
+        "review_length"
+      ],
+      "foreign_keys": [
+        {
+          "column": "business_id",
+          "ref_table": "Business",
+          "ref_column": "business_id"
+        },
+        {
+          "column": "user_id",
+          "ref_table": "Users",
+          "ref_column": "user_id"
+        }
+      ]
+    },
+    "Tips": {
+      "columns": [
+        "business_id",
+        "user_id",
+        "likes",
+        "tip_length"
+      ],
+      "foreign_keys": [
+        {
+          "column": "business_id",
+          "ref_table": "Business",
+          "ref_column": "business_id"
+        },
+        {
+          "column": "user_id",
+          "ref_table": "Users",
+          "ref_column": "user_id"
+        }
+      ]
+    },
+    "Users": {
+      "columns": [
+        "user_id",
+        "user_yelping_since_year",
+        "user_average_stars",
+        "user_votes_funny",
+        "user_votes_useful",
+        "user_votes_cool",
+        "user_review_count",
+        "user_fans"
+      ],
+      "foreign_keys": []
+    },
+    "Users_Compliments": {
+      "columns": [
+        "compliment_id",
+        "user_id",
+        "number_of_compliments"
+      ],
+      "foreign_keys": [
+        {
+          "column": "compliment_id",
+          "ref_table": "Compliments",
+          "ref_column": "compliment_id"
+        },
+        {
+          "column": "user_id",
+          "ref_table": "Users",
+          "ref_column": "user_id"
+        }
+      ]
+    },
+    "Years": {
+      "columns": [
+        "year_id",
+        "actual_year"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

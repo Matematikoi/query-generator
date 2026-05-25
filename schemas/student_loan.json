@@ -1,0 +1,123 @@
+{
+  "tables": {
+    "bool": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": []
+    },
+    "disabled": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "enlist": {
+      "columns": [
+        "name",
+        "organ"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "enrolled": {
+      "columns": [
+        "name",
+        "school",
+        "month"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "filed_for_bankrupcy": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "longest_absense_from_school": {
+      "columns": [
+        "name",
+        "month"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "male": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "no_payment_due": {
+      "columns": [
+        "name",
+        "bool"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "bool",
+          "ref_table": "bool",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "person": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": []
+    },
+    "unemployed": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

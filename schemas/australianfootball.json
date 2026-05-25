@@ -1,0 +1,129 @@
+{
+  "tables": {
+    "match_stats": {
+      "columns": [
+        "mid",
+        "pid",
+        "tid",
+        "loc",
+        "KI",
+        "MK",
+        "HB",
+        "DI",
+        "GL",
+        "BH",
+        "HO",
+        "TK",
+        "RB",
+        "IF",
+        "CL",
+        "CG",
+        "FF",
+        "FA",
+        "BR",
+        "CP",
+        "UP",
+        "CM",
+        "MI",
+        "1P",
+        "BO",
+        "GA",
+        "PP"
+      ],
+      "foreign_keys": [
+        {
+          "column": "pid",
+          "ref_table": "players",
+          "ref_column": "pid"
+        },
+        {
+          "column": "tid",
+          "ref_table": "teams",
+          "ref_column": "tid"
+        },
+        {
+          "column": "mid",
+          "ref_table": "matches",
+          "ref_column": "mid"
+        }
+      ]
+    },
+    "matches": {
+      "columns": [
+        "mid",
+        "season",
+        "round",
+        "tid1",
+        "tid2",
+        "tid1_loc",
+        "tid2_loc",
+        "start_dt",
+        "venue",
+        "att",
+        "margin",
+        "win_score",
+        "win_tid",
+        "win_loc",
+        "lose_score",
+        "lose_loc",
+        "lose_tid",
+        "h_tid",
+        "h_score",
+        "h_q1g",
+        "h_q2g",
+        "h_q3g",
+        "h_q4g",
+        "h_etg",
+        "h_q1b",
+        "h_q2b",
+        "h_q3b",
+        "h_q4b",
+        "h_etb",
+        "a_tid",
+        "a_score",
+        "a_q1g",
+        "a_q2g",
+        "a_q3g",
+        "a_q4g",
+        "a_etg",
+        "a_q1b",
+        "a_q2b",
+        "a_q3b",
+        "a_q4b",
+        "a_etb",
+        "target"
+      ],
+      "foreign_keys": [
+        {
+          "column": "tid1",
+          "ref_table": "teams",
+          "ref_column": "tid"
+        },
+        {
+          "column": "tid2",
+          "ref_table": "teams",
+          "ref_column": "tid"
+        }
+      ]
+    },
+    "players": {
+      "columns": [
+        "pid",
+        "dob",
+        "first_name",
+        "last_name",
+        "height",
+        "weight"
+      ],
+      "foreign_keys": []
+    },
+    "teams": {
+      "columns": [
+        "tid",
+        "tname"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

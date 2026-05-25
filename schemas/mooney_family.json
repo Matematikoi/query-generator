@@ -1,0 +1,1217 @@
+{
+  "tables": {
+    "aunt": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "aunt1": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "aunt2": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "aunt3": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "aunt4": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "aunt5": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "brother": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "brother1": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "brother2": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "brother3": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "brother4": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "brother5": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "daughter": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "daughter1": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "daughter2": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "daughter3": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "daughter4": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "daughter5": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "father": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "father1": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "father2": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "father3": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "father4": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "father5": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "husband": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "husband1": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "husband2": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "husband3": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "husband4": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "husband5": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "mother": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "mother1": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "mother2": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "mother3": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "mother4": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "mother5": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "nephew": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "nephew1": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "nephew2": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "nephew3": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "nephew4": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "nephew5": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "niece": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "niece1": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "niece2": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "niece3": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "niece4": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "niece5": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "person": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": []
+    },
+    "sister": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "sister1": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "sister2": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "sister3": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "sister4": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "sister5": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "son": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "son1": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "son2": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "son3": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "son4": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "son5": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "uncle": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "uncle1": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "uncle2": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "uncle3": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "uncle4": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "uncle5": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "wife": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

@@ -1,0 +1,57 @@
+{
+  "tables": {
+    "client": {
+      "columns": [
+        "client_id",
+        "kraj",
+        "obor"
+      ],
+      "foreign_keys": []
+    },
+    "dobito": {
+      "columns": [
+        "client_id",
+        "month_year_datum_transakce",
+        "sluzba",
+        "kc_dobito"
+      ],
+      "foreign_keys": [
+        {
+          "column": "client_id",
+          "ref_table": "client",
+          "ref_column": "client_id"
+        }
+      ]
+    },
+    "probehnuto": {
+      "columns": [
+        "client_id",
+        "month_year_datum_transakce",
+        "sluzba",
+        "kc_proklikano"
+      ],
+      "foreign_keys": [
+        {
+          "column": "client_id",
+          "ref_table": "client",
+          "ref_column": "client_id"
+        }
+      ]
+    },
+    "probehnuto_mimo_penezenku": {
+      "columns": [
+        "client_id",
+        "Month/Year",
+        "probehla_inzerce_mimo_penezenku"
+      ],
+      "foreign_keys": [
+        {
+          "column": "client_id",
+          "ref_table": "client",
+          "ref_column": "client_id"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

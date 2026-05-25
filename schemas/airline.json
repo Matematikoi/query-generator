@@ -1,0 +1,385 @@
+{
+  "tables": {
+    "L_AIRLINE_ID": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_AIRPORT": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_AIRPORT_ID": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_AIRPORT_SEQ_ID": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_CANCELLATION": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_CITY_MARKET_ID": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_DEPARRBLK": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_DISTANCE_GROUP_250": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_DIVERSIONS": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_MONTHS": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_ONTIME_DELAY_GROUPS": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_QUARTERS": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_STATE_ABR_AVIATION": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_STATE_FIPS": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_UNIQUE_CARRIERS": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_WEEKDAYS": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_WORLD_AREA_CODES": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "L_YESNO_RESP": {
+      "columns": [
+        "Code",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "On_Time_On_Time_Performance_2016_1": {
+      "columns": [
+        "Year",
+        "Quarter",
+        "Month",
+        "DayofMonth",
+        "DayOfWeek",
+        "FlightDate",
+        "UniqueCarrier",
+        "AirlineID",
+        "Carrier",
+        "TailNum",
+        "FlightNum",
+        "OriginAirportID",
+        "OriginAirportSeqID",
+        "OriginCityMarketID",
+        "Origin",
+        "OriginCityName",
+        "OriginState",
+        "OriginStateFips",
+        "OriginStateName",
+        "OriginWac",
+        "DestAirportID",
+        "DestAirportSeqID",
+        "DestCityMarketID",
+        "Dest",
+        "DestCityName",
+        "DestState",
+        "DestStateFips",
+        "DestStateName",
+        "DestWac",
+        "CRSDepTime",
+        "DepTime",
+        "DepDelay",
+        "DepDelayMinutes",
+        "DepDel15",
+        "DepartureDelayGroups",
+        "DepTimeBlk",
+        "TaxiOut",
+        "WheelsOff",
+        "WheelsOn",
+        "TaxiIn",
+        "CRSArrTime",
+        "ArrTime",
+        "ArrDelay",
+        "ArrDelayMinutes",
+        "ArrDel15",
+        "ArrivalDelayGroups",
+        "ArrTimeBlk",
+        "Cancelled",
+        "CancellationCode",
+        "Diverted",
+        "CRSElapsedTime",
+        "ActualElapsedTime",
+        "AirTime",
+        "Flights",
+        "Distance",
+        "DistanceGroup",
+        "CarrierDelay",
+        "WeatherDelay",
+        "NASDelay",
+        "SecurityDelay",
+        "LateAircraftDelay",
+        "FirstDepTime",
+        "TotalAddGTime",
+        "LongestAddGTime",
+        "DivAirportLandings",
+        "DivReachedDest",
+        "DivActualElapsedTime",
+        "DivArrDelay",
+        "DivDistance",
+        "Div1Airport",
+        "Div1AirportID",
+        "Div1AirportSeqID",
+        "Div1WheelsOn",
+        "Div1TotalGTime",
+        "Div1LongestGTime",
+        "Div1WheelsOff",
+        "Div1TailNum",
+        "Div2Airport",
+        "Div2AirportID",
+        "Div2AirportSeqID",
+        "Div2WheelsOn",
+        "Div2TotalGTime",
+        "Div2LongestGTime"
+      ],
+      "foreign_keys": [
+        {
+          "column": "AirlineID",
+          "ref_table": "L_AIRLINE_ID",
+          "ref_column": "Code"
+        },
+        {
+          "column": "ArrDel15",
+          "ref_table": "L_YESNO_RESP",
+          "ref_column": "Code"
+        },
+        {
+          "column": "ArrivalDelayGroups",
+          "ref_table": "L_ONTIME_DELAY_GROUPS",
+          "ref_column": "Code"
+        },
+        {
+          "column": "CancellationCode",
+          "ref_table": "L_CANCELLATION",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Cancelled",
+          "ref_table": "L_YESNO_RESP",
+          "ref_column": "Code"
+        },
+        {
+          "column": "DayOfWeek",
+          "ref_table": "L_WEEKDAYS",
+          "ref_column": "Code"
+        },
+        {
+          "column": "DepDel15",
+          "ref_table": "L_YESNO_RESP",
+          "ref_column": "Code"
+        },
+        {
+          "column": "DepTimeBlk",
+          "ref_table": "L_DEPARRBLK",
+          "ref_column": "Code"
+        },
+        {
+          "column": "DepartureDelayGroups",
+          "ref_table": "L_ONTIME_DELAY_GROUPS",
+          "ref_column": "Code"
+        },
+        {
+          "column": "DestAirportID",
+          "ref_table": "L_AIRPORT_ID",
+          "ref_column": "Code"
+        },
+        {
+          "column": "DestAirportSeqID",
+          "ref_table": "L_AIRPORT_SEQ_ID",
+          "ref_column": "Code"
+        },
+        {
+          "column": "DestCityMarketID",
+          "ref_table": "L_CITY_MARKET_ID",
+          "ref_column": "Code"
+        },
+        {
+          "column": "DestStateFips",
+          "ref_table": "L_STATE_FIPS",
+          "ref_column": "Code"
+        },
+        {
+          "column": "DestState",
+          "ref_table": "L_STATE_ABR_AVIATION",
+          "ref_column": "Code"
+        },
+        {
+          "column": "DestWac",
+          "ref_table": "L_WORLD_AREA_CODES",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Dest",
+          "ref_table": "L_AIRPORT",
+          "ref_column": "Code"
+        },
+        {
+          "column": "DistanceGroup",
+          "ref_table": "L_DISTANCE_GROUP_250",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Div1AirportID",
+          "ref_table": "L_AIRPORT_ID",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Div1AirportSeqID",
+          "ref_table": "L_AIRPORT_SEQ_ID",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Div2AirportID",
+          "ref_table": "L_AIRPORT_ID",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Div2AirportSeqID",
+          "ref_table": "L_AIRPORT_SEQ_ID",
+          "ref_column": "Code"
+        },
+        {
+          "column": "DivAirportLandings",
+          "ref_table": "L_DIVERSIONS",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Diverted",
+          "ref_table": "L_YESNO_RESP",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Month",
+          "ref_table": "L_MONTHS",
+          "ref_column": "Code"
+        },
+        {
+          "column": "OriginAirportID",
+          "ref_table": "L_AIRPORT_ID",
+          "ref_column": "Code"
+        },
+        {
+          "column": "OriginAirportSeqID",
+          "ref_table": "L_AIRPORT_SEQ_ID",
+          "ref_column": "Code"
+        },
+        {
+          "column": "OriginCityMarketID",
+          "ref_table": "L_CITY_MARKET_ID",
+          "ref_column": "Code"
+        },
+        {
+          "column": "OriginStateFips",
+          "ref_table": "L_STATE_FIPS",
+          "ref_column": "Code"
+        },
+        {
+          "column": "OriginState",
+          "ref_table": "L_STATE_ABR_AVIATION",
+          "ref_column": "Code"
+        },
+        {
+          "column": "OriginWac",
+          "ref_table": "L_WORLD_AREA_CODES",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Origin",
+          "ref_table": "L_AIRPORT",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Quarter",
+          "ref_table": "L_QUARTERS",
+          "ref_column": "Code"
+        },
+        {
+          "column": "UniqueCarrier",
+          "ref_table": "L_UNIQUE_CARRIERS",
+          "ref_column": "Code"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

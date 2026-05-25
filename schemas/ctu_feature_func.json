@@ -1,0 +1,25 @@
+{
+  "tables": {
+    "result_list": {
+      "columns": [
+        "feature_id",
+        "query_id",
+        "timestamp",
+        "author",
+        "feature_name",
+        "feature_description",
+        "example_usage",
+        "sql_original",
+        "table_name",
+        "col1",
+        "col2",
+        "sql",
+        "error_message",
+        "chi2",
+        "run_time"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

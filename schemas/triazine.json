@@ -1,0 +1,35 @@
+{
+  "tables": {
+    "molecule": {
+      "columns": [
+        "molecule_id",
+        "activity"
+      ],
+      "foreign_keys": []
+    },
+    "position": {
+      "columns": [
+        "molecule_id",
+        "position",
+        "branch",
+        "flex",
+        "h_acceptor",
+        "h_doner",
+        "pi_acceptor",
+        "pi_doner",
+        "polar",
+        "polarisable",
+        "sigma",
+        "size"
+      ],
+      "foreign_keys": [
+        {
+          "column": "molecule_id",
+          "ref_table": "molecule",
+          "ref_column": "molecule_id"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

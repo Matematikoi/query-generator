@@ -1,0 +1,32 @@
+{
+  "tables": {
+    "beers": {
+      "columns": [
+        "id",
+        "brewery_id",
+        "abv",
+        "ibu",
+        "name",
+        "style",
+        "ounces"
+      ],
+      "foreign_keys": [
+        {
+          "column": "brewery_id",
+          "ref_table": "breweries",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "breweries": {
+      "columns": [
+        "id",
+        "name",
+        "city",
+        "state"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

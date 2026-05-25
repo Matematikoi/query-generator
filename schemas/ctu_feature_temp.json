@@ -1,0 +1,13 @@
+{
+  "tables": {
+    "calculated_feature": {
+      "columns": [
+        "id",
+        "target",
+        "asd"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

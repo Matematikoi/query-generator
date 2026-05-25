@@ -1,0 +1,43 @@
+{
+  "tables": {
+    "cites": {
+      "columns": [
+        "cited_paper_id",
+        "citing_paper_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "cited_paper_id",
+          "ref_table": "webpage",
+          "ref_column": "webpage_id"
+        },
+        {
+          "column": "citing_paper_id",
+          "ref_table": "webpage",
+          "ref_column": "webpage_id"
+        }
+      ]
+    },
+    "content": {
+      "columns": [
+        "webpage_id",
+        "word_cited_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "webpage_id",
+          "ref_table": "webpage",
+          "ref_column": "webpage_id"
+        }
+      ]
+    },
+    "webpage": {
+      "columns": [
+        "webpage_id",
+        "class_label"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

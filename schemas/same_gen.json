@@ -1,0 +1,66 @@
+{
+  "tables": {
+    "parent": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "person": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": []
+    },
+    "same_gen": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "target": {
+      "columns": [
+        "name1",
+        "name2",
+        "target"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

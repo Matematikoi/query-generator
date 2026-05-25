@@ -1,0 +1,643 @@
+{
+  "tables": {
+    "AwardsCoaches": {
+      "columns": [
+        "coachID",
+        "award",
+        "year",
+        "lgID",
+        "note"
+      ],
+      "foreign_keys": [
+        {
+          "column": "coachID",
+          "ref_table": "Coaches",
+          "ref_column": "coachID"
+        }
+      ]
+    },
+    "AwardsMisc": {
+      "columns": [
+        "name",
+        "ID",
+        "award",
+        "year",
+        "lgID",
+        "note"
+      ],
+      "foreign_keys": []
+    },
+    "AwardsPlayers": {
+      "columns": [
+        "playerID",
+        "award",
+        "year",
+        "lgID",
+        "note",
+        "pos"
+      ],
+      "foreign_keys": [
+        {
+          "column": "playerID",
+          "ref_table": "Master",
+          "ref_column": "playerID"
+        }
+      ]
+    },
+    "Coaches": {
+      "columns": [
+        "coachID",
+        "year",
+        "tmID",
+        "lgID",
+        "stint",
+        "notes",
+        "g",
+        "w",
+        "l",
+        "t",
+        "postg",
+        "postw",
+        "postl",
+        "postt"
+      ],
+      "foreign_keys": [
+        {
+          "column": "year",
+          "ref_table": "Teams",
+          "ref_column": "year"
+        },
+        {
+          "column": "tmID",
+          "ref_table": "Teams",
+          "ref_column": "tmID"
+        }
+      ]
+    },
+    "CombinedShutouts": {
+      "columns": [
+        "year",
+        "month",
+        "date",
+        "tmID",
+        "oppID",
+        "R/P",
+        "IDgoalie1",
+        "IDgoalie2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "IDgoalie1",
+          "ref_table": "Master",
+          "ref_column": "playerID"
+        },
+        {
+          "column": "IDgoalie2",
+          "ref_table": "Master",
+          "ref_column": "playerID"
+        }
+      ]
+    },
+    "Goalies": {
+      "columns": [
+        "playerID",
+        "year",
+        "stint",
+        "tmID",
+        "lgID",
+        "GP",
+        "Min",
+        "W",
+        "L",
+        "T/OL",
+        "ENG",
+        "SHO",
+        "GA",
+        "SA",
+        "PostGP",
+        "PostMin",
+        "PostW",
+        "PostL",
+        "PostT",
+        "PostENG",
+        "PostSHO",
+        "PostGA",
+        "PostSA"
+      ],
+      "foreign_keys": [
+        {
+          "column": "playerID",
+          "ref_table": "Master",
+          "ref_column": "playerID"
+        },
+        {
+          "column": "year",
+          "ref_table": "Teams",
+          "ref_column": "year"
+        },
+        {
+          "column": "tmID",
+          "ref_table": "Teams",
+          "ref_column": "tmID"
+        }
+      ]
+    },
+    "GoaliesSC": {
+      "columns": [
+        "playerID",
+        "year",
+        "tmID",
+        "lgID",
+        "GP",
+        "Min",
+        "W",
+        "L",
+        "T",
+        "SHO",
+        "GA"
+      ],
+      "foreign_keys": [
+        {
+          "column": "playerID",
+          "ref_table": "Master",
+          "ref_column": "playerID"
+        },
+        {
+          "column": "year",
+          "ref_table": "Teams",
+          "ref_column": "year"
+        },
+        {
+          "column": "tmID",
+          "ref_table": "Teams",
+          "ref_column": "tmID"
+        }
+      ]
+    },
+    "GoaliesShootout": {
+      "columns": [
+        "playerID",
+        "year",
+        "stint",
+        "tmID",
+        "W",
+        "L",
+        "SA",
+        "GA"
+      ],
+      "foreign_keys": [
+        {
+          "column": "playerID",
+          "ref_table": "Master",
+          "ref_column": "playerID"
+        },
+        {
+          "column": "year",
+          "ref_table": "Teams",
+          "ref_column": "year"
+        },
+        {
+          "column": "tmID",
+          "ref_table": "Teams",
+          "ref_column": "tmID"
+        }
+      ]
+    },
+    "HOF": {
+      "columns": [
+        "year",
+        "hofID",
+        "name",
+        "category"
+      ],
+      "foreign_keys": []
+    },
+    "Master": {
+      "columns": [
+        "playerID",
+        "coachID",
+        "hofID",
+        "firstName",
+        "lastName",
+        "nameNote",
+        "nameGiven",
+        "nameNick",
+        "height",
+        "weight",
+        "shootCatch",
+        "legendsID",
+        "ihdbID",
+        "hrefID",
+        "firstNHL",
+        "lastNHL",
+        "firstWHA",
+        "lastWHA",
+        "pos",
+        "birthYear",
+        "birthMon",
+        "birthDay",
+        "birthCountry",
+        "birthState",
+        "birthCity",
+        "deathYear",
+        "deathMon",
+        "deathDay",
+        "deathCountry",
+        "deathState",
+        "deathCity"
+      ],
+      "foreign_keys": [
+        {
+          "column": "coachID",
+          "ref_table": "Coaches",
+          "ref_column": "coachID"
+        }
+      ]
+    },
+    "Scoring": {
+      "columns": [
+        "playerID",
+        "year",
+        "stint",
+        "tmID",
+        "lgID",
+        "pos",
+        "GP",
+        "G",
+        "A",
+        "Pts",
+        "PIM",
+        "+/-",
+        "PPG",
+        "PPA",
+        "SHG",
+        "SHA",
+        "GWG",
+        "GTG",
+        "SOG",
+        "PostGP",
+        "PostG",
+        "PostA",
+        "PostPts",
+        "PostPIM",
+        "Post+/-",
+        "PostPPG",
+        "PostPPA",
+        "PostSHG",
+        "PostSHA",
+        "PostGWG",
+        "PostSOG"
+      ],
+      "foreign_keys": [
+        {
+          "column": "playerID",
+          "ref_table": "Master",
+          "ref_column": "playerID"
+        },
+        {
+          "column": "year",
+          "ref_table": "Teams",
+          "ref_column": "year"
+        },
+        {
+          "column": "tmID",
+          "ref_table": "Teams",
+          "ref_column": "tmID"
+        }
+      ]
+    },
+    "ScoringSC": {
+      "columns": [
+        "playerID",
+        "year",
+        "tmID",
+        "lgID",
+        "pos",
+        "GP",
+        "G",
+        "A",
+        "Pts",
+        "PIM"
+      ],
+      "foreign_keys": [
+        {
+          "column": "playerID",
+          "ref_table": "Master",
+          "ref_column": "playerID"
+        },
+        {
+          "column": "year",
+          "ref_table": "Teams",
+          "ref_column": "year"
+        },
+        {
+          "column": "tmID",
+          "ref_table": "Teams",
+          "ref_column": "tmID"
+        }
+      ]
+    },
+    "ScoringShootout": {
+      "columns": [
+        "playerID",
+        "year",
+        "stint",
+        "tmID",
+        "S",
+        "G",
+        "GDG"
+      ],
+      "foreign_keys": [
+        {
+          "column": "playerID",
+          "ref_table": "Master",
+          "ref_column": "playerID"
+        },
+        {
+          "column": "year",
+          "ref_table": "Teams",
+          "ref_column": "year"
+        },
+        {
+          "column": "tmID",
+          "ref_table": "Teams",
+          "ref_column": "tmID"
+        }
+      ]
+    },
+    "ScoringSup": {
+      "columns": [
+        "playerID",
+        "year",
+        "PPA",
+        "SHA"
+      ],
+      "foreign_keys": [
+        {
+          "column": "playerID",
+          "ref_table": "Master",
+          "ref_column": "playerID"
+        }
+      ]
+    },
+    "SeriesPost": {
+      "columns": [
+        "year",
+        "round",
+        "series",
+        "tmIDWinner",
+        "lgIDWinner",
+        "tmIDLoser",
+        "lgIDLoser",
+        "W",
+        "L",
+        "T",
+        "GoalsWinner",
+        "GoalsLoser",
+        "note"
+      ],
+      "foreign_keys": [
+        {
+          "column": "year",
+          "ref_table": "Teams",
+          "ref_column": "year"
+        },
+        {
+          "column": "tmIDWinner",
+          "ref_table": "Teams",
+          "ref_column": "tmID"
+        },
+        {
+          "column": "year",
+          "ref_table": "Teams",
+          "ref_column": "year"
+        },
+        {
+          "column": "tmIDLoser",
+          "ref_table": "Teams",
+          "ref_column": "tmID"
+        }
+      ]
+    },
+    "TeamSplits": {
+      "columns": [
+        "year",
+        "lgID",
+        "tmID",
+        "hW",
+        "hL",
+        "hT",
+        "hOTL",
+        "rW",
+        "rL",
+        "rT",
+        "rOTL",
+        "SepW",
+        "SepL",
+        "SepT",
+        "SepOL",
+        "OctW",
+        "OctL",
+        "OctT",
+        "OctOL",
+        "NovW",
+        "NovL",
+        "NovT",
+        "NovOL",
+        "DecW",
+        "DecL",
+        "DecT",
+        "DecOL",
+        "JanW",
+        "JanL",
+        "JanT",
+        "JanOL",
+        "FebW",
+        "FebL",
+        "FebT",
+        "FebOL",
+        "MarW",
+        "MarL",
+        "MarT",
+        "MarOL",
+        "AprW",
+        "AprL",
+        "AprT",
+        "AprOL"
+      ],
+      "foreign_keys": [
+        {
+          "column": "year",
+          "ref_table": "Teams",
+          "ref_column": "year"
+        },
+        {
+          "column": "tmID",
+          "ref_table": "Teams",
+          "ref_column": "tmID"
+        }
+      ]
+    },
+    "TeamVsTeam": {
+      "columns": [
+        "year",
+        "lgID",
+        "tmID",
+        "oppID",
+        "W",
+        "L",
+        "T",
+        "OTL"
+      ],
+      "foreign_keys": [
+        {
+          "column": "year",
+          "ref_table": "Teams",
+          "ref_column": "year"
+        },
+        {
+          "column": "tmID",
+          "ref_table": "Teams",
+          "ref_column": "tmID"
+        },
+        {
+          "column": "oppID",
+          "ref_table": "Teams",
+          "ref_column": "tmID"
+        },
+        {
+          "column": "year",
+          "ref_table": "Teams",
+          "ref_column": "year"
+        }
+      ]
+    },
+    "Teams": {
+      "columns": [
+        "year",
+        "lgID",
+        "tmID",
+        "franchID",
+        "confID",
+        "divID",
+        "rank",
+        "playoff",
+        "G",
+        "W",
+        "L",
+        "T",
+        "OTL",
+        "Pts",
+        "SoW",
+        "SoL",
+        "GF",
+        "GA",
+        "name",
+        "PIM",
+        "BenchMinor",
+        "PPG",
+        "PPC",
+        "SHA",
+        "PKG",
+        "PKC",
+        "SHF"
+      ],
+      "foreign_keys": []
+    },
+    "TeamsHalf": {
+      "columns": [
+        "year",
+        "lgID",
+        "tmID",
+        "half",
+        "rank",
+        "G",
+        "W",
+        "L",
+        "T",
+        "GF",
+        "GA"
+      ],
+      "foreign_keys": [
+        {
+          "column": "tmID",
+          "ref_table": "Teams",
+          "ref_column": "tmID"
+        },
+        {
+          "column": "year",
+          "ref_table": "Teams",
+          "ref_column": "year"
+        }
+      ]
+    },
+    "TeamsPost": {
+      "columns": [
+        "year",
+        "lgID",
+        "tmID",
+        "G",
+        "W",
+        "L",
+        "T",
+        "GF",
+        "GA",
+        "PIM",
+        "BenchMinor",
+        "PPG",
+        "PPC",
+        "SHA",
+        "PKG",
+        "PKC",
+        "SHF"
+      ],
+      "foreign_keys": [
+        {
+          "column": "year",
+          "ref_table": "Teams",
+          "ref_column": "year"
+        },
+        {
+          "column": "tmID",
+          "ref_table": "Teams",
+          "ref_column": "tmID"
+        }
+      ]
+    },
+    "TeamsSC": {
+      "columns": [
+        "year",
+        "lgID",
+        "tmID",
+        "G",
+        "W",
+        "L",
+        "T",
+        "GF",
+        "GA",
+        "PIM"
+      ],
+      "foreign_keys": [
+        {
+          "column": "year",
+          "ref_table": "Teams",
+          "ref_column": "year"
+        },
+        {
+          "column": "tmID",
+          "ref_table": "Teams",
+          "ref_column": "tmID"
+        }
+      ]
+    },
+    "abbrev": {
+      "columns": [
+        "Type",
+        "Code",
+        "Fullname"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

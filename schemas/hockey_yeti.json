@@ -1,0 +1,73 @@
+{
+  "tables": {
+    "original_player_season_draftdata": {
+      "columns": [
+        "eliteId",
+        "PlayerName",
+        "BirthDate",
+        "BirthYear",
+        "BirthMonth",
+        "BirthDay",
+        "Birthplace",
+        "Nation",
+        "Height_info",
+        "Height",
+        "Weight_info",
+        "Weight",
+        "Position_info",
+        "Position",
+        "Shoots",
+        "DraftYear",
+        "DraftRound",
+        "Overall",
+        "OverallBy",
+        "Season",
+        "Team",
+        "League",
+        "GameType",
+        "GP",
+        "G",
+        "A",
+        "P",
+        "PIM",
+        "PlusMinus"
+      ],
+      "foreign_keys": []
+    },
+    "original_player_season_hockey_drafted": {
+      "columns": [
+        "eliteId",
+        "PlayerName",
+        "BirthDate",
+        "BirthYear",
+        "BirthMonth",
+        "BirthDay",
+        "Birthplace",
+        "Nation",
+        "Height_info",
+        "Height",
+        "Weight_info",
+        "Weight",
+        "Position_info",
+        "Position",
+        "Shoots",
+        "DraftYear",
+        "DraftRound",
+        "Overall",
+        "OverallBy",
+        "Season",
+        "Team",
+        "League",
+        "GameType",
+        "GP",
+        "G",
+        "A",
+        "P",
+        "PIM",
+        "PlusMinus"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

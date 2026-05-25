@@ -1,0 +1,55 @@
+{
+  "tables": {
+    "PlayerInfo": {
+      "columns": [
+        "ELITEID",
+        "PlayerName",
+        "birthdate",
+        "birthyear",
+        "birthmonth",
+        "birthday",
+        "birthplace",
+        "nation",
+        "height_info",
+        "height",
+        "weight_info",
+        "weight",
+        "position_info",
+        "position",
+        "shoots",
+        "draftyear",
+        "draftround",
+        "overall",
+        "overallby",
+        "CSS_rank",
+        "sum_7yr_GP",
+        "sum_7yr_TOI",
+        "GP_greater_than_0"
+      ],
+      "foreign_keys": []
+    },
+    "SeasonStatus": {
+      "columns": [
+        "ELITEID",
+        "SEASON",
+        "TEAM",
+        "LEAGUE",
+        "GAMETYPE",
+        "GP",
+        "G",
+        "A",
+        "P",
+        "PIM",
+        "PLUSMINUS"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ELITEID",
+          "ref_table": "PlayerInfo",
+          "ref_column": "ELITEID"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

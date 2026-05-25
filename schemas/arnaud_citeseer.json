@@ -1,0 +1,33 @@
+{
+  "tables": {
+    "cites": {
+      "columns": [
+        "cited_paper_id",
+        "citing_paper_id"
+      ],
+      "foreign_keys": []
+    },
+    "content": {
+      "columns": [
+        "paper_id",
+        "word_cited_id",
+        "class_label"
+      ],
+      "foreign_keys": [
+        {
+          "column": "paper_id",
+          "ref_table": "paper",
+          "ref_column": "paper_id"
+        }
+      ]
+    },
+    "paper": {
+      "columns": [
+        "paper_id",
+        "class_label"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

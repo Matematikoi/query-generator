@@ -1,0 +1,97 @@
+{
+  "tables": {
+    "actors": {
+      "columns": [
+        "actorid",
+        "a_gender",
+        "a_quality"
+      ],
+      "foreign_keys": []
+    },
+    "directors": {
+      "columns": [
+        "directorid",
+        "d_quality",
+        "avg_revenue"
+      ],
+      "foreign_keys": []
+    },
+    "movies": {
+      "columns": [
+        "movieid",
+        "year",
+        "isEnglish",
+        "country",
+        "runningtime"
+      ],
+      "foreign_keys": []
+    },
+    "movies2actors": {
+      "columns": [
+        "movieid",
+        "actorid",
+        "cast_num"
+      ],
+      "foreign_keys": [
+        {
+          "column": "actorid",
+          "ref_table": "actors",
+          "ref_column": "actorid"
+        },
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        }
+      ]
+    },
+    "movies2directors": {
+      "columns": [
+        "movieid",
+        "directorid",
+        "genre"
+      ],
+      "foreign_keys": [
+        {
+          "column": "directorid",
+          "ref_table": "directors",
+          "ref_column": "directorid"
+        },
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        }
+      ]
+    },
+    "u2base": {
+      "columns": [
+        "userid",
+        "movieid",
+        "rating"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movieid",
+          "ref_table": "movies",
+          "ref_column": "movieid"
+        },
+        {
+          "column": "userid",
+          "ref_table": "users",
+          "ref_column": "userid"
+        }
+      ]
+    },
+    "users": {
+      "columns": [
+        "userid",
+        "age",
+        "u_gender",
+        "occupation"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

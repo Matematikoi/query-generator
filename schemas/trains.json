@@ -1,0 +1,33 @@
+{
+  "tables": {
+    "cars": {
+      "columns": [
+        "id",
+        "train_id",
+        "position",
+        "shape",
+        "len",
+        "sides",
+        "roof",
+        "wheels",
+        "load_shape",
+        "load_num"
+      ],
+      "foreign_keys": [
+        {
+          "column": "train_id",
+          "ref_table": "trains",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "trains": {
+      "columns": [
+        "id",
+        "direction"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

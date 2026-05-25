@@ -1,0 +1,250 @@
+{
+  "tables": {
+    "C_Customer": {
+      "columns": [
+        "c_id",
+        "c_d_id",
+        "c_w_id",
+        "c_first",
+        "c_middle",
+        "c_last",
+        "c_street_1",
+        "c_street_2",
+        "c_city",
+        "c_state",
+        "c_zip",
+        "c_phone",
+        "c_since",
+        "c_credit",
+        "c_credit_lim",
+        "c_discount",
+        "c_balance",
+        "c_ytd_payment",
+        "c_payment_cnt",
+        "c_delivery_cnt",
+        "c_data1",
+        "c_data2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "c_d_id",
+          "ref_table": "C_District",
+          "ref_column": "d_id"
+        }
+      ]
+    },
+    "C_District": {
+      "columns": [
+        "d_id",
+        "d_w_id",
+        "d_name",
+        "d_street_1",
+        "d_street_2",
+        "d_city",
+        "d_state",
+        "d_zip",
+        "d_tax",
+        "d_ytd",
+        "d_next_o_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "d_w_id",
+          "ref_table": "C_Warehouse",
+          "ref_column": "w_id"
+        }
+      ]
+    },
+    "C_History": {
+      "columns": [
+        "h_c_id",
+        "h_c_d_id",
+        "h_c_w_id",
+        "h_d_id",
+        "h_w_id",
+        "h_date",
+        "h_amount",
+        "h_data"
+      ],
+      "foreign_keys": [
+        {
+          "column": "h_c_id",
+          "ref_table": "C_Customer",
+          "ref_column": "c_id"
+        },
+        {
+          "column": "h_c_d_id",
+          "ref_table": "C_Customer",
+          "ref_column": "c_d_id"
+        },
+        {
+          "column": "h_c_w_id",
+          "ref_table": "C_Customer",
+          "ref_column": "c_w_id"
+        },
+        {
+          "column": "h_d_id",
+          "ref_table": "C_District",
+          "ref_column": "d_id"
+        },
+        {
+          "column": "h_w_id",
+          "ref_table": "C_District",
+          "ref_column": "d_w_id"
+        }
+      ]
+    },
+    "C_Item": {
+      "columns": [
+        "i_id",
+        "i_im_id",
+        "i_name",
+        "i_price",
+        "i_data"
+      ],
+      "foreign_keys": []
+    },
+    "C_New_Order": {
+      "columns": [
+        "no_o_id",
+        "no_d_id",
+        "no_w_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "no_o_id",
+          "ref_table": "C_Order",
+          "ref_column": "o_id"
+        },
+        {
+          "column": "no_d_id",
+          "ref_table": "C_Order",
+          "ref_column": "o_d_id"
+        },
+        {
+          "column": "no_w_id",
+          "ref_table": "C_Order",
+          "ref_column": "o_w_id"
+        }
+      ]
+    },
+    "C_Order": {
+      "columns": [
+        "o_id",
+        "o_d_id",
+        "o_w_id",
+        "o_c_id",
+        "o_entry_d",
+        "o_carrier_id",
+        "o_ol_cnt",
+        "o_all_local"
+      ],
+      "foreign_keys": [
+        {
+          "column": "o_d_id",
+          "ref_table": "C_Customer",
+          "ref_column": "c_d_id"
+        },
+        {
+          "column": "o_c_id",
+          "ref_table": "C_Customer",
+          "ref_column": "c_id"
+        },
+        {
+          "column": "o_w_id",
+          "ref_table": "C_Customer",
+          "ref_column": "c_w_id"
+        }
+      ]
+    },
+    "C_Order_Line": {
+      "columns": [
+        "ol_o_id",
+        "ol_d_id",
+        "ol_w_id",
+        "ol_number",
+        "ol_i_id",
+        "ol_supply_w_id",
+        "ol_delivery_d",
+        "ol_quantity",
+        "ol_amount",
+        "ol_dist_info"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ol_o_id",
+          "ref_table": "C_Order",
+          "ref_column": "o_id"
+        },
+        {
+          "column": "ol_d_id",
+          "ref_table": "C_Order",
+          "ref_column": "o_d_id"
+        },
+        {
+          "column": "ol_w_id",
+          "ref_table": "C_Order",
+          "ref_column": "o_w_id"
+        },
+        {
+          "column": "ol_i_id",
+          "ref_table": "C_Stock",
+          "ref_column": "s_i_id"
+        },
+        {
+          "column": "ol_supply_w_id",
+          "ref_table": "C_Stock",
+          "ref_column": "s_w_id"
+        }
+      ]
+    },
+    "C_Stock": {
+      "columns": [
+        "s_i_id",
+        "s_w_id",
+        "s_quantity",
+        "s_dist_01",
+        "s_dist_02",
+        "s_dist_03",
+        "s_dist_04",
+        "s_dist_05",
+        "s_dist_06",
+        "s_dist_07",
+        "s_dist_08",
+        "s_dist_09",
+        "s_dist_10",
+        "s_ytd",
+        "s_order_cnt",
+        "s_remote_cnt",
+        "s_data"
+      ],
+      "foreign_keys": [
+        {
+          "column": "s_i_id",
+          "ref_table": "C_Item",
+          "ref_column": "i_id"
+        },
+        {
+          "column": "s_w_id",
+          "ref_table": "C_Warehouse",
+          "ref_column": "w_id"
+        }
+      ]
+    },
+    "C_Warehouse": {
+      "columns": [
+        "w_id",
+        "w_name",
+        "w_street_1",
+        "w_street_2",
+        "w_city",
+        "w_state",
+        "w_zip",
+        "w_tax",
+        "w_ytd"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

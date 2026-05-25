@@ -1,0 +1,320 @@
+{
+  "tables": {
+    "ATOMS": {
+      "columns": [
+        "ID",
+        "DRUG_ID",
+        "ELEMENT",
+        "ATOM_TYPE",
+        "CHARGE"
+      ],
+      "foreign_keys": [
+        {
+          "column": "DRUG_ID",
+          "ref_table": "DRUGS",
+          "ref_column": "ID"
+        }
+      ]
+    },
+    "BONDS": {
+      "columns": [
+        "ID",
+        "DRUG_ID",
+        "ATOM1_ID",
+        "ATOM2_ID",
+        "BOND_TYPE"
+      ],
+      "foreign_keys": [
+        {
+          "column": "DRUG_ID",
+          "ref_table": "DRUGS",
+          "ref_column": "ID"
+        },
+        {
+          "column": "ATOM1_ID",
+          "ref_table": "ATOMS",
+          "ref_column": "ID"
+        },
+        {
+          "column": "ATOM2_ID",
+          "ref_table": "ATOMS",
+          "ref_column": "ID"
+        }
+      ]
+    },
+    "DRUGS": {
+      "columns": [
+        "ID",
+        "IND1",
+        "INDA",
+        "ACT",
+        "LOGP",
+        "LUMO",
+        "ACTIVE"
+      ],
+      "foreign_keys": []
+    },
+    "LEGALACTS": {
+      "columns": [
+        "ID",
+        "HASH",
+        "UPDATE",
+        "COURT",
+        "CASEKIND",
+        "CASENUMBER",
+        "ACTYEAR",
+        "JUDGE",
+        "ACTKIND",
+        "ACTNUMBER",
+        "STARTDATE",
+        "LEGALDATE",
+        "STATUS",
+        "ACTLINK",
+        "MOTIVEDATE",
+        "MOTIVELINK",
+        "HIGHCOURT",
+        "OUTNUMBER",
+        "YEARHIGHERCOURT",
+        "TYPEOFDOCUMENT",
+        "SENDDATE",
+        "RESULTOFAPPEAL"
+      ],
+      "foreign_keys": []
+    },
+    "LEGALACT_LINK": {
+      "columns": [
+        "ACTID1",
+        "ACTID2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ACTID1",
+          "ref_table": "LEGALACTS",
+          "ref_column": "ID"
+        },
+        {
+          "column": "ACTID2",
+          "ref_table": "LEGALACTS",
+          "ref_column": "ID"
+        }
+      ]
+    },
+    "LEGALACT_PEOPLE": {
+      "columns": [
+        "PEOPLEID",
+        "ACTID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "PEOPLEID",
+          "ref_table": "PEOPLE",
+          "ref_column": "PERSONID"
+        },
+        {
+          "column": "ACTID",
+          "ref_table": "LEGALACTS",
+          "ref_column": "ID"
+        }
+      ]
+    },
+    "PEOPLE": {
+      "columns": [
+        "PERSONID",
+        "NAME",
+        "JURY",
+        "COURT"
+      ],
+      "foreign_keys": []
+    },
+    "RINGS": {
+      "columns": [
+        "ID",
+        "RING_STRUC_ID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "RING_STRUC_ID",
+          "ref_table": "RING_STRUCS",
+          "ref_column": "ID"
+        }
+      ]
+    },
+    "RING_ATOM": {
+      "columns": [
+        "ID",
+        "RING_ID",
+        "ATOM_ID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "RING_ID",
+          "ref_table": "RINGS",
+          "ref_column": "ID"
+        },
+        {
+          "column": "ATOM_ID",
+          "ref_table": "ATOMS",
+          "ref_column": "ID"
+        }
+      ]
+    },
+    "RING_STRUCS": {
+      "columns": [
+        "ID",
+        "DRUG_ID",
+        "NAME"
+      ],
+      "foreign_keys": [
+        {
+          "column": "DRUG_ID",
+          "ref_table": "DRUGS",
+          "ref_column": "ID"
+        }
+      ]
+    },
+    "SCRAPEFIX": {
+      "columns": [
+        "ACTID",
+        "FIX_DESCRIPTION",
+        "CONTRIBUTOR"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ACTID",
+          "ref_table": "LEGALACTS",
+          "ref_column": "ID"
+        }
+      ]
+    },
+    "course": {
+      "columns": [
+        "course_id",
+        "rating",
+        "diff"
+      ],
+      "foreign_keys": []
+    },
+    "key": {
+      "columns": [
+        "store_nbr",
+        "station_nbr"
+      ],
+      "foreign_keys": [
+        {
+          "column": "station_nbr",
+          "ref_table": "station",
+          "ref_column": "station_nbr"
+        }
+      ]
+    },
+    "prof": {
+      "columns": [
+        "prof_id",
+        "popularity",
+        "teachingability"
+      ],
+      "foreign_keys": []
+    },
+    "ra": {
+      "columns": [
+        "capability",
+        "prof_id",
+        "student_id",
+        "salary"
+      ],
+      "foreign_keys": [
+        {
+          "column": "student_id",
+          "ref_table": "student",
+          "ref_column": "student_id"
+        },
+        {
+          "column": "prof_id",
+          "ref_table": "prof",
+          "ref_column": "prof_id"
+        }
+      ]
+    },
+    "registration": {
+      "columns": [
+        "course_id",
+        "student_id",
+        "grade",
+        "sat"
+      ],
+      "foreign_keys": [
+        {
+          "column": "student_id",
+          "ref_table": "student",
+          "ref_column": "student_id"
+        },
+        {
+          "column": "course_id",
+          "ref_table": "course",
+          "ref_column": "course_id"
+        }
+      ]
+    },
+    "station": {
+      "columns": [
+        "station_nbr"
+      ],
+      "foreign_keys": []
+    },
+    "student": {
+      "columns": [
+        "student_id",
+        "intelligence",
+        "ranking"
+      ],
+      "foreign_keys": []
+    },
+    "train": {
+      "columns": [
+        "date",
+        "store_nbr",
+        "item_nbr",
+        "units"
+      ],
+      "foreign_keys": [
+        {
+          "column": "store_nbr",
+          "ref_table": "key",
+          "ref_column": "store_nbr"
+        }
+      ]
+    },
+    "weather": {
+      "columns": [
+        "station_nbr",
+        "date",
+        "tmax",
+        "tmin",
+        "tavg",
+        "depart",
+        "dewpoint",
+        "wetbulb",
+        "heat",
+        "cool",
+        "sunrise",
+        "sunset",
+        "codesum",
+        "snowfall",
+        "preciptotal",
+        "stnpressure",
+        "sealevel",
+        "resultspeed",
+        "resultdir",
+        "avgspeed"
+      ],
+      "foreign_keys": [
+        {
+          "column": "station_nbr",
+          "ref_table": "station",
+          "ref_column": "station_nbr"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

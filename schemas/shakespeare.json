@@ -1,0 +1,61 @@
+{
+  "tables": {
+    "chapters": {
+      "columns": [
+        "id",
+        "Act",
+        "Scene",
+        "Description",
+        "work_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "work_id",
+          "ref_table": "works",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "characters": {
+      "columns": [
+        "id",
+        "CharName",
+        "Abbrev",
+        "Description"
+      ],
+      "foreign_keys": []
+    },
+    "paragraphs": {
+      "columns": [
+        "id",
+        "ParagraphNum",
+        "PlainText",
+        "character_id",
+        "chapter_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "character_id",
+          "ref_table": "characters",
+          "ref_column": "id"
+        },
+        {
+          "column": "chapter_id",
+          "ref_table": "chapters",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "works": {
+      "columns": [
+        "id",
+        "Title",
+        "LongTitle",
+        "Date",
+        "GenreType"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

@@ -1,0 +1,18 @@
+{
+  "tables": {
+    "auta": {
+      "columns": [
+        "mpg",
+        "cylinders",
+        "displacement",
+        "horsepower",
+        "weight",
+        "acceleration",
+        "model year",
+        "origin"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

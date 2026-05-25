@@ -1,0 +1,13 @@
+{
+  "tables": {
+    "data": {
+      "columns": [
+        "x",
+        "y",
+        "cluster"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

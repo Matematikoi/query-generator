@@ -1,0 +1,91 @@
+{
+  "tables": {
+    "legalact_link": {
+      "columns": [
+        "actId1",
+        "actId2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "actId1",
+          "ref_table": "legalacts",
+          "ref_column": "id"
+        },
+        {
+          "column": "actId2",
+          "ref_table": "legalacts",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "legalact_people": {
+      "columns": [
+        "peopleId",
+        "actId"
+      ],
+      "foreign_keys": [
+        {
+          "column": "peopleId",
+          "ref_table": "people",
+          "ref_column": "personId"
+        },
+        {
+          "column": "actId",
+          "ref_table": "legalacts",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "legalacts": {
+      "columns": [
+        "id",
+        "hash",
+        "update",
+        "Court",
+        "CaseKind",
+        "CaseNumber",
+        "ActYear",
+        "Judge",
+        "ActKind",
+        "ActNumber",
+        "StartDate",
+        "LegalDate",
+        "Status",
+        "ActLink",
+        "MotiveDate",
+        "MotiveLink",
+        "HighCourt",
+        "OutNumber",
+        "YearHigherCourt",
+        "TypeOfDocument",
+        "SendDate",
+        "ResultOfAppeal"
+      ],
+      "foreign_keys": []
+    },
+    "people": {
+      "columns": [
+        "personId",
+        "name",
+        "jury",
+        "court"
+      ],
+      "foreign_keys": []
+    },
+    "scrapefix": {
+      "columns": [
+        "actId",
+        "fix_description",
+        "contributor"
+      ],
+      "foreign_keys": [
+        {
+          "column": "actId",
+          "ref_table": "legalacts",
+          "ref_column": "id"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

@@ -1,0 +1,49 @@
+{
+  "tables": {
+    "generalinfo": {
+      "columns": [
+        "id_restaurant",
+        "label",
+        "food_type",
+        "city",
+        "review"
+      ],
+      "foreign_keys": [
+        {
+          "column": "city",
+          "ref_table": "geographic",
+          "ref_column": "city"
+        }
+      ]
+    },
+    "geographic": {
+      "columns": [
+        "city",
+        "county",
+        "region"
+      ],
+      "foreign_keys": []
+    },
+    "location": {
+      "columns": [
+        "id_restaurant",
+        "street_num",
+        "street_name",
+        "city"
+      ],
+      "foreign_keys": [
+        {
+          "column": "city",
+          "ref_table": "geographic",
+          "ref_column": "city"
+        },
+        {
+          "column": "id_restaurant",
+          "ref_table": "generalinfo",
+          "ref_column": "id_restaurant"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

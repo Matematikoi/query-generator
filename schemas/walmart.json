@@ -1,0 +1,70 @@
+{
+  "tables": {
+    "key": {
+      "columns": [
+        "store_nbr",
+        "station_nbr"
+      ],
+      "foreign_keys": [
+        {
+          "column": "station_nbr",
+          "ref_table": "station",
+          "ref_column": "station_nbr"
+        }
+      ]
+    },
+    "station": {
+      "columns": [
+        "station_nbr"
+      ],
+      "foreign_keys": []
+    },
+    "train": {
+      "columns": [
+        "date",
+        "store_nbr",
+        "item_nbr",
+        "units"
+      ],
+      "foreign_keys": [
+        {
+          "column": "store_nbr",
+          "ref_table": "key",
+          "ref_column": "store_nbr"
+        }
+      ]
+    },
+    "weather": {
+      "columns": [
+        "station_nbr",
+        "date",
+        "tmax",
+        "tmin",
+        "tavg",
+        "depart",
+        "dewpoint",
+        "wetbulb",
+        "heat",
+        "cool",
+        "sunrise",
+        "sunset",
+        "codesum",
+        "snowfall",
+        "preciptotal",
+        "stnpressure",
+        "sealevel",
+        "resultspeed",
+        "resultdir",
+        "avgspeed"
+      ],
+      "foreign_keys": [
+        {
+          "column": "station_nbr",
+          "ref_table": "station",
+          "ref_column": "station_nbr"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

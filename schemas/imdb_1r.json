@@ -1,0 +1,41 @@
+{
+  "tables": {
+    "HasRated": {
+      "columns": [
+        "user_id",
+        "item_id",
+        "rating"
+      ],
+      "foreign_keys": [
+        {
+          "column": "item_id",
+          "ref_table": "Movie",
+          "ref_column": "item_id"
+        },
+        {
+          "column": "user_id",
+          "ref_table": "User",
+          "ref_column": "user_id"
+        }
+      ]
+    },
+    "Movie": {
+      "columns": [
+        "item_id",
+        "Action",
+        "Drama",
+        "Horror"
+      ],
+      "foreign_keys": []
+    },
+    "User": {
+      "columns": [
+        "user_id",
+        "Age",
+        "Gender"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

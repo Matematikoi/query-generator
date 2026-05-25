@@ -1,0 +1,638 @@
+{
+  "tables": {
+    "E_ACCOUNT_PERMISSION": {
+      "columns": [
+        "AP_CA_ID",
+        "AP_ACL",
+        "AP_TAX_ID",
+        "AP_L_NAME",
+        "AP_F_NAME"
+      ],
+      "foreign_keys": [
+        {
+          "column": "AP_CA_ID",
+          "ref_table": "E_CUSTOMER_ACCOUNT",
+          "ref_column": "CA_ID"
+        }
+      ]
+    },
+    "E_ADDRESS": {
+      "columns": [
+        "AD_ID",
+        "AD_LINE1",
+        "AD_LINE2",
+        "AD_ZC_CODE",
+        "AD_CTRY"
+      ],
+      "foreign_keys": [
+        {
+          "column": "AD_ZC_CODE",
+          "ref_table": "E_ZIP_CODE",
+          "ref_column": "ZC_CODE"
+        }
+      ]
+    },
+    "E_BROKER": {
+      "columns": [
+        "B_ID",
+        "B_ST_ID",
+        "B_NAME",
+        "B_NUM_TRADES",
+        "B_COMM_TOTAL"
+      ],
+      "foreign_keys": [
+        {
+          "column": "B_ST_ID",
+          "ref_table": "E_STATUS_TYPE",
+          "ref_column": "ST_ID"
+        }
+      ]
+    },
+    "E_CASH_TRANSACTION": {
+      "columns": [
+        "CT_T_ID",
+        "CT_DTS",
+        "CT_AMT",
+        "CT_NAME"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CT_T_ID",
+          "ref_table": "E_TRADE",
+          "ref_column": "T_ID"
+        }
+      ]
+    },
+    "E_CHARGE": {
+      "columns": [
+        "CH_TT_ID",
+        "CH_C_TIER",
+        "CH_CHRG"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CH_TT_ID",
+          "ref_table": "E_TRADE_TYPE",
+          "ref_column": "TT_ID"
+        }
+      ]
+    },
+    "E_COMMISSION_RATE": {
+      "columns": [
+        "CR_C_TIER",
+        "CR_TT_ID",
+        "CR_EX_ID",
+        "CR_FROM_QTY",
+        "CR_TO_QTY",
+        "CR_RATE"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CR_EX_ID",
+          "ref_table": "E_EXCHANGE",
+          "ref_column": "EX_ID"
+        },
+        {
+          "column": "CR_TT_ID",
+          "ref_table": "E_TRADE_TYPE",
+          "ref_column": "TT_ID"
+        }
+      ]
+    },
+    "E_COMPANY": {
+      "columns": [
+        "CO_ID",
+        "CO_ST_ID",
+        "CO_NAME",
+        "CO_IN_ID",
+        "CO_SP_RATE",
+        "CO_CEO",
+        "CO_AD_ID",
+        "CO_DESC",
+        "CO_OPEN_DATE"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CO_AD_ID",
+          "ref_table": "E_ADDRESS",
+          "ref_column": "AD_ID"
+        },
+        {
+          "column": "CO_IN_ID",
+          "ref_table": "E_INDUSTRY",
+          "ref_column": "IN_ID"
+        },
+        {
+          "column": "CO_ST_ID",
+          "ref_table": "E_STATUS_TYPE",
+          "ref_column": "ST_ID"
+        }
+      ]
+    },
+    "E_COMPANY_COMPETITOR": {
+      "columns": [
+        "CP_CO_ID",
+        "CP_COMP_CO_ID",
+        "CP_IN_ID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CP_COMP_CO_ID",
+          "ref_table": "E_COMPANY",
+          "ref_column": "CO_ID"
+        },
+        {
+          "column": "CP_CO_ID",
+          "ref_table": "E_COMPANY",
+          "ref_column": "CO_ID"
+        },
+        {
+          "column": "CP_IN_ID",
+          "ref_table": "E_INDUSTRY",
+          "ref_column": "IN_ID"
+        }
+      ]
+    },
+    "E_CUSTOMER": {
+      "columns": [
+        "C_ID",
+        "C_TAX_ID",
+        "C_ST_ID",
+        "C_L_NAME",
+        "C_F_NAME",
+        "C_M_NAME",
+        "C_GNDR",
+        "C_TIER",
+        "C_DOB",
+        "C_AD_ID",
+        "C_CTRY_1",
+        "C_AREA_1",
+        "C_LOCAL_1",
+        "C_EXT_1",
+        "C_CTRY_2",
+        "C_AREA_2",
+        "C_LOCAL_2",
+        "C_EXT_2",
+        "C_CTRY_3",
+        "C_AREA_3",
+        "C_LOCAL_3",
+        "C_EXT_3",
+        "C_EMAIL_1",
+        "C_EMAIL_2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "C_ST_ID",
+          "ref_table": "E_STATUS_TYPE",
+          "ref_column": "ST_ID"
+        },
+        {
+          "column": "C_AD_ID",
+          "ref_table": "E_ADDRESS",
+          "ref_column": "AD_ID"
+        }
+      ]
+    },
+    "E_CUSTOMER_ACCOUNT": {
+      "columns": [
+        "CA_ID",
+        "CA_B_ID",
+        "CA_C_ID",
+        "CA_NAME",
+        "CA_TAX_ST",
+        "CA_BAL"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CA_B_ID",
+          "ref_table": "E_BROKER",
+          "ref_column": "B_ID"
+        },
+        {
+          "column": "CA_C_ID",
+          "ref_table": "E_CUSTOMER",
+          "ref_column": "C_ID"
+        }
+      ]
+    },
+    "E_CUSTOMER_TAXRATE": {
+      "columns": [
+        "CX_TX_ID",
+        "CX_C_ID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CX_C_ID",
+          "ref_table": "E_CUSTOMER",
+          "ref_column": "C_ID"
+        },
+        {
+          "column": "CX_TX_ID",
+          "ref_table": "E_TAXRATE",
+          "ref_column": "TX_ID"
+        }
+      ]
+    },
+    "E_DAILY_MARKET": {
+      "columns": [
+        "DM_DATE",
+        "DM_S_SYMB",
+        "DM_CLOSE",
+        "DM_HIGH",
+        "DM_LOW",
+        "DM_VOL"
+      ],
+      "foreign_keys": [
+        {
+          "column": "DM_S_SYMB",
+          "ref_table": "E_SECURITY",
+          "ref_column": "S_SYMB"
+        }
+      ]
+    },
+    "E_EXCHANGE": {
+      "columns": [
+        "EX_ID",
+        "EX_NAME",
+        "EX_NUM_SYMB",
+        "EX_OPEN",
+        "EX_CLOSE",
+        "EX_DESC",
+        "EX_AD_ID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "EX_AD_ID",
+          "ref_table": "E_ADDRESS",
+          "ref_column": "AD_ID"
+        }
+      ]
+    },
+    "E_FINANCIAL": {
+      "columns": [
+        "FI_CO_ID",
+        "FI_YEAR",
+        "FI_QTR",
+        "FI_QTR_START_DATE",
+        "FI_REVENUE",
+        "FI_NET_EARN",
+        "FI_BASIC_EPS",
+        "FI_DILUT_EPS",
+        "FI_MARGIN",
+        "FI_INVENTORY",
+        "FI_ASSETS",
+        "FI_LIABILITY",
+        "FI_OUT_BASIC",
+        "FI_OUT_DILUT"
+      ],
+      "foreign_keys": [
+        {
+          "column": "FI_CO_ID",
+          "ref_table": "E_COMPANY",
+          "ref_column": "CO_ID"
+        }
+      ]
+    },
+    "E_HOLDING": {
+      "columns": [
+        "H_T_ID",
+        "H_CA_ID",
+        "H_S_SYMB",
+        "H_DTS",
+        "H_PRICE",
+        "H_QTY"
+      ],
+      "foreign_keys": [
+        {
+          "column": "H_CA_ID",
+          "ref_table": "E_HOLDING_SUMMARY",
+          "ref_column": "HS_CA_ID"
+        },
+        {
+          "column": "H_S_SYMB",
+          "ref_table": "E_HOLDING_SUMMARY",
+          "ref_column": "HS_S_SYMB"
+        },
+        {
+          "column": "H_T_ID",
+          "ref_table": "E_TRADE",
+          "ref_column": "T_ID"
+        }
+      ]
+    },
+    "E_HOLDING_HISTORY": {
+      "columns": [
+        "HH_H_T_ID",
+        "HH_T_ID",
+        "HH_BEFORE_QTY",
+        "HH_AFTER_QTY"
+      ],
+      "foreign_keys": [
+        {
+          "column": "HH_T_ID",
+          "ref_table": "E_TRADE",
+          "ref_column": "T_ID"
+        },
+        {
+          "column": "HH_H_T_ID",
+          "ref_table": "E_HOLDING",
+          "ref_column": "H_T_ID"
+        }
+      ]
+    },
+    "E_HOLDING_SUMMARY": {
+      "columns": [
+        "HS_CA_ID",
+        "HS_S_SYMB",
+        "HS_QTY"
+      ],
+      "foreign_keys": [
+        {
+          "column": "HS_CA_ID",
+          "ref_table": "E_CUSTOMER_ACCOUNT",
+          "ref_column": "CA_ID"
+        },
+        {
+          "column": "HS_S_SYMB",
+          "ref_table": "E_SECURITY",
+          "ref_column": "S_SYMB"
+        }
+      ]
+    },
+    "E_INDUSTRY": {
+      "columns": [
+        "IN_ID",
+        "IN_NAME",
+        "IN_SC_ID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "IN_SC_ID",
+          "ref_table": "E_SECTOR",
+          "ref_column": "SC_ID"
+        }
+      ]
+    },
+    "E_LAST_TRADE": {
+      "columns": [
+        "LT_S_SYMB",
+        "LT_DTS",
+        "LT_PRICE",
+        "LT_OPEN_PRICE",
+        "LT_VOL"
+      ],
+      "foreign_keys": [
+        {
+          "column": "LT_S_SYMB",
+          "ref_table": "E_SECURITY",
+          "ref_column": "S_SYMB"
+        }
+      ]
+    },
+    "E_NEWS_ITEM": {
+      "columns": [
+        "NI_ID",
+        "NI_HEADLINE",
+        "NI_SUMMARY",
+        "NI_ITEM",
+        "NI_DTS",
+        "NI_SOURCE",
+        "NI_AUTHOR"
+      ],
+      "foreign_keys": []
+    },
+    "E_NEWS_XREF": {
+      "columns": [
+        "NX_NI_ID",
+        "NX_CO_ID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "NX_CO_ID",
+          "ref_table": "E_COMPANY",
+          "ref_column": "CO_ID"
+        },
+        {
+          "column": "NX_NI_ID",
+          "ref_table": "E_NEWS_ITEM",
+          "ref_column": "NI_ID"
+        }
+      ]
+    },
+    "E_SECTOR": {
+      "columns": [
+        "SC_ID",
+        "SC_NAME"
+      ],
+      "foreign_keys": []
+    },
+    "E_SECURITY": {
+      "columns": [
+        "S_SYMB",
+        "S_ISSUE",
+        "S_ST_ID",
+        "S_NAME",
+        "S_EX_ID",
+        "S_CO_ID",
+        "S_NUM_OUT",
+        "S_START_DATE",
+        "S_EXCH_DATE",
+        "S_PE",
+        "S_52WK_HIGH",
+        "S_52WK_HIGH_DATE",
+        "S_52WK_LOW",
+        "S_52WK_LOW_DATE",
+        "S_DIVIDEND",
+        "S_YIELD"
+      ],
+      "foreign_keys": [
+        {
+          "column": "S_CO_ID",
+          "ref_table": "E_COMPANY",
+          "ref_column": "CO_ID"
+        },
+        {
+          "column": "S_EX_ID",
+          "ref_table": "E_EXCHANGE",
+          "ref_column": "EX_ID"
+        },
+        {
+          "column": "S_ST_ID",
+          "ref_table": "E_STATUS_TYPE",
+          "ref_column": "ST_ID"
+        }
+      ]
+    },
+    "E_SETTLEMENT": {
+      "columns": [
+        "SE_T_ID",
+        "SE_CASH_TYPE",
+        "SE_CASH_DUE_DATE",
+        "SE_AMT"
+      ],
+      "foreign_keys": [
+        {
+          "column": "SE_T_ID",
+          "ref_table": "E_TRADE",
+          "ref_column": "T_ID"
+        }
+      ]
+    },
+    "E_STATUS_TYPE": {
+      "columns": [
+        "ST_ID",
+        "ST_NAME"
+      ],
+      "foreign_keys": []
+    },
+    "E_TAXRATE": {
+      "columns": [
+        "TX_ID",
+        "TX_NAME",
+        "TX_RATE"
+      ],
+      "foreign_keys": []
+    },
+    "E_TRADE": {
+      "columns": [
+        "T_ID",
+        "T_DTS",
+        "T_ST_ID",
+        "T_TT_ID",
+        "T_IS_CASH",
+        "T_S_SYMB",
+        "T_QTY",
+        "T_BID_PRICE",
+        "T_CA_ID",
+        "T_EXEC_NAME",
+        "T_TRADE_PRICE",
+        "T_CHRG",
+        "T_COMM",
+        "T_TAX",
+        "T_LIFO"
+      ],
+      "foreign_keys": [
+        {
+          "column": "T_CA_ID",
+          "ref_table": "E_CUSTOMER_ACCOUNT",
+          "ref_column": "CA_ID"
+        },
+        {
+          "column": "T_ST_ID",
+          "ref_table": "E_STATUS_TYPE",
+          "ref_column": "ST_ID"
+        },
+        {
+          "column": "T_S_SYMB",
+          "ref_table": "E_SECURITY",
+          "ref_column": "S_SYMB"
+        },
+        {
+          "column": "T_TT_ID",
+          "ref_table": "E_TRADE_TYPE",
+          "ref_column": "TT_ID"
+        }
+      ]
+    },
+    "E_TRADE_HISTORY": {
+      "columns": [
+        "TH_T_ID",
+        "TH_DTS",
+        "TH_ST_ID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "TH_ST_ID",
+          "ref_table": "E_STATUS_TYPE",
+          "ref_column": "ST_ID"
+        },
+        {
+          "column": "TH_T_ID",
+          "ref_table": "E_TRADE",
+          "ref_column": "T_ID"
+        }
+      ]
+    },
+    "E_TRADE_REQUEST": {
+      "columns": [
+        "TR_T_ID",
+        "TR_TT_ID",
+        "TR_S_SYMB",
+        "TR_QTY",
+        "TR_BID_PRICE",
+        "TR_CA_ID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "TR_T_ID",
+          "ref_table": "E_TRADE",
+          "ref_column": "T_ID"
+        },
+        {
+          "column": "TR_TT_ID",
+          "ref_table": "E_TRADE_TYPE",
+          "ref_column": "TT_ID"
+        },
+        {
+          "column": "TR_S_SYMB",
+          "ref_table": "E_SECURITY",
+          "ref_column": "S_SYMB"
+        },
+        {
+          "column": "TR_CA_ID",
+          "ref_table": "E_CUSTOMER_ACCOUNT",
+          "ref_column": "CA_ID"
+        }
+      ]
+    },
+    "E_TRADE_TYPE": {
+      "columns": [
+        "TT_ID",
+        "TT_NAME",
+        "TT_IS_SELL",
+        "TT_IS_MRKT"
+      ],
+      "foreign_keys": []
+    },
+    "E_WATCH_ITEM": {
+      "columns": [
+        "WI_WL_ID",
+        "WI_S_SYMB"
+      ],
+      "foreign_keys": [
+        {
+          "column": "WI_S_SYMB",
+          "ref_table": "E_SECURITY",
+          "ref_column": "S_SYMB"
+        },
+        {
+          "column": "WI_WL_ID",
+          "ref_table": "E_WATCH_LIST",
+          "ref_column": "WL_ID"
+        }
+      ]
+    },
+    "E_WATCH_LIST": {
+      "columns": [
+        "WL_ID",
+        "WL_C_ID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "WL_C_ID",
+          "ref_table": "E_CUSTOMER",
+          "ref_column": "C_ID"
+        }
+      ]
+    },
+    "E_ZIP_CODE": {
+      "columns": [
+        "ZC_CODE",
+        "ZC_TOWN",
+        "ZC_DIV"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

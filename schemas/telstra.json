@@ -1,0 +1,66 @@
+{
+  "tables": {
+    "event_type": {
+      "columns": [
+        "id",
+        "event_type"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id",
+          "ref_table": "target",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "log_feature": {
+      "columns": [
+        "id",
+        "log_feature",
+        "volume"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id",
+          "ref_table": "target",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "resource_type": {
+      "columns": [
+        "id",
+        "resource_type"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id",
+          "ref_table": "target",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "severity_type": {
+      "columns": [
+        "id",
+        "severity_type"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id",
+          "ref_table": "target",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "target": {
+      "columns": [
+        "id",
+        "location",
+        "fault_severity"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

@@ -1,0 +1,105 @@
+{
+  "tables": {
+    "atoms": {
+      "columns": [
+        "id",
+        "drug_id",
+        "element",
+        "atom_type",
+        "charge"
+      ],
+      "foreign_keys": [
+        {
+          "column": "drug_id",
+          "ref_table": "drugs",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "bonds": {
+      "columns": [
+        "id",
+        "drug_id",
+        "atom1_id",
+        "atom2_id",
+        "bond_type"
+      ],
+      "foreign_keys": [
+        {
+          "column": "drug_id",
+          "ref_table": "drugs",
+          "ref_column": "id"
+        },
+        {
+          "column": "atom1_id",
+          "ref_table": "atoms",
+          "ref_column": "id"
+        },
+        {
+          "column": "atom2_id",
+          "ref_table": "atoms",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "drugs": {
+      "columns": [
+        "id",
+        "ind1",
+        "inda",
+        "act",
+        "logp",
+        "lumo",
+        "active"
+      ],
+      "foreign_keys": []
+    },
+    "ring_atom": {
+      "columns": [
+        "id",
+        "ring_id",
+        "atom_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ring_id",
+          "ref_table": "rings",
+          "ref_column": "id"
+        },
+        {
+          "column": "atom_id",
+          "ref_table": "atoms",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "ring_strucs": {
+      "columns": [
+        "id",
+        "drug_id",
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "drug_id",
+          "ref_table": "drugs",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "rings": {
+      "columns": [
+        "id",
+        "ring_struc_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ring_struc_id",
+          "ref_table": "ring_strucs",
+          "ref_column": "id"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

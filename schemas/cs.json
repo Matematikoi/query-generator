@@ -1,0 +1,142 @@
+{
+  "tables": {
+    "ACCOUNTS": {
+      "columns": [
+        "ACC_KEY",
+        "ACCTP_KEY",
+        "PROD_KEY",
+        "ORG_KEY",
+        "PT_UNIFIED_KEY",
+        "ACCH_OPEN_DATE",
+        "ACCH_CLOSE_DATE"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ACCTP_KEY",
+          "ref_table": "ACCOUNT_TYPES",
+          "ref_column": "ACCTP_KEY"
+        },
+        {
+          "column": "PROD_KEY",
+          "ref_table": "PRODUCTS",
+          "ref_column": "PROD_KEY"
+        },
+        {
+          "column": "ORG_KEY",
+          "ref_table": "ORGANIZATIONS",
+          "ref_column": "ORG_KEY"
+        }
+      ]
+    },
+    "ACCOUNT_TRANSACTIONS": {
+      "columns": [
+        "ACCTRN_KEY",
+        "ACC_KEY",
+        "ACCTP_KEY",
+        "ACTRNTP_KEY",
+        "ACCTRN_ACCOUNTING_DATE",
+        "ACCTRN_AMOUNT_CZK",
+        "ACCTRN_AMOUNT_FX",
+        "CURR_ISO_CODE",
+        "ACCTRN_CRDR_FLAG",
+        "ACCTRN_CASH_FLAG",
+        "ACCTRN_INTEREST_FLAG",
+        "ACCTRN_TAX_FLAG",
+        "ACCTRN_FEE_FLAG",
+        "ACC_OTHER_ACCOUNT_KEY",
+        "ACCTP_OTHER_ACCOUNT_KEY"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ACCTP_KEY",
+          "ref_table": "ACCOUNT_TYPES",
+          "ref_column": "ACCTP_KEY"
+        },
+        {
+          "column": "ACC_KEY",
+          "ref_table": "ACCOUNTS",
+          "ref_column": "ACC_KEY"
+        },
+        {
+          "column": "ACTRNTP_KEY",
+          "ref_table": "ACCOUNT_TRANSACT_TYPES",
+          "ref_column": "ACTRNTP_KEY"
+        },
+        {
+          "column": "ACCTP_OTHER_ACCOUNT_KEY",
+          "ref_table": "ACCOUNT_TYPES",
+          "ref_column": "ACCTP_KEY"
+        },
+        {
+          "column": "ACC_OTHER_ACCOUNT_KEY",
+          "ref_table": "ACCOUNTS",
+          "ref_column": "ACC_KEY"
+        }
+      ]
+    },
+    "ACCOUNT_TRANSACT_TYPES": {
+      "columns": [
+        "ACTRNTP_KEY",
+        "ACTRNTP_DESC"
+      ],
+      "foreign_keys": []
+    },
+    "ACCOUNT_TYPES": {
+      "columns": [
+        "ACCTP_KEY",
+        "ACCTP_DESC"
+      ],
+      "foreign_keys": []
+    },
+    "ORGANIZATIONS": {
+      "columns": [
+        "ORG_KEY",
+        "ORGH_UNIFIED_ID",
+        "CITY",
+        "ZIP"
+      ],
+      "foreign_keys": []
+    },
+    "PARTIES": {
+      "columns": [
+        "PT_UNIFIED_KEY",
+        "ORG_KEY",
+        "PTH_BIRTH_DATE",
+        "PTH_CLIENT_FROM_DATE",
+        "PTH_CLIENT_FROM_DATE_ALT",
+        "PTTP_UNIFIED_ID",
+        "PSGEN_UNIFIED_ID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ORG_KEY",
+          "ref_table": "ORGANIZATIONS",
+          "ref_column": "ORG_KEY"
+        }
+      ]
+    },
+    "PRODUCTS": {
+      "columns": [
+        "PROD_KEY",
+        "PROD_AGENDA_CODE",
+        "PROD_AGENDA_NAME"
+      ],
+      "foreign_keys": []
+    },
+    "target_churn": {
+      "columns": [
+        "ACC_KEY",
+        "date_horizon",
+        "target_churn"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ACC_KEY",
+          "ref_table": "ACCOUNTS",
+          "ref_column": "ACC_KEY"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

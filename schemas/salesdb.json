@@ -1,0 +1,57 @@
+{
+  "tables": {
+    "Customers": {
+      "columns": [
+        "CustomerID",
+        "FirstName",
+        "MiddleInitial",
+        "LastName"
+      ],
+      "foreign_keys": []
+    },
+    "Employees": {
+      "columns": [
+        "EmployeeID",
+        "FirstName",
+        "MiddleInitial",
+        "LastName"
+      ],
+      "foreign_keys": []
+    },
+    "Products": {
+      "columns": [
+        "ProductID",
+        "Name",
+        "Price"
+      ],
+      "foreign_keys": []
+    },
+    "Sales": {
+      "columns": [
+        "SalesID",
+        "SalesPersonID",
+        "CustomerID",
+        "ProductID",
+        "Quantity"
+      ],
+      "foreign_keys": [
+        {
+          "column": "SalesPersonID",
+          "ref_table": "Employees",
+          "ref_column": "EmployeeID"
+        },
+        {
+          "column": "CustomerID",
+          "ref_table": "Customers",
+          "ref_column": "CustomerID"
+        },
+        {
+          "column": "ProductID",
+          "ref_table": "Products",
+          "ref_column": "ProductID"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

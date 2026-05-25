@@ -1,0 +1,32 @@
+{
+  "tables": {
+    "Borders": {
+      "columns": [
+        "Name1",
+        "Name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Name2",
+          "ref_table": "Country",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Name1",
+          "ref_table": "Country",
+          "ref_column": "Name"
+        }
+      ]
+    },
+    "Country": {
+      "columns": [
+        "Name",
+        "Continent",
+        "DiscreteArea",
+        "DiscretePopulation"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

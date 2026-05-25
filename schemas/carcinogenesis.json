@@ -1,0 +1,128 @@
+{
+  "tables": {
+    "atom": {
+      "columns": [
+        "atomid",
+        "drug",
+        "atomtype",
+        "charge",
+        "name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "drug",
+          "ref_table": "canc",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "canc": {
+      "columns": [
+        "drug_id",
+        "class"
+      ],
+      "foreign_keys": []
+    },
+    "sbond_1": {
+      "columns": [
+        "id",
+        "drug",
+        "atomid",
+        "atomid_2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "drug",
+          "ref_table": "canc",
+          "ref_column": "drug_id"
+        },
+        {
+          "column": "atomid",
+          "ref_table": "atom",
+          "ref_column": "atomid"
+        },
+        {
+          "column": "atomid_2",
+          "ref_table": "atom",
+          "ref_column": "atomid"
+        }
+      ]
+    },
+    "sbond_2": {
+      "columns": [
+        "id",
+        "drug",
+        "atomid",
+        "atomid_2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "drug",
+          "ref_table": "canc",
+          "ref_column": "drug_id"
+        },
+        {
+          "column": "atomid",
+          "ref_table": "atom",
+          "ref_column": "atomid"
+        },
+        {
+          "column": "atomid_2",
+          "ref_table": "atom",
+          "ref_column": "atomid"
+        }
+      ]
+    },
+    "sbond_3": {
+      "columns": [
+        "id",
+        "drug",
+        "atomid",
+        "atomid_2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "drug",
+          "ref_table": "canc",
+          "ref_column": "drug_id"
+        },
+        {
+          "column": "atomid",
+          "ref_table": "atom",
+          "ref_column": "atomid"
+        },
+        {
+          "column": "atomid_2",
+          "ref_table": "atom",
+          "ref_column": "atomid"
+        }
+      ]
+    },
+    "sbond_7": {
+      "columns": [
+        "id",
+        "drug",
+        "atomid",
+        "atomid_2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "drug",
+          "ref_table": "canc",
+          "ref_column": "drug_id"
+        },
+        {
+          "column": "atomid",
+          "ref_table": "atom",
+          "ref_column": "atomid"
+        },
+        {
+          "column": "atomid_2",
+          "ref_table": "atom",
+          "ref_column": "atomid"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}
