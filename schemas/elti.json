@@ -1,0 +1,192 @@
+{
+  "tables": {
+    "brother": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "daughter": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "elti": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "father": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "husband": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "mother": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "person": {
+      "columns": [
+        "name"
+      ],
+      "foreign_keys": []
+    },
+    "sister": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "son": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "target": {
+      "columns": [
+        "name1",
+        "name2",
+        "is_elti"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "wife": {
+      "columns": [
+        "name1",
+        "name2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "name1",
+          "ref_table": "person",
+          "ref_column": "name"
+        },
+        {
+          "column": "name2",
+          "ref_table": "person",
+          "ref_column": "name"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

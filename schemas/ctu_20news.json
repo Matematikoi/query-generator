@@ -1,0 +1,21 @@
+{
+  "tables": {
+    "20news": {
+      "columns": [
+        "id",
+        "text",
+        "label"
+      ],
+      "foreign_keys": []
+    },
+    "2news": {
+      "columns": [
+        "id",
+        "text",
+        "label"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

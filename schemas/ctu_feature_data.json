@@ -1,0 +1,53 @@
+{
+  "tables": {
+    "financial_order": {
+      "columns": [
+        "id",
+        "target",
+        "timestamp",
+        "order_id",
+        "account_id",
+        "bank_to",
+        "account_to",
+        "amount",
+        "k_symbol"
+      ],
+      "foreign_keys": []
+    },
+    "financial_trans": {
+      "columns": [
+        "id",
+        "target",
+        "timestamp",
+        "trans_id",
+        "account_id",
+        "date",
+        "type",
+        "operation",
+        "amount",
+        "balance",
+        "k_symbol",
+        "bank",
+        "account"
+      ],
+      "foreign_keys": []
+    },
+    "trains_cars": {
+      "columns": [
+        "id",
+        "target",
+        "car_id",
+        "position",
+        "shape",
+        "len",
+        "sides",
+        "roof",
+        "wheels",
+        "load_shape",
+        "load_num"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

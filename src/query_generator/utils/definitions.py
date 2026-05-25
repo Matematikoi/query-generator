@@ -2,6 +2,11 @@ from dataclasses import dataclass
 from enum import Enum, StrEnum
 from pathlib import Path
 
+from query_generator.utils.exceptions import (
+  InvalidForeignKeyError,
+  TableNotFoundError,
+)
+
 
 class Dataset(Enum):
   TPCDS = "TPCDS"
@@ -34,6 +39,39 @@ class PredicateOperatorProbability:
 
 
 @dataclass
+class ForeignKey:
+  column: str
+  ref_table: str
+  ref_column: str
+
+
+@dataclass
+class TableSchema:
+  alias: str | None
+  columns: list[str]
+  foreign_keys: list[ForeignKey]
+
+
+@dataclass
+class Schema:
+  tables: dict[str, TableSchema]
+  fact_tables: list[str]
+
+  def __post_init__(self) -> None:
+    for ft in self.fact_tables:
+      if ft not in self.tables:
+        raise TableNotFoundError(ft)
+    for table_name, table in self.tables.items():
+      for fk in table.foreign_keys:
+        if fk.column not in table.columns:
+          raise InvalidForeignKeyError(table_name, fk.column)
+        if fk.ref_table not in self.tables:
+          raise TableNotFoundError(fk.ref_table)
+        if fk.ref_column not in self.tables[fk.ref_table].columns:
+          raise InvalidForeignKeyError(fk.ref_table, fk.ref_column)
+
+
+@dataclass
 class PredicateParameters:
   histogram_path: Path
   extra_predicates: int
@@ -49,7 +87,7 @@ class PredicateParameters:
 # TODO(Gabriel): http://localhost:8080/tktview/205e90a1fa
 @dataclass
 class SyntheticQueryGenerationParameters:
-  dataset: Dataset
+  schema: Schema
   max_hops: int
   max_queries_per_signature: int
   max_queries_per_fact_table: int

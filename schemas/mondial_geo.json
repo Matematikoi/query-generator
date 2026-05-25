@@ -1,0 +1,170 @@
+{
+  "tables": {
+    "City": {
+      "columns": [
+        "City_id",
+        "Population",
+        "Longitude",
+        "Latitude"
+      ],
+      "foreign_keys": []
+    },
+    "Continent": {
+      "columns": [
+        "Name",
+        "Area"
+      ],
+      "foreign_keys": []
+    },
+    "Country": {
+      "columns": [
+        "Code",
+        "Area",
+        "Population"
+      ],
+      "foreign_keys": []
+    },
+    "CountryDiscrete": {
+      "columns": [
+        "Name",
+        "Code",
+        "Continent",
+        "DiscreteArea",
+        "DiscretePopulation"
+      ],
+      "foreign_keys": []
+    },
+    "CountryFull": {
+      "columns": [
+        "Name",
+        "Code",
+        "Capital",
+        "Province",
+        "Area",
+        "Population",
+        "AreaDiscrete",
+        "PopulationDiscrete"
+      ],
+      "foreign_keys": []
+    },
+    "Province": {
+      "columns": [
+        "Prov_id",
+        "Population",
+        "Area"
+      ],
+      "foreign_keys": []
+    },
+    "borders": {
+      "columns": [
+        "Country1",
+        "Country2",
+        "Length"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country1",
+          "ref_table": "Country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Country2",
+          "ref_table": "Country",
+          "ref_column": "Code"
+        }
+      ]
+    },
+    "capt_Country": {
+      "columns": [
+        "Country",
+        "Capital"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Capital",
+          "ref_table": "City",
+          "ref_column": "City_id"
+        },
+        {
+          "column": "Country",
+          "ref_table": "Country",
+          "ref_column": "Code"
+        }
+      ]
+    },
+    "capt_Prov": {
+      "columns": [
+        "Province",
+        "Capital"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Capital",
+          "ref_table": "City",
+          "ref_column": "City_id"
+        },
+        {
+          "column": "Province",
+          "ref_table": "Province",
+          "ref_column": "Prov_id"
+        }
+      ]
+    },
+    "cityInProv": {
+      "columns": [
+        "City",
+        "Province"
+      ],
+      "foreign_keys": [
+        {
+          "column": "City",
+          "ref_table": "City",
+          "ref_column": "City_id"
+        },
+        {
+          "column": "Province",
+          "ref_table": "Province",
+          "ref_column": "Prov_id"
+        }
+      ]
+    },
+    "countryOfProv": {
+      "columns": [
+        "Province",
+        "Country"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "Country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Province",
+          "ref_table": "Province",
+          "ref_column": "Prov_id"
+        }
+      ]
+    },
+    "encompasses": {
+      "columns": [
+        "Country",
+        "Continent",
+        "Percentage"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Continent",
+          "ref_table": "Continent",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Country",
+          "ref_table": "Country",
+          "ref_column": "Code"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

@@ -1,0 +1,789 @@
+{
+  "tables": {
+    "Country2Continent": {
+      "columns": [
+        "Code",
+        "Continent",
+        "Percentage"
+      ],
+      "foreign_keys": []
+    },
+    "Country_Full": {
+      "columns": [
+        "Name",
+        "Code",
+        "Independence",
+        "Dependent",
+        "Government",
+        "Capital",
+        "Province",
+        "Area",
+        "Population",
+        "Continent",
+        "Percentage"
+      ],
+      "foreign_keys": []
+    },
+    "Independent_Borders": {
+      "columns": [
+        "Country1",
+        "Country2",
+        "Length"
+      ],
+      "foreign_keys": []
+    },
+    "Independent_Countries": {
+      "columns": [
+        "Code",
+        "Independence",
+        "Dependent",
+        "Government"
+      ],
+      "foreign_keys": []
+    },
+    "Named_Borders": {
+      "columns": [
+        "Name1",
+        "Name2",
+        "Country1",
+        "Country2",
+        "Length"
+      ],
+      "foreign_keys": []
+    },
+    "Symmetric_Borders": {
+      "columns": [
+        "Name1",
+        "Name2"
+      ],
+      "foreign_keys": []
+    },
+    "borders": {
+      "columns": [
+        "Country1",
+        "Country2",
+        "Length"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country1",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Country2",
+          "ref_table": "country",
+          "ref_column": "Code"
+        }
+      ]
+    },
+    "city": {
+      "columns": [
+        "Name",
+        "Country",
+        "Province",
+        "Population",
+        "Longitude",
+        "Latitude"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Province",
+          "ref_table": "province",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Country",
+          "ref_table": "province",
+          "ref_column": "Country"
+        }
+      ]
+    },
+    "continent": {
+      "columns": [
+        "Name",
+        "Area"
+      ],
+      "foreign_keys": []
+    },
+    "country": {
+      "columns": [
+        "Name",
+        "Code",
+        "Capital",
+        "Province",
+        "Area",
+        "Population"
+      ],
+      "foreign_keys": []
+    },
+    "desert": {
+      "columns": [
+        "Name",
+        "Area",
+        "Longitude",
+        "Latitude"
+      ],
+      "foreign_keys": []
+    },
+    "economy": {
+      "columns": [
+        "Country",
+        "GDP",
+        "Agriculture",
+        "Service",
+        "Industry",
+        "Inflation"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        }
+      ]
+    },
+    "encompasses": {
+      "columns": [
+        "Country",
+        "Continent",
+        "Percentage"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Continent",
+          "ref_table": "continent",
+          "ref_column": "Name"
+        }
+      ]
+    },
+    "ethnicGroup": {
+      "columns": [
+        "Country",
+        "Name",
+        "Percentage"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        }
+      ]
+    },
+    "geo_desert": {
+      "columns": [
+        "Desert",
+        "Country",
+        "Province"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Province",
+          "ref_table": "province",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Country",
+          "ref_table": "province",
+          "ref_column": "Country"
+        },
+        {
+          "column": "Desert",
+          "ref_table": "desert",
+          "ref_column": "Name"
+        }
+      ]
+    },
+    "geo_estuary": {
+      "columns": [
+        "River",
+        "Country",
+        "Province"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Province",
+          "ref_table": "province",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Country",
+          "ref_table": "province",
+          "ref_column": "Country"
+        },
+        {
+          "column": "River",
+          "ref_table": "river",
+          "ref_column": "Name"
+        }
+      ]
+    },
+    "geo_island": {
+      "columns": [
+        "Island",
+        "Country",
+        "Province"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Province",
+          "ref_table": "province",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Country",
+          "ref_table": "province",
+          "ref_column": "Country"
+        },
+        {
+          "column": "Island",
+          "ref_table": "island",
+          "ref_column": "Name"
+        }
+      ]
+    },
+    "geo_lake": {
+      "columns": [
+        "Lake",
+        "Country",
+        "Province"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Province",
+          "ref_table": "province",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Country",
+          "ref_table": "province",
+          "ref_column": "Country"
+        },
+        {
+          "column": "Lake",
+          "ref_table": "lake",
+          "ref_column": "Name"
+        }
+      ]
+    },
+    "geo_mountain": {
+      "columns": [
+        "Mountain",
+        "Country",
+        "Province"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Province",
+          "ref_table": "province",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Country",
+          "ref_table": "province",
+          "ref_column": "Country"
+        },
+        {
+          "column": "Mountain",
+          "ref_table": "mountain",
+          "ref_column": "Name"
+        }
+      ]
+    },
+    "geo_river": {
+      "columns": [
+        "River",
+        "Country",
+        "Province"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Province",
+          "ref_table": "province",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Country",
+          "ref_table": "province",
+          "ref_column": "Country"
+        },
+        {
+          "column": "River",
+          "ref_table": "river",
+          "ref_column": "Name"
+        }
+      ]
+    },
+    "geo_sea": {
+      "columns": [
+        "Sea",
+        "Country",
+        "Province"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Province",
+          "ref_table": "province",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Country",
+          "ref_table": "province",
+          "ref_column": "Country"
+        },
+        {
+          "column": "Sea",
+          "ref_table": "sea",
+          "ref_column": "Name"
+        }
+      ]
+    },
+    "geo_source": {
+      "columns": [
+        "River",
+        "Country",
+        "Province"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Province",
+          "ref_table": "province",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Country",
+          "ref_table": "province",
+          "ref_column": "Country"
+        },
+        {
+          "column": "River",
+          "ref_table": "river",
+          "ref_column": "Name"
+        }
+      ]
+    },
+    "isMember": {
+      "columns": [
+        "Country",
+        "Organization",
+        "Type"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Organization",
+          "ref_table": "organization",
+          "ref_column": "Abbreviation"
+        }
+      ]
+    },
+    "island": {
+      "columns": [
+        "Name",
+        "Islands",
+        "Area",
+        "Height",
+        "Type",
+        "Longitude",
+        "Latitude"
+      ],
+      "foreign_keys": []
+    },
+    "islandIn": {
+      "columns": [
+        "Island",
+        "Sea",
+        "Lake",
+        "River"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Lake",
+          "ref_table": "lake",
+          "ref_column": "Name"
+        },
+        {
+          "column": "River",
+          "ref_table": "river",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Sea",
+          "ref_table": "sea",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Island",
+          "ref_table": "island",
+          "ref_column": "Name"
+        }
+      ]
+    },
+    "lake": {
+      "columns": [
+        "Name",
+        "Area",
+        "Depth",
+        "Altitude",
+        "Type",
+        "River",
+        "Longitude",
+        "Latitude"
+      ],
+      "foreign_keys": []
+    },
+    "language": {
+      "columns": [
+        "Country",
+        "Name",
+        "Percentage"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        }
+      ]
+    },
+    "located": {
+      "columns": [
+        "City",
+        "Province",
+        "Country",
+        "River",
+        "Lake",
+        "Sea"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "City",
+          "ref_table": "city",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Province",
+          "ref_table": "city",
+          "ref_column": "Province"
+        },
+        {
+          "column": "River",
+          "ref_table": "river",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Lake",
+          "ref_table": "lake",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Sea",
+          "ref_table": "sea",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Province",
+          "ref_table": "province",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Country",
+          "ref_table": "province",
+          "ref_column": "Country"
+        }
+      ]
+    },
+    "locatedOn": {
+      "columns": [
+        "City",
+        "Province",
+        "Country",
+        "Island"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Island",
+          "ref_table": "island",
+          "ref_column": "Name"
+        },
+        {
+          "column": "City",
+          "ref_table": "city",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Province",
+          "ref_table": "city",
+          "ref_column": "Province"
+        },
+        {
+          "column": "Province",
+          "ref_table": "province",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Country",
+          "ref_table": "province",
+          "ref_column": "Country"
+        }
+      ]
+    },
+    "mergesWith": {
+      "columns": [
+        "Sea1",
+        "Sea2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Sea1",
+          "ref_table": "sea",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Sea2",
+          "ref_table": "sea",
+          "ref_column": "Name"
+        }
+      ]
+    },
+    "mountain": {
+      "columns": [
+        "Name",
+        "Mountains",
+        "Height",
+        "Type",
+        "Longitude",
+        "Latitude"
+      ],
+      "foreign_keys": []
+    },
+    "mountainOnIsland": {
+      "columns": [
+        "Mountain",
+        "Island"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Island",
+          "ref_table": "island",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Mountain",
+          "ref_table": "mountain",
+          "ref_column": "Name"
+        }
+      ]
+    },
+    "organization": {
+      "columns": [
+        "Abbreviation",
+        "Name",
+        "City",
+        "Country",
+        "Province",
+        "Established"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "City",
+          "ref_table": "city",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Province",
+          "ref_table": "city",
+          "ref_column": "Province"
+        },
+        {
+          "column": "Province",
+          "ref_table": "province",
+          "ref_column": "Name"
+        },
+        {
+          "column": "Country",
+          "ref_table": "province",
+          "ref_column": "Country"
+        }
+      ]
+    },
+    "politics": {
+      "columns": [
+        "Country",
+        "Independence",
+        "Dependent",
+        "Government"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        },
+        {
+          "column": "Dependent",
+          "ref_table": "country",
+          "ref_column": "Code"
+        }
+      ]
+    },
+    "population": {
+      "columns": [
+        "Country",
+        "Population_Growth",
+        "Infant_Mortality"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        }
+      ]
+    },
+    "province": {
+      "columns": [
+        "Name",
+        "Country",
+        "Population",
+        "Area",
+        "Capital",
+        "CapProv"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        }
+      ]
+    },
+    "religion": {
+      "columns": [
+        "Country",
+        "Name",
+        "Percentage"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        }
+      ]
+    },
+    "river": {
+      "columns": [
+        "Name",
+        "River",
+        "Lake",
+        "Sea",
+        "Length",
+        "SourceLongitude",
+        "SourceLatitude",
+        "Mountains",
+        "SourceAltitude",
+        "EstuaryLongitude",
+        "EstuaryLatitude"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Lake",
+          "ref_table": "lake",
+          "ref_column": "Name"
+        }
+      ]
+    },
+    "sea": {
+      "columns": [
+        "Name",
+        "Depth"
+      ],
+      "foreign_keys": []
+    },
+    "target": {
+      "columns": [
+        "Country",
+        "Target"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Country",
+          "ref_table": "country",
+          "ref_column": "Code"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

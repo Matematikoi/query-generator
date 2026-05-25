@@ -1,4 +1,4 @@
-dataset = "TPCDS"
+schema_path = "schemas/tpcds.json"
 output_folder = "tmp/synthetic_queries_pyspark"
 histogram_path = "tmp/histograms/histogram.parquet"
 

@@ -1,0 +1,502 @@
+{
+  "tables": {
+    "active": {
+      "columns": [
+        "Arg0"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "postestactive": {
+      "columns": [
+        "Arg0"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "postestactive_Neg": {
+      "columns": [
+        "Arg0"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_active": {
+      "columns": [
+        "drug_id",
+        "is_active"
+      ],
+      "foreign_keys": [
+        {
+          "column": "is_active",
+          "ref_table": "pte_number",
+          "ref_column": "Binary"
+        },
+        {
+          "column": "drug_id",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_alcohol": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_alkyl_halide": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_ames": {
+      "columns": [
+        "Arg0"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_amine": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_atm": {
+      "columns": [
+        "drug_id",
+        "atom_id",
+        "atom_type",
+        "Arg3",
+        "Arg4"
+      ],
+      "foreign_keys": [
+        {
+          "column": "drug_id",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_atm_bond_count": {
+      "columns": [
+        "atom_id",
+        "Cnt"
+      ],
+      "foreign_keys": [
+        {
+          "column": "atom_id",
+          "ref_table": "pte_atm",
+          "ref_column": "atom_id"
+        }
+      ]
+    },
+    "pte_atm_count": {
+      "columns": [
+        "Arg0",
+        "Cnt"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_atm_max_charge": {
+      "columns": [
+        "Arg0",
+        "Mx"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_atm_min_charge": {
+      "columns": [
+        "Arg0",
+        "Mn"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_bond": {
+      "columns": [
+        "drug_id",
+        "atom_id1",
+        "atom_id2",
+        "Arg3"
+      ],
+      "foreign_keys": [
+        {
+          "column": "atom_id1",
+          "ref_table": "pte_atm",
+          "ref_column": "atom_id"
+        },
+        {
+          "column": "atom_id2",
+          "ref_table": "pte_atm",
+          "ref_column": "atom_id"
+        },
+        {
+          "column": "drug_id",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_bond_count": {
+      "columns": [
+        "Arg0",
+        "Cnt"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_drug": {
+      "columns": [
+        "drug_id"
+      ],
+      "foreign_keys": []
+    },
+    "pte_ester": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_ether": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_five_ring": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_has_property": {
+      "columns": [
+        "Arg0",
+        "Arg1",
+        "Arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_imine": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_ind": {
+      "columns": [
+        "Arg0",
+        "Arg1",
+        "Arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_ketone": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_methoxy": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_methyl": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_mutagenic": {
+      "columns": [
+        "Arg0"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_nitro": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_non_ar_5c_ring": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_non_ar_6c_ring": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_non_ar_hetero_5_ring": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_non_ar_hetero_6_ring": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_number": {
+      "columns": [
+        "Binary"
+      ],
+      "foreign_keys": []
+    },
+    "pte_phenol": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_six_ring": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_sulfide": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_sulfo": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_testactive": {
+      "columns": [
+        "Arg0",
+        "Set"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    },
+    "pte_testactive_Neg": {
+      "columns": [
+        "Arg0",
+        "Binary"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Arg0",
+          "ref_table": "pte_drug",
+          "ref_column": "drug_id"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

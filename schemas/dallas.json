@@ -1,0 +1,59 @@
+{
+  "tables": {
+    "incidents": {
+      "columns": [
+        "case_number",
+        "date",
+        "location",
+        "subject_statuses",
+        "subject_weapon",
+        "subjects",
+        "subject_count",
+        "officers",
+        "officer_count",
+        "grand_jury_disposition",
+        "attorney_general_forms_url",
+        "summary_url",
+        "summary_text",
+        "latitude",
+        "longitude"
+      ],
+      "foreign_keys": []
+    },
+    "officers": {
+      "columns": [
+        "case_number",
+        "race",
+        "gender",
+        "last_name",
+        "first_name",
+        "full_name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "case_number",
+          "ref_table": "incidents",
+          "ref_column": "case_number"
+        }
+      ]
+    },
+    "subjects": {
+      "columns": [
+        "case_number",
+        "race",
+        "gender",
+        "last_name",
+        "first_name",
+        "full_name"
+      ],
+      "foreign_keys": [
+        {
+          "column": "case_number",
+          "ref_table": "incidents",
+          "ref_column": "case_number"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

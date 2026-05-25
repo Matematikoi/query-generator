@@ -1,0 +1,174 @@
+{
+  "tables": {
+    "category": {
+      "columns": [
+        "category_no",
+        "category_desc",
+        "category_code"
+      ],
+      "foreign_keys": []
+    },
+    "charge": {
+      "columns": [
+        "charge_no",
+        "member_no",
+        "provider_no",
+        "category_no",
+        "charge_dt",
+        "charge_amt",
+        "statement_no",
+        "charge_code"
+      ],
+      "foreign_keys": [
+        {
+          "column": "category_no",
+          "ref_table": "category",
+          "ref_column": "category_no"
+        },
+        {
+          "column": "member_no",
+          "ref_table": "member",
+          "ref_column": "member_no"
+        },
+        {
+          "column": "member_no",
+          "ref_table": "member",
+          "ref_column": "member_no"
+        },
+        {
+          "column": "provider_no",
+          "ref_table": "provider",
+          "ref_column": "provider_no"
+        }
+      ]
+    },
+    "corporation": {
+      "columns": [
+        "corp_no",
+        "corp_name",
+        "street",
+        "city",
+        "state_prov",
+        "country",
+        "mail_code",
+        "phone_no",
+        "expr_dt",
+        "region_no",
+        "corp_code"
+      ],
+      "foreign_keys": [
+        {
+          "column": "region_no",
+          "ref_table": "region",
+          "ref_column": "region_no"
+        }
+      ]
+    },
+    "member": {
+      "columns": [
+        "member_no",
+        "lastname",
+        "firstname",
+        "middleinitial",
+        "street",
+        "city",
+        "state_prov",
+        "country",
+        "mail_code",
+        "phone_no",
+        "photograph",
+        "issue_dt",
+        "expr_dt",
+        "region_no",
+        "corp_no",
+        "prev_balance",
+        "curr_balance",
+        "member_code"
+      ],
+      "foreign_keys": [
+        {
+          "column": "region_no",
+          "ref_table": "region",
+          "ref_column": "region_no"
+        },
+        {
+          "column": "corp_no",
+          "ref_table": "corporation",
+          "ref_column": "corp_no"
+        }
+      ]
+    },
+    "payment": {
+      "columns": [
+        "payment_no",
+        "member_no",
+        "payment_dt",
+        "payment_amt",
+        "statement_no",
+        "payment_code"
+      ],
+      "foreign_keys": [
+        {
+          "column": "member_no",
+          "ref_table": "member",
+          "ref_column": "member_no"
+        }
+      ]
+    },
+    "provider": {
+      "columns": [
+        "provider_no",
+        "provider_name",
+        "street",
+        "city",
+        "state_prov",
+        "mail_code",
+        "country",
+        "phone_no",
+        "issue_dt",
+        "expr_dt",
+        "region_no",
+        "provider_code"
+      ],
+      "foreign_keys": [
+        {
+          "column": "region_no",
+          "ref_table": "region",
+          "ref_column": "region_no"
+        }
+      ]
+    },
+    "region": {
+      "columns": [
+        "region_no",
+        "region_name",
+        "street",
+        "city",
+        "state_prov",
+        "country",
+        "mail_code",
+        "phone_no",
+        "region_code"
+      ],
+      "foreign_keys": []
+    },
+    "statement": {
+      "columns": [
+        "statement_no",
+        "member_no",
+        "statement_dt",
+        "due_dt",
+        "statement_amt",
+        "statement_code"
+      ],
+      "foreign_keys": [
+        {
+          "column": "member_no",
+          "ref_table": "member",
+          "ref_column": "member_no"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

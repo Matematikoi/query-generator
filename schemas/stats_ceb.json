@@ -1,0 +1,155 @@
+{
+  "tables": {
+    "badges": {
+      "columns": [
+        "Id",
+        "UserId",
+        "Date"
+      ],
+      "foreign_keys": [
+        {
+          "column": "UserId",
+          "ref_table": "users",
+          "ref_column": "Id"
+        }
+      ]
+    },
+    "comments": {
+      "columns": [
+        "Id",
+        "PostId",
+        "Score",
+        "CreationDate",
+        "UserId"
+      ],
+      "foreign_keys": [
+        {
+          "column": "PostId",
+          "ref_table": "posts",
+          "ref_column": "Id"
+        },
+        {
+          "column": "UserId",
+          "ref_table": "users",
+          "ref_column": "Id"
+        }
+      ]
+    },
+    "postHistory": {
+      "columns": [
+        "Id",
+        "PostHistoryTypeId",
+        "PostId",
+        "CreationDate",
+        "UserId"
+      ],
+      "foreign_keys": [
+        {
+          "column": "PostId",
+          "ref_table": "posts",
+          "ref_column": "Id"
+        },
+        {
+          "column": "UserId",
+          "ref_table": "users",
+          "ref_column": "Id"
+        }
+      ]
+    },
+    "postLinks": {
+      "columns": [
+        "Id",
+        "CreationDate",
+        "PostId",
+        "RelatedPostId",
+        "LinkTypeId"
+      ],
+      "foreign_keys": [
+        {
+          "column": "PostId",
+          "ref_table": "posts",
+          "ref_column": "Id"
+        },
+        {
+          "column": "RelatedPostId",
+          "ref_table": "posts",
+          "ref_column": "Id"
+        }
+      ]
+    },
+    "posts": {
+      "columns": [
+        "Id",
+        "PostTypeId",
+        "CreationDate",
+        "Score",
+        "ViewCount",
+        "OwnerUserId",
+        "AnswerCount",
+        "CommentCount",
+        "FavoriteCount",
+        "LastEditorUserId"
+      ],
+      "foreign_keys": [
+        {
+          "column": "LastEditorUserId",
+          "ref_table": "users",
+          "ref_column": "Id"
+        },
+        {
+          "column": "OwnerUserId",
+          "ref_table": "users",
+          "ref_column": "Id"
+        }
+      ]
+    },
+    "tags": {
+      "columns": [
+        "Id",
+        "Count",
+        "ExcerptPostId"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ExcerptPostId",
+          "ref_table": "posts",
+          "ref_column": "Id"
+        }
+      ]
+    },
+    "users": {
+      "columns": [
+        "Id",
+        "Reputation",
+        "CreationDate",
+        "Views",
+        "UpVotes",
+        "DownVotes"
+      ],
+      "foreign_keys": []
+    },
+    "votes": {
+      "columns": [
+        "Id",
+        "PostId",
+        "VoteTypeId",
+        "CreationDate",
+        "UserId",
+        "BountyAmount"
+      ],
+      "foreign_keys": [
+        {
+          "column": "PostId",
+          "ref_table": "posts",
+          "ref_column": "Id"
+        },
+        {
+          "column": "UserId",
+          "ref_table": "users",
+          "ref_column": "Id"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

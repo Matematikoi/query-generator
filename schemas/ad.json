@@ -1,0 +1,13 @@
+{
+  "tables": {
+    "ad": {
+      "columns": [
+        "ad_id",
+        "user_id",
+        "ts"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

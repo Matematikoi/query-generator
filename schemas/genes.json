@@ -1,0 +1,52 @@
+{
+  "tables": {
+    "Classification": {
+      "columns": [
+        "GeneID",
+        "Localization"
+      ],
+      "foreign_keys": []
+    },
+    "Genes": {
+      "columns": [
+        "GeneID",
+        "Essential",
+        "Class",
+        "Complex",
+        "Phenotype",
+        "Motif",
+        "Chromosome",
+        "Function",
+        "Localization"
+      ],
+      "foreign_keys": [
+        {
+          "column": "GeneID",
+          "ref_table": "Classification",
+          "ref_column": "GeneID"
+        }
+      ]
+    },
+    "Interactions": {
+      "columns": [
+        "GeneID1",
+        "GeneID2",
+        "Type",
+        "Expression_Corr"
+      ],
+      "foreign_keys": [
+        {
+          "column": "GeneID1",
+          "ref_table": "Classification",
+          "ref_column": "GeneID"
+        },
+        {
+          "column": "GeneID2",
+          "ref_table": "Classification",
+          "ref_column": "GeneID"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

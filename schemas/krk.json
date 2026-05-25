@@ -1,0 +1,18 @@
+{
+  "tables": {
+    "krk": {
+      "columns": [
+        "id",
+        "white_king_file",
+        "white_king_rank",
+        "white_rook_file",
+        "white_rook_rank",
+        "black_king_file",
+        "black_king_rank",
+        "class"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

@@ -1,4 +1,4 @@
-dataset = "TPCDS"
+schema_path = "schemas/tpcds.json"
 output_folder = "generated_data/TPCDS_100/synthetic_data/"
 histogram_path = "generated_data/TPCDS_100/histograms/histogram.parquet"
 

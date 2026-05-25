@@ -1,0 +1,66 @@
+{
+  "tables": {
+    "game": {
+      "columns": [
+        "game_id",
+        "opening_id",
+        "event",
+        "site",
+        "event_date",
+        "round",
+        "white",
+        "black",
+        "game_result",
+        "ECO",
+        "whiteElo",
+        "BlackElo",
+        "opening",
+        "w1",
+        "b1",
+        "w2",
+        "b2",
+        "w3",
+        "b3",
+        "w4",
+        "b4",
+        "w5",
+        "b5",
+        "w6",
+        "b6",
+        "w7",
+        "b7",
+        "w8",
+        "b8",
+        "w9",
+        "b9",
+        "w10",
+        "b10"
+      ],
+      "foreign_keys": [
+        {
+          "column": "opening_id",
+          "ref_table": "opening",
+          "ref_column": "opening_id"
+        }
+      ]
+    },
+    "opening": {
+      "columns": [
+        "opening_id",
+        "name",
+        "code",
+        "w1",
+        "b1",
+        "w2",
+        "b2",
+        "w3",
+        "b3",
+        "w4",
+        "b4",
+        "variation"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

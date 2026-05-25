@@ -1,13 +1,13 @@
+import json
 import random
 from collections.abc import Iterator
+from pathlib import Path
 from typing import Any
 
 from pypika import OracleQuery, Table
 from pypika import functions as fn
 from pypika.queries import QueryBuilder
 from pypika.terms import Criterion
-
-from query_generator.database_schemas.schemas import get_schema
 
 # fmt: off
 from query_generator.synthetic_queries.\
@@ -28,12 +28,28 @@ from query_generator.synthetic_queries.predicate_generator import (
   SupportedHistogramType,
 )
 from query_generator.utils.definitions import (
+  ForeignKey,
   GeneratedPredicateTypes,
   GeneratedQueryFeatures,
   PredicateParameters,
+  Schema,
   SyntheticQueryGenerationParameters,
+  TableSchema,
 )
 from query_generator.utils.utils import set_seed
+
+
+def load_schema(path: Path) -> Schema:
+  data = json.loads(path.read_text())
+  tables = {
+    name: TableSchema(
+      alias=info.get("alias"),
+      columns=info["columns"],
+      foreign_keys=[ForeignKey(**fk) for fk in info["foreign_keys"]],
+    )
+    for name, info in data["tables"].items()
+  }
+  return Schema(tables=tables, fact_tables=data["fact_tables"])
 
 
 def _build_predicate_tree(
@@ -67,13 +83,12 @@ class QueryBuilderPypika:
   def __init__(
     self,
     subgraph_generator: SubGraphGenerator,
-    # TODO(Gabriel): http://localhost:8080/tktview/b9400c203a38f3aef46ec250d98563638ba7988b
-    tables_schema: Any,
+    tables_schema: dict[str, TableSchema],
     predicate_params: PredicateParameters,
   ) -> None:
     self.sub_graph_gen = subgraph_generator
     self.table_to_pypika_table = {
-      i: Table(i, alias=tables_schema[i]["alias"]) for i in tables_schema
+      i: Table(i, alias=tables_schema[i].alias) for i in tables_schema
     }
     self.predicate_gen = PredicateGenerator(predicate_params)
     self.tables_schema = tables_schema
@@ -97,9 +112,7 @@ class QueryBuilderPypika:
     query = OracleQuery().select(fn.Count("*"))
     for table in subgraph_tables:
       query = query.from_(self.table_to_pypika_table[table])
-      random_column = random.choice(
-        list(self.tables_schema[table]["columns"].keys())
-      )
+      random_column = random.choice(self.tables_schema[table].columns)
       query = query.select(
         fn.Count(self.table_to_pypika_table[table][random_column])
       )
@@ -198,7 +211,8 @@ class QueryGenerator:
   def __init__(self, params: SyntheticQueryGenerationParameters) -> None:
     set_seed()
     self.params = params
-    self.tables_schema, self.fact_tables = get_schema(params.dataset)
+    self.tables_schema = params.schema.tables
+    self.fact_tables = params.schema.fact_tables
     self.foreign_key_graph = ForeignKeyGraph(self.tables_schema)
     self.subgraph_generator = SubGraphGenerator(
       self.foreign_key_graph,

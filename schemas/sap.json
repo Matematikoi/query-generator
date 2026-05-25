@@ -1,0 +1,93 @@
+{
+  "tables": {
+    "Customers": {
+      "columns": [
+        "ID",
+        "SEX",
+        "MARITAL_STATUS",
+        "GEOID",
+        "EDUCATIONNUM",
+        "OCCUPATION",
+        "DATA1",
+        "DATA2",
+        "DATA3",
+        "NOM1",
+        "NOM2",
+        "NOM3",
+        "age"
+      ],
+      "foreign_keys": [
+        {
+          "column": "GEOID",
+          "ref_table": "Demog",
+          "ref_column": "GEOID"
+        }
+      ]
+    },
+    "Demog": {
+      "columns": [
+        "GEOID",
+        "INHABITANTS_K",
+        "INCOME_K",
+        "A_VAR1",
+        "A_VAR2",
+        "A_VAR3",
+        "A_VAR4",
+        "A_VAR5",
+        "A_VAR6",
+        "A_VAR7",
+        "A_VAR8",
+        "A_VAR9",
+        "A_VAR10",
+        "A_VAR11",
+        "A_VAR12",
+        "A_VAR13",
+        "A_VAR14",
+        "A_VAR15",
+        "A_VAR16",
+        "A_VAR17",
+        "A_VAR18"
+      ],
+      "foreign_keys": []
+    },
+    "Mailings1_2": {
+      "columns": [
+        "REFID",
+        "KxIndex",
+        "REF_DATE",
+        "RESPONSE"
+      ],
+      "foreign_keys": [
+        {
+          "column": "REFID",
+          "ref_table": "Customers",
+          "ref_column": "ID"
+        }
+      ]
+    },
+    "Sales": {
+      "columns": [
+        "EVENTID",
+        "REFID",
+        "EVENT_DATE",
+        "AMOUNT"
+      ],
+      "foreign_keys": [
+        {
+          "column": "REFID",
+          "ref_table": "Customers",
+          "ref_column": "ID"
+        }
+      ]
+    },
+    "mailings3": {
+      "columns": [
+        "REFID",
+        "REF_DATE",
+        "RESPONSE"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

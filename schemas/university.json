@@ -1,0 +1,69 @@
+{
+  "tables": {
+    "RA": {
+      "columns": [
+        "capability",
+        "prof_id",
+        "student_id",
+        "salary"
+      ],
+      "foreign_keys": [
+        {
+          "column": "student_id",
+          "ref_table": "student",
+          "ref_column": "student_id"
+        },
+        {
+          "column": "prof_id",
+          "ref_table": "prof",
+          "ref_column": "prof_id"
+        }
+      ]
+    },
+    "course": {
+      "columns": [
+        "course_id",
+        "rating",
+        "diff"
+      ],
+      "foreign_keys": []
+    },
+    "prof": {
+      "columns": [
+        "prof_id",
+        "popularity",
+        "teachingability"
+      ],
+      "foreign_keys": []
+    },
+    "registration": {
+      "columns": [
+        "course_id",
+        "student_id",
+        "grade",
+        "sat"
+      ],
+      "foreign_keys": [
+        {
+          "column": "student_id",
+          "ref_table": "student",
+          "ref_column": "student_id"
+        },
+        {
+          "column": "course_id",
+          "ref_table": "course",
+          "ref_column": "course_id"
+        }
+      ]
+    },
+    "student": {
+      "columns": [
+        "student_id",
+        "intelligence",
+        "ranking"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

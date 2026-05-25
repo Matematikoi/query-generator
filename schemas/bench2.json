@@ -1,0 +1,322 @@
+{
+  "tables": {
+    "Alphabetical list of products": {
+      "columns": [
+        "ProductID",
+        "ProductName",
+        "SupplierID",
+        "CategoryID",
+        "QuantityPerUnit",
+        "UnitPrice",
+        "UnitsInStock",
+        "UnitsOnOrder",
+        "ReorderLevel",
+        "Discontinued",
+        "CategoryName"
+      ],
+      "foreign_keys": []
+    },
+    "Categories": {
+      "columns": [
+        "CategoryID",
+        "CategoryName",
+        "Description",
+        "Picture"
+      ],
+      "foreign_keys": []
+    },
+    "CustomerCustomerDemo": {
+      "columns": [
+        "CustomerID",
+        "CustomerTypeID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CustomerTypeID",
+          "ref_table": "CustomerDemographics",
+          "ref_column": "CustomerTypeID"
+        },
+        {
+          "column": "CustomerID",
+          "ref_table": "Customers",
+          "ref_column": "CustomerID"
+        }
+      ]
+    },
+    "CustomerDemographics": {
+      "columns": [
+        "CustomerTypeID",
+        "CustomerDesc"
+      ],
+      "foreign_keys": []
+    },
+    "Customers": {
+      "columns": [
+        "CustomerID",
+        "CompanyName",
+        "ContactName",
+        "ContactTitle",
+        "Address",
+        "City",
+        "Region",
+        "PostalCode",
+        "Country",
+        "Phone",
+        "Fax"
+      ],
+      "foreign_keys": []
+    },
+    "EmployeeTerritories": {
+      "columns": [
+        "EmployeeID",
+        "TerritoryID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "EmployeeID",
+          "ref_table": "Employees",
+          "ref_column": "EmployeeID"
+        },
+        {
+          "column": "TerritoryID",
+          "ref_table": "Territories",
+          "ref_column": "TerritoryID"
+        }
+      ]
+    },
+    "Employees": {
+      "columns": [
+        "EmployeeID",
+        "LastName",
+        "FirstName",
+        "Title",
+        "TitleOfCourtesy",
+        "BirthDate",
+        "HireDate",
+        "Address",
+        "City",
+        "Region",
+        "PostalCode",
+        "Country",
+        "HomePhone",
+        "Extension",
+        "Photo",
+        "Notes",
+        "ReportsTo",
+        "PhotoPath",
+        "Salary"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ReportsTo",
+          "ref_table": "Employees",
+          "ref_column": "EmployeeID"
+        }
+      ]
+    },
+    "Order Details": {
+      "columns": [
+        "OrderID",
+        "ProductID",
+        "UnitPrice",
+        "Quantity",
+        "Discount"
+      ],
+      "foreign_keys": [
+        {
+          "column": "OrderID",
+          "ref_table": "Orders",
+          "ref_column": "OrderID"
+        },
+        {
+          "column": "ProductID",
+          "ref_table": "Products",
+          "ref_column": "ProductID"
+        }
+      ]
+    },
+    "Orders": {
+      "columns": [
+        "OrderID",
+        "CustomerID",
+        "EmployeeID",
+        "OrderDate",
+        "RequiredDate",
+        "ShippedDate",
+        "ShipVia",
+        "Freight",
+        "ShipName",
+        "ShipAddress",
+        "ShipCity",
+        "ShipRegion",
+        "ShipPostalCode",
+        "ShipCountry"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CustomerID",
+          "ref_table": "Customers",
+          "ref_column": "CustomerID"
+        },
+        {
+          "column": "EmployeeID",
+          "ref_table": "Employees",
+          "ref_column": "EmployeeID"
+        },
+        {
+          "column": "ShipVia",
+          "ref_table": "Shippers",
+          "ref_column": "ShipperID"
+        }
+      ]
+    },
+    "Products": {
+      "columns": [
+        "ProductID",
+        "ProductName",
+        "SupplierID",
+        "CategoryID",
+        "QuantityPerUnit",
+        "UnitPrice",
+        "UnitsInStock",
+        "UnitsOnOrder",
+        "ReorderLevel",
+        "Discontinued"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CategoryID",
+          "ref_table": "Categories",
+          "ref_column": "CategoryID"
+        },
+        {
+          "column": "SupplierID",
+          "ref_table": "Suppliers",
+          "ref_column": "SupplierID"
+        }
+      ]
+    },
+    "Region": {
+      "columns": [
+        "RegionID",
+        "RegionDescription"
+      ],
+      "foreign_keys": []
+    },
+    "Shippers": {
+      "columns": [
+        "ShipperID",
+        "CompanyName",
+        "Phone"
+      ],
+      "foreign_keys": []
+    },
+    "Suppliers": {
+      "columns": [
+        "SupplierID",
+        "CompanyName",
+        "ContactName",
+        "ContactTitle",
+        "Address",
+        "City",
+        "Region",
+        "PostalCode",
+        "Country",
+        "Phone",
+        "Fax",
+        "HomePage"
+      ],
+      "foreign_keys": []
+    },
+    "Territories": {
+      "columns": [
+        "TerritoryID",
+        "TerritoryDescription",
+        "RegionID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "RegionID",
+          "ref_table": "Region",
+          "ref_column": "RegionID"
+        }
+      ]
+    },
+    "nesreca": {
+      "columns": [
+        "id_nesreca",
+        "klas_nesreca",
+        "upravna_enota",
+        "cas_nesreca",
+        "naselje_ali_izven",
+        "kategorija_cesta",
+        "oznaka_cesta_ali_naselje",
+        "tekst_cesta_ali_naselje",
+        "oznaka_odsek_ali_ulica",
+        "tekst_odsek_ali_ulica",
+        "stacionazna_ali_hisna_st",
+        "opis_prizorisce",
+        "vzrok_nesreca",
+        "tip_nesreca",
+        "vreme_nesreca",
+        "stanje_promet",
+        "stanje_vozisce",
+        "stanje_povrsina_vozisce",
+        "x",
+        "y",
+        "x_wgs84",
+        "y_wgs84"
+      ],
+      "foreign_keys": [
+        {
+          "column": "upravna_enota",
+          "ref_table": "upravna_enota",
+          "ref_column": "id_upravna_enota"
+        }
+      ]
+    },
+    "oseba": {
+      "columns": [
+        "id_nesreca",
+        "povzrocitelj_ali_udelezenec",
+        "starost",
+        "spol",
+        "upravna_enota",
+        "drzavljanstvo",
+        "poskodba",
+        "vrsta_udelezenca",
+        "varnostni_pas_ali_celada",
+        "vozniski_staz_LL",
+        "vozniski_staz_MM",
+        "alkotest",
+        "strokovni_pregled",
+        "starost_d",
+        "vozniski_staz_d",
+        "alkotest_d",
+        "strokovni_pregled_d"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_nesreca",
+          "ref_table": "nesreca",
+          "ref_column": "id_nesreca"
+        },
+        {
+          "column": "upravna_enota",
+          "ref_table": "upravna_enota",
+          "ref_column": "id_upravna_enota"
+        }
+      ]
+    },
+    "upravna_enota": {
+      "columns": [
+        "id_upravna_enota",
+        "ime_upravna_enota",
+        "st_prebivalcev",
+        "povrsina"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

@@ -1,0 +1,26 @@
+{
+  "tables": {
+    "sentences": {
+      "columns": [
+        "id",
+        "class"
+      ],
+      "foreign_keys": []
+    },
+    "terms": {
+      "columns": [
+        "id_sentence",
+        "id_term",
+        "term"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_sentence",
+          "ref_table": "sentences",
+          "ref_column": "id"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

@@ -1,0 +1,76 @@
+{
+  "tables": {
+    "card": {
+      "columns": [
+        "card_id",
+        "disp_id",
+        "type",
+        "issued"
+      ],
+      "foreign_keys": [
+        {
+          "column": "disp_id",
+          "ref_table": "disp",
+          "ref_column": "disp_id"
+        }
+      ]
+    },
+    "client": {
+      "columns": [
+        "client_id",
+        "gender",
+        "birth_date",
+        "district_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "district_id",
+          "ref_table": "district",
+          "ref_column": "district_id"
+        }
+      ]
+    },
+    "disp": {
+      "columns": [
+        "disp_id",
+        "client_id",
+        "account_id",
+        "type"
+      ],
+      "foreign_keys": [
+        {
+          "column": "account_id",
+          "ref_table": "account",
+          "ref_column": "account_id"
+        },
+        {
+          "column": "client_id",
+          "ref_table": "client",
+          "ref_column": "client_id"
+        }
+      ]
+    },
+    "district": {
+      "columns": [
+        "district_id",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10",
+        "A11",
+        "A12",
+        "A13",
+        "A14",
+        "A15",
+        "A16"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

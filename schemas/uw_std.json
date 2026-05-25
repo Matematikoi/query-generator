@@ -1,0 +1,59 @@
+{
+  "tables": {
+    "advisedBy": {
+      "columns": [
+        "p_id",
+        "p_id_dummy"
+      ],
+      "foreign_keys": [
+        {
+          "column": "p_id",
+          "ref_table": "person",
+          "ref_column": "p_id"
+        },
+        {
+          "column": "p_id_dummy",
+          "ref_table": "person",
+          "ref_column": "p_id"
+        }
+      ]
+    },
+    "course": {
+      "columns": [
+        "course_id",
+        "courseLevel"
+      ],
+      "foreign_keys": []
+    },
+    "person": {
+      "columns": [
+        "p_id",
+        "professor",
+        "student",
+        "hasPosition",
+        "inPhase",
+        "yearsInProgram"
+      ],
+      "foreign_keys": []
+    },
+    "taughtBy": {
+      "columns": [
+        "course_id",
+        "p_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "course_id",
+          "ref_table": "course",
+          "ref_column": "course_id"
+        },
+        {
+          "column": "p_id",
+          "ref_table": "person",
+          "ref_column": "p_id"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

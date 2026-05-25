@@ -13,6 +13,7 @@ from query_generator.utils.definitions import (
   ComplexQueryLLMPrompt,
   Dataset,
   PredicateOperatorProbability,
+  Schema,
   ValidatorEngine,
 )
 from query_generator.utils.toml_examples import TOML_EXAMPLE, EndpointName
@@ -186,7 +187,7 @@ class SyntheticQueriesEndpoint:
   """
 
   # Subgraph
-  dataset: Dataset
+  schema_path: str
   unique_joins: bool
   max_hops: list[int]
   keep_edge_probability: list[float]
@@ -205,6 +206,12 @@ class SyntheticQueriesEndpoint:
   output_folder: str
   histogram_path: str
   engine: SyntheticQueriesEngine
+  schema: Schema = dc_field(init=False)
+
+  def __post_init__(self) -> None:
+    from query_generator.synthetic_queries.query_builder import load_schema
+
+    self.schema = load_schema(Path(self.schema_path))
 
 
 @dataclass

@@ -1,0 +1,76 @@
+{
+  "tables": {
+    "account": {
+      "columns": [
+        "account_id",
+        "district_id",
+        "frequency",
+        "date"
+      ],
+      "foreign_keys": [
+        {
+          "column": "district_id",
+          "ref_table": "district",
+          "ref_column": "district_id"
+        }
+      ]
+    },
+    "loan": {
+      "columns": [
+        "loan_id",
+        "account_id",
+        "date",
+        "amount",
+        "duration",
+        "payments",
+        "status"
+      ],
+      "foreign_keys": [
+        {
+          "column": "account_id",
+          "ref_table": "account",
+          "ref_column": "account_id"
+        }
+      ]
+    },
+    "order": {
+      "columns": [
+        "order_id",
+        "account_id",
+        "bank_to",
+        "account_to",
+        "amount",
+        "k_symbol"
+      ],
+      "foreign_keys": [
+        {
+          "column": "account_id",
+          "ref_table": "account",
+          "ref_column": "account_id"
+        }
+      ]
+    },
+    "trans": {
+      "columns": [
+        "trans_id",
+        "account_id",
+        "date",
+        "type",
+        "operation",
+        "amount",
+        "balance",
+        "k_symbol",
+        "bank",
+        "account"
+      ],
+      "foreign_keys": [
+        {
+          "column": "account_id",
+          "ref_table": "account",
+          "ref_column": "account_id"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

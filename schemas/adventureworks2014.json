@@ -1,0 +1,1347 @@
+{
+  "tables": {
+    "AWBuildVersion": {
+      "columns": [
+        "SystemInformationID",
+        "Database Version",
+        "VersionDate",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "Address": {
+      "columns": [
+        "AddressID",
+        "AddressLine1",
+        "AddressLine2",
+        "City",
+        "StateProvinceID",
+        "PostalCode",
+        "SpatialLocation",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "StateProvinceID",
+          "ref_table": "StateProvince",
+          "ref_column": "StateProvinceID"
+        }
+      ]
+    },
+    "AddressType": {
+      "columns": [
+        "AddressTypeID",
+        "Name",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "BillOfMaterials": {
+      "columns": [
+        "BillOfMaterialsID",
+        "ProductAssemblyID",
+        "ComponentID",
+        "StartDate",
+        "EndDate",
+        "UnitMeasureCode",
+        "BOMLevel",
+        "PerAssemblyQty",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ComponentID",
+          "ref_table": "Product",
+          "ref_column": "ProductID"
+        },
+        {
+          "column": "ProductAssemblyID",
+          "ref_table": "Product",
+          "ref_column": "ProductID"
+        },
+        {
+          "column": "UnitMeasureCode",
+          "ref_table": "UnitMeasure",
+          "ref_column": "UnitMeasureCode"
+        }
+      ]
+    },
+    "BusinessEntity": {
+      "columns": [
+        "BusinessEntityID",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "BusinessEntityAddress": {
+      "columns": [
+        "BusinessEntityID",
+        "AddressID",
+        "AddressTypeID",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "AddressTypeID",
+          "ref_table": "AddressType",
+          "ref_column": "AddressTypeID"
+        },
+        {
+          "column": "AddressID",
+          "ref_table": "Address",
+          "ref_column": "AddressID"
+        },
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "BusinessEntity",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "BusinessEntityContact": {
+      "columns": [
+        "BusinessEntityID",
+        "PersonID",
+        "ContactTypeID",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "BusinessEntity",
+          "ref_column": "BusinessEntityID"
+        },
+        {
+          "column": "ContactTypeID",
+          "ref_table": "ContactType",
+          "ref_column": "ContactTypeID"
+        },
+        {
+          "column": "PersonID",
+          "ref_table": "Person",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "ContactType": {
+      "columns": [
+        "ContactTypeID",
+        "Name",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "CountryRegion": {
+      "columns": [
+        "CountryRegionCode",
+        "Name",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "CountryRegionCurrency": {
+      "columns": [
+        "CountryRegionCode",
+        "CurrencyCode",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CountryRegionCode",
+          "ref_table": "CountryRegion",
+          "ref_column": "CountryRegionCode"
+        },
+        {
+          "column": "CurrencyCode",
+          "ref_table": "Currency",
+          "ref_column": "CurrencyCode"
+        }
+      ]
+    },
+    "CreditCard": {
+      "columns": [
+        "CreditCardID",
+        "CardType",
+        "CardNumber",
+        "ExpMonth",
+        "ExpYear",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "Culture": {
+      "columns": [
+        "CultureID",
+        "Name",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "Currency": {
+      "columns": [
+        "CurrencyCode",
+        "Name",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "CurrencyRate": {
+      "columns": [
+        "CurrencyRateID",
+        "CurrencyRateDate",
+        "FromCurrencyCode",
+        "ToCurrencyCode",
+        "AverageRate",
+        "EndOfDayRate",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "FromCurrencyCode",
+          "ref_table": "Currency",
+          "ref_column": "CurrencyCode"
+        },
+        {
+          "column": "ToCurrencyCode",
+          "ref_table": "Currency",
+          "ref_column": "CurrencyCode"
+        }
+      ]
+    },
+    "Customer": {
+      "columns": [
+        "CustomerID",
+        "PersonID",
+        "StoreID",
+        "TerritoryID",
+        "AccountNumber",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "PersonID",
+          "ref_table": "Person",
+          "ref_column": "BusinessEntityID"
+        },
+        {
+          "column": "TerritoryID",
+          "ref_table": "SalesTerritory",
+          "ref_column": "TerritoryID"
+        },
+        {
+          "column": "StoreID",
+          "ref_table": "Store",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "DatabaseLog": {
+      "columns": [
+        "DatabaseLogID",
+        "PostTime",
+        "DatabaseUser",
+        "Event",
+        "Schema",
+        "Object",
+        "TSQL",
+        "XmlEvent"
+      ],
+      "foreign_keys": []
+    },
+    "Department": {
+      "columns": [
+        "DepartmentID",
+        "Name",
+        "GroupName",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "Document": {
+      "columns": [
+        "DocumentNode",
+        "DocumentLevel",
+        "Title",
+        "Owner",
+        "FolderFlag",
+        "FileName",
+        "FileExtension",
+        "Revision",
+        "ChangeNumber",
+        "Status",
+        "DocumentSummary",
+        "Document",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Owner",
+          "ref_table": "Employee",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "EmailAddress": {
+      "columns": [
+        "BusinessEntityID",
+        "EmailAddressID",
+        "EmailAddress",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "Person",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "Employee": {
+      "columns": [
+        "BusinessEntityID",
+        "NationalIDNumber",
+        "LoginID",
+        "OrganizationNode",
+        "OrganizationLevel",
+        "JobTitle",
+        "BirthDate",
+        "MaritalStatus",
+        "Gender",
+        "HireDate",
+        "SalariedFlag",
+        "VacationHours",
+        "SickLeaveHours",
+        "CurrentFlag",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "Person",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "EmployeeDepartmentHistory": {
+      "columns": [
+        "BusinessEntityID",
+        "DepartmentID",
+        "ShiftID",
+        "StartDate",
+        "EndDate",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "DepartmentID",
+          "ref_table": "Department",
+          "ref_column": "DepartmentID"
+        },
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "Employee",
+          "ref_column": "BusinessEntityID"
+        },
+        {
+          "column": "ShiftID",
+          "ref_table": "Shift",
+          "ref_column": "ShiftID"
+        }
+      ]
+    },
+    "EmployeePayHistory": {
+      "columns": [
+        "BusinessEntityID",
+        "RateChangeDate",
+        "Rate",
+        "PayFrequency",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "Employee",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "ErrorLog": {
+      "columns": [
+        "ErrorLogID",
+        "ErrorTime",
+        "UserName",
+        "ErrorNumber",
+        "ErrorSeverity",
+        "ErrorState",
+        "ErrorProcedure",
+        "ErrorLine",
+        "ErrorMessage"
+      ],
+      "foreign_keys": []
+    },
+    "Illustration": {
+      "columns": [
+        "IllustrationID",
+        "Diagram",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "JobCandidate": {
+      "columns": [
+        "JobCandidateID",
+        "BusinessEntityID",
+        "Resume",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "Employee",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "Location": {
+      "columns": [
+        "LocationID",
+        "Name",
+        "CostRate",
+        "Availability",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "Password": {
+      "columns": [
+        "BusinessEntityID",
+        "PasswordHash",
+        "PasswordSalt",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "Person",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "Person": {
+      "columns": [
+        "BusinessEntityID",
+        "PersonType",
+        "NameStyle",
+        "Title",
+        "FirstName",
+        "MiddleName",
+        "LastName",
+        "Suffix",
+        "EmailPromotion",
+        "AdditionalContactInfo",
+        "Demographics",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "BusinessEntity",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "PersonCreditCard": {
+      "columns": [
+        "BusinessEntityID",
+        "CreditCardID",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CreditCardID",
+          "ref_table": "CreditCard",
+          "ref_column": "CreditCardID"
+        },
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "Person",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "PersonPhone": {
+      "columns": [
+        "BusinessEntityID",
+        "PhoneNumber",
+        "PhoneNumberTypeID",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "Person",
+          "ref_column": "BusinessEntityID"
+        },
+        {
+          "column": "PhoneNumberTypeID",
+          "ref_table": "PhoneNumberType",
+          "ref_column": "PhoneNumberTypeID"
+        }
+      ]
+    },
+    "PhoneNumberType": {
+      "columns": [
+        "PhoneNumberTypeID",
+        "Name",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "Product": {
+      "columns": [
+        "ProductID",
+        "Name",
+        "ProductNumber",
+        "MakeFlag",
+        "FinishedGoodsFlag",
+        "Color",
+        "SafetyStockLevel",
+        "ReorderPoint",
+        "StandardCost",
+        "ListPrice",
+        "Size",
+        "SizeUnitMeasureCode",
+        "WeightUnitMeasureCode",
+        "Weight",
+        "DaysToManufacture",
+        "ProductLine",
+        "Class",
+        "Style",
+        "ProductSubcategoryID",
+        "ProductModelID",
+        "SellStartDate",
+        "SellEndDate",
+        "DiscontinuedDate",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ProductModelID",
+          "ref_table": "ProductModel",
+          "ref_column": "ProductModelID"
+        },
+        {
+          "column": "ProductSubcategoryID",
+          "ref_table": "ProductSubcategory",
+          "ref_column": "ProductSubcategoryID"
+        },
+        {
+          "column": "SizeUnitMeasureCode",
+          "ref_table": "UnitMeasure",
+          "ref_column": "UnitMeasureCode"
+        },
+        {
+          "column": "WeightUnitMeasureCode",
+          "ref_table": "UnitMeasure",
+          "ref_column": "UnitMeasureCode"
+        }
+      ]
+    },
+    "ProductCategory": {
+      "columns": [
+        "ProductCategoryID",
+        "Name",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "ProductCostHistory": {
+      "columns": [
+        "ProductID",
+        "StartDate",
+        "EndDate",
+        "StandardCost",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ProductID",
+          "ref_table": "Product",
+          "ref_column": "ProductID"
+        }
+      ]
+    },
+    "ProductDescription": {
+      "columns": [
+        "ProductDescriptionID",
+        "Description",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "ProductDocument": {
+      "columns": [
+        "ProductID",
+        "DocumentNode",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "DocumentNode",
+          "ref_table": "Document",
+          "ref_column": "DocumentNode"
+        },
+        {
+          "column": "ProductID",
+          "ref_table": "Product",
+          "ref_column": "ProductID"
+        }
+      ]
+    },
+    "ProductInventory": {
+      "columns": [
+        "ProductID",
+        "LocationID",
+        "Shelf",
+        "Bin",
+        "Quantity",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "LocationID",
+          "ref_table": "Location",
+          "ref_column": "LocationID"
+        },
+        {
+          "column": "ProductID",
+          "ref_table": "Product",
+          "ref_column": "ProductID"
+        }
+      ]
+    },
+    "ProductListPriceHistory": {
+      "columns": [
+        "ProductID",
+        "StartDate",
+        "EndDate",
+        "ListPrice",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ProductID",
+          "ref_table": "Product",
+          "ref_column": "ProductID"
+        }
+      ]
+    },
+    "ProductModel": {
+      "columns": [
+        "ProductModelID",
+        "Name",
+        "CatalogDescription",
+        "Instructions",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "ProductModelIllustration": {
+      "columns": [
+        "ProductModelID",
+        "IllustrationID",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "IllustrationID",
+          "ref_table": "Illustration",
+          "ref_column": "IllustrationID"
+        },
+        {
+          "column": "ProductModelID",
+          "ref_table": "ProductModel",
+          "ref_column": "ProductModelID"
+        }
+      ]
+    },
+    "ProductModelProductDescriptionCulture": {
+      "columns": [
+        "ProductModelID",
+        "ProductDescriptionID",
+        "CultureID",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CultureID",
+          "ref_table": "Culture",
+          "ref_column": "CultureID"
+        },
+        {
+          "column": "ProductDescriptionID",
+          "ref_table": "ProductDescription",
+          "ref_column": "ProductDescriptionID"
+        },
+        {
+          "column": "ProductModelID",
+          "ref_table": "ProductModel",
+          "ref_column": "ProductModelID"
+        }
+      ]
+    },
+    "ProductPhoto": {
+      "columns": [
+        "ProductPhotoID",
+        "ThumbNailPhoto",
+        "ThumbnailPhotoFileName",
+        "LargePhoto",
+        "LargePhotoFileName",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "ProductProductPhoto": {
+      "columns": [
+        "ProductID",
+        "ProductPhotoID",
+        "Primary",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ProductPhotoID",
+          "ref_table": "ProductPhoto",
+          "ref_column": "ProductPhotoID"
+        },
+        {
+          "column": "ProductID",
+          "ref_table": "Product",
+          "ref_column": "ProductID"
+        }
+      ]
+    },
+    "ProductReview": {
+      "columns": [
+        "ProductReviewID",
+        "ProductID",
+        "ReviewerName",
+        "ReviewDate",
+        "EmailAddress",
+        "Rating",
+        "Comments",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ProductID",
+          "ref_table": "Product",
+          "ref_column": "ProductID"
+        }
+      ]
+    },
+    "ProductSubcategory": {
+      "columns": [
+        "ProductSubcategoryID",
+        "ProductCategoryID",
+        "Name",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ProductCategoryID",
+          "ref_table": "ProductCategory",
+          "ref_column": "ProductCategoryID"
+        }
+      ]
+    },
+    "ProductVendor": {
+      "columns": [
+        "ProductID",
+        "BusinessEntityID",
+        "AverageLeadTime",
+        "StandardPrice",
+        "LastReceiptCost",
+        "LastReceiptDate",
+        "MinOrderQty",
+        "MaxOrderQty",
+        "OnOrderQty",
+        "UnitMeasureCode",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ProductID",
+          "ref_table": "Product",
+          "ref_column": "ProductID"
+        },
+        {
+          "column": "UnitMeasureCode",
+          "ref_table": "UnitMeasure",
+          "ref_column": "UnitMeasureCode"
+        },
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "Vendor",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "PurchaseOrderDetail": {
+      "columns": [
+        "PurchaseOrderID",
+        "PurchaseOrderDetailID",
+        "DueDate",
+        "OrderQty",
+        "ProductID",
+        "UnitPrice",
+        "LineTotal",
+        "ReceivedQty",
+        "RejectedQty",
+        "StockedQty",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ProductID",
+          "ref_table": "Product",
+          "ref_column": "ProductID"
+        },
+        {
+          "column": "PurchaseOrderID",
+          "ref_table": "PurchaseOrderHeader",
+          "ref_column": "PurchaseOrderID"
+        }
+      ]
+    },
+    "PurchaseOrderHeader": {
+      "columns": [
+        "PurchaseOrderID",
+        "RevisionNumber",
+        "Status",
+        "EmployeeID",
+        "VendorID",
+        "ShipMethodID",
+        "OrderDate",
+        "ShipDate",
+        "SubTotal",
+        "TaxAmt",
+        "Freight",
+        "TotalDue",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "EmployeeID",
+          "ref_table": "Employee",
+          "ref_column": "BusinessEntityID"
+        },
+        {
+          "column": "ShipMethodID",
+          "ref_table": "ShipMethod",
+          "ref_column": "ShipMethodID"
+        },
+        {
+          "column": "VendorID",
+          "ref_table": "Vendor",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "SalesOrderDetail": {
+      "columns": [
+        "SalesOrderID",
+        "SalesOrderDetailID",
+        "CarrierTrackingNumber",
+        "OrderQty",
+        "ProductID",
+        "SpecialOfferID",
+        "UnitPrice",
+        "UnitPriceDiscount",
+        "LineTotal",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "SalesOrderID",
+          "ref_table": "SalesOrderHeader",
+          "ref_column": "SalesOrderID"
+        },
+        {
+          "column": "SpecialOfferID",
+          "ref_table": "SpecialOfferProduct",
+          "ref_column": "SpecialOfferID"
+        },
+        {
+          "column": "ProductID",
+          "ref_table": "SpecialOfferProduct",
+          "ref_column": "ProductID"
+        }
+      ]
+    },
+    "SalesOrderHeader": {
+      "columns": [
+        "SalesOrderID",
+        "RevisionNumber",
+        "OrderDate",
+        "DueDate",
+        "ShipDate",
+        "Status",
+        "OnlineOrderFlag",
+        "SalesOrderNumber",
+        "PurchaseOrderNumber",
+        "AccountNumber",
+        "CustomerID",
+        "SalesPersonID",
+        "TerritoryID",
+        "BillToAddressID",
+        "ShipToAddressID",
+        "ShipMethodID",
+        "CreditCardID",
+        "CreditCardApprovalCode",
+        "CurrencyRateID",
+        "SubTotal",
+        "TaxAmt",
+        "Freight",
+        "TotalDue",
+        "Comment",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "BillToAddressID",
+          "ref_table": "Address",
+          "ref_column": "AddressID"
+        },
+        {
+          "column": "ShipToAddressID",
+          "ref_table": "Address",
+          "ref_column": "AddressID"
+        },
+        {
+          "column": "CreditCardID",
+          "ref_table": "CreditCard",
+          "ref_column": "CreditCardID"
+        },
+        {
+          "column": "CurrencyRateID",
+          "ref_table": "CurrencyRate",
+          "ref_column": "CurrencyRateID"
+        },
+        {
+          "column": "CustomerID",
+          "ref_table": "Customer",
+          "ref_column": "CustomerID"
+        },
+        {
+          "column": "SalesPersonID",
+          "ref_table": "SalesPerson",
+          "ref_column": "BusinessEntityID"
+        },
+        {
+          "column": "TerritoryID",
+          "ref_table": "SalesTerritory",
+          "ref_column": "TerritoryID"
+        },
+        {
+          "column": "ShipMethodID",
+          "ref_table": "ShipMethod",
+          "ref_column": "ShipMethodID"
+        }
+      ]
+    },
+    "SalesOrderHeaderSalesReason": {
+      "columns": [
+        "SalesOrderID",
+        "SalesReasonID",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "SalesOrderID",
+          "ref_table": "SalesOrderHeader",
+          "ref_column": "SalesOrderID"
+        },
+        {
+          "column": "SalesReasonID",
+          "ref_table": "SalesReason",
+          "ref_column": "SalesReasonID"
+        }
+      ]
+    },
+    "SalesPerson": {
+      "columns": [
+        "BusinessEntityID",
+        "TerritoryID",
+        "SalesQuota",
+        "Bonus",
+        "CommissionPct",
+        "SalesYTD",
+        "SalesLastYear",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "Employee",
+          "ref_column": "BusinessEntityID"
+        },
+        {
+          "column": "TerritoryID",
+          "ref_table": "SalesTerritory",
+          "ref_column": "TerritoryID"
+        }
+      ]
+    },
+    "SalesPersonQuotaHistory": {
+      "columns": [
+        "BusinessEntityID",
+        "QuotaDate",
+        "SalesQuota",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "SalesPerson",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "SalesReason": {
+      "columns": [
+        "SalesReasonID",
+        "Name",
+        "ReasonType",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "SalesTaxRate": {
+      "columns": [
+        "SalesTaxRateID",
+        "StateProvinceID",
+        "TaxType",
+        "TaxRate",
+        "Name",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "StateProvinceID",
+          "ref_table": "StateProvince",
+          "ref_column": "StateProvinceID"
+        }
+      ]
+    },
+    "SalesTerritory": {
+      "columns": [
+        "TerritoryID",
+        "Name",
+        "CountryRegionCode",
+        "Group",
+        "SalesYTD",
+        "SalesLastYear",
+        "CostYTD",
+        "CostLastYear",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CountryRegionCode",
+          "ref_table": "CountryRegion",
+          "ref_column": "CountryRegionCode"
+        }
+      ]
+    },
+    "SalesTerritoryHistory": {
+      "columns": [
+        "BusinessEntityID",
+        "TerritoryID",
+        "StartDate",
+        "EndDate",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "SalesPerson",
+          "ref_column": "BusinessEntityID"
+        },
+        {
+          "column": "TerritoryID",
+          "ref_table": "SalesTerritory",
+          "ref_column": "TerritoryID"
+        }
+      ]
+    },
+    "ScrapReason": {
+      "columns": [
+        "ScrapReasonID",
+        "Name",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "Shift": {
+      "columns": [
+        "ShiftID",
+        "Name",
+        "StartTime",
+        "EndTime",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "ShipMethod": {
+      "columns": [
+        "ShipMethodID",
+        "Name",
+        "ShipBase",
+        "ShipRate",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "ShoppingCartItem": {
+      "columns": [
+        "ShoppingCartItemID",
+        "ShoppingCartID",
+        "Quantity",
+        "ProductID",
+        "DateCreated",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ProductID",
+          "ref_table": "Product",
+          "ref_column": "ProductID"
+        }
+      ]
+    },
+    "SpecialOffer": {
+      "columns": [
+        "SpecialOfferID",
+        "Description",
+        "DiscountPct",
+        "Type",
+        "Category",
+        "StartDate",
+        "EndDate",
+        "MinQty",
+        "MaxQty",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "SpecialOfferProduct": {
+      "columns": [
+        "SpecialOfferID",
+        "ProductID",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ProductID",
+          "ref_table": "Product",
+          "ref_column": "ProductID"
+        },
+        {
+          "column": "SpecialOfferID",
+          "ref_table": "SpecialOffer",
+          "ref_column": "SpecialOfferID"
+        }
+      ]
+    },
+    "StateProvince": {
+      "columns": [
+        "StateProvinceID",
+        "StateProvinceCode",
+        "CountryRegionCode",
+        "IsOnlyStateProvinceFlag",
+        "Name",
+        "TerritoryID",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "CountryRegionCode",
+          "ref_table": "CountryRegion",
+          "ref_column": "CountryRegionCode"
+        },
+        {
+          "column": "TerritoryID",
+          "ref_table": "SalesTerritory",
+          "ref_column": "TerritoryID"
+        }
+      ]
+    },
+    "Store": {
+      "columns": [
+        "BusinessEntityID",
+        "Name",
+        "SalesPersonID",
+        "Demographics",
+        "rowguid",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "BusinessEntity",
+          "ref_column": "BusinessEntityID"
+        },
+        {
+          "column": "SalesPersonID",
+          "ref_table": "SalesPerson",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "TransactionHistory": {
+      "columns": [
+        "TransactionID",
+        "ProductID",
+        "ReferenceOrderID",
+        "ReferenceOrderLineID",
+        "TransactionDate",
+        "TransactionType",
+        "Quantity",
+        "ActualCost",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ProductID",
+          "ref_table": "Product",
+          "ref_column": "ProductID"
+        }
+      ]
+    },
+    "TransactionHistoryArchive": {
+      "columns": [
+        "TransactionID",
+        "ProductID",
+        "ReferenceOrderID",
+        "ReferenceOrderLineID",
+        "TransactionDate",
+        "TransactionType",
+        "Quantity",
+        "ActualCost",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "UnitMeasure": {
+      "columns": [
+        "UnitMeasureCode",
+        "Name",
+        "ModifiedDate"
+      ],
+      "foreign_keys": []
+    },
+    "Vendor": {
+      "columns": [
+        "BusinessEntityID",
+        "AccountNumber",
+        "Name",
+        "CreditRating",
+        "PreferredVendorStatus",
+        "ActiveFlag",
+        "PurchasingWebServiceURL",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "BusinessEntityID",
+          "ref_table": "BusinessEntity",
+          "ref_column": "BusinessEntityID"
+        }
+      ]
+    },
+    "WorkOrder": {
+      "columns": [
+        "WorkOrderID",
+        "ProductID",
+        "OrderQty",
+        "StockedQty",
+        "ScrappedQty",
+        "StartDate",
+        "EndDate",
+        "DueDate",
+        "ScrapReasonID",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ProductID",
+          "ref_table": "Product",
+          "ref_column": "ProductID"
+        },
+        {
+          "column": "ScrapReasonID",
+          "ref_table": "ScrapReason",
+          "ref_column": "ScrapReasonID"
+        }
+      ]
+    },
+    "WorkOrderRouting": {
+      "columns": [
+        "WorkOrderID",
+        "ProductID",
+        "OperationSequence",
+        "LocationID",
+        "ScheduledStartDate",
+        "ScheduledEndDate",
+        "ActualStartDate",
+        "ActualEndDate",
+        "ActualResourceHrs",
+        "PlannedCost",
+        "ActualCost",
+        "ModifiedDate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "LocationID",
+          "ref_table": "Location",
+          "ref_column": "LocationID"
+        },
+        {
+          "column": "WorkOrderID",
+          "ref_table": "WorkOrder",
+          "ref_column": "WorkOrderID"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

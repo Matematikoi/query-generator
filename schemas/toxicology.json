@@ -1,0 +1,64 @@
+{
+  "tables": {
+    "atom": {
+      "columns": [
+        "atom_id",
+        "molecule_id",
+        "element"
+      ],
+      "foreign_keys": [
+        {
+          "column": "molecule_id",
+          "ref_table": "molecule",
+          "ref_column": "molecule_id"
+        }
+      ]
+    },
+    "bond": {
+      "columns": [
+        "bond_id",
+        "molecule_id",
+        "bond_type"
+      ],
+      "foreign_keys": [
+        {
+          "column": "molecule_id",
+          "ref_table": "molecule",
+          "ref_column": "molecule_id"
+        }
+      ]
+    },
+    "connected": {
+      "columns": [
+        "atom_id",
+        "atom_id2",
+        "bond_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "atom_id",
+          "ref_table": "atom",
+          "ref_column": "atom_id"
+        },
+        {
+          "column": "atom_id2",
+          "ref_table": "atom",
+          "ref_column": "atom_id"
+        },
+        {
+          "column": "bond_id",
+          "ref_table": "bond",
+          "ref_column": "bond_id"
+        }
+      ]
+    },
+    "molecule": {
+      "columns": [
+        "molecule_id",
+        "label"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

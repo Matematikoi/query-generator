@@ -1,0 +1,122 @@
+{
+  "tables": {
+    "JuanManuel Tales": {
+      "columns": [
+        "id",
+        "tale",
+        "book",
+        "author",
+        "date",
+        "country",
+        "source",
+        "text"
+      ],
+      "foreign_keys": []
+    },
+    "authors_gutenberg": {
+      "columns": [
+        "Surname",
+        "Name",
+        "Born",
+        "Died"
+      ],
+      "foreign_keys": []
+    },
+    "authors_wikipedia": {
+      "columns": [
+        "author",
+        "date_birth"
+      ],
+      "foreign_keys": []
+    },
+    "baldwin": {
+      "columns": [
+        "id",
+        "title",
+        "book",
+        "author",
+        "content",
+        "url"
+      ],
+      "foreign_keys": []
+    },
+    "feedbooks": {
+      "columns": [
+        "id",
+        "content"
+      ],
+      "foreign_keys": []
+    },
+    "globalgrey": {
+      "columns": [
+        "id",
+        "content"
+      ],
+      "foreign_keys": []
+    },
+    "google": {
+      "columns": [
+        "id",
+        "content"
+      ],
+      "foreign_keys": []
+    },
+    "gutenberg": {
+      "columns": [
+        "id",
+        "title",
+        "book",
+        "author",
+        "date",
+        "country",
+        "content",
+        "url",
+        "id_gutenberg"
+      ],
+      "foreign_keys": []
+    },
+    "gutenberg_cleared": {
+      "columns": [
+        "id",
+        "title",
+        "book",
+        "author",
+        "date",
+        "country",
+        "content",
+        "url",
+        "id_gutenberg",
+        "clear_success"
+      ],
+      "foreign_keys": []
+    },
+    "old_truncated": {
+      "columns": [
+        "id",
+        "title",
+        "content",
+        "url",
+        "author",
+        "book",
+        "date",
+        "continent",
+        "country"
+      ],
+      "foreign_keys": []
+    },
+    "tales_template": {
+      "columns": [
+        "id",
+        "title",
+        "book",
+        "author",
+        "date",
+        "country",
+        "url",
+        "content"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

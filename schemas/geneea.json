@@ -1,0 +1,344 @@
+{
+  "tables": {
+    "bod_schuze": {
+      "columns": [
+        "id_bod",
+        "id_schuze",
+        "id_tisk",
+        "id_typ",
+        "bod",
+        "uplny_naz",
+        "uplny_kon",
+        "poznamka",
+        "id_bod_stav",
+        "pozvanka",
+        "rj",
+        "pozn2",
+        "druh_bodu",
+        "id_sd",
+        "zkratka"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_schuze",
+          "ref_table": "schuze",
+          "ref_column": "id_schuze"
+        },
+        {
+          "column": "id_bod_stav",
+          "ref_table": "bod_stav",
+          "ref_column": "id_bod_stav"
+        }
+      ]
+    },
+    "bod_stav": {
+      "columns": [
+        "id_bod_stav",
+        "popis"
+      ],
+      "foreign_keys": []
+    },
+    "funkce": {
+      "columns": [
+        "id_funkce",
+        "id_organ",
+        "id_typ_funkce",
+        "nazev_funkce_cz",
+        "priorita"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_organ",
+          "ref_table": "organy",
+          "ref_column": "id_organ"
+        },
+        {
+          "column": "id_typ_funkce",
+          "ref_table": "typ_funkce",
+          "ref_column": "id_typ_funkce"
+        }
+      ]
+    },
+    "hl_check": {
+      "columns": [
+        "id_hlasovani",
+        "turn",
+        "mode",
+        "id_h2",
+        "id_h3"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_hlasovani",
+          "ref_table": "hl_hlasovani",
+          "ref_column": "id_hlasovani"
+        }
+      ]
+    },
+    "hl_hlasovani": {
+      "columns": [
+        "id_hlasovani",
+        "id_organ",
+        "schuze",
+        "cislo",
+        "bod",
+        "datum",
+        "cas",
+        "pro",
+        "proti",
+        "zdrzel",
+        "nehlasoval",
+        "prihlaseno",
+        "kvorum",
+        "druh_hlasovani",
+        "vysledek",
+        "nazev_dlouhy",
+        "nazev_kratky"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_organ",
+          "ref_table": "organy",
+          "ref_column": "id_organ"
+        }
+      ]
+    },
+    "hl_poslanec": {
+      "columns": [
+        "id_poslanec",
+        "id_hlasovani",
+        "vysledek"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_poslanec",
+          "ref_table": "poslanec",
+          "ref_column": "id_poslanec"
+        }
+      ]
+    },
+    "hl_vazby": {
+      "columns": [
+        "id_hlasovani",
+        "turn",
+        "typ"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_hlasovani",
+          "ref_table": "hl_hlasovani",
+          "ref_column": "id_hlasovani"
+        }
+      ]
+    },
+    "hl_zposlanec": {
+      "columns": [
+        "id_hlasovani",
+        "id_osoba",
+        "mode"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_hlasovani",
+          "ref_table": "hl_hlasovani",
+          "ref_column": "id_hlasovani"
+        },
+        {
+          "column": "id_osoba",
+          "ref_table": "osoby",
+          "ref_column": "id_osoba"
+        }
+      ]
+    },
+    "omluvy": {
+      "columns": [
+        "id_organ",
+        "id_poslanec",
+        "den",
+        "od",
+        "do"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_organ",
+          "ref_table": "organy",
+          "ref_column": "id_organ"
+        },
+        {
+          "column": "id_poslanec",
+          "ref_table": "poslanec",
+          "ref_column": "id_poslanec"
+        }
+      ]
+    },
+    "organy": {
+      "columns": [
+        "id_organ",
+        "organ_id_organ",
+        "id_typ_organu",
+        "zkratka",
+        "nazev_organu_cz",
+        "nazev_organu_en",
+        "od_organ",
+        "do_organ",
+        "priorita",
+        "cl_organ_base"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_typ_organu",
+          "ref_table": "typ_organu",
+          "ref_column": "id_typ_org"
+        }
+      ]
+    },
+    "osoby": {
+      "columns": [
+        "id_osoba",
+        "pred",
+        "jmeno",
+        "prijmeni",
+        "za",
+        "narozeni",
+        "pohlavi",
+        "zmena",
+        "umrti"
+      ],
+      "foreign_keys": []
+    },
+    "pkgps": {
+      "columns": [
+        "id_poslanec",
+        "adresa",
+        "sirka",
+        "delka"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_poslanec",
+          "ref_table": "poslanec",
+          "ref_column": "id_poslanec"
+        }
+      ]
+    },
+    "poslanec": {
+      "columns": [
+        "id_poslanec",
+        "id_osoba",
+        "id_kraj",
+        "id_kandidatka",
+        "id_obdobi",
+        "web",
+        "ulice",
+        "obec",
+        "psc",
+        "email",
+        "telefon",
+        "fax",
+        "psp_telefon",
+        "facebook",
+        "foto"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_osoba",
+          "ref_table": "osoby",
+          "ref_column": "id_osoba"
+        }
+      ]
+    },
+    "schuze": {
+      "columns": [
+        "id_schuze",
+        "id_organ",
+        "schuze",
+        "od_schuze",
+        "do_schuze",
+        "aktualizace"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_organ",
+          "ref_table": "organy",
+          "ref_column": "id_organ"
+        }
+      ]
+    },
+    "schuze_stav": {
+      "columns": [
+        "id_schuze",
+        "stav",
+        "typ",
+        "text_dt",
+        "text_st",
+        "tm_line"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_schuze",
+          "ref_table": "schuze",
+          "ref_column": "id_schuze"
+        }
+      ]
+    },
+    "typ_funkce": {
+      "columns": [
+        "id_typ_funkce",
+        "id_typ_org",
+        "typ_funkce_cz",
+        "typ_funkce_en",
+        "priorita",
+        "typ_funkce_obecny"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_typ_org",
+          "ref_table": "typ_organu",
+          "ref_column": "id_typ_org"
+        }
+      ]
+    },
+    "typ_organu": {
+      "columns": [
+        "id_typ_org",
+        "typ_id_typ_org",
+        "nazev_typ_org_cz",
+        "nazev_typ_org_en",
+        "typ_org_obecny",
+        "priorita"
+      ],
+      "foreign_keys": []
+    },
+    "zarazeni": {
+      "columns": [
+        "id_osoba",
+        "id_of",
+        "cl_funkce",
+        "od_o",
+        "do_o",
+        "od_f",
+        "do_f"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_osoba",
+          "ref_table": "osoby",
+          "ref_column": "id_osoba"
+        }
+      ]
+    },
+    "zmatecne": {
+      "columns": [
+        "id_hlasovani"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_hlasovani",
+          "ref_table": "hl_hlasovani",
+          "ref_column": "id_hlasovani"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

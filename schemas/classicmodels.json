@@ -1,0 +1,150 @@
+{
+  "tables": {
+    "customers": {
+      "columns": [
+        "customerNumber",
+        "customerName",
+        "contactLastName",
+        "contactFirstName",
+        "phone",
+        "addressLine1",
+        "addressLine2",
+        "city",
+        "state",
+        "postalCode",
+        "country",
+        "salesRepEmployeeNumber",
+        "creditLimit"
+      ],
+      "foreign_keys": [
+        {
+          "column": "salesRepEmployeeNumber",
+          "ref_table": "employees",
+          "ref_column": "employeeNumber"
+        }
+      ]
+    },
+    "employees": {
+      "columns": [
+        "employeeNumber",
+        "lastName",
+        "firstName",
+        "extension",
+        "email",
+        "officeCode",
+        "reportsTo",
+        "jobTitle"
+      ],
+      "foreign_keys": [
+        {
+          "column": "reportsTo",
+          "ref_table": "employees",
+          "ref_column": "employeeNumber"
+        },
+        {
+          "column": "officeCode",
+          "ref_table": "offices",
+          "ref_column": "officeCode"
+        }
+      ]
+    },
+    "offices": {
+      "columns": [
+        "officeCode",
+        "city",
+        "phone",
+        "addressLine1",
+        "addressLine2",
+        "state",
+        "country",
+        "postalCode",
+        "territory"
+      ],
+      "foreign_keys": []
+    },
+    "orderdetails": {
+      "columns": [
+        "orderNumber",
+        "productCode",
+        "quantityOrdered",
+        "priceEach",
+        "orderLineNumber"
+      ],
+      "foreign_keys": [
+        {
+          "column": "orderNumber",
+          "ref_table": "orders",
+          "ref_column": "orderNumber"
+        },
+        {
+          "column": "productCode",
+          "ref_table": "products",
+          "ref_column": "productCode"
+        }
+      ]
+    },
+    "orders": {
+      "columns": [
+        "orderNumber",
+        "orderDate",
+        "requiredDate",
+        "shippedDate",
+        "status",
+        "comments",
+        "customerNumber"
+      ],
+      "foreign_keys": [
+        {
+          "column": "customerNumber",
+          "ref_table": "customers",
+          "ref_column": "customerNumber"
+        }
+      ]
+    },
+    "payments": {
+      "columns": [
+        "customerNumber",
+        "checkNumber",
+        "paymentDate",
+        "amount"
+      ],
+      "foreign_keys": [
+        {
+          "column": "customerNumber",
+          "ref_table": "customers",
+          "ref_column": "customerNumber"
+        }
+      ]
+    },
+    "productlines": {
+      "columns": [
+        "productLine",
+        "textDescription",
+        "htmlDescription",
+        "image"
+      ],
+      "foreign_keys": []
+    },
+    "products": {
+      "columns": [
+        "productCode",
+        "productName",
+        "productLine",
+        "productScale",
+        "productVendor",
+        "productDescription",
+        "quantityInStock",
+        "buyPrice",
+        "MSRP"
+      ],
+      "foreign_keys": [
+        {
+          "column": "productLine",
+          "ref_table": "productlines",
+          "ref_column": "productLine"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

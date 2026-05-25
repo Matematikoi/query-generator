@@ -1,0 +1,552 @@
+{
+  "tables": {
+    "Employees": {
+      "columns": [
+        "EmployeeID",
+        "FirstName",
+        "MiddleInitial",
+        "LastName"
+      ],
+      "foreign_keys": []
+    },
+    "Products": {
+      "columns": [
+        "ProductID",
+        "Name",
+        "Price"
+      ],
+      "foreign_keys": []
+    },
+    "bill_of_materials": {
+      "columns": [
+        "tube_assembly_id",
+        "component_id",
+        "quantity"
+      ],
+      "foreign_keys": [
+        {
+          "column": "component_id",
+          "ref_table": "components",
+          "ref_column": "component_id"
+        },
+        {
+          "column": "tube_assembly_id",
+          "ref_table": "tube",
+          "ref_column": "tube_assembly_id"
+        }
+      ]
+    },
+    "cars": {
+      "columns": [
+        "id",
+        "train_id",
+        "position",
+        "shape",
+        "len",
+        "sides",
+        "roof",
+        "wheels",
+        "load_shape",
+        "load_num"
+      ],
+      "foreign_keys": [
+        {
+          "column": "train_id",
+          "ref_table": "trains",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "comp_adaptor": {
+      "columns": [
+        "component_id",
+        "component_type_id",
+        "adaptor_angle",
+        "overall_length",
+        "end_form_id_1",
+        "connection_type_id_1",
+        "length_1",
+        "thread_size_1",
+        "thread_pitch_1",
+        "nomi l_size_1",
+        "end_form_id_2",
+        "connection_type_id_2",
+        "length_2",
+        "thread_size_2",
+        "thread_pitch_2",
+        "nomi l_size_2",
+        "hex_size",
+        "unique_feature",
+        "orientation",
+        "weight"
+      ],
+      "foreign_keys": [
+        {
+          "column": "component_id",
+          "ref_table": "components",
+          "ref_column": "component_id"
+        },
+        {
+          "column": "component_type_id",
+          "ref_table": "type_component",
+          "ref_column": "component_type_id"
+        },
+        {
+          "column": "connection_type_id_1",
+          "ref_table": "type_connection",
+          "ref_column": "connection_type_id"
+        },
+        {
+          "column": "connection_type_id_2",
+          "ref_table": "type_connection",
+          "ref_column": "connection_type_id"
+        },
+        {
+          "column": "end_form_id_1",
+          "ref_table": "type_end_form",
+          "ref_column": "end_form_id"
+        },
+        {
+          "column": "end_form_id_2",
+          "ref_table": "type_end_form",
+          "ref_column": "end_form_id"
+        }
+      ]
+    },
+    "comp_boss": {
+      "columns": [
+        "component_id",
+        "component_type_id",
+        "type",
+        "connection_type_id",
+        "outside_shape",
+        "base_type",
+        "height_over_tube",
+        "bolt_pattern_long",
+        "bolt_pattern_wide",
+        "groove",
+        "base_diameter",
+        "shoulder_diameter",
+        "unique_feature",
+        "orientation",
+        "weight"
+      ],
+      "foreign_keys": [
+        {
+          "column": "component_id",
+          "ref_table": "components",
+          "ref_column": "component_id"
+        },
+        {
+          "column": "component_type_id",
+          "ref_table": "type_component",
+          "ref_column": "component_type_id"
+        }
+      ]
+    },
+    "comp_elbow": {
+      "columns": [
+        "component_id",
+        "component_type_id",
+        "bolt_pattern_long",
+        "bolt_pattern_wide",
+        "extension_length",
+        "overall_length",
+        "thickness",
+        "drop_length",
+        "elbow_angle",
+        "mj_class_code",
+        "mj_plug_class_code",
+        "plug_diameter",
+        "groove",
+        "unique_feature",
+        "orientation",
+        "weight"
+      ],
+      "foreign_keys": [
+        {
+          "column": "component_id",
+          "ref_table": "components",
+          "ref_column": "component_id"
+        },
+        {
+          "column": "component_type_id",
+          "ref_table": "type_component",
+          "ref_column": "component_type_id"
+        }
+      ]
+    },
+    "comp_float": {
+      "columns": [
+        "component_id",
+        "component_type_id",
+        "bolt_pattern_long",
+        "bolt_pattern_wide",
+        "thickness",
+        "orientation",
+        "weight"
+      ],
+      "foreign_keys": [
+        {
+          "column": "component_id",
+          "ref_table": "components",
+          "ref_column": "component_id"
+        },
+        {
+          "column": "component_type_id",
+          "ref_table": "type_component",
+          "ref_column": "component_type_id"
+        }
+      ]
+    },
+    "comp_hfl": {
+      "columns": [
+        "component_id",
+        "component_type_id",
+        "hose_diameter",
+        "corresponding_shell",
+        "coupling_class",
+        "material",
+        "plating",
+        "orientation",
+        "weight"
+      ],
+      "foreign_keys": [
+        {
+          "column": "component_id",
+          "ref_table": "components",
+          "ref_column": "component_id"
+        },
+        {
+          "column": "component_type_id",
+          "ref_table": "type_component",
+          "ref_column": "component_type_id"
+        }
+      ]
+    },
+    "comp_nut": {
+      "columns": [
+        "component_id",
+        "component_type_id",
+        "hex_nut_size",
+        "seat_angle",
+        "length",
+        "thread_size",
+        "thread_pitch",
+        "diameter",
+        "blind_hole",
+        "orientation",
+        "weight"
+      ],
+      "foreign_keys": [
+        {
+          "column": "component_id",
+          "ref_table": "components",
+          "ref_column": "component_id"
+        },
+        {
+          "column": "component_type_id",
+          "ref_table": "type_component",
+          "ref_column": "component_type_id"
+        }
+      ]
+    },
+    "comp_other": {
+      "columns": [
+        "component_id",
+        "part_ me",
+        "weight"
+      ],
+      "foreign_keys": [
+        {
+          "column": "component_id",
+          "ref_table": "components",
+          "ref_column": "component_id"
+        }
+      ]
+    },
+    "comp_sleeve": {
+      "columns": [
+        "component_id",
+        "component_type_id",
+        "connection_type_id",
+        "length",
+        "intended_nut_thread",
+        "intended_nut_pitch",
+        "unique_feature",
+        "plating",
+        "orientation",
+        "weight"
+      ],
+      "foreign_keys": [
+        {
+          "column": "component_id",
+          "ref_table": "components",
+          "ref_column": "component_id"
+        },
+        {
+          "column": "component_type_id",
+          "ref_table": "type_component",
+          "ref_column": "component_type_id"
+        },
+        {
+          "column": "connection_type_id",
+          "ref_table": "type_connection",
+          "ref_column": "connection_type_id"
+        }
+      ]
+    },
+    "comp_straight": {
+      "columns": [
+        "component_id",
+        "component_type_id",
+        "bolt_pattern_long",
+        "bolt_pattern_wide",
+        "head_diameter",
+        "overall_length",
+        "thickness",
+        "mj_class_code",
+        "groove",
+        "unique_feature",
+        "orientation",
+        "weight"
+      ],
+      "foreign_keys": [
+        {
+          "column": "component_id",
+          "ref_table": "components",
+          "ref_column": "component_id"
+        },
+        {
+          "column": "component_type_id",
+          "ref_table": "type_component",
+          "ref_column": "component_type_id"
+        }
+      ]
+    },
+    "comp_tee": {
+      "columns": [
+        "component_id",
+        "component_type_id",
+        "bolt_pattern_long",
+        "bolt_pattern_wide",
+        "extension_length",
+        "overall_length",
+        "thickness",
+        "drop_length",
+        "mj_class_code",
+        "mj_plug_class_code",
+        "groove",
+        "unique_feature",
+        "orientation",
+        "weight"
+      ],
+      "foreign_keys": [
+        {
+          "column": "component_id",
+          "ref_table": "components",
+          "ref_column": "component_id"
+        }
+      ]
+    },
+    "comp_threaded": {
+      "columns": [
+        "component_id",
+        "component_type_id",
+        "adaptor_angle",
+        "overall_length",
+        "hex_size",
+        "end_form_id_1",
+        "connection_type_id_1",
+        "length_1",
+        "thread_size_1",
+        "thread_pitch_1",
+        "nomi l_size_1",
+        "end_form_id_2",
+        "connection_type_id_2",
+        "length_2",
+        "thread_size_2",
+        "thread_pitch_2",
+        "nomi l_size_2",
+        "end_form_id_3",
+        "connection_type_id_3",
+        "length_3",
+        "thread_size_3",
+        "thread_pitch_3",
+        "nomi l_size_3",
+        "end_form_id_4",
+        "connection_type_id_4",
+        "length_4",
+        "thread_size_4",
+        "thread_pitch_4",
+        "nomi l_size_4",
+        "unique_feature",
+        "orientation",
+        "weight"
+      ],
+      "foreign_keys": [
+        {
+          "column": "component_id",
+          "ref_table": "components",
+          "ref_column": "component_id"
+        },
+        {
+          "column": "component_type_id",
+          "ref_table": "type_component",
+          "ref_column": "component_type_id"
+        },
+        {
+          "column": "connection_type_id_1",
+          "ref_table": "type_connection",
+          "ref_column": "connection_type_id"
+        },
+        {
+          "column": "connection_type_id_2",
+          "ref_table": "type_connection",
+          "ref_column": "connection_type_id"
+        },
+        {
+          "column": "connection_type_id_3",
+          "ref_table": "type_connection",
+          "ref_column": "connection_type_id"
+        },
+        {
+          "column": "connection_type_id_4",
+          "ref_table": "type_connection",
+          "ref_column": "connection_type_id"
+        },
+        {
+          "column": "end_form_id_1",
+          "ref_table": "type_end_form",
+          "ref_column": "end_form_id"
+        },
+        {
+          "column": "end_form_id_2",
+          "ref_table": "type_end_form",
+          "ref_column": "end_form_id"
+        },
+        {
+          "column": "end_form_id_3",
+          "ref_table": "type_end_form",
+          "ref_column": "end_form_id"
+        },
+        {
+          "column": "end_form_id_4",
+          "ref_table": "type_end_form",
+          "ref_column": "end_form_id"
+        }
+      ]
+    },
+    "components": {
+      "columns": [
+        "component_id",
+        "me",
+        "component_type_id"
+      ],
+      "foreign_keys": []
+    },
+    "spec": {
+      "columns": [
+        "tube_assembly_id",
+        "spec"
+      ],
+      "foreign_keys": [
+        {
+          "column": "tube_assembly_id",
+          "ref_table": "tube",
+          "ref_column": "tube_assembly_id"
+        }
+      ]
+    },
+    "target": {
+      "columns": [
+        "id",
+        "tube_assembly_id",
+        "supplier",
+        "quote_date",
+        "annual_usage",
+        "min_order_quantity",
+        "bracket_pricing",
+        "quantity",
+        "cost",
+        "tube_assembly_num",
+        "supplier_num"
+      ],
+      "foreign_keys": [
+        {
+          "column": "tube_assembly_id",
+          "ref_table": "tube",
+          "ref_column": "tube_assembly_id"
+        }
+      ]
+    },
+    "trains": {
+      "columns": [
+        "id",
+        "direction"
+      ],
+      "foreign_keys": []
+    },
+    "tube": {
+      "columns": [
+        "tube_assembly_id",
+        "material_id",
+        "diameter",
+        "wall",
+        "length",
+        "num_bends",
+        "bend_radius",
+        "end_a_1x",
+        "end_a_2x",
+        "end_x_1x",
+        "end_x_2x",
+        "end_a",
+        "end_x",
+        "num_boss",
+        "num_bracket",
+        "other"
+      ],
+      "foreign_keys": [
+        {
+          "column": "end_a",
+          "ref_table": "tube_end_form",
+          "ref_column": "end_form_id"
+        },
+        {
+          "column": "end_x",
+          "ref_table": "tube_end_form",
+          "ref_column": "end_form_id"
+        }
+      ]
+    },
+    "tube_end_form": {
+      "columns": [
+        "end_form_id",
+        "forming"
+      ],
+      "foreign_keys": []
+    },
+    "type_component": {
+      "columns": [
+        "component_type_id",
+        "me"
+      ],
+      "foreign_keys": []
+    },
+    "type_connection": {
+      "columns": [
+        "connection_type_id",
+        "me"
+      ],
+      "foreign_keys": []
+    },
+    "type_end_form": {
+      "columns": [
+        "end_form_id",
+        "me"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

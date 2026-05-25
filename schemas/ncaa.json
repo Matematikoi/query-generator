@@ -1,0 +1,248 @@
+{
+  "tables": {
+    "regular_season_compact_results": {
+      "columns": [
+        "season",
+        "daynum",
+        "wteam",
+        "wscore",
+        "lteam",
+        "lscore",
+        "wloc",
+        "numot"
+      ],
+      "foreign_keys": [
+        {
+          "column": "season",
+          "ref_table": "seasons",
+          "ref_column": "season"
+        },
+        {
+          "column": "wteam",
+          "ref_table": "teams",
+          "ref_column": "team_id"
+        },
+        {
+          "column": "lteam",
+          "ref_table": "teams",
+          "ref_column": "team_id"
+        }
+      ]
+    },
+    "regular_season_detailed_results": {
+      "columns": [
+        "season",
+        "daynum",
+        "wteam",
+        "wscore",
+        "lteam",
+        "lscore",
+        "wloc",
+        "numot",
+        "wfgm",
+        "wfga",
+        "wfgm3",
+        "wfga3",
+        "wftm",
+        "wfta",
+        "wor",
+        "wdr",
+        "wast",
+        "wto",
+        "wstl",
+        "wblk",
+        "wpf",
+        "lfgm",
+        "lfga",
+        "lfgm3",
+        "lfga3",
+        "lftm",
+        "lfta",
+        "lor",
+        "ldr",
+        "last",
+        "lto",
+        "lstl",
+        "lblk",
+        "lpf"
+      ],
+      "foreign_keys": [
+        {
+          "column": "season",
+          "ref_table": "seasons",
+          "ref_column": "season"
+        },
+        {
+          "column": "wteam",
+          "ref_table": "teams",
+          "ref_column": "team_id"
+        },
+        {
+          "column": "lteam",
+          "ref_table": "teams",
+          "ref_column": "team_id"
+        }
+      ]
+    },
+    "seasons": {
+      "columns": [
+        "season",
+        "dayzero",
+        "regionW",
+        "regionX",
+        "regionY",
+        "regionZ"
+      ],
+      "foreign_keys": []
+    },
+    "target": {
+      "columns": [
+        "id",
+        "season",
+        "team_id1",
+        "team_id2",
+        "pred",
+        "team_id1_wins",
+        "team_id2_wins"
+      ],
+      "foreign_keys": [
+        {
+          "column": "team_id1",
+          "ref_table": "teams",
+          "ref_column": "team_id"
+        },
+        {
+          "column": "team_id2",
+          "ref_table": "teams",
+          "ref_column": "team_id"
+        }
+      ]
+    },
+    "teams": {
+      "columns": [
+        "team_id",
+        "team_name"
+      ],
+      "foreign_keys": []
+    },
+    "tourney_compact_results": {
+      "columns": [
+        "season",
+        "daynum",
+        "wteam",
+        "wscore",
+        "lteam",
+        "lscore",
+        "wloc",
+        "numot"
+      ],
+      "foreign_keys": [
+        {
+          "column": "season",
+          "ref_table": "seasons",
+          "ref_column": "season"
+        },
+        {
+          "column": "wteam",
+          "ref_table": "teams",
+          "ref_column": "team_id"
+        },
+        {
+          "column": "lteam",
+          "ref_table": "teams",
+          "ref_column": "team_id"
+        }
+      ]
+    },
+    "tourney_detailed_results": {
+      "columns": [
+        "season",
+        "daynum",
+        "wteam",
+        "wscore",
+        "lteam",
+        "lscore",
+        "wloc",
+        "numot",
+        "wfgm",
+        "wfga",
+        "wfgm3",
+        "wfga3",
+        "wftm",
+        "wfta",
+        "wor",
+        "wdr",
+        "wast",
+        "wto",
+        "wstl",
+        "wblk",
+        "wpf",
+        "lfgm",
+        "lfga",
+        "lfgm3",
+        "lfga3",
+        "lftm",
+        "lfta",
+        "lor",
+        "ldr",
+        "last",
+        "lto",
+        "lstl",
+        "lblk",
+        "lpf"
+      ],
+      "foreign_keys": [
+        {
+          "column": "season",
+          "ref_table": "seasons",
+          "ref_column": "season"
+        },
+        {
+          "column": "wteam",
+          "ref_table": "teams",
+          "ref_column": "team_id"
+        },
+        {
+          "column": "lteam",
+          "ref_table": "teams",
+          "ref_column": "team_id"
+        }
+      ]
+    },
+    "tourney_seeds": {
+      "columns": [
+        "season",
+        "seed",
+        "team"
+      ],
+      "foreign_keys": [
+        {
+          "column": "season",
+          "ref_table": "seasons",
+          "ref_column": "season"
+        },
+        {
+          "column": "team",
+          "ref_table": "teams",
+          "ref_column": "team_id"
+        }
+      ]
+    },
+    "tourney_slots": {
+      "columns": [
+        "season",
+        "slot",
+        "strongseed",
+        "weakseed"
+      ],
+      "foreign_keys": [
+        {
+          "column": "season",
+          "ref_table": "seasons",
+          "ref_column": "season"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

@@ -1,0 +1,248 @@
+{
+  "tables": {
+    "algorithm": {
+      "columns": [
+        "id",
+        "algorithm",
+        "type",
+        "released",
+        "reference_count",
+        "ranking",
+        "propagation",
+        "feature_function",
+        "use_in_ranking",
+        "rank_confidence",
+        "note"
+      ],
+      "foreign_keys": []
+    },
+    "author": {
+      "columns": [
+        "author_text",
+        "author_url",
+        "has_confidence_interval"
+      ],
+      "foreign_keys": []
+    },
+    "database": {
+      "columns": [
+        "database_name",
+        "dataset_name",
+        "is_primary_version",
+        "is_hidden",
+        "uploader_name",
+        "uploader_url",
+        "upload_date",
+        "download_url",
+        "modifications",
+        "has_loop",
+        "null_count",
+        "target_table",
+        "target_column",
+        "target_id",
+        "target_timestamp",
+        "task",
+        "img_path"
+      ],
+      "foreign_keys": [
+        {
+          "column": "dataset_name",
+          "ref_table": "dataset",
+          "ref_column": "dataset_name"
+        }
+      ]
+    },
+    "dataset": {
+      "columns": [
+        "dataset_name",
+        "domain",
+        "description",
+        "alternative_names",
+        "publication_count",
+        "original_row_count",
+        "bibtex_filename",
+        "is_artificial",
+        "has_single_entity",
+        "is_graph_friendly",
+        "thing_taxonomy",
+        "graph_taxonomy",
+        "license",
+        "license_url"
+      ],
+      "foreign_keys": []
+    },
+    "information": {
+      "columns": [
+        "database_name",
+        "dataset_name",
+        "is_primary_version",
+        "is_hidden",
+        "is_artificial",
+        "domain",
+        "description",
+        "alternative_names",
+        "publication_count",
+        "database_size",
+        "table_count",
+        "row_count",
+        "row_max",
+        "null_count",
+        "column_count",
+        "geo_count",
+        "date_count",
+        "lob_count",
+        "string_count",
+        "numeric_count",
+        "primary_key_count",
+        "foreign_key_count",
+        "composite_foreign_key_count",
+        "self_referencing_table_count",
+        "has_loop",
+        "target_table",
+        "target_column",
+        "target_id",
+        "target_timestamp",
+        "task",
+        "instance_count",
+        "duplicate_target_id",
+        "has_target_table_loop",
+        "class_count",
+        "majority_class_ratio",
+        "uploader_name",
+        "uploader_url",
+        "upload_date",
+        "download_url",
+        "modifications",
+        "bibtex_filename",
+        "img_filename",
+        "mwb_filename"
+      ],
+      "foreign_keys": []
+    },
+    "information_bkp": {
+      "columns": [
+        "database_name",
+        "dataset_name",
+        "is_primary_version",
+        "is_hidden",
+        "is_artificial",
+        "domain",
+        "description",
+        "alternative_names",
+        "publication_count",
+        "database_size",
+        "table_count",
+        "row_count",
+        "row_max",
+        "null_count",
+        "column_count",
+        "geo_count",
+        "date_count",
+        "lob_count",
+        "string_count",
+        "numeric_count",
+        "primary_key_count",
+        "foreign_key_count",
+        "composite_foreign_key_count",
+        "self_referencing_table_count",
+        "has_loop",
+        "target_table",
+        "target_column",
+        "target_id",
+        "target_timestamp",
+        "task",
+        "instance_count",
+        "duplicate_target_id",
+        "has_target_table_loop",
+        "class_count",
+        "majority_class_ratio",
+        "uploader_name",
+        "uploader_url",
+        "upload_date",
+        "download_url",
+        "modifications",
+        "bibtex_filename",
+        "img_filename",
+        "mwb_filename"
+      ],
+      "foreign_keys": []
+    },
+    "measure": {
+      "columns": [
+        "id",
+        "dataset",
+        "dataset_version",
+        "target",
+        "algorithm",
+        "author_text",
+        "measure",
+        "value",
+        "timestamp",
+        "has_confidence_interval",
+        "note"
+      ],
+      "foreign_keys": [
+        {
+          "column": "author_text",
+          "ref_table": "author",
+          "ref_column": "author_text"
+        },
+        {
+          "column": "algorithm",
+          "ref_table": "algorithm",
+          "ref_column": "algorithm"
+        }
+      ]
+    },
+    "performance": {
+      "columns": [
+        "id",
+        "database_name",
+        "algorithm",
+        "error_message",
+        "error_message_corrected_target_in_Aleph",
+        "accuracy",
+        "auc",
+        "fbeta",
+        "fscore",
+        "precision",
+        "recall",
+        "runtime",
+        "comment"
+      ],
+      "foreign_keys": []
+    },
+    "qc": {
+      "columns": [
+        "database_name",
+        "has_tables",
+        "has_records",
+        "matches_expected_row_count",
+        "has_primary_keys",
+        "has_normal_column",
+        "has_target_table",
+        "has_description",
+        "has_task",
+        "has_bibtex",
+        "qc"
+      ],
+      "foreign_keys": []
+    },
+    "reference": {
+      "columns": [
+        "id",
+        "database_name",
+        "text",
+        "url"
+      ],
+      "foreign_keys": [
+        {
+          "column": "database_name",
+          "ref_table": "database",
+          "ref_column": "database_name"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

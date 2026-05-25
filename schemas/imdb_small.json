@@ -1,0 +1,96 @@
+{
+  "tables": {
+    "actors": {
+      "columns": [
+        "id",
+        "first_name",
+        "last_name",
+        "gender",
+        "film_count"
+      ],
+      "foreign_keys": []
+    },
+    "directors": {
+      "columns": [
+        "id",
+        "first_name",
+        "last_name"
+      ],
+      "foreign_keys": []
+    },
+    "directors_genres": {
+      "columns": [
+        "director_id",
+        "genre",
+        "prob"
+      ],
+      "foreign_keys": [
+        {
+          "column": "director_id",
+          "ref_table": "directors",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "movies": {
+      "columns": [
+        "id",
+        "name",
+        "year",
+        "rank"
+      ],
+      "foreign_keys": []
+    },
+    "movies_directors": {
+      "columns": [
+        "director_id",
+        "movie_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movie_id",
+          "ref_table": "movies",
+          "ref_column": "id"
+        },
+        {
+          "column": "director_id",
+          "ref_table": "directors",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "movies_genres": {
+      "columns": [
+        "movie_id",
+        "genre"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movie_id",
+          "ref_table": "movies",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "roles": {
+      "columns": [
+        "actor_id",
+        "movie_id",
+        "role"
+      ],
+      "foreign_keys": [
+        {
+          "column": "movie_id",
+          "ref_table": "movies",
+          "ref_column": "id"
+        },
+        {
+          "column": "actor_id",
+          "ref_table": "actors",
+          "ref_column": "id"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

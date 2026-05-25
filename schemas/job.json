@@ -1,0 +1,360 @@
+{
+  "tables": {
+    "aka_name": {
+      "alias": "an",
+      "columns": [
+        "id",
+        "person_id",
+        "name",
+        "imdb_index",
+        "name_pcode_cf",
+        "name_pcode_nf",
+        "surname_pcode",
+        "md5sum"
+      ],
+      "foreign_keys": [
+        {
+          "column": "person_id",
+          "ref_table": "name",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "aka_title": {
+      "alias": "at",
+      "columns": [
+        "id",
+        "movie_id",
+        "title",
+        "imdb_index",
+        "kind_id",
+        "production_year",
+        "phonetic_code",
+        "episode_of_id",
+        "season_nr",
+        "episode_nr",
+        "note",
+        "md5sum"
+      ],
+      "foreign_keys": []
+    },
+    "cast_info": {
+      "alias": "ci",
+      "columns": [
+        "id",
+        "person_id",
+        "movie_id",
+        "person_role_id",
+        "note",
+        "nr_order",
+        "role_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "person_id",
+          "ref_table": "aka_name",
+          "ref_column": "person_id"
+        },
+        {
+          "column": "person_role_id",
+          "ref_table": "char_name",
+          "ref_column": "id"
+        },
+        {
+          "column": "role_id",
+          "ref_table": "role_type",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "char_name": {
+      "alias": "chn",
+      "columns": [
+        "id",
+        "name",
+        "imdb_index",
+        "imdb_id",
+        "name_pcode_nf",
+        "surname_pcode",
+        "md5sum"
+      ],
+      "foreign_keys": []
+    },
+    "comp_cast_type": {
+      "alias": "cct",
+      "columns": [
+        "id",
+        "kind"
+      ],
+      "foreign_keys": []
+    },
+    "company_name": {
+      "alias": "cn",
+      "columns": [
+        "id",
+        "name",
+        "country_code",
+        "imdb_id",
+        "name_pcode_nf",
+        "name_pcode_sf",
+        "md5sum"
+      ],
+      "foreign_keys": []
+    },
+    "company_type": {
+      "alias": "ct",
+      "columns": [
+        "id",
+        "kind"
+      ],
+      "foreign_keys": []
+    },
+    "complete_cast": {
+      "alias": "cc",
+      "columns": [
+        "id",
+        "movie_id",
+        "subject_id",
+        "status_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "subject_id",
+          "ref_table": "comp_cast_type",
+          "ref_column": "id"
+        },
+        {
+          "column": "status_id",
+          "ref_table": "comp_cast_type",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "info_type": {
+      "alias": "it",
+      "columns": [
+        "id",
+        "info"
+      ],
+      "foreign_keys": []
+    },
+    "keyword": {
+      "alias": "k",
+      "columns": [
+        "id",
+        "keyword",
+        "phonetic_code"
+      ],
+      "foreign_keys": []
+    },
+    "kind_type": {
+      "alias": "kt",
+      "columns": [
+        "id",
+        "kind"
+      ],
+      "foreign_keys": []
+    },
+    "link_type": {
+      "alias": "lt",
+      "columns": [
+        "id",
+        "link"
+      ],
+      "foreign_keys": []
+    },
+    "movie_companies": {
+      "alias": "mc",
+      "columns": [
+        "id",
+        "movie_id",
+        "company_id",
+        "company_type_id",
+        "note"
+      ],
+      "foreign_keys": [
+        {
+          "column": "company_id",
+          "ref_table": "company_name",
+          "ref_column": "id"
+        },
+        {
+          "column": "company_type_id",
+          "ref_table": "company_type",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "movie_info": {
+      "alias": "mi",
+      "columns": [
+        "id",
+        "movie_id",
+        "info_type_id",
+        "info",
+        "note"
+      ],
+      "foreign_keys": [
+        {
+          "column": "info_type_id",
+          "ref_table": "info_type",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "movie_info_idx": {
+      "alias": "mi_idx",
+      "columns": [
+        "id",
+        "movie_id",
+        "info_type_id",
+        "info",
+        "note"
+      ],
+      "foreign_keys": [
+        {
+          "column": "info_type_id",
+          "ref_table": "info_type",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "movie_keyword": {
+      "alias": "mk",
+      "columns": [
+        "id",
+        "movie_id",
+        "keyword_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "keyword_id",
+          "ref_table": "keyword",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "movie_link": {
+      "alias": "ml",
+      "columns": [
+        "id",
+        "movie_id",
+        "linked_movie_id",
+        "link_type_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "link_type_id",
+          "ref_table": "link_type",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "name": {
+      "alias": "n",
+      "columns": [
+        "id",
+        "name",
+        "imdb_index",
+        "imdb_id",
+        "gender",
+        "name_pcode_cf",
+        "name_pcode_nf",
+        "surname_pcode",
+        "md5sum"
+      ],
+      "foreign_keys": []
+    },
+    "person_info": {
+      "alias": "pi",
+      "columns": [
+        "id",
+        "person_id",
+        "info_type_id",
+        "info",
+        "note"
+      ],
+      "foreign_keys": []
+    },
+    "role_type": {
+      "alias": "rt",
+      "columns": [
+        "id",
+        "role"
+      ],
+      "foreign_keys": []
+    },
+    "title": {
+      "alias": "t",
+      "columns": [
+        "id",
+        "title",
+        "imdb_index",
+        "kind_id",
+        "production_year",
+        "imdb_id",
+        "phonetic_code",
+        "episode_of_id",
+        "season_nr",
+        "episode_nr",
+        "series_years",
+        "md5sum"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id",
+          "ref_table": "complete_cast",
+          "ref_column": "movie_id"
+        },
+        {
+          "column": "id",
+          "ref_table": "aka_title",
+          "ref_column": "movie_id"
+        },
+        {
+          "column": "id",
+          "ref_table": "movie_link",
+          "ref_column": "movie_id"
+        },
+        {
+          "column": "id",
+          "ref_table": "movie_link",
+          "ref_column": "linked_movie_id"
+        },
+        {
+          "column": "id",
+          "ref_table": "cast_info",
+          "ref_column": "movie_id"
+        },
+        {
+          "column": "kind_id",
+          "ref_table": "kind_type",
+          "ref_column": "id"
+        },
+        {
+          "column": "id",
+          "ref_table": "movie_info",
+          "ref_column": "movie_id"
+        },
+        {
+          "column": "id",
+          "ref_table": "movie_info_idx",
+          "ref_column": "movie_id"
+        },
+        {
+          "column": "id",
+          "ref_table": "movie_keyword",
+          "ref_column": "movie_id"
+        },
+        {
+          "column": "id",
+          "ref_table": "movie_companies",
+          "ref_column": "movie_id"
+        }
+      ]
+    }
+  },
+  "fact_tables": [
+    "title"
+  ]
+}

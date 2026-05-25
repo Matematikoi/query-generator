@@ -1,0 +1,103 @@
+{
+  "tables": {
+    "ATT_CLASSES": {
+      "columns": [
+        "ATT_CLASS_ID",
+        "ATT_CLASS"
+      ],
+      "foreign_keys": []
+    },
+    "IMG_OBJ": {
+      "columns": [
+        "IMG_ID",
+        "OBJ_SAMPLE_ID",
+        "OBJ_CLASS_ID",
+        "X",
+        "Y",
+        "W",
+        "H"
+      ],
+      "foreign_keys": [
+        {
+          "column": "OBJ_CLASS_ID",
+          "ref_table": "OBJ_CLASSES",
+          "ref_column": "OBJ_CLASS_ID"
+        }
+      ]
+    },
+    "IMG_OBJ_ATT": {
+      "columns": [
+        "IMG_ID",
+        "ATT_CLASS_ID",
+        "OBJ_SAMPLE_ID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ATT_CLASS_ID",
+          "ref_table": "ATT_CLASSES",
+          "ref_column": "ATT_CLASS_ID"
+        },
+        {
+          "column": "IMG_ID",
+          "ref_table": "IMG_OBJ",
+          "ref_column": "IMG_ID"
+        },
+        {
+          "column": "OBJ_SAMPLE_ID",
+          "ref_table": "IMG_OBJ",
+          "ref_column": "OBJ_SAMPLE_ID"
+        }
+      ]
+    },
+    "IMG_REL": {
+      "columns": [
+        "IMG_ID",
+        "PRED_CLASS_ID",
+        "OBJ1_SAMPLE_ID",
+        "OBJ2_SAMPLE_ID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "PRED_CLASS_ID",
+          "ref_table": "PRED_CLASSES",
+          "ref_column": "PRED_CLASS_ID"
+        },
+        {
+          "column": "IMG_ID",
+          "ref_table": "IMG_OBJ",
+          "ref_column": "IMG_ID"
+        },
+        {
+          "column": "OBJ1_SAMPLE_ID",
+          "ref_table": "IMG_OBJ",
+          "ref_column": "OBJ_SAMPLE_ID"
+        },
+        {
+          "column": "IMG_ID",
+          "ref_table": "IMG_OBJ",
+          "ref_column": "IMG_ID"
+        },
+        {
+          "column": "OBJ2_SAMPLE_ID",
+          "ref_table": "IMG_OBJ",
+          "ref_column": "OBJ_SAMPLE_ID"
+        }
+      ]
+    },
+    "OBJ_CLASSES": {
+      "columns": [
+        "OBJ_CLASS_ID",
+        "OBJ_CLASS"
+      ],
+      "foreign_keys": []
+    },
+    "PRED_CLASSES": {
+      "columns": [
+        "PRED_CLASS_ID",
+        "PRED_CLASS"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

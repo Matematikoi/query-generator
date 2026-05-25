@@ -1,0 +1,327 @@
+{
+  "tables": {
+    "awards_coaches": {
+      "columns": [
+        "id",
+        "year",
+        "coachID",
+        "award",
+        "lgID",
+        "note"
+      ],
+      "foreign_keys": [
+        {
+          "column": "coachID",
+          "ref_table": "coaches",
+          "ref_column": "coachID"
+        },
+        {
+          "column": "year",
+          "ref_table": "coaches",
+          "ref_column": "year"
+        }
+      ]
+    },
+    "awards_players": {
+      "columns": [
+        "playerID",
+        "award",
+        "year",
+        "lgID",
+        "note",
+        "pos"
+      ],
+      "foreign_keys": [
+        {
+          "column": "playerID",
+          "ref_table": "players",
+          "ref_column": "playerID"
+        }
+      ]
+    },
+    "coaches": {
+      "columns": [
+        "coachID",
+        "year",
+        "tmID",
+        "lgID",
+        "stint",
+        "won",
+        "lost",
+        "post_wins",
+        "post_losses"
+      ],
+      "foreign_keys": [
+        {
+          "column": "tmID",
+          "ref_table": "teams",
+          "ref_column": "tmID"
+        },
+        {
+          "column": "year",
+          "ref_table": "teams",
+          "ref_column": "year"
+        }
+      ]
+    },
+    "draft": {
+      "columns": [
+        "id",
+        "draftYear",
+        "draftRound",
+        "draftSelection",
+        "draftOverall",
+        "tmID",
+        "firstName",
+        "lastName",
+        "suffixName",
+        "playerID",
+        "draftFrom",
+        "lgID"
+      ],
+      "foreign_keys": [
+        {
+          "column": "tmID",
+          "ref_table": "teams",
+          "ref_column": "tmID"
+        },
+        {
+          "column": "draftYear",
+          "ref_table": "teams",
+          "ref_column": "year"
+        }
+      ]
+    },
+    "player_allstar": {
+      "columns": [
+        "playerID",
+        "last_name",
+        "first_name",
+        "season_id",
+        "conference",
+        "league_id",
+        "games_played",
+        "minutes",
+        "points",
+        "o_rebounds",
+        "d_rebounds",
+        "rebounds",
+        "assists",
+        "steals",
+        "blocks",
+        "turnovers",
+        "personal_fouls",
+        "fg_attempted",
+        "fg_made",
+        "ft_attempted",
+        "ft_made",
+        "three_attempted",
+        "three_made"
+      ],
+      "foreign_keys": [
+        {
+          "column": "playerID",
+          "ref_table": "players",
+          "ref_column": "playerID"
+        }
+      ]
+    },
+    "players": {
+      "columns": [
+        "playerID",
+        "useFirst",
+        "firstName",
+        "middleName",
+        "lastName",
+        "nameGiven",
+        "fullGivenName",
+        "nameSuffix",
+        "nameNick",
+        "pos",
+        "firstseason",
+        "lastseason",
+        "height",
+        "weight",
+        "college",
+        "collegeOther",
+        "birthDate",
+        "birthCity",
+        "birthState",
+        "birthCountry",
+        "highSchool",
+        "hsCity",
+        "hsState",
+        "hsCountry",
+        "deathDate",
+        "race"
+      ],
+      "foreign_keys": []
+    },
+    "players_teams": {
+      "columns": [
+        "id",
+        "playerID",
+        "year",
+        "stint",
+        "tmID",
+        "lgID",
+        "GP",
+        "GS",
+        "minutes",
+        "points",
+        "oRebounds",
+        "dRebounds",
+        "rebounds",
+        "assists",
+        "steals",
+        "blocks",
+        "turnovers",
+        "PF",
+        "fgAttempted",
+        "fgMade",
+        "ftAttempted",
+        "ftMade",
+        "threeAttempted",
+        "threeMade",
+        "PostGP",
+        "PostGS",
+        "PostMinutes",
+        "PostPoints",
+        "PostoRebounds",
+        "PostdRebounds",
+        "PostRebounds",
+        "PostAssists",
+        "PostSteals",
+        "PostBlocks",
+        "PostTurnovers",
+        "PostPF",
+        "PostfgAttempted",
+        "PostfgMade",
+        "PostftAttempted",
+        "PostftMade",
+        "PostthreeAttempted",
+        "PostthreeMade",
+        "note"
+      ],
+      "foreign_keys": [
+        {
+          "column": "playerID",
+          "ref_table": "players",
+          "ref_column": "playerID"
+        },
+        {
+          "column": "tmID",
+          "ref_table": "teams",
+          "ref_column": "tmID"
+        },
+        {
+          "column": "year",
+          "ref_table": "teams",
+          "ref_column": "year"
+        }
+      ]
+    },
+    "series_post": {
+      "columns": [
+        "id",
+        "year",
+        "round",
+        "series",
+        "tmIDWinner",
+        "lgIDWinner",
+        "tmIDLoser",
+        "lgIDLoser",
+        "W",
+        "L"
+      ],
+      "foreign_keys": [
+        {
+          "column": "tmIDWinner",
+          "ref_table": "teams",
+          "ref_column": "tmID"
+        },
+        {
+          "column": "year",
+          "ref_table": "teams",
+          "ref_column": "year"
+        },
+        {
+          "column": "tmIDLoser",
+          "ref_table": "teams",
+          "ref_column": "tmID"
+        },
+        {
+          "column": "year",
+          "ref_table": "teams",
+          "ref_column": "year"
+        }
+      ]
+    },
+    "teams": {
+      "columns": [
+        "year",
+        "lgID",
+        "tmID",
+        "franchID",
+        "confID",
+        "divID",
+        "rank",
+        "confRank",
+        "playoff",
+        "name",
+        "o_fgm",
+        "o_fga",
+        "o_ftm",
+        "o_fta",
+        "o_3pm",
+        "o_3pa",
+        "o_oreb",
+        "o_dreb",
+        "o_reb",
+        "o_asts",
+        "o_pf",
+        "o_stl",
+        "o_to",
+        "o_blk",
+        "o_pts",
+        "d_fgm",
+        "d_fga",
+        "d_ftm",
+        "d_fta",
+        "d_3pm",
+        "d_3pa",
+        "d_oreb",
+        "d_dreb",
+        "d_reb",
+        "d_asts",
+        "d_pf",
+        "d_stl",
+        "d_to",
+        "d_blk",
+        "d_pts",
+        "o_tmRebound",
+        "d_tmRebound",
+        "homeWon",
+        "homeLost",
+        "awayWon",
+        "awayLost",
+        "neutWon",
+        "neutLoss",
+        "confWon",
+        "confLoss",
+        "divWon",
+        "divLoss",
+        "pace",
+        "won",
+        "lost",
+        "games",
+        "min",
+        "arena",
+        "attendance",
+        "bbtmID"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

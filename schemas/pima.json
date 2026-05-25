@@ -1,0 +1,116 @@
+{
+  "tables": {
+    "age": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "arg1",
+          "ref_table": "pima",
+          "ref_column": "arg1"
+        }
+      ]
+    },
+    "bmi": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "arg1",
+          "ref_table": "pima",
+          "ref_column": "arg1"
+        }
+      ]
+    },
+    "diastolic": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "arg1",
+          "ref_table": "pima",
+          "ref_column": "arg1"
+        }
+      ]
+    },
+    "numPreg": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "arg1",
+          "ref_table": "pima",
+          "ref_column": "arg1"
+        }
+      ]
+    },
+    "pedigree": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "arg1",
+          "ref_table": "pima",
+          "ref_column": "arg1"
+        }
+      ]
+    },
+    "pima": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": []
+    },
+    "plasma": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "arg1",
+          "ref_table": "pima",
+          "ref_column": "arg1"
+        }
+      ]
+    },
+    "serum": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "arg1",
+          "ref_table": "pima",
+          "ref_column": "arg1"
+        }
+      ]
+    },
+    "tricepts": {
+      "columns": [
+        "arg1",
+        "arg2"
+      ],
+      "foreign_keys": [
+        {
+          "column": "arg1",
+          "ref_table": "pima",
+          "ref_column": "arg1"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

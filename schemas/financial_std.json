@@ -1,0 +1,95 @@
+{
+  "tables": {
+    "Loan_Acc": {
+      "columns": [
+        "loan_id",
+        "account_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "account_id",
+          "ref_table": "acc",
+          "ref_column": "account_id"
+        },
+        {
+          "column": "loan_id",
+          "ref_table": "loan",
+          "ref_column": "loan_id"
+        }
+      ]
+    },
+    "Loan_Order": {
+      "columns": [
+        "order_id",
+        "loan_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "order_id",
+          "ref_table": "order",
+          "ref_column": "order_id"
+        },
+        {
+          "column": "loan_id",
+          "ref_table": "loan",
+          "ref_column": "loan_id"
+        }
+      ]
+    },
+    "Loan_Trans": {
+      "columns": [
+        "transaction_id",
+        "loan_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "transaction_id",
+          "ref_table": "trans",
+          "ref_column": "transaction_id"
+        },
+        {
+          "column": "loan_id",
+          "ref_table": "loan",
+          "ref_column": "loan_id"
+        }
+      ]
+    },
+    "acc": {
+      "columns": [
+        "account_id",
+        "frequency"
+      ],
+      "foreign_keys": []
+    },
+    "loan": {
+      "columns": [
+        "loan_id",
+        "amount",
+        "duration",
+        "payments",
+        "status"
+      ],
+      "foreign_keys": []
+    },
+    "order": {
+      "columns": [
+        "order_id",
+        "bank_to",
+        "amount3",
+        "k_symbol"
+      ],
+      "foreign_keys": []
+    },
+    "trans": {
+      "columns": [
+        "transaction_id",
+        "type",
+        "operation",
+        "amount2",
+        "balance"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

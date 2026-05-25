@@ -1,0 +1,56 @@
+{
+  "tables": {
+    "EXPENDITURES": {
+      "columns": [
+        "EXPENDITURE_ID",
+        "HOUSEHOLD_ID",
+        "YEAR",
+        "MONTH",
+        "PRODUCT_CODE",
+        "COST",
+        "GIFT",
+        "IS_TRAINING"
+      ],
+      "foreign_keys": [
+        {
+          "column": "HOUSEHOLD_ID",
+          "ref_table": "HOUSEHOLDS",
+          "ref_column": "HOUSEHOLD_ID"
+        }
+      ]
+    },
+    "HOUSEHOLDS": {
+      "columns": [
+        "HOUSEHOLD_ID",
+        "YEAR",
+        "INCOME_RANK",
+        "INCOME_RANK_1",
+        "INCOME_RANK_2",
+        "INCOME_RANK_3",
+        "INCOME_RANK_4",
+        "INCOME_RANK_5",
+        "INCOME_RANK_MEAN",
+        "AGE_REF"
+      ],
+      "foreign_keys": []
+    },
+    "HOUSEHOLD_MEMBERS": {
+      "columns": [
+        "HOUSEHOLD_ID",
+        "YEAR",
+        "MARITAL",
+        "SEX",
+        "AGE",
+        "WORK_STATUS"
+      ],
+      "foreign_keys": [
+        {
+          "column": "HOUSEHOLD_ID",
+          "ref_table": "HOUSEHOLDS",
+          "ref_column": "HOUSEHOLD_ID"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

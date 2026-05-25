@@ -1,0 +1,14 @@
+{
+  "tables": {
+    "data": {
+      "columns": [
+        "Age",
+        "Gender",
+        "Payment Method",
+        "Future Customer"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

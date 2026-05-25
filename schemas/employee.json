@@ -1,0 +1,98 @@
+{
+  "tables": {
+    "departments": {
+      "columns": [
+        "dept_no",
+        "dept_name"
+      ],
+      "foreign_keys": []
+    },
+    "dept_emp": {
+      "columns": [
+        "emp_no",
+        "dept_no",
+        "from_date",
+        "to_date"
+      ],
+      "foreign_keys": [
+        {
+          "column": "emp_no",
+          "ref_table": "employees",
+          "ref_column": "emp_no"
+        },
+        {
+          "column": "dept_no",
+          "ref_table": "departments",
+          "ref_column": "dept_no"
+        },
+        {
+          "column": "dept_no",
+          "ref_table": "departments",
+          "ref_column": "dept_no"
+        }
+      ]
+    },
+    "dept_manager": {
+      "columns": [
+        "dept_no",
+        "emp_no",
+        "from_date",
+        "to_date"
+      ],
+      "foreign_keys": [
+        {
+          "column": "emp_no",
+          "ref_table": "employees",
+          "ref_column": "emp_no"
+        },
+        {
+          "column": "dept_no",
+          "ref_table": "departments",
+          "ref_column": "dept_no"
+        }
+      ]
+    },
+    "employees": {
+      "columns": [
+        "emp_no",
+        "birth_date",
+        "first_name",
+        "last_name",
+        "gender",
+        "hire_date"
+      ],
+      "foreign_keys": []
+    },
+    "salaries": {
+      "columns": [
+        "emp_no",
+        "salary",
+        "from_date",
+        "to_date"
+      ],
+      "foreign_keys": [
+        {
+          "column": "emp_no",
+          "ref_table": "employees",
+          "ref_column": "emp_no"
+        }
+      ]
+    },
+    "titles": {
+      "columns": [
+        "emp_no",
+        "title",
+        "from_date",
+        "to_date"
+      ],
+      "foreign_keys": [
+        {
+          "column": "emp_no",
+          "ref_table": "employees",
+          "ref_column": "emp_no"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

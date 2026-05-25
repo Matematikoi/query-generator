@@ -1,0 +1,723 @@
+{
+  "tables": {
+    "metrics": {
+      "columns": [
+        "Variable_name",
+        "Variable_value",
+        "Type",
+        "Enabled"
+      ],
+      "foreign_keys": []
+    },
+    "ps_check_lost_instrumentation": {
+      "columns": [
+        "variable_name",
+        "variable_value"
+      ],
+      "foreign_keys": []
+    },
+    "schema_auto_increment_columns": {
+      "columns": [
+        "table_schema",
+        "table_name",
+        "column_name",
+        "data_type",
+        "column_type",
+        "is_signed",
+        "is_unsigned",
+        "max_value",
+        "auto_increment",
+        "auto_increment_ratio"
+      ],
+      "foreign_keys": []
+    },
+    "schema_object_overview": {
+      "columns": [
+        "db",
+        "object_type",
+        "count"
+      ],
+      "foreign_keys": []
+    },
+    "schema_redundant_indexes": {
+      "columns": [
+        "table_schema",
+        "table_name",
+        "redundant_index_name",
+        "redundant_index_columns",
+        "redundant_index_non_unique",
+        "dominant_index_name",
+        "dominant_index_columns",
+        "dominant_index_non_unique",
+        "subpart_exists",
+        "sql_drop_index"
+      ],
+      "foreign_keys": []
+    },
+    "schema_unused_indexes": {
+      "columns": [
+        "object_schema",
+        "object_name",
+        "index_name"
+      ],
+      "foreign_keys": []
+    },
+    "session_ssl_status": {
+      "columns": [
+        "thread_id",
+        "ssl_version",
+        "ssl_cipher",
+        "ssl_sessions_reused"
+      ],
+      "foreign_keys": []
+    },
+    "sys_config": {
+      "columns": [
+        "variable",
+        "value",
+        "set_time",
+        "set_by"
+      ],
+      "foreign_keys": []
+    },
+    "version": {
+      "columns": [
+        "sys_version",
+        "mysql_version"
+      ],
+      "foreign_keys": []
+    },
+    "x$host_summary": {
+      "columns": [
+        "host",
+        "statements",
+        "statement_latency",
+        "statement_avg_latency",
+        "table_scans",
+        "file_ios",
+        "file_io_latency",
+        "current_connections",
+        "total_connections",
+        "unique_users",
+        "current_memory",
+        "total_memory_allocated"
+      ],
+      "foreign_keys": []
+    },
+    "x$host_summary_by_file_io": {
+      "columns": [
+        "host",
+        "ios",
+        "io_latency"
+      ],
+      "foreign_keys": []
+    },
+    "x$host_summary_by_file_io_type": {
+      "columns": [
+        "host",
+        "event_name",
+        "total",
+        "total_latency",
+        "max_latency"
+      ],
+      "foreign_keys": []
+    },
+    "x$host_summary_by_stages": {
+      "columns": [
+        "host",
+        "event_name",
+        "total",
+        "total_latency",
+        "avg_latency"
+      ],
+      "foreign_keys": []
+    },
+    "x$host_summary_by_statement_latency": {
+      "columns": [
+        "host",
+        "total",
+        "total_latency",
+        "max_latency",
+        "lock_latency",
+        "rows_sent",
+        "rows_examined",
+        "rows_affected",
+        "full_scans"
+      ],
+      "foreign_keys": []
+    },
+    "x$host_summary_by_statement_type": {
+      "columns": [
+        "host",
+        "statement",
+        "total",
+        "total_latency",
+        "max_latency",
+        "lock_latency",
+        "rows_sent",
+        "rows_examined",
+        "rows_affected",
+        "full_scans"
+      ],
+      "foreign_keys": []
+    },
+    "x$innodb_buffer_stats_by_schema": {
+      "columns": [
+        "object_schema",
+        "allocated",
+        "data",
+        "pages",
+        "pages_hashed",
+        "pages_old",
+        "rows_cached"
+      ],
+      "foreign_keys": []
+    },
+    "x$innodb_buffer_stats_by_table": {
+      "columns": [
+        "object_schema",
+        "object_name",
+        "allocated",
+        "data",
+        "pages",
+        "pages_hashed",
+        "pages_old",
+        "rows_cached"
+      ],
+      "foreign_keys": []
+    },
+    "x$innodb_lock_waits": {
+      "columns": [
+        "wait_started",
+        "wait_age",
+        "wait_age_secs",
+        "locked_table",
+        "locked_index",
+        "locked_type",
+        "waiting_trx_id",
+        "waiting_trx_started",
+        "waiting_trx_age",
+        "waiting_trx_rows_locked",
+        "waiting_trx_rows_modified",
+        "waiting_pid",
+        "waiting_query",
+        "waiting_lock_id",
+        "waiting_lock_mode",
+        "blocking_trx_id",
+        "blocking_pid",
+        "blocking_query",
+        "blocking_lock_id",
+        "blocking_lock_mode",
+        "blocking_trx_started",
+        "blocking_trx_age",
+        "blocking_trx_rows_locked",
+        "blocking_trx_rows_modified",
+        "sql_kill_blocking_query",
+        "sql_kill_blocking_connection"
+      ],
+      "foreign_keys": []
+    },
+    "x$io_by_thread_by_latency": {
+      "columns": [
+        "user",
+        "total",
+        "total_latency",
+        "min_latency",
+        "avg_latency",
+        "max_latency",
+        "thread_id",
+        "processlist_id"
+      ],
+      "foreign_keys": []
+    },
+    "x$io_global_by_file_by_bytes": {
+      "columns": [
+        "file",
+        "count_read",
+        "total_read",
+        "avg_read",
+        "count_write",
+        "total_written",
+        "avg_write",
+        "total",
+        "write_pct"
+      ],
+      "foreign_keys": []
+    },
+    "x$io_global_by_file_by_latency": {
+      "columns": [
+        "file",
+        "total",
+        "total_latency",
+        "count_read",
+        "read_latency",
+        "count_write",
+        "write_latency",
+        "count_misc",
+        "misc_latency"
+      ],
+      "foreign_keys": []
+    },
+    "x$io_global_by_wait_by_bytes": {
+      "columns": [
+        "event_name",
+        "total",
+        "total_latency",
+        "min_latency",
+        "avg_latency",
+        "max_latency",
+        "count_read",
+        "total_read",
+        "avg_read",
+        "count_write",
+        "total_written",
+        "avg_written",
+        "total_requested"
+      ],
+      "foreign_keys": []
+    },
+    "x$io_global_by_wait_by_latency": {
+      "columns": [
+        "event_name",
+        "total",
+        "total_latency",
+        "avg_latency",
+        "max_latency",
+        "read_latency",
+        "write_latency",
+        "misc_latency",
+        "count_read",
+        "total_read",
+        "avg_read",
+        "count_write",
+        "total_written",
+        "avg_written"
+      ],
+      "foreign_keys": []
+    },
+    "x$latest_file_io": {
+      "columns": [
+        "thread",
+        "file",
+        "latency",
+        "operation",
+        "requested"
+      ],
+      "foreign_keys": []
+    },
+    "x$memory_by_host_by_current_bytes": {
+      "columns": [
+        "host",
+        "current_count_used",
+        "current_allocated",
+        "current_avg_alloc",
+        "current_max_alloc",
+        "total_allocated"
+      ],
+      "foreign_keys": []
+    },
+    "x$memory_by_thread_by_current_bytes": {
+      "columns": [
+        "thread_id",
+        "user",
+        "current_count_used",
+        "current_allocated",
+        "current_avg_alloc",
+        "current_max_alloc",
+        "total_allocated"
+      ],
+      "foreign_keys": []
+    },
+    "x$memory_by_user_by_current_bytes": {
+      "columns": [
+        "user",
+        "current_count_used",
+        "current_allocated",
+        "current_avg_alloc",
+        "current_max_alloc",
+        "total_allocated"
+      ],
+      "foreign_keys": []
+    },
+    "x$memory_global_by_current_bytes": {
+      "columns": [
+        "event_name",
+        "current_count",
+        "current_alloc",
+        "current_avg_alloc",
+        "high_count",
+        "high_alloc",
+        "high_avg_alloc"
+      ],
+      "foreign_keys": []
+    },
+    "x$memory_global_total": {
+      "columns": [
+        "total_allocated"
+      ],
+      "foreign_keys": []
+    },
+    "x$processlist": {
+      "columns": [
+        "thd_id",
+        "conn_id",
+        "user",
+        "db",
+        "command",
+        "state",
+        "time",
+        "current_statement",
+        "statement_latency",
+        "progress",
+        "lock_latency",
+        "rows_examined",
+        "rows_sent",
+        "rows_affected",
+        "tmp_tables",
+        "tmp_disk_tables",
+        "full_scan",
+        "last_statement",
+        "last_statement_latency",
+        "current_memory",
+        "last_wait",
+        "last_wait_latency",
+        "source",
+        "trx_latency",
+        "trx_state",
+        "trx_autocommit",
+        "pid",
+        "program_name"
+      ],
+      "foreign_keys": []
+    },
+    "x$ps_digest_95th_percentile_by_avg_us": {
+      "columns": [
+        "avg_us",
+        "percentile"
+      ],
+      "foreign_keys": []
+    },
+    "x$ps_digest_avg_latency_distribution": {
+      "columns": [
+        "cnt",
+        "avg_us"
+      ],
+      "foreign_keys": []
+    },
+    "x$schema_flattened_keys": {
+      "columns": [
+        "table_schema",
+        "table_name",
+        "index_name",
+        "non_unique",
+        "subpart_exists",
+        "index_columns"
+      ],
+      "foreign_keys": []
+    },
+    "x$schema_index_statistics": {
+      "columns": [
+        "table_schema",
+        "table_name",
+        "index_name",
+        "rows_selected",
+        "select_latency",
+        "rows_inserted",
+        "insert_latency",
+        "rows_updated",
+        "update_latency",
+        "rows_deleted",
+        "delete_latency"
+      ],
+      "foreign_keys": []
+    },
+    "x$schema_tables_with_full_table_scans": {
+      "columns": [
+        "object_schema",
+        "object_name",
+        "rows_full_scanned",
+        "latency"
+      ],
+      "foreign_keys": []
+    },
+    "x$session": {
+      "columns": [
+        "thd_id",
+        "conn_id",
+        "user",
+        "db",
+        "command",
+        "state",
+        "time",
+        "current_statement",
+        "statement_latency",
+        "progress",
+        "lock_latency",
+        "rows_examined",
+        "rows_sent",
+        "rows_affected",
+        "tmp_tables",
+        "tmp_disk_tables",
+        "full_scan",
+        "last_statement",
+        "last_statement_latency",
+        "current_memory",
+        "last_wait",
+        "last_wait_latency",
+        "source",
+        "trx_latency",
+        "trx_state",
+        "trx_autocommit",
+        "pid",
+        "program_name"
+      ],
+      "foreign_keys": []
+    },
+    "x$statement_analysis": {
+      "columns": [
+        "query",
+        "db",
+        "full_scan",
+        "exec_count",
+        "err_count",
+        "warn_count",
+        "total_latency",
+        "max_latency",
+        "avg_latency",
+        "lock_latency",
+        "rows_sent",
+        "rows_sent_avg",
+        "rows_examined",
+        "rows_examined_avg",
+        "rows_affected",
+        "rows_affected_avg",
+        "tmp_tables",
+        "tmp_disk_tables",
+        "rows_sorted",
+        "sort_merge_passes",
+        "digest",
+        "first_seen",
+        "last_seen"
+      ],
+      "foreign_keys": []
+    },
+    "x$statements_with_errors_or_warnings": {
+      "columns": [
+        "query",
+        "db",
+        "exec_count",
+        "errors",
+        "error_pct",
+        "warnings",
+        "warning_pct",
+        "first_seen",
+        "last_seen",
+        "digest"
+      ],
+      "foreign_keys": []
+    },
+    "x$statements_with_full_table_scans": {
+      "columns": [
+        "query",
+        "db",
+        "exec_count",
+        "total_latency",
+        "no_index_used_count",
+        "no_good_index_used_count",
+        "no_index_used_pct",
+        "rows_sent",
+        "rows_examined",
+        "rows_sent_avg",
+        "rows_examined_avg",
+        "first_seen",
+        "last_seen",
+        "digest"
+      ],
+      "foreign_keys": []
+    },
+    "x$statements_with_runtimes_in_95th_percentile": {
+      "columns": [
+        "query",
+        "db",
+        "full_scan",
+        "exec_count",
+        "err_count",
+        "warn_count",
+        "total_latency",
+        "max_latency",
+        "avg_latency",
+        "rows_sent",
+        "rows_sent_avg",
+        "rows_examined",
+        "rows_examined_avg",
+        "first_seen",
+        "last_seen",
+        "digest"
+      ],
+      "foreign_keys": []
+    },
+    "x$statements_with_sorting": {
+      "columns": [
+        "query",
+        "db",
+        "exec_count",
+        "total_latency",
+        "sort_merge_passes",
+        "avg_sort_merges",
+        "sorts_using_scans",
+        "sort_using_range",
+        "rows_sorted",
+        "avg_rows_sorted",
+        "first_seen",
+        "last_seen",
+        "digest"
+      ],
+      "foreign_keys": []
+    },
+    "x$statements_with_temp_tables": {
+      "columns": [
+        "query",
+        "db",
+        "exec_count",
+        "total_latency",
+        "memory_tmp_tables",
+        "disk_tmp_tables",
+        "avg_tmp_tables_per_query",
+        "tmp_tables_to_disk_pct",
+        "first_seen",
+        "last_seen",
+        "digest"
+      ],
+      "foreign_keys": []
+    },
+    "x$user_summary": {
+      "columns": [
+        "user",
+        "statements",
+        "statement_latency",
+        "statement_avg_latency",
+        "table_scans",
+        "file_ios",
+        "file_io_latency",
+        "current_connections",
+        "total_connections",
+        "unique_hosts",
+        "current_memory",
+        "total_memory_allocated"
+      ],
+      "foreign_keys": []
+    },
+    "x$user_summary_by_file_io": {
+      "columns": [
+        "user",
+        "ios",
+        "io_latency"
+      ],
+      "foreign_keys": []
+    },
+    "x$user_summary_by_file_io_type": {
+      "columns": [
+        "user",
+        "event_name",
+        "total",
+        "latency",
+        "max_latency"
+      ],
+      "foreign_keys": []
+    },
+    "x$user_summary_by_stages": {
+      "columns": [
+        "user",
+        "event_name",
+        "total",
+        "total_latency",
+        "avg_latency"
+      ],
+      "foreign_keys": []
+    },
+    "x$user_summary_by_statement_latency": {
+      "columns": [
+        "user",
+        "total",
+        "total_latency",
+        "max_latency",
+        "lock_latency",
+        "rows_sent",
+        "rows_examined",
+        "rows_affected",
+        "full_scans"
+      ],
+      "foreign_keys": []
+    },
+    "x$user_summary_by_statement_type": {
+      "columns": [
+        "user",
+        "statement",
+        "total",
+        "total_latency",
+        "max_latency",
+        "lock_latency",
+        "rows_sent",
+        "rows_examined",
+        "rows_affected",
+        "full_scans"
+      ],
+      "foreign_keys": []
+    },
+    "x$wait_classes_global_by_avg_latency": {
+      "columns": [
+        "event_class",
+        "total",
+        "total_latency",
+        "min_latency",
+        "avg_latency",
+        "max_latency"
+      ],
+      "foreign_keys": []
+    },
+    "x$wait_classes_global_by_latency": {
+      "columns": [
+        "event_class",
+        "total",
+        "total_latency",
+        "min_latency",
+        "avg_latency",
+        "max_latency"
+      ],
+      "foreign_keys": []
+    },
+    "x$waits_by_host_by_latency": {
+      "columns": [
+        "host",
+        "event",
+        "total",
+        "total_latency",
+        "avg_latency",
+        "max_latency"
+      ],
+      "foreign_keys": []
+    },
+    "x$waits_by_user_by_latency": {
+      "columns": [
+        "user",
+        "event",
+        "total",
+        "total_latency",
+        "avg_latency",
+        "max_latency"
+      ],
+      "foreign_keys": []
+    },
+    "x$waits_global_by_latency": {
+      "columns": [
+        "events",
+        "total",
+        "total_latency",
+        "avg_latency",
+        "max_latency"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

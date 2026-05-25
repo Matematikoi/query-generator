@@ -1,0 +1,52 @@
+{
+  "tables": {
+    "features": {
+      "columns": [
+        "Store",
+        "Date",
+        "Temperature",
+        "Fuel_Price",
+        "MarkDown1",
+        "MarkDown2",
+        "MarkDown3",
+        "MarkDown4",
+        "MarkDown5",
+        "CPI",
+        "Unemployment",
+        "IsHoliday"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Store",
+          "ref_table": "stores",
+          "ref_column": "Store"
+        }
+      ]
+    },
+    "stores": {
+      "columns": [
+        "Store",
+        "Type",
+        "Size"
+      ],
+      "foreign_keys": []
+    },
+    "train": {
+      "columns": [
+        "Store",
+        "Dept",
+        "Date",
+        "Weekly_Sales",
+        "IsHoliday"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Store",
+          "ref_table": "stores",
+          "ref_column": "Store"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

@@ -1,0 +1,19 @@
+{
+  "tables": {
+    "data": {
+      "columns": [
+        "sequence_name",
+        "mcg",
+        "gvh",
+        "lip",
+        "chg",
+        "aac",
+        "alm1",
+        "alm2",
+        "class"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

@@ -1,0 +1,22 @@
+{
+  "tables": {
+    "DSSTOX": {
+      "columns": [
+        "dsstox_substance_id",
+        "dsstox_structure_id",
+        "dsstox_qc_level",
+        "substance_name",
+        "substance_casrn",
+        "substance_type",
+        "substance_note",
+        "structure_smiles",
+        "structure_inchi",
+        "structure_inchikey",
+        "structure_formula",
+        "structure_molwt"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

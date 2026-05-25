@@ -1,0 +1,181 @@
+{
+  "tables": {
+    "authors": {
+      "columns": [
+        "au_id",
+        "au_lname",
+        "au_fname",
+        "phone",
+        "address",
+        "city",
+        "state",
+        "zip",
+        "contract"
+      ],
+      "foreign_keys": []
+    },
+    "discounts": {
+      "columns": [
+        "discounttype",
+        "stor_id",
+        "lowqty",
+        "highqty",
+        "discount"
+      ],
+      "foreign_keys": [
+        {
+          "column": "stor_id",
+          "ref_table": "stores",
+          "ref_column": "stor_id"
+        }
+      ]
+    },
+    "employee": {
+      "columns": [
+        "emp_id",
+        "fname",
+        "minit",
+        "lname",
+        "job_id",
+        "job_lvl",
+        "pub_id",
+        "hire_date"
+      ],
+      "foreign_keys": [
+        {
+          "column": "job_id",
+          "ref_table": "jobs",
+          "ref_column": "job_id"
+        },
+        {
+          "column": "pub_id",
+          "ref_table": "publishers",
+          "ref_column": "pub_id"
+        }
+      ]
+    },
+    "jobs": {
+      "columns": [
+        "job_id",
+        "job_desc",
+        "min_lvl",
+        "max_lvl"
+      ],
+      "foreign_keys": []
+    },
+    "pub_info": {
+      "columns": [
+        "pub_id",
+        "logo",
+        "pr_info"
+      ],
+      "foreign_keys": [
+        {
+          "column": "pub_id",
+          "ref_table": "publishers",
+          "ref_column": "pub_id"
+        }
+      ]
+    },
+    "publishers": {
+      "columns": [
+        "pub_id",
+        "pub_name",
+        "city",
+        "state",
+        "country"
+      ],
+      "foreign_keys": []
+    },
+    "roysched": {
+      "columns": [
+        "title_id",
+        "lorange",
+        "hirange",
+        "royalty"
+      ],
+      "foreign_keys": [
+        {
+          "column": "title_id",
+          "ref_table": "titles",
+          "ref_column": "title_id"
+        }
+      ]
+    },
+    "sales": {
+      "columns": [
+        "stor_id",
+        "ord_num",
+        "ord_date",
+        "qty",
+        "payterms",
+        "title_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "stor_id",
+          "ref_table": "stores",
+          "ref_column": "stor_id"
+        },
+        {
+          "column": "title_id",
+          "ref_table": "titles",
+          "ref_column": "title_id"
+        }
+      ]
+    },
+    "stores": {
+      "columns": [
+        "stor_id",
+        "stor_name",
+        "stor_address",
+        "city",
+        "state",
+        "zip"
+      ],
+      "foreign_keys": []
+    },
+    "titleauthor": {
+      "columns": [
+        "au_id",
+        "title_id",
+        "au_ord",
+        "royaltyper"
+      ],
+      "foreign_keys": [
+        {
+          "column": "title_id",
+          "ref_table": "titles",
+          "ref_column": "title_id"
+        },
+        {
+          "column": "au_id",
+          "ref_table": "authors",
+          "ref_column": "au_id"
+        }
+      ]
+    },
+    "titles": {
+      "columns": [
+        "title_id",
+        "title",
+        "type",
+        "pub_id",
+        "price",
+        "advance",
+        "royalty",
+        "ytd_sales",
+        "notes",
+        "pubdate"
+      ],
+      "foreign_keys": [
+        {
+          "column": "pub_id",
+          "ref_table": "publishers",
+          "ref_column": "pub_id"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

@@ -1,0 +1,28 @@
+{
+  "tables": {
+    "utube_attributes": {
+      "columns": [
+        "id_states",
+        "name",
+        "value1",
+        "value2",
+        "direction"
+      ],
+      "foreign_keys": [
+        {
+          "column": "id_states",
+          "ref_table": "utube_states",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "utube_states": {
+      "columns": [
+        "id",
+        "class"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

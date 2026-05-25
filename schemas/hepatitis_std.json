@@ -1,0 +1,99 @@
+{
+  "tables": {
+    "Bio": {
+      "columns": [
+        "fibros",
+        "activity",
+        "b_id"
+      ],
+      "foreign_keys": []
+    },
+    "dispat": {
+      "columns": [
+        "m_id",
+        "sex",
+        "age",
+        "Type"
+      ],
+      "foreign_keys": []
+    },
+    "indis": {
+      "columns": [
+        "got",
+        "gpt",
+        "alb",
+        "tbil",
+        "dbil",
+        "che",
+        "ttt",
+        "ztt",
+        "tcho",
+        "tp",
+        "in_id"
+      ],
+      "foreign_keys": []
+    },
+    "inf": {
+      "columns": [
+        "dur",
+        "a_id"
+      ],
+      "foreign_keys": []
+    },
+    "rel11": {
+      "columns": [
+        "b_id",
+        "m_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "b_id",
+          "ref_table": "Bio",
+          "ref_column": "b_id"
+        },
+        {
+          "column": "m_id",
+          "ref_table": "dispat",
+          "ref_column": "m_id"
+        }
+      ]
+    },
+    "rel12": {
+      "columns": [
+        "in_id",
+        "m_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "m_id",
+          "ref_table": "dispat",
+          "ref_column": "m_id"
+        },
+        {
+          "column": "in_id",
+          "ref_table": "indis",
+          "ref_column": "in_id"
+        }
+      ]
+    },
+    "rel13": {
+      "columns": [
+        "a_id",
+        "m_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "m_id",
+          "ref_table": "dispat",
+          "ref_column": "m_id"
+        },
+        {
+          "column": "a_id",
+          "ref_table": "inf",
+          "ref_column": "a_id"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

@@ -1,7 +1,7 @@
 import copy
 from dataclasses import dataclass
-from typing import Any
 
+from query_generator.utils.definitions import TableSchema
 from query_generator.utils.exceptions import (
   DuplicateEdgesError,
   TableNotFoundError,
@@ -33,11 +33,11 @@ class ForeignKeyGraph:
     reference_column: str
     id: int
 
-  def __init__(self, tables_schema: dict[str, dict[str, Any]]) -> None:
+  def __init__(self, tables_schema: dict[str, TableSchema]) -> None:
     """Initialize the foreign key graph.
 
     Args:
-        tables_schema (Dict[str, Dict[str, Any]]):
+        tables_schema (Dict[str, TableSchema]):
         Dictionary containing the schema of the tables.
 
     """
@@ -47,7 +47,7 @@ class ForeignKeyGraph:
 
     self.populate_graph(copy.deepcopy(tables_schema))
 
-  def populate_graph(self, tables_schema: dict[str, dict[str, Any]]) -> None:
+  def populate_graph(self, tables_schema: dict[str, TableSchema]) -> None:
     """Populate the foreign key graph with edges based on the schema.
     This method iterates through each table and its foreign keys,
     creating edges to the referenced tables.
@@ -56,22 +56,22 @@ class ForeignKeyGraph:
     # by table name and column name
     self.tables.sort()
     for table in self.tables:
-      tables_schema[table]["foreign_keys"].sort(
-        key=lambda x: (x["ref_table"], x["column"], x["ref_column"]),
+      tables_schema[table].foreign_keys.sort(
+        key=lambda x: (x.ref_table, x.column, x.ref_column),
       )
 
     edge_id = 0
     for table in self.tables:
-      for fk in tables_schema[table]["foreign_keys"]:
-        reference_table = fk["ref_table"]
+      for fk in tables_schema[table].foreign_keys:
+        reference_table = fk.ref_table
         if reference_table not in self.tables:
           raise TableNotFoundError(reference_table)
 
         edge = ForeignKeyGraph.Edge(
           table=ForeignKeyGraph.Node(name=table),
-          column=fk["column"],
+          column=fk.column,
           reference_table=ForeignKeyGraph.Node(name=reference_table),
-          reference_column=fk["ref_column"],
+          reference_column=fk.ref_column,
           id=edge_id,
         )
         edge_id += 1

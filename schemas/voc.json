@@ -1,0 +1,211 @@
+{
+  "tables": {
+    "craftsmen": {
+      "columns": [
+        "number",
+        "number_sup",
+        "trip",
+        "trip_sup",
+        "onboard_at_departure",
+        "death_at_cape",
+        "left_at_cape",
+        "onboard_at_cape",
+        "death_during_voyage",
+        "onboard_at_arrival"
+      ],
+      "foreign_keys": [
+        {
+          "column": "number",
+          "ref_table": "voyages",
+          "ref_column": "number"
+        },
+        {
+          "column": "number_sup",
+          "ref_table": "voyages",
+          "ref_column": "number_sup"
+        }
+      ]
+    },
+    "impotenten": {
+      "columns": [
+        "number",
+        "number_sup",
+        "trip",
+        "trip_sup",
+        "onboard_at_departure",
+        "death_at_cape",
+        "left_at_cape",
+        "onboard_at_cape",
+        "death_during_voyage",
+        "onboard_at_arrival"
+      ],
+      "foreign_keys": [
+        {
+          "column": "number",
+          "ref_table": "voyages",
+          "ref_column": "number"
+        },
+        {
+          "column": "number_sup",
+          "ref_table": "voyages",
+          "ref_column": "number_sup"
+        }
+      ]
+    },
+    "invoices": {
+      "columns": [
+        "number",
+        "number_sup",
+        "trip",
+        "trip_sup",
+        "invoice",
+        "chamber"
+      ],
+      "foreign_keys": [
+        {
+          "column": "number",
+          "ref_table": "voyages",
+          "ref_column": "number"
+        },
+        {
+          "column": "number_sup",
+          "ref_table": "voyages",
+          "ref_column": "number_sup"
+        }
+      ]
+    },
+    "passengers": {
+      "columns": [
+        "number",
+        "number_sup",
+        "trip",
+        "trip_sup",
+        "onboard_at_departure",
+        "death_at_cape",
+        "left_at_cape",
+        "onboard_at_cape",
+        "death_during_voyage",
+        "onboard_at_arrival"
+      ],
+      "foreign_keys": [
+        {
+          "column": "number",
+          "ref_table": "voyages",
+          "ref_column": "number"
+        },
+        {
+          "column": "number_sup",
+          "ref_table": "voyages",
+          "ref_column": "number_sup"
+        }
+      ]
+    },
+    "seafarers": {
+      "columns": [
+        "number",
+        "number_sup",
+        "trip",
+        "trip_sup",
+        "onboard_at_departure",
+        "death_at_cape",
+        "left_at_cape",
+        "onboard_at_cape",
+        "death_during_voyage",
+        "onboard_at_arrival"
+      ],
+      "foreign_keys": [
+        {
+          "column": "number",
+          "ref_table": "voyages",
+          "ref_column": "number"
+        },
+        {
+          "column": "number_sup",
+          "ref_table": "voyages",
+          "ref_column": "number_sup"
+        }
+      ]
+    },
+    "soldiers": {
+      "columns": [
+        "number",
+        "number_sup",
+        "trip",
+        "trip_sup",
+        "onboard_at_departure",
+        "death_at_cape",
+        "left_at_cape",
+        "onboard_at_cape",
+        "death_during_voyage",
+        "onboard_at_arrival"
+      ],
+      "foreign_keys": [
+        {
+          "column": "number",
+          "ref_table": "voyages",
+          "ref_column": "number"
+        },
+        {
+          "column": "number_sup",
+          "ref_table": "voyages",
+          "ref_column": "number_sup"
+        }
+      ]
+    },
+    "total": {
+      "columns": [
+        "number",
+        "number_sup",
+        "trip",
+        "trip_sup",
+        "onboard_at_departure",
+        "death_at_cape",
+        "left_at_cape",
+        "onboard_at_cape",
+        "death_during_voyage",
+        "onboard_at_arrival"
+      ],
+      "foreign_keys": [
+        {
+          "column": "number",
+          "ref_table": "voyages",
+          "ref_column": "number"
+        },
+        {
+          "column": "number_sup",
+          "ref_table": "voyages",
+          "ref_column": "number_sup"
+        }
+      ]
+    },
+    "voyages": {
+      "columns": [
+        "artificial_id",
+        "number",
+        "number_sup",
+        "trip",
+        "trip_sup",
+        "boatname",
+        "master",
+        "tonnage",
+        "type_of_boat",
+        "built",
+        "bought",
+        "hired",
+        "yard",
+        "chamber",
+        "departure_date",
+        "departure_harbour",
+        "cape_arrival",
+        "cape_departure",
+        "cape_call",
+        "arrival_date",
+        "arrival_harbour",
+        "next_voyage",
+        "particulars"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

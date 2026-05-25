@@ -1,0 +1,537 @@
+{
+  "tables": {
+    "algorithm": {
+      "columns": [
+        "name",
+        "function",
+        "description",
+        "algorithm_class"
+      ],
+      "foreign_keys": []
+    },
+    "algorithm_quality": {
+      "columns": [
+        "implementation_id",
+        "quality",
+        "qualityImplementation",
+        "label",
+        "value"
+      ],
+      "foreign_keys": [
+        {
+          "column": "implementation_id",
+          "ref_table": "implementation",
+          "ref_column": "id"
+        },
+        {
+          "column": "quality",
+          "ref_table": "quality",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "algorithm_setup": {
+      "columns": [
+        "sid",
+        "parent",
+        "implementation_id",
+        "algorithm",
+        "role",
+        "isDefault",
+        "algorithm_structure",
+        "setup_string"
+      ],
+      "foreign_keys": [
+        {
+          "column": "implementation_id",
+          "ref_table": "implementation",
+          "ref_column": "id"
+        },
+        {
+          "column": "algorithm",
+          "ref_table": "algorithm",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "bibliographical_reference": {
+      "columns": [
+        "id",
+        "implementation_id",
+        "citation",
+        "url"
+      ],
+      "foreign_keys": [
+        {
+          "column": "implementation_id",
+          "ref_table": "implementation",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "data_feature": {
+      "columns": [
+        "did",
+        "index",
+        "name",
+        "data_type",
+        "nominal_values",
+        "is_target",
+        "is_row_identifier",
+        "is_ignore",
+        "NumberOfDistinctValues",
+        "NumberOfUniqueValues",
+        "NumberOfMissingValues",
+        "NumberOfIntegerValues",
+        "NumberOfRealValues",
+        "NumberOfNominalValues",
+        "NumberOfValues",
+        "MaximumValue",
+        "MinimumValue",
+        "MeanValue",
+        "StandardDeviation",
+        "ClassDistribution"
+      ],
+      "foreign_keys": [
+        {
+          "column": "did",
+          "ref_table": "dataset",
+          "ref_column": "did"
+        }
+      ]
+    },
+    "data_quality": {
+      "columns": [
+        "data",
+        "quality",
+        "implementation_id",
+        "label",
+        "value",
+        "description"
+      ],
+      "foreign_keys": [
+        {
+          "column": "quality",
+          "ref_table": "quality",
+          "ref_column": "name"
+        },
+        {
+          "column": "implementation_id",
+          "ref_table": "implementation",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "dataset": {
+      "columns": [
+        "did",
+        "uploader",
+        "source",
+        "name",
+        "version",
+        "version_label",
+        "description",
+        "format",
+        "creator",
+        "contributor",
+        "collection_date",
+        "upload_date",
+        "language",
+        "licence",
+        "citation",
+        "collection",
+        "url",
+        "isOriginal",
+        "file_id",
+        "default_target_attribute",
+        "row_id_attribute",
+        "ignore_attribute",
+        "paper_url",
+        "visibility",
+        "original_data_id",
+        "original_data_url",
+        "processed",
+        "error",
+        "error_message",
+        "status",
+        "update_comment",
+        "last_update"
+      ],
+      "foreign_keys": []
+    },
+    "downloads": {
+      "columns": [
+        "did",
+        "knowledge_type",
+        "knowledge_id",
+        "user_id",
+        "count",
+        "time"
+      ],
+      "foreign_keys": [
+        {
+          "column": "did",
+          "ref_table": "dataset",
+          "ref_column": "did"
+        }
+      ]
+    },
+    "downvotes": {
+      "columns": [
+        "did",
+        "knowledge_type",
+        "knowledge_id",
+        "user_id",
+        "reason",
+        "time",
+        "original"
+      ],
+      "foreign_keys": [
+        {
+          "column": "did",
+          "ref_table": "dataset",
+          "ref_column": "did"
+        }
+      ]
+    },
+    "estimation_procedure": {
+      "columns": [
+        "id",
+        "ttid",
+        "name",
+        "type",
+        "repeats",
+        "folds",
+        "percentage",
+        "stratified_sampling",
+        "custom_testset",
+        "date"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ttid",
+          "ref_table": "task_type",
+          "ref_column": "ttid"
+        },
+        {
+          "column": "type",
+          "ref_table": "estimation_procedure_type",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "estimation_procedure_type": {
+      "columns": [
+        "name",
+        "description"
+      ],
+      "foreign_keys": []
+    },
+    "evaluation": {
+      "columns": [
+        "did",
+        "source",
+        "implementation_id",
+        "function",
+        "label",
+        "value",
+        "stdev"
+      ],
+      "foreign_keys": [
+        {
+          "column": "implementation_id",
+          "ref_table": "implementation",
+          "ref_column": "id"
+        },
+        {
+          "column": "function",
+          "ref_table": "math_function",
+          "ref_column": "name"
+        },
+        {
+          "column": "did",
+          "ref_table": "dataset",
+          "ref_column": "did"
+        }
+      ]
+    },
+    "implementation": {
+      "columns": [
+        "id",
+        "fullName",
+        "uploader",
+        "name",
+        "version",
+        "external_version",
+        "creator",
+        "contributor",
+        "uploadDate",
+        "licence",
+        "language",
+        "description",
+        "fullDescription",
+        "installationNotes",
+        "dependencies",
+        "implements",
+        "binary_file_id",
+        "source_file_id",
+        "visibility",
+        "citation"
+      ],
+      "foreign_keys": []
+    },
+    "implementation_component": {
+      "columns": [
+        "parent",
+        "child",
+        "identifier"
+      ],
+      "foreign_keys": [
+        {
+          "column": "parent",
+          "ref_table": "implementation",
+          "ref_column": "id"
+        },
+        {
+          "column": "child",
+          "ref_table": "implementation",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "input": {
+      "columns": [
+        "id",
+        "fullName",
+        "implementation_id",
+        "name",
+        "description",
+        "dataType",
+        "defaultValue",
+        "recommendedRange"
+      ],
+      "foreign_keys": [
+        {
+          "column": "implementation_id",
+          "ref_table": "implementation",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "math_function": {
+      "columns": [
+        "name",
+        "functionType",
+        "min",
+        "max",
+        "unit",
+        "higherIsBetter",
+        "description",
+        "source_code",
+        "date"
+      ],
+      "foreign_keys": []
+    },
+    "quality": {
+      "columns": [
+        "name",
+        "type",
+        "formula",
+        "description",
+        "datatype",
+        "min",
+        "max",
+        "unit",
+        "priority",
+        "showonline",
+        "date"
+      ],
+      "foreign_keys": []
+    },
+    "run": {
+      "columns": [
+        "rid",
+        "uploader",
+        "parent",
+        "setup",
+        "task_id",
+        "start_time",
+        "status",
+        "priority",
+        "error",
+        "warning",
+        "error_message",
+        "processed",
+        "experiment",
+        "runner",
+        "machine",
+        "visibility"
+      ],
+      "foreign_keys": [
+        {
+          "column": "task_id",
+          "ref_table": "task",
+          "ref_column": "task_id"
+        }
+      ]
+    },
+    "runfile": {
+      "columns": [
+        "did",
+        "source",
+        "field",
+        "name",
+        "format",
+        "file_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "did",
+          "ref_table": "dataset",
+          "ref_column": "did"
+        }
+      ]
+    },
+    "schedule": {
+      "columns": [
+        "sid",
+        "task_id",
+        "experiment",
+        "active",
+        "last_assigned",
+        "ttid",
+        "dependencies",
+        "setup_string"
+      ],
+      "foreign_keys": [
+        {
+          "column": "task_id",
+          "ref_table": "task",
+          "ref_column": "task_id"
+        },
+        {
+          "column": "ttid",
+          "ref_table": "task_type",
+          "ref_column": "ttid"
+        }
+      ]
+    },
+    "setup_differences": {
+      "columns": [
+        "sidA",
+        "sidB",
+        "task_id",
+        "task_size",
+        "differences"
+      ],
+      "foreign_keys": [
+        {
+          "column": "sidA",
+          "ref_table": "algorithm_setup",
+          "ref_column": "sid"
+        },
+        {
+          "column": "sidB",
+          "ref_table": "algorithm_setup",
+          "ref_column": "sid"
+        },
+        {
+          "column": "task_id",
+          "ref_table": "task",
+          "ref_column": "task_id"
+        }
+      ]
+    },
+    "task": {
+      "columns": [
+        "task_id",
+        "ttid",
+        "creator",
+        "creation_date"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ttid",
+          "ref_table": "task_type",
+          "ref_column": "ttid"
+        }
+      ]
+    },
+    "task_inputs": {
+      "columns": [
+        "task_id",
+        "input",
+        "value"
+      ],
+      "foreign_keys": [
+        {
+          "column": "task_id",
+          "ref_table": "task",
+          "ref_column": "task_id"
+        }
+      ]
+    },
+    "task_io_types": {
+      "columns": [
+        "name",
+        "description"
+      ],
+      "foreign_keys": []
+    },
+    "task_type": {
+      "columns": [
+        "ttid",
+        "name",
+        "description",
+        "creator",
+        "contributors",
+        "creationDate"
+      ],
+      "foreign_keys": []
+    },
+    "task_type_inout": {
+      "columns": [
+        "ttid",
+        "name",
+        "type",
+        "io",
+        "requirement",
+        "description",
+        "order",
+        "template_api",
+        "template_search"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ttid",
+          "ref_table": "task_type",
+          "ref_column": "ttid"
+        },
+        {
+          "column": "type",
+          "ref_table": "task_io_types",
+          "ref_column": "name"
+        }
+      ]
+    },
+    "trace": {
+      "columns": [
+        "run_id",
+        "repeat",
+        "fold",
+        "iteration",
+        "setup_string",
+        "evaluation",
+        "selected"
+      ],
+      "foreign_keys": [
+        {
+          "column": "run_id",
+          "ref_table": "run",
+          "ref_column": "rid"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

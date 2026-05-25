@@ -1,0 +1,129 @@
+{
+  "tables": {
+    "Actions": {
+      "columns": [
+        "GameId",
+        "TeamId",
+        "PlayerId",
+        "Minutes",
+        "FieldGoalsMade",
+        "FieldGoalAttempts",
+        "3PointsMade",
+        "3PointAttempts",
+        "FreeThrowsMade",
+        "FreeThrowAttempts",
+        "PlusMinus",
+        "OffensiveRebounds",
+        "DefensiveRebounds",
+        "TotalRebounds",
+        "Assists",
+        "PersonalFouls",
+        "Steals",
+        "Turnovers",
+        "BlockedShots",
+        "BlocksAgainst",
+        "Points",
+        "Starter"
+      ],
+      "foreign_keys": [
+        {
+          "column": "GameId",
+          "ref_table": "Game",
+          "ref_column": "GameId"
+        },
+        {
+          "column": "PlayerId",
+          "ref_table": "Player",
+          "ref_column": "PlayerId"
+        },
+        {
+          "column": "TeamId",
+          "ref_table": "Team",
+          "ref_column": "TeamId"
+        }
+      ]
+    },
+    "Game": {
+      "columns": [
+        "GameId",
+        "Team1Id",
+        "Team2Id",
+        "ResultOfTeam1",
+        "URL",
+        "Date"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Team1Id",
+          "ref_table": "Team",
+          "ref_column": "TeamId"
+        },
+        {
+          "column": "Team2Id",
+          "ref_table": "Team",
+          "ref_column": "TeamId"
+        }
+      ]
+    },
+    "Player": {
+      "columns": [
+        "PlayerId",
+        "PlayerName"
+      ],
+      "foreign_keys": []
+    },
+    "Team": {
+      "columns": [
+        "TeamId",
+        "TeamName"
+      ],
+      "foreign_keys": []
+    },
+    "joined_drafted_all_players_original": {
+      "columns": [
+        "ID",
+        "age",
+        "draft_g",
+        "mp",
+        "draft_fg",
+        "fga",
+        "3p",
+        "3pa",
+        "draft_ft",
+        "fta",
+        "orb",
+        "draft_trb",
+        "draft_ast",
+        "draft_stl",
+        "draft_blk",
+        "draft_tov",
+        "draft_pf",
+        "draft_pts",
+        "fg_per",
+        "3p_per",
+        "ft_per",
+        "mp_per",
+        "pts_per",
+        "trb_per",
+        "ast_per",
+        "season",
+        "weight",
+        "height",
+        "position",
+        "shoots",
+        "born",
+        "draft_year",
+        "pk",
+        "amature_honor",
+        "college",
+        "raw_data",
+        "career_g",
+        "career_per",
+        "career_ws",
+        "career_ws48"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

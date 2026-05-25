@@ -1,0 +1,33 @@
+{
+  "tables": {
+    "active_follower_real": {
+      "columns": [
+        "user_id",
+        "follower_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "user_id",
+          "ref_table": "distinct_users_from_search_table_real_map",
+          "ref_column": "user_id"
+        },
+        {
+          "column": "follower_id",
+          "ref_table": "distinct_users_from_search_table_real_map",
+          "ref_column": "user_id"
+        }
+      ]
+    },
+    "distinct_users_from_search_table_real_map": {
+      "columns": [
+        "user_id",
+        "user_screen_name",
+        "indegree",
+        "outdegree",
+        "bad_user_id"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

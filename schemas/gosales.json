@@ -1,0 +1,82 @@
+{
+  "tables": {
+    "go_1k": {
+      "columns": [
+        "Retailer code",
+        "Product number",
+        "Date",
+        "Quantity"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Retailer code",
+          "ref_table": "go_retailers",
+          "ref_column": "Retailer code"
+        },
+        {
+          "column": "Product number",
+          "ref_table": "go_products",
+          "ref_column": "Product number"
+        },
+        {
+          "column": "Retailer code",
+          "ref_table": "go_daily_sales",
+          "ref_column": "Retailer code"
+        },
+        {
+          "column": "Product number",
+          "ref_table": "go_daily_sales",
+          "ref_column": "Product number"
+        }
+      ]
+    },
+    "go_daily_sales": {
+      "columns": [
+        "Retailer code",
+        "Product number",
+        "Order method code",
+        "Date",
+        "Quantity",
+        "Unit price",
+        "Unit sale price"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Order method code",
+          "ref_table": "go_methods",
+          "ref_column": "Order method code"
+        }
+      ]
+    },
+    "go_methods": {
+      "columns": [
+        "Order method code",
+        "Order method type"
+      ],
+      "foreign_keys": []
+    },
+    "go_products": {
+      "columns": [
+        "Product number",
+        "Product line",
+        "Product type",
+        "Product",
+        "Product brand",
+        "Product color",
+        "Unit cost",
+        "Unit price"
+      ],
+      "foreign_keys": []
+    },
+    "go_retailers": {
+      "columns": [
+        "Retailer code",
+        "Retailer name",
+        "Type",
+        "Country"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

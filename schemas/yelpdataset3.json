@@ -1,0 +1,226 @@
+{
+  "tables": {
+    "Business": {
+      "columns": [
+        "business_id",
+        "full_address",
+        "active",
+        "city",
+        "review_count",
+        "business_name",
+        "neighborhoods",
+        "latitude",
+        "longitude",
+        "state",
+        "stars"
+      ],
+      "foreign_keys": []
+    },
+    "Business_Attributes": {
+      "columns": [
+        "business_id",
+        "attribute_name",
+        "attribute_value"
+      ],
+      "foreign_keys": []
+    },
+    "Business_Attributes_AcceptsCreditCards": {
+      "columns": [
+        "business_id",
+        "subattribute",
+        "value"
+      ],
+      "foreign_keys": []
+    },
+    "Business_Attributes_Ambience": {
+      "columns": [
+        "business_id",
+        "subattribute",
+        "value"
+      ],
+      "foreign_keys": []
+    },
+    "Business_Attributes_DietaryRestrictions": {
+      "columns": [
+        "business_id",
+        "subattribute",
+        "value"
+      ],
+      "foreign_keys": []
+    },
+    "Business_Attributes_GoodFor": {
+      "columns": [
+        "business_id",
+        "subattribute",
+        "value"
+      ],
+      "foreign_keys": []
+    },
+    "Business_Attributes_HairTypesSpecializedIn": {
+      "columns": [
+        "business_id",
+        "subattribute",
+        "value"
+      ],
+      "foreign_keys": []
+    },
+    "Business_Attributes_Music": {
+      "columns": [
+        "business_id",
+        "subattribute",
+        "value"
+      ],
+      "foreign_keys": []
+    },
+    "Business_Attributes_Parking": {
+      "columns": [
+        "business_id",
+        "subattribute",
+        "value"
+      ],
+      "foreign_keys": []
+    },
+    "Business_Attributes_PaymentTypes": {
+      "columns": [
+        "business_id",
+        "subattribute",
+        "value"
+      ],
+      "foreign_keys": []
+    },
+    "Business_Categories": {
+      "columns": [
+        "business_id",
+        "category"
+      ],
+      "foreign_keys": []
+    },
+    "Business_Hours": {
+      "columns": [
+        "business_id",
+        "day_of_week",
+        "opening_time_hours",
+        "closing_time_hours"
+      ],
+      "foreign_keys": []
+    },
+    "Checkins": {
+      "columns": [
+        "business_id",
+        "day_of_week",
+        "time_0",
+        "time_1",
+        "time_2",
+        "time_3",
+        "time_4",
+        "time_5",
+        "time_6",
+        "time_7",
+        "time_8",
+        "time_9",
+        "time_10",
+        "time_11",
+        "time_12",
+        "time_13",
+        "time_14",
+        "time_15",
+        "time_16",
+        "time_17",
+        "time_18",
+        "time_19",
+        "time_20",
+        "time_21",
+        "time_22",
+        "time_23"
+      ],
+      "foreign_keys": [
+        {
+          "column": "business_id",
+          "ref_table": "Business",
+          "ref_column": "business_id"
+        }
+      ]
+    },
+    "Compliments": {
+      "columns": [
+        "user_id",
+        "compliment_type",
+        "number_of_compliments"
+      ],
+      "foreign_keys": []
+    },
+    "Elite": {
+      "columns": [
+        "user_id",
+        "year"
+      ],
+      "foreign_keys": []
+    },
+    "Friends": {
+      "columns": [
+        "user_id1",
+        "user_id2"
+      ],
+      "foreign_keys": []
+    },
+    "Reviews": {
+      "columns": [
+        "review_id",
+        "business_id",
+        "user_id",
+        "stars",
+        "review_date",
+        "votes_funny",
+        "votes_useful",
+        "votes_cool",
+        "review_text"
+      ],
+      "foreign_keys": [
+        {
+          "column": "business_id",
+          "ref_table": "Business",
+          "ref_column": "business_id"
+        }
+      ]
+    },
+    "Tips": {
+      "columns": [
+        "business_id",
+        "user_id",
+        "date_year",
+        "date_month",
+        "date_day",
+        "likes",
+        "tip_text"
+      ],
+      "foreign_keys": [
+        {
+          "column": "business_id",
+          "ref_table": "Business",
+          "ref_column": "business_id"
+        },
+        {
+          "column": "user_id",
+          "ref_table": "Users",
+          "ref_column": "user_id"
+        }
+      ]
+    },
+    "Users": {
+      "columns": [
+        "user_id",
+        "votes_funny",
+        "votes_useful",
+        "votes_cool",
+        "name",
+        "average_stars",
+        "review_count",
+        "fans",
+        "yelping_since_year",
+        "yelping_since_month"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

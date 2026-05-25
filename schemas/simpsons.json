@@ -1,0 +1,54 @@
+{
+  "tables": {
+    "courses": {
+      "columns": [
+        "id",
+        "name",
+        "teacher_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "teacher_id",
+          "ref_table": "teachers",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "grades": {
+      "columns": [
+        "student_id",
+        "course_id",
+        "grade"
+      ],
+      "foreign_keys": [
+        {
+          "column": "student_id",
+          "ref_table": "students",
+          "ref_column": "id"
+        },
+        {
+          "column": "course_id",
+          "ref_table": "courses",
+          "ref_column": "id"
+        }
+      ]
+    },
+    "students": {
+      "columns": [
+        "id",
+        "name",
+        "email",
+        "password"
+      ],
+      "foreign_keys": []
+    },
+    "teachers": {
+      "columns": [
+        "id",
+        "name"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}

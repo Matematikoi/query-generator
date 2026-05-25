@@ -1,0 +1,56 @@
+{
+  "tables": {
+    "pripady": {
+      "columns": [
+        "Identifikace_pripadu",
+        "Identifikator_pacienta",
+        "Kod_zdravotni_pojistovny",
+        "Datum_prijeti",
+        "Datum_propusteni",
+        "Delka_hospitalizace",
+        "Vekovy_Interval_Pacienta",
+        "Pohlavi_pacienta",
+        "Zakladni_diagnoza",
+        "Seznam_vedlejsich_diagnoz",
+        "DRG_skupina",
+        "PSC"
+      ],
+      "foreign_keys": []
+    },
+    "vykony": {
+      "columns": [
+        "Identifikace_pripadu",
+        "Datum_provedeni_vykonu",
+        "Typ_polozky",
+        "Kod_polozky",
+        "Pocet",
+        "Body"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Identifikace_pripadu",
+          "ref_table": "pripady",
+          "ref_column": "Identifikace_pripadu"
+        }
+      ]
+    },
+    "zup": {
+      "columns": [
+        "Identifikace_pripadu",
+        "Datum_provedeni_vykonu",
+        "Typ_polozky",
+        "Kod_polozky",
+        "Pocet",
+        "Cena"
+      ],
+      "foreign_keys": [
+        {
+          "column": "Identifikace_pripadu",
+          "ref_table": "pripady",
+          "ref_column": "Identifikace_pripadu"
+        }
+      ]
+    }
+  },
+  "fact_tables": []
+}

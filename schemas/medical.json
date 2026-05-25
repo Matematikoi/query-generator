@@ -1,0 +1,96 @@
+{
+  "tables": {
+    "Examination": {
+      "columns": [
+        "ID",
+        "Examination Date",
+        "aCL IgG",
+        "aCL IgM",
+        "ANA",
+        "ANA Pattern",
+        "aCL IgA",
+        "Diagnosis",
+        "KCT",
+        "RVVT",
+        "LAC",
+        "Symptoms",
+        "Thrombosis"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ID",
+          "ref_table": "Patient",
+          "ref_column": "ID"
+        }
+      ]
+    },
+    "Laboratory": {
+      "columns": [
+        "ID",
+        "Date",
+        "GOT",
+        "GPT",
+        "LDH",
+        "ALP",
+        "TP",
+        "ALB",
+        "UA",
+        "UN",
+        "CRE",
+        "T-BIL",
+        "T-CHO",
+        "TG",
+        "CPK",
+        "GLU",
+        "WBC",
+        "RBC",
+        "HGB",
+        "HCT",
+        "PLT",
+        "PT",
+        "APTT",
+        "FG",
+        "PIC",
+        "TAT",
+        "TAT2",
+        "U-PRO",
+        "IGG",
+        "IGA",
+        "IGM",
+        "CRP",
+        "RA",
+        "RF",
+        "C3",
+        "C4",
+        "RNP",
+        "SM",
+        "SC170",
+        "SSA",
+        "SSB",
+        "CENTROMEA",
+        "DNA",
+        "DNA-II"
+      ],
+      "foreign_keys": [
+        {
+          "column": "ID",
+          "ref_table": "Patient",
+          "ref_column": "ID"
+        }
+      ]
+    },
+    "Patient": {
+      "columns": [
+        "ID",
+        "SEX",
+        "Birthday",
+        "Description",
+        "First Date",
+        "Admission",
+        "Diagnosis"
+      ],
+      "foreign_keys": []
+    }
+  },
+  "fact_tables": []
+}
