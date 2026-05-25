@@ -1,4 +1,5 @@
 import tomllib
+from pathlib import Path
 from unittest import mock
 from unittest.mock import MagicMock
 
@@ -11,7 +12,10 @@ from query_generator.synthetic_queries.synthetic_query_generator import (
   SyntheticQueriesParams,
   generate_synthetic_queries,
 )
-from query_generator.utils.definitions import Dataset
+from query_generator.utils.definitions import (
+  BatchGeneratedQueryToWrite,
+  Dataset,
+)
 from query_generator.utils.params import SyntheticQueriesEndpoint
 from tests.utils import get_precomputed_histograms
 
@@ -71,7 +75,7 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
     ),
   ):
     data_toml = f"""
-      dataset = "TPCDS"
+      schema_path = "{Path(__file__).parent.parent.parent / "schemas" / "tpcds.json"}"
       output_folder = ""
       dev = true
       max_hops = [1]
@@ -108,3 +112,73 @@ def test_binning_calls(extra_predicates, expected_call_count, unique_joins):
       f"Expected {expected_call_count} calls to write_query, "
       f"but got {mock_writer.call_count}"
     )
+
+
+def test_tpcds_dev_generates_valid_sql():
+  """Run a minimal tpcds_dev-like generation and verify output SQL is structurally valid."""
+  mock_validator = MagicMock()
+  mock_validator.get_synthetic_query_cardinality.return_value = 10
+  captured_queries: list[str] = []
+
+  schemas_dir = Path(__file__).parent.parent.parent / "schemas"
+  histogram_path = get_precomputed_histograms(Dataset.TPCDS)
+
+  def capture_query(q: BatchGeneratedQueryToWrite) -> str:
+    captured_queries.append(q.query)
+    return (
+      f"batch_1/{q.fact_table}_{q.template_number}_{q.predicate_number}.sql"
+    )
+
+  with (
+    mock.patch(
+      "query_generator.synthetic_queries.utils.query_writer.Writer.write_query_to_batch",
+      side_effect=capture_query,
+    ),
+    mock.patch(
+      "query_generator.synthetic_queries.synthetic_query_generator.checkpoint_queries_parquet"
+    ),
+    mock.patch(
+      "query_generator.synthetic_queries.utils.query_writer.Writer.write_toml"
+    ),
+  ):
+    data_toml = f"""
+      schema_path = "{schemas_dir / "tpcds.json"}"
+      output_folder = ""
+      max_hops = [1]
+      extra_predicates = [1]
+      row_retention_probability = [0.2]
+      unique_joins = true
+      max_signatures_per_fact_table = 1
+      max_queries_per_signature = 1
+      keep_edge_probability = [0.2]
+      equality_lower_bound_probability = [0]
+      extra_values_for_in = 3
+      minimum_like_support_probability = [0.05]
+      or_probability = [0.0]
+      histogram_path = "{histogram_path}"
+
+      [engine]
+      validation_database_path = ""
+
+      [operator_weights]
+      operator_in = 1
+      operator_range = 3
+      operator_equal = 3
+      operator_like = 1
+      operator_not_like = 1
+      """
+    user_input = structure(tomllib.loads(data_toml), SyntheticQueriesEndpoint)
+    generate_synthetic_queries(
+      params=SyntheticQueriesParams(
+        validator=mock_validator,
+        user_input=user_input,
+      ),
+    )
+
+  assert len(captured_queries) > 0, (
+    "Expected at least one query to be generated"
+  )
+  for sql in captured_queries:
+    upper = sql.upper()
+    assert "SELECT" in upper, f"Query missing SELECT:\n{sql}"
+    assert "FROM" in upper, f"Query missing FROM:\n{sql}"

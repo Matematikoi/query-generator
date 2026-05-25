@@ -1,8 +1,8 @@
-from unittest import mock
+from pathlib import Path
 
-from query_generator.database_schemas.schemas import get_schema
 from query_generator.synthetic_queries.query_builder import (
   QueryBuilderPypika,
+  load_schema,
 )
 from query_generator.synthetic_queries.predicate_generator import (
   HistogramDataType,
@@ -12,15 +12,16 @@ from query_generator.utils.definitions import (
   Dataset,
   PredicateParameters,
 )
-from query_generator.utils.exceptions import UnkownDatasetError
 from tests.utils import get_precomputed_histograms
 
 
 def test_add_range_supports_all_histogram_types():
-  tables_schema, _ = get_schema(Dataset.TPCH)
+  schema = load_schema(
+    Path(__file__).parent.parent.parent / "schemas" / "tpch.json"
+  )
   query_builder = QueryBuilderPypika(
     None,
-    tables_schema,
+    schema.tables,
     PredicateParameters(
       histogram_path=get_precomputed_histograms(Dataset.TPCH),
       extra_predicates=None,
