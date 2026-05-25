@@ -27,8 +27,9 @@ each signature up to `max_queries_per_signature` queries.
 
 # Parameters
 
-- `dataset` (str): The dataset to be used (TPCDS, TPCH). This information
-is needed to load the correct foreign-key/primary-key information.
+- `schema_path` (str): Path to a JSON schema file describing the database
+(e.g. `"schemas/tpcds.json"`). This file contains the foreign-key/primary-key
+information used to construct join structures.
 - `histogram_path` (str): The path to the histogram parquet file generated
 using the `make-histograms` endpoint.
 - `output_folder` (str): The folder to save the generated queries.
