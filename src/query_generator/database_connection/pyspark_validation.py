@@ -18,6 +18,7 @@ from query_generator.database_connection.duckdb_validation import (
 from query_generator.database_connection.query_validator_abc import (
   QueryValidator,
 )
+from query_generator.utils.worker_process import wait_for_worker_result
 
 logger = logging.getLogger(__name__)
 
@@ -154,9 +155,9 @@ class PySparkQueryValidator(QueryValidator):
       p.pid,
     )
 
-    p.join(self.timeout_seconds)
+    execution, timed_out = wait_for_worker_result(p, q, self.timeout_seconds)
 
-    if p.is_alive():
+    if timed_out:
       logger.warning(
         "%s exceeded %s seconds; process terminated.",
         description,
@@ -174,15 +175,12 @@ class PySparkQueryValidator(QueryValidator):
         timed_out=True,
       )
 
-    execution = (
-      q.get()
-      if not q.empty()
-      else QueryExecution(
+    if execution is None:
+      execution = QueryExecution(
         result=None,
         exception=Exception("No result returned from PySpark worker."),
         timed_out=False,
       )
-    )
 
     logger.debug(
       "%s finished with timed_out=%s, exception=%s",
