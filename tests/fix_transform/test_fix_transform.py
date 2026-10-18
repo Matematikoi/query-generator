@@ -1,9 +1,13 @@
 import random
 from pathlib import Path
 
+import duckdb
+import pytest
+
 from query_generator.extensions.fix_transform import (
   apply_replace_min_max,
   get_queries_with_limits,
+  wrap_query_with_limit,
 )
 from query_generator.utils.params import (
   FixTransformEndpoint,
@@ -208,3 +212,19 @@ def test_min_max_unparsable_query():
     UNPARSABLE_QUERY, None, apply_transformation=True
   )
   assert result == UNPARSABLE_QUERY
+
+
+WRAP_LIMIT = 1000
+
+
+@pytest.mark.parametrize(
+  "query",
+  [
+    "SELECT i FROM range(5000) t(i) ORDER BY i",
+    "WITH x AS (SELECT i FROM range(5000) t(i)) SELECT i FROM x ORDER BY i",
+  ],
+)
+def test_wrap_query_with_limit_keeps_cte(query: str) -> None:
+  wrapped = wrap_query_with_limit(query, WRAP_LIMIT)
+  assert wrapped.upper().lstrip().startswith("WITH")
+  assert len(duckdb.sql(wrapped).fetchall()) == WRAP_LIMIT

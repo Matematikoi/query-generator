@@ -97,13 +97,14 @@ def get_duckdb_schema(duckdb_database: str) -> dict[str, dict[str, str]]:
 def wrap_query_with_limit(sql: str, limit: int) -> str:
   original: exp.Expression = parse_one(sql)
 
-  cte_alias = exp.TableAlias(this=exp.to_identifier(CTE_NAME))
-  cte = exp.CTE(this=original.copy(), alias=cte_alias)
-  with_clause = exp.With(expressions=[cte])
-
-  outer_select = exp.select("*").from_(exp.to_table(CTE_NAME)).limit(limit)
-
-  outer_select.set("with", with_clause)
+  # Use the .with_() builder: setting the arg by name breaks across sqlglot
+  # versions (the key was renamed "with" -> "with_" and the CTE was dropped).
+  outer_select = (
+    exp.select("*")
+    .from_(CTE_NAME)
+    .with_(CTE_NAME, as_=original.copy())
+    .limit(limit)
+  )
 
   return outer_select.sql(pretty=True)
 
