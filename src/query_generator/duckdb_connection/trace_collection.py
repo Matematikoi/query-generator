@@ -19,6 +19,8 @@ from pathlib import Path
 
 import duckdb
 
+from query_generator.utils.worker_process import wait_for_worker_result
+
 logger = logging.getLogger(__name__)
 
 
@@ -201,14 +203,14 @@ def duckdb_collect_one_trace(
     ),
   )
   p.start()
-  p.join(params.timeout_seconds)
+  result, timed_out = wait_for_worker_result(p, q, params.timeout_seconds)
 
-  if p.is_alive():
+  if timed_out:
     logger.error("Trace collection timeout. Query execution interrupted.")
     p.terminate()
     p.join()
-  elif not q.empty():
-    execution_output: ExecutionQueueResult = q.get()
+  elif result is not None:
+    execution_output = result
   return DuckDBTraceOuputDataFrameRow(
     relative_path=str(sql_file.relative_to(queries_path)),
     query_folder=sql_file.parent.name,
